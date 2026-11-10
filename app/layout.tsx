@@ -5,13 +5,13 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'TalentHub — Modern Recruitment Platform',
+  title: 'Sync730 — The work network for what comes next',
   description:
-    'Connect talented candidates with world-class companies. AI-powered job matching, streamlined applications, and powerful recruiter tools.',
+    'A more thoughtful way to find opportunities, build teams, and make your next move.',
   openGraph: {
-    title: 'TalentHub — Modern Recruitment Platform',
+    title: 'Sync730 — The work network for what comes next',
     description:
-      'Connect talented candidates with world-class companies. AI-powered job matching, streamlined applications, and powerful recruiter tools.',
+      'A more thoughtful way to find opportunities, build teams, and make your next move.',
     images: [{ url: 'https://bolt.new/static/og_default.png' }],
   },
   twitter: {

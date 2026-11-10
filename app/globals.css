@@ -4,72 +4,70 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --background: 40 20% 98%;
+    --foreground: 0 0% 4%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 221 83% 53%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 0 0% 4%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 94%;
-    --accent-foreground: 222 47% 11%;
+    --secondary: 40 14% 94%;
+    --secondary-foreground: 0 0% 4%;
+    --muted: 40 12% 94%;
+    --muted-foreground: 0 0% 39%;
+    --accent: 40 12% 91%;
+    --accent-foreground: 0 0% 4%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
-    --success: 142 71% 45%;
+    --border: 0 0% 87%;
+    --input: 0 0% 82%;
+    --ring: 0 0% 4%;
+    --success: 152 60% 34%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
+    --warning: 35 75% 42%;
     --warning-foreground: 0 0% 100%;
-    --chart-1: 221 83% 53%;
-    --chart-2: 142 71% 45%;
-    --chart-3: 38 92% 50%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --radius: 0.625rem;
+    --chart-1: 0 0% 4%;
+    --chart-2: 152 60% 34%;
+    --chart-3: 35 75% 42%;
+    --chart-4: 0 0% 45%;
+    --chart-5: 0 0% 65%;
+    --radius: 0.5rem;
   }
   .dark {
-    --background: 222 47% 7%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 10%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 10%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 20%;
-    --accent-foreground: 210 40% 98%;
+    --background: 0 0% 4%;
+    --foreground: 40 20% 98%;
+    --card: 0 0% 8%;
+    --card-foreground: 40 20% 98%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 40 20% 98%;
+    --primary: 40 20% 98%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 13%;
+    --secondary-foreground: 40 20% 98%;
+    --muted: 0 0% 13%;
+    --muted-foreground: 40 8% 68%;
+    --accent: 0 0% 17%;
+    --accent-foreground: 40 20% 98%;
     --destructive: 0 63% 45%;
     --destructive-foreground: 0 0% 98%;
-    --border: 217 33% 20%;
-    --input: 217 33% 22%;
-    --ring: 217 91% 60%;
-    --success: 142 71% 40%;
+    --border: 0 0% 20%;
+    --input: 0 0% 23%;
+    --ring: 40 20% 98%;
+    --success: 152 50% 42%;
     --success-foreground: 0 0% 98%;
-    --warning: 38 92% 45%;
-    --warning-foreground: 0 0% 98%;
-    --chart-1: 217 91% 60%;
-    --chart-2: 142 71% 40%;
-    --chart-3: 38 92% 45%;
-    --chart-4: 280 65% 55%;
-    --chart-5: 340 75% 50%;
+    --warning: 35 75% 50%;
+    --warning-foreground: 0 0% 4%;
+    --chart-1: 40 20% 98%;
+    --chart-2: 152 50% 42%;
+    --chart-3: 35 75% 50%;
+    --chart-4: 0 0% 65%;
+    --chart-5: 0 0% 45%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -77,28 +75,11 @@
 }
 
 @layer utilities {
-  .animate-fade-up {
-    animation: fade-up 0.6s ease-out forwards;
-  }
+  .animate-fade-up { animation: fade-up 0.6s ease-out forwards; }
   @keyframes fade-up {
-    from {
-      opacity: 0;
-      transform: translateY(16px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-  .animate-fade-in {
-    animation: fade-in 0.5s ease-out forwards;
-  }
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
+  .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 }

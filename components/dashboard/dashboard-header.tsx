@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Bell, Briefcase, LogOut, Menu, Search, X } from 'lucide-react';
+import { Bell, LogOut, Menu, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { BrandLogo } from '@/components/site/brand-logo';
 
 interface NavItem {
   label: string;
@@ -33,13 +34,9 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-lg">
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-lg">
       <div className="flex h-16 items-center gap-4 px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 lg:hidden">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Briefcase className="h-4 w-4" />
-          </div>
-        </Link>
+        <div className="lg:hidden"><BrandLogo compact /></div>
 
         <div className="hidden flex-1 items-center sm:flex">
           <div className="relative w-full max-w-sm">
@@ -58,7 +55,7 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 px-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                  <AvatarFallback className="bg-foreground text-background text-xs font-semibold">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
@@ -90,7 +87,7 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
       </div>
 
       {mobileOpen && (
-        <nav className="border-t border-border/60 px-4 py-3 lg:hidden">
+        <nav className="border-t border-border/70 px-4 py-3 lg:hidden">
           {navItems.map((item) => {
             const active = pathname === item.href || pathname.startsWith(item.href + '/');
             return (
@@ -100,7 +97,7 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
                 onClick={() => setMobileOpen(false)}
                 className={cn(
                   'block rounded-lg px-3 py-2 text-sm font-medium',
-                  active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent'
+                  active ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-accent'
                 )}
               >
                 {item.label}

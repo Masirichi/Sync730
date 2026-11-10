@@ -1,279 +1,49 @@
 import { SiteHeader } from '@/components/site/site-header';
 import { SiteFooter } from '@/components/site/site-footer';
-import {
-  Briefcase,
-  Search,
-  Users,
-  TrendingUp,
-  FileText,
-  MessageSquare,
-  CheckCircle2,
-  ArrowRight,
-  Building2,
-  Zap,
-  ShieldCheck,
-  Sparkles,
-} from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Check, Circle, FileText, Search, Sparkles, Users, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+
+const capabilities = [
+  { number: '01', icon: Search, title: 'Find the right fit', text: 'Discover roles and people through a clearer, more considered matching experience.' },
+  { number: '02', icon: FileText, title: 'Move with momentum', text: 'Keep every application, conversation, and next step in one calm workspace.' },
+  { number: '03', icon: Users, title: 'Build better teams', text: 'Give hiring teams the context they need to make confident decisions faster.' },
+];
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-background">
       <SiteHeader />
-      <main className="flex-1">
-        {/* Hero */}
-        <section className="relative overflow-hidden border-b border-border/60">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
-          <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_0%,hsl(var(--primary)/0.08),transparent)]" />
-          <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-            <div className="grid items-center gap-12 lg:grid-cols-2">
-              <div className="animate-fade-up">
-                <Badge variant="secondary" className="mb-5 gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  AI-powered job matching
-                </Badge>
-                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-                  Find your next{' '}
-                  <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-                    opportunity
-                  </span>
-                </h1>
-                <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-                  TalentHub connects ambitious candidates with world-class companies.
-                  Streamlined applications, smart matching, and powerful tools for everyone.
-                </p>
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                  <Button size="lg" asChild>
-                    <a href="/register">
-                      Get started free
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </a>
-                  </Button>
-                  <Button size="lg" variant="outline" asChild>
-                    <a href="/candidate">Browse jobs</a>
-                  </Button>
-                </div>
-                <div className="mt-10 flex items-center gap-6 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-success" />
-                    No credit card
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-success" />
-                    Free for candidates
-                  </div>
-                </div>
-              </div>
-
-              <div className="relative animate-fade-in">
-                <div className="rounded-2xl border border-border/60 bg-card p-2 shadow-2xl shadow-primary/10">
-                  <img
-                    src="https://images.pexels.com/photos/7710139/pexels-photo-7710139.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                    alt="Professional team collaborating in a modern office"
-                    className="aspect-[4/3] w-full rounded-xl object-cover"
-                  />
-                </div>
-                <div className="absolute -bottom-6 -left-6 hidden rounded-xl border border-border/60 bg-card p-4 shadow-lg sm:block">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10 text-success">
-                      <TrendingUp className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">10k+</p>
-                      <p className="text-xs text-muted-foreground">Hires made</p>
-                    </div>
-                  </div>
-                </div>
+      <main>
+        <section className="relative overflow-hidden border-b border-border/70">
+          <div className="mx-auto grid max-w-7xl gap-14 px-5 py-20 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:px-10 lg:py-28">
+            <div className="animate-fade-up max-w-3xl">
+              <div className="mb-8 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground"><span className="h-px w-8 bg-foreground" /> The work network for what comes next</div>
+              <h1 className="text-5xl font-semibold leading-[0.98] tracking-[-0.055em] sm:text-7xl lg:text-[88px]">Work should feel more <span className="italic">human.</span></h1>
+              <p className="mt-8 max-w-xl text-lg leading-8 text-muted-foreground">Sync730 brings ambitious people and thoughtful companies together — without the noise, friction, or endless scrolling.</p>
+              <div className="mt-10 flex flex-col gap-3 sm:flex-row"><Button size="lg" className="h-12 rounded-full px-6" asChild><a href="/register">Find your next move <ArrowUpRight className="ml-2 h-4 w-4" /></a></Button><Button size="lg" variant="outline" className="h-12 rounded-full px-6" asChild><a href="/recruiter">Build your team</a></Button></div>
+              <div className="mt-12 flex flex-wrap gap-x-7 gap-y-3 text-sm text-muted-foreground"><span className="flex items-center gap-2"><Check className="h-4 w-4 text-foreground" />Free for candidates</span><span className="flex items-center gap-2"><Check className="h-4 w-4 text-foreground" />Built for clarity</span></div>
+            </div>
+            <div className="relative flex min-h-[400px] items-end justify-end lg:min-h-[520px]">
+              <div className="absolute left-0 top-5 h-56 w-56 rounded-full border border-border/80 sm:h-72 sm:w-72" />
+              <div className="absolute left-16 top-20 h-56 w-56 rounded-full bg-secondary sm:h-72 sm:w-72" />
+              <div className="relative z-10 w-full max-w-sm border border-foreground bg-foreground p-5 text-background shadow-[16px_16px_0_hsl(var(--secondary))] sm:p-7">
+                <div className="flex items-center justify-between border-b border-background/20 pb-5"><span className="text-xs uppercase tracking-[0.2em] text-background/60">Your next chapter</span><Sparkles className="h-4 w-4" /></div>
+                <div className="py-10"><p className="text-4xl font-semibold tracking-tight">Good work<br /><span className="text-background/50">finds you.</span></p><p className="mt-5 max-w-[220px] text-sm leading-6 text-background/60">A sharper way to find roles that match your ambition.</p></div>
+                <div className="flex items-center justify-between border-t border-background/20 pt-5 text-xs text-background/60"><span>sync730 / 01</span><ArrowDownRight className="h-4 w-4 text-background" /></div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Stats bar */}
-        <section className="border-b border-border/60 bg-muted/30">
-          <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-4">
-              {[
-                { label: 'Active jobs', value: '2,500+' },
-                { label: 'Companies', value: '800+' },
-                { label: 'Candidates', value: '45k+' },
-                { label: 'Hire rate', value: '94%' },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <p className="text-3xl font-bold tracking-tight text-primary">{stat.value}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <section className="border-b border-border/70 bg-foreground text-background"><div className="mx-auto grid max-w-7xl grid-cols-2 gap-px bg-background/15 sm:grid-cols-4"><div className="bg-foreground p-7 sm:p-9"><p className="text-3xl font-semibold tracking-tight">45k+</p><p className="mt-2 text-sm text-background/55">people in motion</p></div><div className="bg-foreground p-7 sm:p-9"><p className="text-3xl font-semibold tracking-tight">800+</p><p className="mt-2 text-sm text-background/55">growing companies</p></div><div className="bg-foreground p-7 sm:p-9"><p className="text-3xl font-semibold tracking-tight">2.5k</p><p className="mt-2 text-sm text-background/55">open opportunities</p></div><div className="bg-foreground p-7 sm:p-9"><p className="text-3xl font-semibold tracking-tight">94%</p><p className="mt-2 text-sm text-background/55">successful matches</p></div></div></section>
 
-        {/* Features */}
-        <section id="features" className="py-20 lg:py-28">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-2xl text-center">
-              <Badge variant="secondary" className="mb-4">Features</Badge>
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                Everything you need to hire and get hired
-              </h2>
-              <p className="mt-4 text-lg text-muted-foreground">
-                Powerful tools for candidates, recruiters, and admins — all in one platform.
-              </p>
-            </div>
+        <section id="features" className="mx-auto max-w-7xl px-5 py-24 sm:px-8 lg:px-10 lg:py-32"><div className="grid gap-14 lg:grid-cols-[0.75fr_1.25fr]"><div><div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground"><Circle className="h-3 w-3 fill-foreground text-foreground" /> The Sync730 difference</div><h2 className="mt-6 max-w-sm text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl">Less noise.<br /><span className="text-muted-foreground">More signal.</span></h2></div><div className="divide-y divide-border/70 border-y border-border/70">{capabilities.map((item) => <div key={item.number} className="group grid gap-5 py-8 sm:grid-cols-[56px_1fr_1fr] sm:items-start"><span className="text-xs font-semibold text-muted-foreground">{item.number}</span><div className="flex items-center gap-3"><item.icon className="h-5 w-5 stroke-[1.5]" /><h3 className="text-xl font-medium tracking-tight">{item.title}</h3></div><p className="text-sm leading-6 text-muted-foreground sm:pl-4">{item.text}</p></div>)}</div></div></section>
 
-            <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                { icon: Search, title: 'Smart Job Search', desc: 'AI-powered matching finds roles suited to your skills and experience automatically.' },
-                { icon: FileText, title: 'Easy Applications', desc: 'Apply to multiple jobs with a single profile. Track every application in real time.' },
-                { icon: Users, title: 'Candidate Pipeline', desc: 'Recruiters get a visual pipeline to manage candidates from application to offer.' },
-                { icon: MessageSquare, title: 'Built-in Messaging', desc: 'Connect candidates and recruiters with integrated, real-time messaging.' },
-                { icon: TrendingUp, title: 'Analytics & Insights', desc: 'Track hiring metrics, conversion rates, and time-to-hire with rich dashboards.' },
-                { icon: ShieldCheck, title: 'Secure & Private', desc: "Row-level security keeps every user's data private and protected." },
-              ].map((feature) => (
-                <Card key={feature.title} className="group transition-shadow hover:shadow-lg">
-                  <CardHeader>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                      <feature.icon className="h-6 w-6" />
-                    </div>
-                    <CardTitle className="mt-4">{feature.title}</CardTitle>
-                    <CardDescription className="mt-2">{feature.desc}</CardDescription>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
+        <section id="for-candidates" className="border-y border-border/70 bg-secondary"><div className="mx-auto grid max-w-7xl gap-12 px-5 py-24 sm:px-8 lg:grid-cols-2 lg:px-10 lg:py-32"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">For candidates</p><h2 className="mt-6 max-w-xl text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-6xl">Your next move starts with a better signal.</h2><p className="mt-6 max-w-lg text-lg leading-8 text-muted-foreground">Create one profile that reflects the whole you. We’ll help you find opportunities where your skills and ambition actually fit.</p><Button variant="outline" size="lg" className="mt-9 rounded-full" asChild><a href="/register">Create your profile <ArrowUpRight className="ml-2 h-4 w-4" /></a></Button></div><div className="flex items-center justify-center"><div className="w-full max-w-md border border-border bg-background p-6 sm:p-8"><div className="flex items-center justify-between border-b border-border pb-5"><span className="text-sm font-medium">A profile with range</span><Zap className="h-4 w-4" /></div><div className="space-y-5 py-7"><div><p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Role</p><p className="mt-2 text-xl font-medium">Product designer</p></div><div><p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Strengths</p><div className="mt-3 flex flex-wrap gap-2"><span className="border border-border px-3 py-1.5 text-sm">Systems thinking</span><span className="border border-border px-3 py-1.5 text-sm">Research</span><span className="border border-border px-3 py-1.5 text-sm">Craft</span></div></div></div><div className="flex items-center justify-between border-t border-border pt-5 text-sm"><span className="text-muted-foreground">Profile completeness</span><span className="font-medium">92%</span></div></div></div></div></section>
 
-        {/* For Candidates */}
-        <section id="for-candidates" className="border-y border-border/60 bg-muted/30 py-20 lg:py-28">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid items-center gap-12 lg:grid-cols-2">
-              <div>
-                <Badge variant="secondary" className="mb-4 gap-1.5">
-                  <Briefcase className="h-3.5 w-3.5" />
-                  For Candidates
-                </Badge>
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                  Land your dream job faster
-                </h2>
-                <p className="mt-4 text-lg text-muted-foreground">
-                  Build your profile once, apply with a click, and let our matching engine surface the right opportunities.
-                </p>
-                <ul className="mt-8 space-y-4">
-                  {[
-                    'Create a rich profile with skills, experience, and preferences',
-                    'Get matched to jobs that fit your career goals',
-                    'Track application status in real time',
-                    'Chat directly with recruiters',
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-3">
-                      <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
-                      <span className="text-muted-foreground">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-8">
-                  <Button size="lg" asChild>
-                    <a href="/register">Start applying <ArrowRight className="ml-2 h-4 w-4" /></a>
-                  </Button>
-                </div>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {[
-                  { icon: Zap, title: '1-click apply', desc: 'No repetitive forms.' },
-                  { icon: TrendingUp, title: 'Match score', desc: 'See your fit instantly.' },
-                  { icon: MessageSquare, title: 'Direct chat', desc: 'Talk to recruiters.' },
-                  { icon: FileText, title: 'Profile builder', desc: 'Stand out to employers.' },
-                ].map((item) => (
-                  <Card key={item.title} className="bg-card">
-                    <CardContent className="p-5">
-                      <item.icon className="h-8 w-8 text-primary" />
-                      <h3 className="mt-3 font-semibold">{item.title}</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
+        <section id="for-recruiters" className="mx-auto max-w-7xl px-5 py-24 sm:px-8 lg:px-10 lg:py-32"><div className="grid items-end gap-12 lg:grid-cols-[1fr_0.8fr]"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">For recruiters</p><h2 className="mt-6 max-w-2xl text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-6xl">Meet the person behind the résumé.</h2></div><div><p className="text-lg leading-8 text-muted-foreground">From first impression to final offer, Sync730 gives your team a more complete view of every candidate.</p><Button size="lg" className="mt-8 rounded-full" asChild><a href="/register">Start hiring <ArrowUpRight className="ml-2 h-4 w-4" /></a></Button></div></div><div className="mt-16 grid gap-px border border-border bg-border sm:grid-cols-3"><div className="bg-background p-7 sm:p-9"><p className="text-4xl font-semibold">01</p><p className="mt-16 text-xl font-medium">Clearer profiles</p><p className="mt-3 text-sm leading-6 text-muted-foreground">See skills, context, and potential in one place.</p></div><div className="bg-background p-7 sm:p-9"><p className="text-4xl font-semibold">02</p><p className="mt-16 text-xl font-medium">Calmer pipeline</p><p className="mt-3 text-sm leading-6 text-muted-foreground">Keep your whole team aligned from screen to signed.</p></div><div className="bg-background p-7 sm:p-9"><p className="text-4xl font-semibold">03</p><p className="mt-16 text-xl font-medium">Better decisions</p><p className="mt-3 text-sm leading-6 text-muted-foreground">Spend less time sorting and more time connecting.</p></div></div></section>
 
-        {/* For Recruiters */}
-        <section id="for-recruiters" className="py-20 lg:py-28">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid items-center gap-12 lg:grid-cols-2">
-              <div className="order-2 grid gap-4 sm:grid-cols-2 lg:order-1">
-                {[
-                  { icon: Building2, title: 'Post jobs', desc: 'Publish in minutes.' },
-                  { icon: Users, title: 'Pipeline', desc: 'Visual candidate tracking.' },
-                  { icon: TrendingUp, title: 'Analytics', desc: 'Hiring metrics at a glance.' },
-                  { icon: ShieldCheck, title: 'Vetting', desc: 'Verified candidate profiles.' },
-                ].map((item) => (
-                  <Card key={item.title} className="bg-card">
-                    <CardContent className="p-5">
-                      <item.icon className="h-8 w-8 text-primary" />
-                      <h3 className="mt-3 font-semibold">{item.title}</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              <div className="order-1 lg:order-2">
-                <Badge variant="secondary" className="mb-4 gap-1.5">
-                  <Building2 className="h-3.5 w-3.5" />
-                  For Recruiters
-                </Badge>
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                  Hire smarter, not harder
-                </h2>
-                <p className="mt-4 text-lg text-muted-foreground">
-                  Post jobs, manage candidates through a visual pipeline, and make data-driven hiring decisions.
-                </p>
-                <ul className="mt-8 space-y-4">
-                  {[
-                    'Post unlimited job listings with rich descriptions',
-                    'Manage candidates with a drag-and-drop pipeline',
-                    'Access analytics on hiring funnel and conversion',
-                    'Collaborate with your team on candidate reviews',
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-3">
-                      <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
-                      <span className="text-muted-foreground">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-8">
-                  <Button size="lg" asChild>
-                    <a href="/register">Start hiring <ArrowRight className="ml-2 h-4 w-4" /></a>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="relative overflow-hidden border-t border-border/60 bg-primary py-20 lg:py-24">
-          <div className="absolute inset-0 bg-[radial-gradient(40%_60%_at_80%_50%,rgba(255,255,255,0.1),transparent)]" />
-          <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold tracking-tight text-primary-foreground sm:text-4xl">
-              Ready to transform your hiring?
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-primary-foreground/80">
-              Join thousands of candidates and companies already using TalentHub.
-            </p>
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <Button size="lg" variant="secondary" asChild>
-                <a href="/register">Create an account</a>
-              </Button>
-              <Button size="lg" variant="outline" className="border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" asChild>
-                <a href="/login">Sign in</a>
-              </Button>
-            </div>
-          </div>
-        </section>
+        <section className="bg-foreground px-5 py-24 text-background sm:px-8 lg:px-10 lg:py-28"><div className="mx-auto max-w-5xl text-center"><p className="text-xs font-semibold uppercase tracking-[0.22em] text-background/55">Make your next move</p><h2 className="mx-auto mt-6 max-w-3xl text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-6xl">The right work changes everything.</h2><p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-background/60">Join a more thoughtful way to find work and build what’s next.</p><div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row"><Button size="lg" variant="secondary" className="rounded-full" asChild><a href="/register">Join Sync730 <ArrowUpRight className="ml-2 h-4 w-4" /></a></Button><Button size="lg" variant="outline" className="rounded-full border-background/30 bg-transparent text-background hover:bg-background/10 hover:text-background" asChild><a href="/login">Sign in</a></Button></div></div></section>
       </main>
       <SiteFooter />
     </div>
