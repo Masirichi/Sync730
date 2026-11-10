@@ -9,13 +9,11 @@ interface BrandLogoProps {
 
 export function BrandLogo({ href = '/', inverted = false, compact = false, className = '' }: BrandLogoProps) {
   const logo = (
-    <span className={`inline-flex items-center ${className}`}>
+    <span className={`inline-flex items-center ${className}`} aria-label="Sync730" title="Sync730">
       <img
-        src={compact
-          ? inverted ? '/assets/logo/sync730_icon_white.png' : '/assets/logo/sync730_icon_black.png'
-          : inverted ? '/assets/logo/sync730_wordmark_white.png' : '/assets/logo/sync730_wordmark_black.png'}
+        src={inverted ? '/assets/logo/sync730_icon_white.png' : '/assets/logo/sync730_icon_black.png'}
         alt="Sync730"
-        className={compact ? 'h-8 w-8 object-contain' : 'h-7 w-auto object-contain'}
+        className={compact ? 'h-8 w-8 object-contain' : 'h-9 w-9 object-contain'}
       />
     </span>
   );
