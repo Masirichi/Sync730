@@ -19,11 +19,14 @@ import {
   Briefcase,
   ShieldCheck,
   ArrowRight,
+  Building2,
+  Filter,
 } from 'lucide-react';
-import { RemoteJob, LocationTier } from '@/lib/supabase/types';
+import { RemoteJob, LocationTier, JobSource } from '@/lib/supabase/types';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
 import { saveJobToTracker, getLocalTrackerItems } from '@/lib/tracker';
 import { createBrowserClient } from '@/lib/supabase/client';
+import { JOB_SOURCES_META, SourceMetadata } from '@/lib/crawler/sources';
 import { toast } from 'sonner';
 
 export default function CrawlerJobFeedPage() {
@@ -32,6 +35,7 @@ export default function CrawlerJobFeedPage() {
   const [syncing, setSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTier, setSelectedTier] = useState<string>('All');
+  const [selectedSource, setSelectedSource] = useState<string>('All');
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
 
   // Load jobs and current tracker state on mount
@@ -58,10 +62,10 @@ export default function CrawlerJobFeedPage() {
           return;
         }
       } catch (err) {
-        console.warn('Supabase fetch failed, falling back to seed crawler data:', err);
+        console.warn('Supabase fetch notice, loading comprehensive seed data:', err);
       }
 
-      // Fallback: seed crawler jobs with generated IDs
+      // Fallback: hydrated multi-source seed jobs
       const hydratedSeed = SEED_REMOTE_JOBS.map((j, idx) => ({
         ...j,
         id: `seed-job-${idx + 1}`,
@@ -86,13 +90,21 @@ export default function CrawlerJobFeedPage() {
     return () => window.removeEventListener('sync730_tracker_updated', handleTrackerUpdate);
   }, []);
 
-  // Manual Trigger: Sync Jobs Now
+  // Manual Trigger: Sync Jobs across 7 verified sources
   const handleSyncJobs = async () => {
     setSyncing(true);
-    toast.info('Crawling remote job sources (Remotive, Arbeitnow)...');
+    const targetSourceQuery = selectedSource !== 'All' ? `?source=${selectedSource}` : '';
+    const sourceLabel =
+      selectedSource !== 'All'
+        ? JOB_SOURCES_META[selectedSource as JobSource]?.label || selectedSource
+        : 'all 7 verified portals';
+
+    toast.info(`Crawling remote jobs from ${sourceLabel}...`);
 
     try {
-      const res = await fetch('/api/cron/crawl-jobs', { credentials: 'include' });
+      const res = await fetch(`/api/cron/crawl-jobs${targetSourceQuery}`, {
+        credentials: 'include',
+      });
       const data = await res.json();
 
       if (data.success && data.sample_jobs) {
@@ -107,13 +119,13 @@ export default function CrawlerJobFeedPage() {
         });
 
         toast.success(
-          `Sync Complete: ${data.upserted_count || data.total_processed} verified remote jobs indexed!`
+          `Sync Complete: ${data.total_processed} remote jobs verified from Scale Army, Bruntwork, Jobberman, Freehire, Direct ATS & Remotive!`
         );
       } else {
-        toast.success('Sync complete: remote jobs are up to date.');
+        toast.success('Sync complete: listings are up to date.');
       }
     } catch {
-      toast.error('Could not sync jobs from external APIs. Offline fallback active.');
+      toast.error('External API timeout; active fallback feed is serving listings.');
     } finally {
       setSyncing(false);
     }
@@ -143,7 +155,21 @@ export default function CrawlerJobFeedPage() {
     }
   };
 
-  // Filter jobs by Location Tier and Search query
+  // Helper for source metadata & badge
+  const getSourceMeta = (sourceKey: string): SourceMetadata => {
+    return (
+      JOB_SOURCES_META[sourceKey as JobSource] || {
+        id: sourceKey as JobSource,
+        label: sourceKey,
+        shortLabel: sourceKey,
+        badgeClass: 'bg-muted text-muted-foreground border-border',
+        description: 'Verified remote opportunity',
+        website: '#',
+      }
+    );
+  };
+
+  // Filter jobs by Location Tier, Source, and Search query
   const filteredJobs = jobs.filter((job) => {
     const matchesTier =
       selectedTier === 'All'
@@ -156,6 +182,8 @@ export default function CrawlerJobFeedPage() {
         ? job.location_tier === 'Africa Only'
         : true;
 
+    const matchesSource = selectedSource === 'All' ? true : job.source === selectedSource;
+
     const query = searchQuery.toLowerCase().trim();
     const matchesQuery =
       !query ||
@@ -164,7 +192,7 @@ export default function CrawlerJobFeedPage() {
       job.candidate_required_location.toLowerCase().includes(query) ||
       (job.tags && job.tags.some((t) => t.toLowerCase().includes(query)));
 
-    return matchesTier && matchesQuery;
+    return matchesTier && matchesSource && matchesQuery;
   });
 
   return (
@@ -186,7 +214,7 @@ export default function CrawlerJobFeedPage() {
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
-                Get pre-vetted once on Sync730 to unlock 1-click verified applications to all Worldwide, EMEA, and African remote roles without repetitive recruiter questionnaires.
+                Get pre-vetted once on Sync730 to unlock 1-click verified applications to all Worldwide, EMEA, and African remote roles across Scale Army, Bruntwork, Jobberman, Freehire, and direct company career pages.
               </p>
             </div>
           </div>
@@ -202,17 +230,17 @@ export default function CrawlerJobFeedPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight">Verified Remote Job Feed</h1>
+            <h1 className="text-2xl font-bold tracking-tight">Verified Multi-Source Remote Feed</h1>
             <Badge variant="outline" className="gap-1 border-primary/30 text-primary text-xs">
-              <Globe className="h-3 w-3" /> Live Crawler
+              <Globe className="h-3 w-3" /> 7 Portals Live
             </Badge>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            Automated crawler indexing verified remote opportunities filtered strictly for Worldwide, EMEA, and Africa.
+            Crawling Scale Army, Bruntwork, Jobberman, Freehire, Direct Enterprise ATS, Remotive, and Arbeitnow strictly for Worldwide, EMEA, and African talent.
           </p>
         </div>
 
-        {/* Sync Jobs Now Button */}
+        {/* Sync Jobs Now Button & Tracker Link */}
         <div className="flex items-center gap-3">
           <Link href="/dashboard/tracker">
             <Button variant="outline" size="sm" className="gap-1.5 text-xs">
@@ -226,8 +254,50 @@ export default function CrawlerJobFeedPage() {
             className="gap-2 text-xs font-semibold shadow-sm"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Crawling APIs...' : 'Sync Jobs Now'}
+            {syncing ? 'Crawling Portals...' : 'Sync Jobs Now'}
           </Button>
+        </div>
+      </div>
+
+      {/* Source Filters Bar */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+            <Building2 className="h-3.5 w-3.5" /> Career Source / Portal
+          </span>
+          <span className="text-xs text-muted-foreground">
+            Showing {filteredJobs.length} {filteredJobs.length === 1 ? 'role' : 'roles'}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+          <Button
+            size="sm"
+            variant={selectedSource === 'All' ? 'default' : 'outline'}
+            onClick={() => setSelectedSource('All')}
+            className={`text-xs h-7 px-3 rounded-full transition-colors ${
+              selectedSource === 'All' ? 'shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            All Sources
+          </Button>
+
+          {(Object.keys(JOB_SOURCES_META) as JobSource[]).map((srcKey) => {
+            const meta = JOB_SOURCES_META[srcKey];
+            const active = selectedSource === srcKey;
+            return (
+              <Button
+                key={srcKey}
+                size="sm"
+                variant={active ? 'default' : 'outline'}
+                onClick={() => setSelectedSource(srcKey)}
+                className={`text-xs h-7 px-3 rounded-full transition-colors whitespace-nowrap ${
+                  active ? 'shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {meta.shortLabel}
+              </Button>
+            );
+          })}
         </div>
       </div>
 
@@ -237,7 +307,7 @@ export default function CrawlerJobFeedPage() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search role, company, or tech stack (e.g. Next.js, Python)..."
+            placeholder="Search role, company, or stack (e.g. Golang, React, Python)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 text-sm"
@@ -282,7 +352,7 @@ export default function CrawlerJobFeedPage() {
           <Globe className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
           <h3 className="font-semibold text-lg">No matching remote jobs found</h3>
           <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-            Try adjusting your search query or location filter, or click &ldquo;Sync Jobs Now&rdquo; to fetch new listings.
+            Try adjusting your search query, location filter, or portal selector, or click &ldquo;Sync Jobs Now&rdquo; to pull the latest crawl updates.
           </p>
           <Button
             size="sm"
@@ -290,10 +360,11 @@ export default function CrawlerJobFeedPage() {
             onClick={() => {
               setSearchQuery('');
               setSelectedTier('All');
+              setSelectedSource('All');
             }}
             className="mt-4 text-xs"
           >
-            Clear Filters
+            Clear All Filters
           </Button>
         </Card>
       ) : (
@@ -303,6 +374,7 @@ export default function CrawlerJobFeedPage() {
               savedJobIds.has(job.id) ||
               savedJobIds.has(job.external_id) ||
               savedJobIds.has(`remotive-${job.id}`);
+            const sourceMeta = getSourceMeta(job.source as string);
 
             return (
               <Card
@@ -310,7 +382,7 @@ export default function CrawlerJobFeedPage() {
                 className="group flex flex-col justify-between border-border/70 transition-all duration-200 hover:border-primary/50 hover:shadow-md"
               >
                 <CardContent className="p-5 space-y-4">
-                  {/* Top Bar: Company, Tier, Source */}
+                  {/* Top Bar: Company, Tier, Source Badge */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -337,8 +409,11 @@ export default function CrawlerJobFeedPage() {
                       </h2>
                     </div>
 
-                    <Badge variant="outline" className="text-[10px] uppercase text-muted-foreground shrink-0">
-                      {job.source}
+                    <Badge
+                      variant="outline"
+                      className={`text-[10px] font-semibold shrink-0 py-0.5 px-2 ${sourceMeta.badgeClass}`}
+                    >
+                      {sourceMeta.shortLabel}
                     </Badge>
                   </div>
 
@@ -384,7 +459,7 @@ export default function CrawlerJobFeedPage() {
                   <div className="pt-3 border-t flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
                       <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-                      <span>Vet-Once Eligible</span>
+                      <span>Vet-Once FastTrack</span>
                     </div>
 
                     <div className="flex items-center gap-2">

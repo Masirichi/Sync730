@@ -44,6 +44,15 @@ export interface CandidateWithPrivacy {
 
 export type LocationTier = 'Worldwide' | 'EMEA' | 'Africa Only';
 
+export type JobSource =
+  | 'remotive'
+  | 'arbeitnow'
+  | 'scalearmy'
+  | 'bruntwork'
+  | 'jobberman'
+  | 'freehire'
+  | 'company_direct';
+
 export interface RemoteJob {
   id: string;
   external_id: string;
@@ -57,7 +66,7 @@ export interface RemoteJob {
   location_tier: LocationTier;
   salary?: string | null;
   url?: string | null;
-  source: string;
+  source: JobSource | string;
   tags?: string[] | null;
   published_at: string;
   created_at?: string;

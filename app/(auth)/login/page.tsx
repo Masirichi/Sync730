@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { AlertCircle, Loader2, Sparkles, User, Briefcase } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectParam = searchParams.get('redirect');
@@ -53,38 +53,39 @@ export default function LoginPage() {
           .from('profiles')
           .select('role')
           .eq('id', data.user.id)
-          .maybeSingle();
+          .single();
 
-        const role = profile?.role || data.user.user_metadata?.role || 'candidate';
+        const role = profile?.role || 'candidate';
         routeUserByRole(role);
       }
-    } catch (err: any) {
-      setError(err?.message || 'Failed to sign in. Please try again.');
+    } catch {
+      setError('An unexpected error occurred during sign in.');
       setLoading(false);
     }
   };
 
-  // Instant Demo Access for testing and fast evaluation
-  const handleDemoSignIn = (demoRole: 'candidate' | 'recruiter' | 'admin') => {
-    routeUserByRole(demoRole);
+  const handleDemoSignIn = (role: 'candidate' | 'recruiter' | 'admin') => {
+    routeUserByRole(role);
   };
 
   return (
-    <Card className="border-border/60 shadow-lg">
-      <CardHeader className="space-y-1">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
-          <Badge variant="outline" className="text-xs gap-1 border-primary/30 text-primary">
-            <Sparkles className="h-3 w-3" /> Sync730 Hub
+    <Card className="border-border/80 shadow-lg">
+      <CardHeader className="space-y-1 text-center">
+        <div className="flex justify-center mb-2">
+          <Badge variant="outline" className="gap-1 border-primary/40 text-primary text-xs">
+            <Sparkles className="h-3 w-3" /> Sync730 Access
           </Badge>
         </div>
-        <CardDescription>Enter your credentials to sign in to your Sync730 account</CardDescription>
+        <CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
+        <CardDescription>
+          Sign in to access your pre-vetted remote career ecosystem
+        </CardDescription>
       </CardHeader>
 
       <form onSubmit={handleLogin}>
         <CardContent className="space-y-4">
           {error && (
-            <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-xs text-destructive">
+            <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 rounded-lg border border-destructive/20">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -95,7 +96,7 @@ export default function LoginPage() {
             <Input
               id="email"
               type="email"
-              placeholder="name@example.com"
+              placeholder="candidate@sync730.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -105,36 +106,40 @@ export default function LoginPage() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="password">Password</Label>
-              <a href="#" className="text-xs text-muted-foreground hover:text-foreground">
+              <a
+                href="/forgot-password"
+                className="text-xs text-muted-foreground hover:text-primary transition-colors"
+              >
                 Forgot password?
               </a>
             </div>
             <Input
               id="password"
               type="password"
-              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
 
-          <Button className="w-full" size="lg" type="submit" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Signing in...
               </>
             ) : (
-              'Sign in'
+              'Sign In'
             )}
           </Button>
 
-          {/* Quick Demo Login Bar for Testing */}
+          {/* Quick Demo Switcher for Evaluation */}
           <div className="pt-3 border-t">
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-center mb-2">
-              ⚡ Instant Demo Access
-            </p>
+            <div className="text-center mb-2.5">
+              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                Instant Demo Access (Local / Dev)
+              </span>
+            </div>
             <div className="grid grid-cols-2 gap-2">
               <Button
                 type="button"
@@ -170,5 +175,20 @@ export default function LoginPage() {
         </p>
       </CardFooter>
     </Card>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <Card className="border-border/80 shadow-lg p-12 text-center flex flex-col items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+          <p className="text-sm text-muted-foreground">Loading login...</p>
+        </Card>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
