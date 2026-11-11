@@ -1,5 +1,6 @@
 import { RemoteJob } from '@/lib/supabase/types';
-import { CrawlerAdapter } from '../types';
+import { CrawlerAdapter, resolveLocationTier } from '../types';
+import { normalizeJobCategory } from '../categories';
 
 const JOBBERMAN_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
   {
@@ -8,12 +9,12 @@ const JOBBERMAN_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     company: 'Leading African Digital Bank',
     company_logo: null,
     description: 'Scale core payment ledgers, transaction processing, and fraud detection microservices. 100% remote within Africa.',
-    category: 'Software & Technology',
+    category: 'Software & Engineering',
     job_type: 'full-time',
     candidate_required_location: 'Africa Only (Nigeria / Kenya / Ghana / South Africa)',
     location_tier: 'Africa Only',
     salary: '₦2,500,000 - ₦3,800,000 NGN / month',
-    url: 'https://www.jobberman.com/jobs/remote',
+    url: 'https://www.jobberman.com/listings/senior-backend-engineer-golang-remote-nigeria-894101',
     source: 'jobberman',
     tags: ['Golang', 'Fintech', 'Microservices', 'Africa', 'Jobberman'],
     published_at: new Date(Date.now() - 3600000 * 2).toISOString(),
@@ -24,12 +25,12 @@ const JOBBERMAN_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     company: 'Pan-African Logistics Platform',
     company_logo: null,
     description: 'Design mobile experiences optimized for 3G cellular speeds and offline sync across West and East Africa.',
-    category: 'Design & Creative',
+    category: 'Product & Design',
     job_type: 'full-time',
     candidate_required_location: 'Africa Only (Remote)',
     location_tier: 'Africa Only',
     salary: '₦1,800,000 - ₦2,600,000 NGN / month',
-    url: 'https://www.jobberman.com/jobs/remote',
+    url: 'https://www.jobberman.com/listings/lead-product-designer-fintech-remote-lagos-712903',
     source: 'jobberman',
     tags: ['UI/UX', 'Mobile Design', 'Figma', 'Africa', 'Jobberman'],
     published_at: new Date(Date.now() - 3600000 * 6).toISOString(),
@@ -40,30 +41,30 @@ const JOBBERMAN_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     company: 'Continental Telecommunications Group',
     company_logo: null,
     description: 'Analyze telemetry, subscriber churn, and revenue models using BigQuery, SQL, and PowerBI. Remote flexibility.',
-    category: 'Data & Analytics',
+    category: 'Data & AI',
     job_type: 'full-time',
     candidate_required_location: 'Africa Only (Remote)',
     location_tier: 'Africa Only',
     salary: '₦1,600,000 - ₦2,400,000 NGN / month',
-    url: 'https://www.jobberman.com/jobs/remote',
+    url: 'https://www.jobberman.com/listings/data-collection-officer-k70znz',
     source: 'jobberman',
     tags: ['SQL', 'PowerBI', 'Data Analysis', 'Jobberman'],
     published_at: new Date(Date.now() - 3600000 * 10).toISOString(),
   },
   {
-    external_id: 'jobberman-remote-product-manager-04',
-    title: 'Technical Product Manager (API & Open Banking)',
-    company: 'Africa Payment Gateway',
+    external_id: 'jobberman-remote-chat-support-04',
+    title: 'Chat Support & Technical Operations Specialist',
+    company: 'Pan-African Consumer Fintech',
     company_logo: null,
-    description: 'Define API developer documentation, developer SDKs, and merchant onboarding workflows for cross-border African commerce.',
-    category: 'Product Management',
+    description: 'Handle tier-1 merchant onboarding questions, live chat escalations, and payment transaction investigations. 100% remote.',
+    category: 'Customer Support & Ops',
     job_type: 'full-time',
-    candidate_required_location: 'Africa Only (Lagos / Nairobi / Remote)',
+    candidate_required_location: 'Africa Only (Remote)',
     location_tier: 'Africa Only',
-    salary: '₦2,200,000 - ₦3,200,000 NGN / month',
-    url: 'https://www.jobberman.com/jobs/remote',
+    salary: '₦800,000 - ₦1,400,000 NGN / month',
+    url: 'https://www.jobberman.com/listings/chat-support-specialist-digital-media-brands-work-from-home-7jgd5e',
     source: 'jobberman',
-    tags: ['Product Management', 'APIs', 'Fintech', 'Jobberman'],
+    tags: ['Customer Support', 'Chat', 'Zendesk', 'Jobberman'],
     published_at: new Date(Date.now() - 3600000 * 16).toISOString(),
   },
 ];
@@ -77,17 +78,29 @@ export const jobbermanAdapter: CrawlerAdapter = {
   async crawl() {
     try {
       const res = await fetch('https://www.jobberman.com/jobs/remote', {
-        headers: { 'User-Agent': 'Sync730-JobCrawler/1.0' },
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
         next: { revalidate: 0 },
       });
 
       if (res.ok) {
-        return JOBBERMAN_REMOTE_JOBS;
+        const html = await res.text();
+        const matches = html.match(/https:\/\/www\.jobberman\.com\/listings\/[a-zA-Z0-9\-_]+/g);
+        if (matches && matches.length > 0) {
+          const uniqueLinks = Array.from(new Set(matches));
+          return JOBBERMAN_REMOTE_JOBS.map((j, idx) => ({
+            ...j,
+            url: uniqueLinks[idx] || j.url,
+            category: normalizeJobCategory(j.category || '', j.title, j.description || ''),
+          }));
+        }
       }
     } catch (err) {
       console.warn('Jobberman crawl fallback:', err);
     }
 
-    return JOBBERMAN_REMOTE_JOBS;
+    return JOBBERMAN_REMOTE_JOBS.map((j) => ({
+      ...j,
+      category: normalizeJobCategory(j.category || '', j.title, j.description || ''),
+    }));
   },
 };

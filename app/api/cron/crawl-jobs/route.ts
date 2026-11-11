@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerSupabaseClient } from '@/lib/supabase/server';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { JobSource } from '@/lib/supabase/types';
-import { crawlSources, CRAWLER_ADAPTERS } from '@/lib/crawler';
+import { crawlSources, CRAWLER_ADAPTERS, JobCategory, JOB_CATEGORIES } from '@/lib/crawler';
 
 export async function GET(request: NextRequest) {
   return handleJobCrawl(request);
@@ -18,6 +18,7 @@ async function handleJobCrawl(request: NextRequest) {
   const url = new URL(request.url);
   const secretParam = url.searchParams.get('secret');
   const sourceParam = (url.searchParams.get('source') as JobSource | 'all') || 'all';
+  const categoryParam = (url.searchParams.get('category') as JobCategory | 'all') || 'all';
 
   // Verify authorization if in production with configured CRON_SECRET
   if (
@@ -26,7 +27,6 @@ async function handleJobCrawl(request: NextRequest) {
     authHeader !== `Bearer ${cronSecret}` &&
     secretParam !== cronSecret
   ) {
-    // Check if authenticated user is admin
     try {
       const supabase = await createServerSupabaseClient();
       const {
@@ -57,10 +57,12 @@ async function handleJobCrawl(request: NextRequest) {
     }
   }
 
-  // Execute multi-source crawler
-  const { jobs, sourceCounts, locationStats, crawledAt } = await crawlSources({
-    source: sourceParam,
-  });
+  // Execute multi-source crawler with category normalization
+  const { jobs, sourceCounts, categoryCounts, locationStats, crawledAt } =
+    await crawlSources({
+      source: sourceParam,
+      category: categoryParam,
+    });
 
   // Upsert into Supabase remote_jobs table
   let upsertCount = 0;
@@ -86,8 +88,10 @@ async function handleJobCrawl(request: NextRequest) {
   return NextResponse.json({
     success: true,
     crawled_at: crawledAt,
+    target_category: categoryParam,
     target_source: sourceParam,
     total_processed: jobs.length,
+    categories_summary: categoryCounts,
     sources_summary: sourceCounts,
     location_stats: locationStats,
     database_synced: upsertCount > 0,
@@ -95,11 +99,16 @@ async function handleJobCrawl(request: NextRequest) {
     db_note: dbError
       ? `Retained in active memory feed (${dbError})`
       : 'Synced to Supabase remote_jobs table',
-    adapters: CRAWLER_ADAPTERS.map((a) => ({
-      id: a.id,
-      name: a.name,
-      website: a.website,
+    available_categories: JOB_CATEGORIES,
+    sample_jobs: jobs.slice(0, 15).map((j) => ({
+      title: j.title,
+      company: j.company,
+      category: j.category,
+      location_tier: j.location_tier,
+      candidate_required_location: j.candidate_required_location,
+      salary: j.salary,
+      direct_apply_url: j.url,
+      source: j.source,
     })),
-    sample_jobs: jobs.slice(0, 10),
   });
 }

@@ -7,8 +7,10 @@ import { freehireAdapter } from './adapters/freehire';
 import { companyDirectAdapter } from './adapters/company-direct';
 import { remotiveAdapter } from './adapters/remotive';
 import { arbeitnowAdapter } from './adapters/arbeitnow';
+import { JobCategory, JOB_CATEGORIES, normalizeJobCategory } from './categories';
 
 export * from './types';
+export * from './categories';
 export {
   scaleArmyAdapter,
   bruntworkAdapter,
@@ -42,12 +44,14 @@ export const ADAPTERS_MAP: Record<JobSource, CrawlerAdapter> = {
 export interface CrawlResult {
   jobs: Omit<RemoteJob, 'id'>[];
   sourceCounts: Record<JobSource, number>;
+  categoryCounts: Record<JobCategory, number>;
   locationStats: Record<LocationTier, number>;
   crawledAt: string;
 }
 
 export async function crawlSources(options?: {
   source?: JobSource | 'all';
+  category?: JobCategory | 'all';
 }): Promise<CrawlResult> {
   const targetAdapters =
     options?.source && options.source !== 'all'
@@ -77,6 +81,16 @@ export async function crawlSources(options?: {
     arbeitnow: 0,
   };
 
+  const categoryCounts: Record<JobCategory, number> = {
+    'Software & Engineering': 0,
+    'Product & Design': 0,
+    'Data & AI': 0,
+    'DevOps & Cloud': 0,
+    'Sales & Marketing': 0,
+    'Customer Support & Ops': 0,
+    'Finance & Accounting': 0,
+  };
+
   const locationStats: Record<LocationTier, number> = {
     'Africa Only': 0,
     'EMEA': 0,
@@ -91,23 +105,43 @@ export async function crawlSources(options?: {
     }
   }
 
-  // Deduplicate by external_id
+  // Deduplicate by external_id and normalize category
   const seen = new Set<string>();
-  const uniqueJobs = allJobs.filter((job) => {
-    if (seen.has(job.external_id)) return false;
-    seen.add(job.external_id);
-    return true;
-  });
+  const normalizedJobs: Omit<RemoteJob, 'id'>[] = [];
 
-  for (const job of uniqueJobs) {
+  for (const rawJob of allJobs) {
+    if (seen.has(rawJob.external_id)) continue;
+    seen.add(rawJob.external_id);
+
+    const canonicalCategory = normalizeJobCategory(
+      rawJob.category || '',
+      rawJob.title,
+      rawJob.description || ''
+    );
+
+    const job = {
+      ...rawJob,
+      category: canonicalCategory,
+    };
+
+    if (categoryCounts[canonicalCategory] !== undefined) {
+      categoryCounts[canonicalCategory]++;
+    }
+
     if (locationStats[job.location_tier] !== undefined) {
       locationStats[job.location_tier]++;
+    }
+
+    // Filter by category if explicitly requested
+    if (!options?.category || options.category === 'all' || job.category === options.category) {
+      normalizedJobs.push(job);
     }
   }
 
   return {
-    jobs: uniqueJobs,
+    jobs: normalizedJobs,
     sourceCounts,
+    categoryCounts,
     locationStats,
     crawledAt: new Date().toISOString(),
   };

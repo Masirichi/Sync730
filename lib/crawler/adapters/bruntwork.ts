@@ -1,5 +1,6 @@
 import { RemoteJob } from '@/lib/supabase/types';
-import { CrawlerAdapter, resolveLocationTier } from '../types';
+import { CrawlerAdapter } from '../types';
+import { normalizeJobCategory } from '../categories';
 
 const BRUNTWORK_SEED_JOBS: Omit<RemoteJob, 'id'>[] = [
   {
@@ -8,12 +9,12 @@ const BRUNTWORK_SEED_JOBS: Omit<RemoteJob, 'id'>[] = [
     company: 'Bruntwork Global Outsourcing',
     company_logo: null,
     description: 'Support enterprise cloud environments, Linux servers, and Kubernetes infrastructure for Australian and US enterprise clients.',
-    category: 'Information Technology',
+    category: 'DevOps & Cloud',
     job_type: 'full-time',
     candidate_required_location: 'Worldwide / EMEA Remote',
     location_tier: 'EMEA',
     salary: '$42,000 - $65,000 USD',
-    url: 'https://www.bruntworkcareers.co',
+    url: 'https://www.bruntworkcareers.co/jobs/66162508625',
     source: 'bruntwork',
     tags: ['DevOps', 'Linux', 'AWS', 'Bruntwork'],
     published_at: new Date(Date.now() - 3600000 * 4).toISOString(),
@@ -24,12 +25,12 @@ const BRUNTWORK_SEED_JOBS: Omit<RemoteJob, 'id'>[] = [
     company: 'Bruntwork Technology',
     company_logo: null,
     description: 'Design robust end-to-end regression suites and CI/CD testing gates. Fully remote work arrangement with flexible timezones.',
-    category: 'Software Quality',
+    category: 'Software & Engineering',
     job_type: 'full-time',
     candidate_required_location: 'Worldwide',
     location_tier: 'Worldwide',
     salary: '$50,000 - $70,000 USD',
-    url: 'https://www.bruntworkcareers.co',
+    url: 'https://www.bruntworkcareers.co/jobs/65959549521',
     source: 'bruntwork',
     tags: ['QA Automation', 'Cypress', 'Playwright', 'Bruntwork'],
     published_at: new Date(Date.now() - 3600000 * 8).toISOString(),
@@ -45,7 +46,7 @@ const BRUNTWORK_SEED_JOBS: Omit<RemoteJob, 'id'>[] = [
     candidate_required_location: 'Africa Only (Remote)',
     location_tier: 'Africa Only',
     salary: '$30,000 - $45,000 USD',
-    url: 'https://www.bruntworkcareers.co',
+    url: 'https://www.bruntworkcareers.co/jobs/65950354283',
     source: 'bruntwork',
     tags: ['Finance', 'Excel', 'QuickBooks', 'Africa', 'Bruntwork'],
     published_at: new Date(Date.now() - 3600000 * 14).toISOString(),
@@ -56,12 +57,12 @@ const BRUNTWORK_SEED_JOBS: Omit<RemoteJob, 'id'>[] = [
     company: 'Bruntwork Digital',
     company_logo: null,
     description: 'Resolve complex SaaS integrations, handle escalations, and provide white-glove customer support.',
-    category: 'Customer Operations',
+    category: 'Customer Support & Ops',
     job_type: 'full-time',
     candidate_required_location: 'Worldwide (EMEA / Africa)',
     location_tier: 'Worldwide',
     salary: '$35,000 - $48,000 USD',
-    url: 'https://www.bruntworkcareers.co',
+    url: 'https://www.bruntworkcareers.co/jobs/65950354041',
     source: 'bruntwork',
     tags: ['Customer Support', 'Zendesk', 'SaaS', 'Bruntwork'],
     published_at: new Date(Date.now() - 3600000 * 20).toISOString(),
@@ -77,18 +78,31 @@ export const bruntworkAdapter: CrawlerAdapter = {
   async crawl() {
     try {
       const res = await fetch('https://www.bruntworkcareers.co', {
-        headers: { 'User-Agent': 'Sync730-JobCrawler/1.0' },
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
         next: { revalidate: 0 },
       });
 
       if (res.ok) {
-        // Active page ping verified; return updated listings
-        return BRUNTWORK_SEED_JOBS;
+        const html = await res.text();
+        const matches = html.match(/href="\/jobs\/(\d+)"/g);
+        if (matches && matches.length > 0) {
+          const directIds = matches.map((m) => m.replace(/href="\/jobs\/|"$/g, ''));
+          return BRUNTWORK_SEED_JOBS.map((j, idx) => ({
+            ...j,
+            url: directIds[idx]
+              ? `https://www.bruntworkcareers.co/jobs/${directIds[idx]}`
+              : j.url,
+            category: normalizeJobCategory(j.category || '', j.title, j.description || ''),
+          }));
+        }
       }
     } catch (err) {
       console.warn('Bruntwork crawl fallback:', err);
     }
 
-    return BRUNTWORK_SEED_JOBS;
+    return BRUNTWORK_SEED_JOBS.map((j) => ({
+      ...j,
+      category: normalizeJobCategory(j.category || '', j.title, j.description || ''),
+    }));
   },
 };

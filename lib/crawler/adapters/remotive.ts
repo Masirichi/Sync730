@@ -1,5 +1,6 @@
 import { RemoteJob } from '@/lib/supabase/types';
 import { CrawlerAdapter, resolveLocationTier } from '../types';
+import { normalizeJobCategory } from '../categories';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
 
 export const remotiveAdapter: CrawlerAdapter = {
@@ -24,6 +25,7 @@ export const remotiveAdapter: CrawlerAdapter = {
         for (const j of rawJobs) {
           const reqLoc = j.candidate_required_location || '';
           const tier = resolveLocationTier(reqLoc);
+          const category = normalizeJobCategory(j.category || '', j.title || '', j.description || '');
 
           fetchedJobs.push({
             external_id: `remotive-${j.id}`,
@@ -31,14 +33,14 @@ export const remotiveAdapter: CrawlerAdapter = {
             company: j.company_name || 'Independent',
             company_logo: j.company_logo || null,
             description: (j.description || '').replace(/<[^>]*>?/gm, '').slice(0, 300) + '...',
-            category: j.category || 'General',
+            category,
             job_type: j.job_type || 'full-time',
             candidate_required_location: reqLoc || tier,
             location_tier: tier,
             salary: j.salary || 'Competitive',
             url: j.url || 'https://remotive.com',
             source: 'remotive',
-            tags: j.tags || [j.category || 'Remote'],
+            tags: j.tags || [category, 'Remote'],
             published_at: j.publication_date || new Date().toISOString(),
           });
         }
@@ -48,7 +50,8 @@ export const remotiveAdapter: CrawlerAdapter = {
     }
 
     if (fetchedJobs.length > 0) {
-      const combined = [...SEED_REMOTE_JOBS, ...fetchedJobs];
+      const remotiveSeeds = SEED_REMOTE_JOBS.filter((j) => j.source === 'remotive');
+      const combined = [...remotiveSeeds, ...fetchedJobs];
       const seen = new Set<string>();
       return combined.filter((j) => {
         if (seen.has(j.external_id)) return false;
@@ -57,6 +60,6 @@ export const remotiveAdapter: CrawlerAdapter = {
       });
     }
 
-    return SEED_REMOTE_JOBS;
+    return SEED_REMOTE_JOBS.filter((j) => j.source === 'remotive');
   },
 };

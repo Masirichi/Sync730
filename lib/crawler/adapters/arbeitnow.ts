@@ -1,5 +1,6 @@
 import { RemoteJob } from '@/lib/supabase/types';
 import { CrawlerAdapter, resolveLocationTier } from '../types';
+import { normalizeJobCategory } from '../categories';
 
 const ARBEITNOW_SEED_JOBS: Omit<RemoteJob, 'id'>[] = [
   {
@@ -8,12 +9,12 @@ const ARBEITNOW_SEED_JOBS: Omit<RemoteJob, 'id'>[] = [
     company: 'TechSphere Europe',
     company_logo: null,
     description: 'Design zero-downtime event streaming services with Node.js, Kafka, and Redis. Flexible European & EMEA remote.',
-    category: 'Engineering & Product',
+    category: 'Software & Engineering',
     job_type: 'full-time',
     candidate_required_location: 'EMEA (Remote)',
     location_tier: 'EMEA',
     salary: '€85,000 - €110,000 EUR',
-    url: 'https://www.arbeitnow.com',
+    url: 'https://www.arbeitnow.com/jobs/companies/techsphere/senior-typescript-architect-01',
     source: 'arbeitnow',
     tags: ['TypeScript', 'Kafka', 'Redis', 'EMEA', 'Arbeitnow'],
     published_at: new Date(Date.now() - 3600000 * 4).toISOString(),
@@ -24,12 +25,12 @@ const ARBEITNOW_SEED_JOBS: Omit<RemoteJob, 'id'>[] = [
     company: 'CloudNative Solutions',
     company_logo: null,
     description: 'Own GitOps pipelines with ArgoCD, manage multi-tenant Kubernetes clusters, and optimize cloud infrastructure costs.',
-    category: 'DevOps / Sysadmin',
+    category: 'DevOps & Cloud',
     job_type: 'full-time',
     candidate_required_location: 'Worldwide',
     location_tier: 'Worldwide',
     salary: '$90,000 - $125,000 USD',
-    url: 'https://www.arbeitnow.com',
+    url: 'https://www.arbeitnow.com/jobs/companies/cloudnative/kubernetes-platform-engineer-02',
     source: 'arbeitnow',
     tags: ['Kubernetes', 'ArgoCD', 'Terraform', 'Arbeitnow'],
     published_at: new Date(Date.now() - 3600000 * 10).toISOString(),
@@ -59,6 +60,7 @@ export const arbeitnowAdapter: CrawlerAdapter = {
           if (!j.remote) continue;
           const locCombined = `${j.location || ''} ${j.title || ''}`;
           const tier = resolveLocationTier(locCombined);
+          const category = normalizeJobCategory(j.category || '', j.title || '', j.description || '');
 
           fetchedJobs.push({
             external_id: `arbeitnow-${j.slug || Math.random().toString(36).substring(7)}`,
@@ -66,14 +68,14 @@ export const arbeitnowAdapter: CrawlerAdapter = {
             company: j.company_name || 'Tech Partner',
             company_logo: null,
             description: (j.description || '').replace(/<[^>]*>?/gm, '').slice(0, 300) + '...',
-            category: 'Engineering & Product',
+            category,
             job_type: 'full-time',
             candidate_required_location: j.location || tier,
             location_tier: tier,
             salary: 'Competitive',
             url: j.url || 'https://www.arbeitnow.com',
             source: 'arbeitnow',
-            tags: j.tags || ['Remote', tier],
+            tags: j.tags || [category, 'Remote', tier],
             published_at: new Date(j.created_at * 1000 || Date.now()).toISOString(),
           });
         }

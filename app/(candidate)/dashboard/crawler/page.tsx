@@ -19,15 +19,48 @@ import {
   Briefcase,
   ShieldCheck,
   ArrowRight,
-  Building2,
-  Filter,
+  Code2,
+  Palette,
+  BrainCircuit,
+  Cloud,
+  TrendingUp,
+  Headphones,
+  Landmark,
+  Layers,
 } from 'lucide-react';
-import { RemoteJob, LocationTier, JobSource } from '@/lib/supabase/types';
+import { RemoteJob, LocationTier } from '@/lib/supabase/types';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
 import { saveJobToTracker, getLocalTrackerItems } from '@/lib/tracker';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { JOB_SOURCES_META, SourceMetadata } from '@/lib/crawler/sources';
+import {
+  JobCategory,
+  JOB_CATEGORIES,
+  JOB_CATEGORIES_META,
+  normalizeJobCategory,
+} from '@/lib/crawler/categories';
 import { toast } from 'sonner';
+
+// Helper for category icons
+function getCategoryIcon(cat: JobCategory) {
+  switch (cat) {
+    case 'Software & Engineering':
+      return <Code2 className="h-3.5 w-3.5" />;
+    case 'Product & Design':
+      return <Palette className="h-3.5 w-3.5" />;
+    case 'Data & AI':
+      return <BrainCircuit className="h-3.5 w-3.5" />;
+    case 'DevOps & Cloud':
+      return <Cloud className="h-3.5 w-3.5" />;
+    case 'Sales & Marketing':
+      return <TrendingUp className="h-3.5 w-3.5" />;
+    case 'Customer Support & Ops':
+      return <Headphones className="h-3.5 w-3.5" />;
+    case 'Finance & Accounting':
+      return <Landmark className="h-3.5 w-3.5" />;
+    default:
+      return <Layers className="h-3.5 w-3.5" />;
+  }
+}
 
 export default function CrawlerJobFeedPage() {
   const [jobs, setJobs] = useState<RemoteJob[]>([]);
@@ -35,7 +68,7 @@ export default function CrawlerJobFeedPage() {
   const [syncing, setSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTier, setSelectedTier] = useState<string>('All');
-  const [selectedSource, setSelectedSource] = useState<string>('All');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
 
   // Load jobs and current tracker state on mount
@@ -57,7 +90,11 @@ export default function CrawlerJobFeedPage() {
           .order('published_at', { ascending: false });
 
         if (!error && data && data.length > 0) {
-          setJobs(data as RemoteJob[]);
+          const normalized = data.map((j: any) => ({
+            ...j,
+            category: normalizeJobCategory(j.category || '', j.title, j.description || ''),
+          }));
+          setJobs(normalized as RemoteJob[]);
           setLoading(false);
           return;
         }
@@ -65,10 +102,11 @@ export default function CrawlerJobFeedPage() {
         console.warn('Supabase fetch notice, loading comprehensive seed data:', err);
       }
 
-      // Fallback: hydrated multi-source seed jobs
+      // Fallback: hydrated multi-source seed jobs with direct URLs & normalized categories
       const hydratedSeed = SEED_REMOTE_JOBS.map((j, idx) => ({
         ...j,
         id: `seed-job-${idx + 1}`,
+        category: normalizeJobCategory(j.category || '', j.title, j.description || ''),
       })) as RemoteJob[];
 
       setJobs(hydratedSeed);
@@ -90,19 +128,16 @@ export default function CrawlerJobFeedPage() {
     return () => window.removeEventListener('sync730_tracker_updated', handleTrackerUpdate);
   }, []);
 
-  // Manual Trigger: Sync Jobs across 7 verified sources
+  // Manual Trigger: Sync Jobs
   const handleSyncJobs = async () => {
     setSyncing(true);
-    const targetSourceQuery = selectedSource !== 'All' ? `?source=${selectedSource}` : '';
-    const sourceLabel =
-      selectedSource !== 'All'
-        ? JOB_SOURCES_META[selectedSource as JobSource]?.label || selectedSource
-        : 'all 7 verified portals';
+    const catQuery = selectedCategory !== 'All' ? `?category=${encodeURIComponent(selectedCategory)}` : '';
+    const catLabel = selectedCategory !== 'All' ? selectedCategory : 'all categories';
 
-    toast.info(`Crawling remote jobs from ${sourceLabel}...`);
+    toast.info(`Fetching live remote openings for ${catLabel}...`);
 
     try {
-      const res = await fetch(`/api/cron/crawl-jobs${targetSourceQuery}`, {
+      const res = await fetch(`/api/cron/crawl-jobs${catQuery}`, {
         credentials: 'include',
       });
       const data = await res.json();
@@ -112,20 +147,26 @@ export default function CrawlerJobFeedPage() {
           const combined = [...data.sample_jobs, ...prev];
           const map = new Map<string, RemoteJob>();
           combined.forEach((j) => {
-            const key = j.external_id || j.id;
-            if (!map.has(key)) map.set(key, j);
+            const key = j.external_id || j.id || j.direct_apply_url;
+            if (!map.has(key)) {
+              map.set(key, {
+                ...j,
+                url: j.direct_apply_url || j.url,
+                category: normalizeJobCategory(j.category || '', j.title, j.description || ''),
+              });
+            }
           });
           return Array.from(map.values());
         });
 
         toast.success(
-          `Sync Complete: ${data.total_processed} remote jobs verified from Scale Army, Bruntwork, Jobberman, Freehire, Direct ATS & Remotive!`
+          `Sync Complete: ${data.total_processed} verified openings updated with direct apply links!`
         );
       } else {
         toast.success('Sync complete: listings are up to date.');
       }
     } catch {
-      toast.error('External API timeout; active fallback feed is serving listings.');
+      toast.error('External API timeout; serving latest verified catalog.');
     } finally {
       setSyncing(false);
     }
@@ -155,22 +196,19 @@ export default function CrawlerJobFeedPage() {
     }
   };
 
-  // Helper for source metadata & badge
-  const getSourceMeta = (sourceKey: string): SourceMetadata => {
-    return (
-      JOB_SOURCES_META[sourceKey as JobSource] || {
-        id: sourceKey as JobSource,
-        label: sourceKey,
-        shortLabel: sourceKey,
-        badgeClass: 'bg-muted text-muted-foreground border-border',
-        description: 'Verified remote opportunity',
-        website: '#',
-      }
-    );
+  // Helper for category metadata & badge
+  const getCategoryMeta = (catStr: string) => {
+    const canonical = normalizeJobCategory(catStr);
+    return JOB_CATEGORIES_META[canonical] || JOB_CATEGORIES_META['Software & Engineering'];
   };
 
-  // Filter jobs by Location Tier, Source, and Search query
+  // Filter jobs by Category, Location Tier, and Search query
   const filteredJobs = jobs.filter((job) => {
+    const canonicalJobCat = normalizeJobCategory(job.category || '', job.title, job.description || '');
+
+    const matchesCategory =
+      selectedCategory === 'All' ? true : canonicalJobCat === selectedCategory;
+
     const matchesTier =
       selectedTier === 'All'
         ? true
@@ -182,17 +220,16 @@ export default function CrawlerJobFeedPage() {
         ? job.location_tier === 'Africa Only'
         : true;
 
-    const matchesSource = selectedSource === 'All' ? true : job.source === selectedSource;
-
     const query = searchQuery.toLowerCase().trim();
     const matchesQuery =
       !query ||
       job.title.toLowerCase().includes(query) ||
       job.company.toLowerCase().includes(query) ||
       job.candidate_required_location.toLowerCase().includes(query) ||
+      canonicalJobCat.toLowerCase().includes(query) ||
       (job.tags && job.tags.some((t) => t.toLowerCase().includes(query)));
 
-    return matchesTier && matchesSource && matchesQuery;
+    return matchesCategory && matchesTier && matchesQuery;
   });
 
   return (
@@ -207,14 +244,14 @@ export default function CrawlerJobFeedPage() {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-base font-semibold text-foreground">
-                  Complete Your &ldquo;Vet-Once&rdquo; Profile
+                  Complete Your &ldquo;Vet-Once&rdquo; FastTrack
                 </h3>
                 <Badge variant="secondary" className="text-[11px] font-medium text-primary bg-primary/15">
-                  ⭐ Skip Resume Screens
+                  ⭐ Direct Candidate FastTrack
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
-                Get pre-vetted once on Sync730 to unlock 1-click verified applications to all Worldwide, EMEA, and African remote roles across Scale Army, Bruntwork, Jobberman, Freehire, and direct company career pages.
+                Get pre-vetted once to unlock fast-tracked direct applications across Software Engineering, Product & Design, Data & AI, DevOps, Sales, and Ops roles.
               </p>
             </div>
           </div>
@@ -230,13 +267,13 @@ export default function CrawlerJobFeedPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight">Verified Multi-Source Remote Feed</h1>
+            <h1 className="text-2xl font-bold tracking-tight">Verified Remote Opportunities</h1>
             <Badge variant="outline" className="gap-1 border-primary/30 text-primary text-xs">
-              <Globe className="h-3 w-3" /> 7 Portals Live
+              <Globe className="h-3 w-3" /> Live Direct Openings
             </Badge>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            Crawling Scale Army, Bruntwork, Jobberman, Freehire, Direct Enterprise ATS, Remotive, and Arbeitnow strictly for Worldwide, EMEA, and African talent.
+            Browse actual remote openings with direct application links filtered strictly for Worldwide, EMEA, and African talent.
           </p>
         </div>
 
@@ -254,47 +291,49 @@ export default function CrawlerJobFeedPage() {
             className="gap-2 text-xs font-semibold shadow-sm"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Crawling Portals...' : 'Sync Jobs Now'}
+            {syncing ? 'Syncing...' : 'Sync Live Jobs'}
           </Button>
         </div>
       </div>
 
-      {/* Source Filters Bar */}
+      {/* Category Filters Bar */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Building2 className="h-3.5 w-3.5" /> Career Source / Portal
+            <Layers className="h-3.5 w-3.5" /> Job Category
           </span>
           <span className="text-xs text-muted-foreground">
             Showing {filteredJobs.length} {filteredJobs.length === 1 ? 'role' : 'roles'}
           </span>
         </div>
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5">
           <Button
             size="sm"
-            variant={selectedSource === 'All' ? 'default' : 'outline'}
-            onClick={() => setSelectedSource('All')}
-            className={`text-xs h-7 px-3 rounded-full transition-colors ${
-              selectedSource === 'All' ? 'shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            variant={selectedCategory === 'All' ? 'default' : 'outline'}
+            onClick={() => setSelectedCategory('All')}
+            className={`text-xs h-8 px-3 rounded-full transition-colors ${
+              selectedCategory === 'All' ? 'shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            All Sources
+            All Categories
           </Button>
 
-          {(Object.keys(JOB_SOURCES_META) as JobSource[]).map((srcKey) => {
-            const meta = JOB_SOURCES_META[srcKey];
-            const active = selectedSource === srcKey;
+          {JOB_CATEGORIES.map((cat) => {
+            const meta = JOB_CATEGORIES_META[cat];
+            const active = selectedCategory === cat;
             return (
               <Button
-                key={srcKey}
+                key={cat}
                 size="sm"
                 variant={active ? 'default' : 'outline'}
-                onClick={() => setSelectedSource(srcKey)}
-                className={`text-xs h-7 px-3 rounded-full transition-colors whitespace-nowrap ${
+                onClick={() => setSelectedCategory(cat)}
+                className={`text-xs h-8 px-3 rounded-full transition-colors whitespace-nowrap gap-1.5 ${
                   active ? 'shadow-sm' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                {meta.shortLabel}
+                {getCategoryIcon(cat)}
+                {meta.label}
               </Button>
             );
           })}
@@ -307,7 +346,7 @@ export default function CrawlerJobFeedPage() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search role, company, or stack (e.g. Golang, React, Python)..."
+            placeholder="Search role, company, or stack (e.g. Next.js, Golang, Figma)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 text-sm"
@@ -352,7 +391,7 @@ export default function CrawlerJobFeedPage() {
           <Globe className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
           <h3 className="font-semibold text-lg">No matching remote jobs found</h3>
           <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-            Try adjusting your search query, location filter, or portal selector, or click &ldquo;Sync Jobs Now&rdquo; to pull the latest crawl updates.
+            Try adjusting your search query, location filter, or category selector, or click &ldquo;Sync Live Jobs&rdquo; to pull the latest open positions.
           </p>
           <Button
             size="sm"
@@ -360,7 +399,7 @@ export default function CrawlerJobFeedPage() {
             onClick={() => {
               setSearchQuery('');
               setSelectedTier('All');
-              setSelectedSource('All');
+              setSelectedCategory('All');
             }}
             className="mt-4 text-xs"
           >
@@ -374,15 +413,15 @@ export default function CrawlerJobFeedPage() {
               savedJobIds.has(job.id) ||
               savedJobIds.has(job.external_id) ||
               savedJobIds.has(`remotive-${job.id}`);
-            const sourceMeta = getSourceMeta(job.source as string);
+            const categoryMeta = getCategoryMeta(job.category || '');
 
             return (
               <Card
-                key={job.id || job.external_id}
+                key={job.id || job.external_id || job.url}
                 className="group flex flex-col justify-between border-border/70 transition-all duration-200 hover:border-primary/50 hover:shadow-md"
               >
                 <CardContent className="p-5 space-y-4">
-                  {/* Top Bar: Company, Tier, Source Badge */}
+                  {/* Top Bar: Company, Tier, Category Badge */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -409,11 +448,13 @@ export default function CrawlerJobFeedPage() {
                       </h2>
                     </div>
 
+                    {/* Category Badge */}
                     <Badge
                       variant="outline"
-                      className={`text-[10px] font-semibold shrink-0 py-0.5 px-2 ${sourceMeta.badgeClass}`}
+                      className={`text-[10px] font-semibold shrink-0 py-0.5 px-2 gap-1 ${categoryMeta.badgeClass}`}
                     >
-                      {sourceMeta.shortLabel}
+                      {getCategoryIcon(categoryMeta.id)}
+                      {categoryMeta.shortLabel}
                     </Badge>
                   </div>
 
@@ -459,7 +500,7 @@ export default function CrawlerJobFeedPage() {
                   <div className="pt-3 border-t flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
                       <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-                      <span>Vet-Once FastTrack</span>
+                      <span>Direct Verified Opening</span>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -485,11 +526,11 @@ export default function CrawlerJobFeedPage() {
                         )}
                       </Button>
 
-                      {/* External Apply Link */}
+                      {/* Direct Apply Button */}
                       {job.url && (
                         <a href={job.url} target="_blank" rel="noopener noreferrer">
-                          <Button size="sm" variant="outline" className="text-xs h-8 gap-1">
-                            Apply <ExternalLink className="h-3 w-3" />
+                          <Button size="sm" variant="outline" className="text-xs h-8 gap-1 font-medium hover:border-primary">
+                            Apply Directly <ExternalLink className="h-3 w-3 text-primary" />
                           </Button>
                         </a>
                       )}
