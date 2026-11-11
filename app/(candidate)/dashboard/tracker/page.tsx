@@ -23,6 +23,7 @@ import {
   Edit3,
   Search,
   Compass,
+  Video,
 } from 'lucide-react';
 import { CandidateTrackerItem, TrackerStatus } from '@/lib/supabase/types';
 import {
@@ -277,6 +278,20 @@ export default function KanbanTrackerPage() {
                             title="Click to edit notes"
                           >
                             {item.notes}
+                          </div>
+                        )}
+
+                        {/* Interviewing Sandbox Upsell Button */}
+                        {col.id === 'INTERVIEWING' && (
+                          <div className="pt-1">
+                            <Link
+                              href={`/dashboard/sandbox?role=${encodeURIComponent(item.title)}&company=${encodeURIComponent(item.company)}`}
+                              className="flex items-center justify-center gap-1.5 w-full py-1.5 px-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-[11px] font-medium transition-all shadow-sm"
+                            >
+                              <Video className="h-3.5 w-3.5 stroke-[1.5]" />
+                              <span>Practice Interview (₦2,500)</span>
+                              <ArrowUpRight className="h-3 w-3 stroke-[1.5] opacity-75" />
+                            </Link>
                           </div>
                         )}
 

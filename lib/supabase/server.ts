@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient as createSsrServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 export async function createClient() {
@@ -6,7 +6,7 @@ export async function createClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
+  return createSsrServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -25,5 +25,6 @@ export async function createClient() {
   });
 }
 
-// Named alias for backward compatibility
+// Named aliases for backward compatibility
 export const createServerSupabaseClient = createClient;
+export const createServerClient = createClient;

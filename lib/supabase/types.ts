@@ -115,3 +115,59 @@ export interface Application {
   created_at: string;
   updated_at?: string;
 }
+
+
+// ==============================================================================
+// Sprint 2: Paid B2C AI Mock Video Interview Sandbox Types
+// ==============================================================================
+
+export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'BYPASSED';
+
+export interface InterviewQuestion {
+  id: number;
+  question: string;
+  category: string;
+  hint: string;
+}
+
+export interface CandidateAnswer {
+  question_id: number;
+  question: string;
+  transcript: string;
+  duration_seconds: number;
+  video_blob_url?: string;
+}
+
+export interface SampleBetterAnswer {
+  question_id?: number;
+  question: string;
+  model_answer: string;
+  key_takeaway?: string;
+  key_takeaways?: string[];
+}
+
+export interface InterviewFeedbackScorecard {
+  overall_score: number;
+  communication_clarity: number;
+  technical_depth: number;
+  summary?: string;
+  strengths: string[];
+  areas_to_improve: string[];
+  sample_better_answers: SampleBetterAnswer[];
+}
+
+export interface MockPrepSession {
+  id: string;
+  candidate_id?: string | null;
+  target_role: string;
+  company_name?: string | null;
+  amount: number;
+  currency: string;
+  payment_reference: string;
+  payment_status: PaymentStatus;
+  interview_questions: InterviewQuestion[];
+  candidate_answers: CandidateAnswer[];
+  feedback_payload: InterviewFeedbackScorecard | null;
+  created_at: string;
+  updated_at?: string;
+}
