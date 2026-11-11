@@ -56,10 +56,15 @@ export async function updateSession(request: NextRequest): Promise<AuthSessionRe
     }
   }
 
+  const isAuthPath =
+    request.nextUrl.pathname === '/login' ||
+    request.nextUrl.pathname === '/register' ||
+    request.nextUrl.pathname.startsWith('/signup') ||
+    request.nextUrl.pathname.startsWith('/register/');
   const isRecruiterPath = request.nextUrl.pathname.startsWith('/console') || request.nextUrl.pathname.startsWith('/recruiter');
   const isCommandPath = request.nextUrl.pathname.startsWith('/command') || request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/api/admin');
   
-  let defaultDevRole: UserRole = 'candidate';
+  let defaultDevRole: UserRole = isAuthPath ? null : 'candidate';
   if (isCommandPath) defaultDevRole = 'PLATFORM_ADMIN';
   else if (isRecruiterPath) defaultDevRole = 'recruiter';
 
