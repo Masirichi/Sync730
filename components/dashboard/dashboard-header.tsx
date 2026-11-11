@@ -67,7 +67,7 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
             className="relative h-9 w-9 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
             title="Notifications"
           >
-            <Bell className="h-4 w-4" />
+            <Bell className="h-4 w-4 stroke-[1.5]" />
             <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center">
               3
             </span>
@@ -79,7 +79,7 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
             className="h-9 w-9 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
             title="Settings"
           >
-            <Settings className="h-4 w-4" />
+            <Settings className="h-4 w-4 stroke-[1.5]" />
           </button>
 
           {/* User Profile Card (matching inspiration's user card) */}
@@ -115,7 +115,7 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive cursor-pointer">
-                <LogOut className="mr-2 h-4 w-4" />
+                <LogOut className="mr-2 h-4 w-4 stroke-[1.5]" />
                 Sign out
               </DropdownMenuItem>
             </DropdownMenuContent>

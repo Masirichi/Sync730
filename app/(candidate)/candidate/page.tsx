@@ -2,42 +2,44 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
-  Briefcase,
-  FileText,
-  Heart,
+  FileCheck2,
+  Bookmark,
   TrendingUp,
+  Target,
+  Code2,
+  Palette,
+  Layers,
   ArrowRight,
+  ArrowUpRight,
   Search,
   SlidersHorizontal,
   MoreHorizontal,
   CheckCircle2,
-  Calendar,
-  ExternalLink,
+  CalendarDays,
   ShieldCheck,
-  Building,
+  ChevronsUpDown,
 } from 'lucide-react';
 
-// Exact original stats from the current candidate dashboard
+// Exact original stats with premium icons and stroke-width
 const stats = [
   {
     label: 'Active Applications',
     value: '7',
-    icon: FileText,
-    iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400',
+    icon: FileCheck2,
+    iconBg: 'bg-blue-50 text-blue-600 border border-blue-200/50 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-900/40',
     trend: '+12.08%',
     trendType: 'positive',
   },
   {
     label: 'Saved Jobs',
     value: '12',
-    icon: Heart,
-    iconBg: 'bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400',
+    icon: Bookmark,
+    iconBg: 'bg-rose-50 text-rose-600 border border-rose-200/50 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-900/40',
     trend: '+4 new',
     trendType: 'positive',
   },
@@ -45,21 +47,21 @@ const stats = [
     label: 'Profile Views',
     value: '34',
     icon: TrendingUp,
-    iconBg: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400',
+    iconBg: 'bg-emerald-50 text-emerald-600 border border-emerald-200/50 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-900/40',
     trend: '+18.5%',
     trendType: 'positive',
   },
   {
     label: 'New Matches',
     value: '5',
-    icon: Briefcase,
-    iconBg: 'bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400',
+    icon: Target,
+    iconBg: 'bg-amber-50 text-amber-600 border border-amber-200/50 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-900/40',
     trend: 'Today',
     trendType: 'neutral',
   },
 ];
 
-// Exact original recommended jobs from the current candidate dashboard
+// Exact original recommended jobs with tailored role icons
 const recommendedJobs = [
   {
     title: 'Senior Frontend Engineer',
@@ -70,8 +72,8 @@ const recommendedJobs = [
     match: 95,
     dueNotice: 'Fri, 10 Oct',
     statusBadge: 'FastTrack',
-    statusVariant: 'emerald',
-    iconBg: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400',
+    icon: Code2,
+    iconBg: 'bg-emerald-50 text-emerald-600 border border-emerald-200/60 dark:bg-emerald-950/60 dark:text-emerald-400',
   },
   {
     title: 'Product Designer',
@@ -82,8 +84,8 @@ const recommendedJobs = [
     match: 88,
     dueNotice: 'Sun, 12 Oct',
     statusBadge: '2 Days Left',
-    statusVariant: 'blue',
-    iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400',
+    icon: Palette,
+    iconBg: 'bg-blue-50 text-blue-600 border border-blue-200/60 dark:bg-blue-950/60 dark:text-blue-400',
   },
   {
     title: 'Full Stack Developer',
@@ -94,12 +96,12 @@ const recommendedJobs = [
     match: 82,
     dueNotice: 'Mon, 13 Oct',
     statusBadge: '6 Days Left',
-    statusVariant: 'amber',
-    iconBg: 'bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400',
+    icon: Layers,
+    iconBg: 'bg-amber-50 text-amber-600 border border-amber-200/60 dark:bg-amber-950/60 dark:text-amber-400',
   },
 ];
 
-// Applications data mapped to the inspiration table logic
+// Applications data mapped to table logic
 const recentApplications = [
   {
     company: 'TechCorp',
@@ -139,20 +141,20 @@ const recentApplications = [
   },
 ];
 
-// Recruiter contacts matching the Cody Fisher / Robert Fox cards in the inspiration
+// Recruiter contacts matching the inspiration
 const recruiterContacts = [
   {
     name: 'Sarah Jenkins',
     company: 'TechCorp Talent Lead',
     initials: 'SJ',
-    action: 'Open Chat →',
+    action: 'Open Chat',
     href: '/candidate/messages',
   },
   {
     name: 'David O\'Connor',
     company: 'DesignHub VP Product',
     initials: 'DO',
-    action: 'Open Chat →',
+    action: 'Open Chat',
     href: '/candidate/messages',
   },
 ];
@@ -201,7 +203,7 @@ export default function CandidateDashboard() {
         </div>
       </div>
 
-      {/* Top 4 Stat Cards Row (Borrowing exact inspiration design logic) */}
+      {/* Top 4 Stat Cards Row (Borrowing exact inspiration design logic with premium icons) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => (
           <Card
@@ -210,7 +212,7 @@ export default function CandidateDashboard() {
           >
             <div className="flex items-center gap-3">
               <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${stat.iconBg}`}>
-                <stat.icon className="h-5 w-5" />
+                <stat.icon className="h-5 w-5 stroke-[1.5]" />
               </div>
               <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 truncate">
                 {stat.label}
@@ -251,7 +253,7 @@ export default function CandidateDashboard() {
                 href="/candidate/jobs"
                 className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 inline-flex items-center gap-1 transition-colors"
               >
-                View all <ArrowRight className="h-3 w-3" />
+                View all <ArrowRight className="h-3 w-3 stroke-[1.5]" />
               </Link>
             </div>
 
@@ -266,7 +268,7 @@ export default function CandidateDashboard() {
                     <div
                       className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${job.iconBg}`}
                     >
-                      <Briefcase className="h-4 w-4" />
+                      <job.icon className="h-4 w-4 stroke-[1.5]" />
                     </div>
                     <div className="min-w-0 space-y-0.5">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -305,7 +307,7 @@ export default function CandidateDashboard() {
                       className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 p-1"
                       title="Options"
                     >
-                      <MoreHorizontal className="h-4 w-4" />
+                      <MoreHorizontal className="h-4 w-4 stroke-[1.5]" />
                     </button>
                   </div>
                 </div>
@@ -323,14 +325,14 @@ export default function CandidateDashboard() {
                 href="/candidate/applications"
                 className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 inline-flex items-center gap-1 transition-colors"
               >
-                View all <ArrowRight className="h-3 w-3" />
+                View all <ArrowRight className="h-3 w-3 stroke-[1.5]" />
               </Link>
             </div>
 
             {/* Table Search & Filters bar */}
             <div className="flex items-center justify-between gap-3 pt-1">
               <div className="relative flex-1 max-w-xs">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 stroke-[1.5] text-neutral-400" />
                 <Input
                   placeholder="Search applications..."
                   value={searchTableQuery}
@@ -342,9 +344,9 @@ export default function CandidateDashboard() {
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-1.5 text-xs h-8 px-3 rounded-lg border-neutral-200 dark:border-neutral-800"
+                className="gap-1.5 text-xs h-8 px-3 rounded-lg border-neutral-200 dark:border-neutral-800 font-medium"
               >
-                <SlidersHorizontal className="h-3 w-3" /> Filters
+                <SlidersHorizontal className="h-3 w-3 stroke-[1.5]" /> Filters
               </Button>
             </div>
 
@@ -353,11 +355,21 @@ export default function CandidateDashboard() {
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-neutral-100 dark:border-neutral-800 text-neutral-400 font-medium">
-                    <th className="pb-3 font-semibold">Role & Company ⇅</th>
-                    <th className="pb-3 font-semibold">Location ⇅</th>
-                    <th className="pb-3 font-semibold">Applied Date ⇅</th>
-                    <th className="pb-3 font-semibold">Compensation ⇅</th>
-                    <th className="pb-3 font-semibold">Status ⇅</th>
+                    <th className="pb-3 font-semibold">
+                      Role & Company <ChevronsUpDown className="h-3 w-3 stroke-[1.5] inline opacity-50" />
+                    </th>
+                    <th className="pb-3 font-semibold">
+                      Location <ChevronsUpDown className="h-3 w-3 stroke-[1.5] inline opacity-50" />
+                    </th>
+                    <th className="pb-3 font-semibold">
+                      Applied Date <ChevronsUpDown className="h-3 w-3 stroke-[1.5] inline opacity-50" />
+                    </th>
+                    <th className="pb-3 font-semibold">
+                      Compensation <ChevronsUpDown className="h-3 w-3 stroke-[1.5] inline opacity-50" />
+                    </th>
+                    <th className="pb-3 font-semibold">
+                      Status <ChevronsUpDown className="h-3 w-3 stroke-[1.5] inline opacity-50" />
+                    </th>
                     <th className="pb-3 font-semibold text-right">Action</th>
                   </tr>
                 </thead>
@@ -395,9 +407,9 @@ export default function CandidateDashboard() {
                       <td className="py-3.5 text-right">
                         <Link
                           href="/candidate/applications"
-                          className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 hover:underline"
+                          className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 hover:underline inline-flex items-center gap-0.5"
                         >
-                          View →
+                          View <ArrowUpRight className="h-3 w-3 stroke-[1.5]" />
                         </Link>
                       </td>
                     </tr>
@@ -414,7 +426,7 @@ export default function CandidateDashboard() {
           <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm space-y-3">
             <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
               <span className="font-semibold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> FastTrack Vetting
+                <ShieldCheck className="h-3.5 w-3.5 stroke-[1.5] text-emerald-600" /> FastTrack Vetting
               </span>
               <span>Nov 2026</span>
             </div>
@@ -437,7 +449,7 @@ export default function CandidateDashboard() {
           <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
               <span className="font-semibold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5 text-purple-600" /> Upcoming Interviews
+                <CalendarDays className="h-3.5 w-3.5 stroke-[1.5] text-purple-600" /> Upcoming Interviews
               </span>
               <span>Nov 14, 2026</span>
             </div>
@@ -475,9 +487,9 @@ export default function CandidateDashboard() {
 
                   <Link
                     href={contact.href}
-                    className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-800 hover:underline shrink-0"
+                    className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-800 hover:underline shrink-0 inline-flex items-center gap-0.5"
                   >
-                    {contact.action}
+                    {contact.action} <ArrowUpRight className="h-3 w-3 stroke-[1.5]" />
                   </Link>
                 </div>
               ))}
@@ -494,14 +506,14 @@ export default function CandidateDashboard() {
                 href="/candidate"
                 className="text-xs font-semibold text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 inline-flex items-center gap-1"
               >
-                View all <ArrowRight className="h-3 w-3" />
+                View all <ArrowRight className="h-3 w-3 stroke-[1.5]" />
               </Link>
             </div>
 
             {/* Big 94% Metric + Pill */}
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="h-5 w-5" />
+              <div className="h-10 w-10 rounded-xl bg-purple-50 text-purple-600 border border-purple-200/50 dark:bg-purple-950/60 dark:text-purple-400 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="h-5 w-5 stroke-[1.5]" />
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-50 tracking-tight">
@@ -552,7 +564,7 @@ export default function CandidateDashboard() {
                   </span>
                 </div>
                 <span className="text-neutral-500 font-medium inline-flex items-center gap-1">
-                  15% <ExternalLink className="h-3 w-3" />
+                  15% <ArrowUpRight className="h-3 w-3 stroke-[1.5]" />
                 </span>
               </div>
 
@@ -564,7 +576,7 @@ export default function CandidateDashboard() {
                   </span>
                 </div>
                 <span className="text-neutral-500 font-medium inline-flex items-center gap-1">
-                  63% <ExternalLink className="h-3 w-3" />
+                  63% <ArrowUpRight className="h-3 w-3 stroke-[1.5]" />
                 </span>
               </div>
 
@@ -576,7 +588,7 @@ export default function CandidateDashboard() {
                   </span>
                 </div>
                 <span className="text-neutral-500 font-medium inline-flex items-center gap-1">
-                  22% <ExternalLink className="h-3 w-3" />
+                  22% <ArrowUpRight className="h-3 w-3 stroke-[1.5]" />
                 </span>
               </div>
             </div>

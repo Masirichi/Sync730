@@ -66,7 +66,7 @@ export function DashboardSidebar({ items, roleLabel, homeHref }: DashboardSideba
                     : 'text-neutral-400 hover:text-white hover:bg-neutral-900/80'
                 )}
               >
-                <item.icon className="h-4 w-4 shrink-0" />
+                <item.icon className="h-4 w-4 shrink-0 stroke-[1.5]" />
                 <span>{item.label}</span>
               </Link>
             );
@@ -80,7 +80,7 @@ export function DashboardSidebar({ items, roleLabel, homeHref }: DashboardSideba
           onClick={handleSignOut}
           className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl bg-neutral-900/90 hover:bg-neutral-800 border border-neutral-800 text-sm font-medium text-neutral-300 hover:text-white transition-all"
         >
-          <LogOut className="h-4 w-4 shrink-0 text-neutral-400" />
+          <LogOut className="h-4 w-4 shrink-0 stroke-[1.5] text-neutral-400" />
           <span>Log Out</span>
         </button>
         <Link

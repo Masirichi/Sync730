@@ -9,6 +9,9 @@ import {
   Search,
   RefreshCw,
   ArrowRight,
+  ArrowUpRight,
+  Bookmark,
+  Check,
 } from 'lucide-react';
 import { RemoteJob } from '@/lib/supabase/types';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
@@ -67,7 +70,7 @@ export default function CrawlerJobFeedPage() {
           }));
           setJobs(normalized as RemoteJob[]);
         }
-      } catch (err) {
+      } catch {
         // Keeps initial hydrated seed jobs
       }
     }
@@ -224,9 +227,9 @@ export default function CrawlerJobFeedPage() {
           <Link href="/candidate">
             <Button
               size="sm"
-              className="gap-2 shrink-0 text-xs font-semibold h-9 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+              className="gap-1.5 shrink-0 text-xs font-semibold h-9 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 inline-flex items-center"
             >
-              Verify Profile <ArrowRight className="h-3.5 w-3.5" />
+              Verify Profile <ArrowRight className="h-3.5 w-3.5 stroke-[1.5]" />
             </Button>
           </Link>
         </div>
@@ -258,9 +261,9 @@ export default function CrawlerJobFeedPage() {
             size="sm"
             onClick={handleSyncJobs}
             disabled={syncing}
-            className="gap-2 text-xs font-semibold h-9 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950"
+            className="gap-2 text-xs font-semibold h-9 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 inline-flex items-center"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-3.5 w-3.5 stroke-[1.5] ${syncing ? 'animate-spin' : ''}`} />
             {syncing ? 'Syncing...' : 'Sync Live Jobs'}
           </Button>
         </div>
@@ -314,7 +317,7 @@ export default function CrawlerJobFeedPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 stroke-[1.5] text-neutral-400" />
           <Input
             placeholder="Search role, company, or stack (e.g. Next.js, Go, Python)..."
             value={searchQuery}
@@ -462,13 +465,21 @@ export default function CrawlerJobFeedPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => handleSaveToTracker(job)}
-                        className={`text-xs h-9 px-3.5 rounded-lg font-medium transition-colors ${
+                        className={`text-xs h-9 px-3.5 rounded-lg font-medium transition-colors inline-flex items-center gap-1.5 ${
                           isSaved
                             ? 'border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 bg-neutral-100/60 dark:bg-neutral-900'
                             : 'border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 hover:text-neutral-900'
                         }`}
                       >
-                        {isSaved ? '✓ Saved' : 'Save to Tracker'}
+                        {isSaved ? (
+                          <>
+                            <Check className="h-3.5 w-3.5 stroke-[1.5]" /> Saved
+                          </>
+                        ) : (
+                          <>
+                            <Bookmark className="h-3.5 w-3.5 stroke-[1.5]" /> Save to Tracker
+                          </>
+                        )}
                       </Button>
 
                       {/* Scale Army High-Contrast Direct Apply Button */}
@@ -476,9 +487,9 @@ export default function CrawlerJobFeedPage() {
                         <a href={job.url} target="_blank" rel="noopener noreferrer">
                           <Button
                             size="sm"
-                            className="text-xs h-9 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 font-semibold"
+                            className="text-xs h-9 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 font-semibold inline-flex items-center gap-1"
                           >
-                            Apply Directly ↗
+                            Apply Directly <ArrowUpRight className="h-3.5 w-3.5 stroke-[1.5]" />
                           </Button>
                         </a>
                       )}

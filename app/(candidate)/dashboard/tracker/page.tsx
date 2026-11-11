@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,10 +18,11 @@ import {
   Plus,
   ArrowRight,
   ArrowLeft,
+  ArrowUpRight,
   Trash2,
   Edit3,
-  ExternalLink,
   Search,
+  Compass,
 } from 'lucide-react';
 import { CandidateTrackerItem, TrackerStatus } from '@/lib/supabase/types';
 import {
@@ -80,14 +80,6 @@ export default function KanbanTrackerPage() {
     const updated = await updateTrackerStatus(item.id, targetStatus);
     setItems(updated);
     toast.success(`Moved to ${COLUMNS[targetIndex].label}`);
-  };
-
-  // Direct status select
-  const handleSelectStatus = async (item: CandidateTrackerItem, targetStatus: TrackerStatus) => {
-    if (item.status === targetStatus) return;
-    const updated = await updateTrackerStatus(item.id, targetStatus);
-    setItems(updated);
-    toast.success(`Updated status to ${targetStatus}`);
   };
 
   // Delete item
@@ -170,8 +162,8 @@ export default function KanbanTrackerPage() {
         {/* Action Buttons */}
         <div className="flex items-center gap-2.5">
           <Link href="/dashboard/crawler">
-            <Button variant="outline" size="sm" className="text-xs h-9 font-medium border-neutral-200 dark:border-neutral-800">
-              Browse Remote Feed
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs h-9 font-medium border-neutral-200 dark:border-neutral-800">
+              <Compass className="h-3.5 w-3.5 stroke-[1.5]" /> Browse Remote Feed
             </Button>
           </Link>
 
@@ -180,7 +172,7 @@ export default function KanbanTrackerPage() {
             onClick={() => setIsAddModalOpen(true)}
             className="gap-1.5 text-xs h-9 font-semibold bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950"
           >
-            <Plus className="h-4 w-4" /> Add External Job
+            <Plus className="h-4 w-4 stroke-[1.5]" /> Add External Job
           </Button>
         </div>
       </div>
@@ -188,7 +180,7 @@ export default function KanbanTrackerPage() {
       {/* Search and Summary */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 stroke-[1.5] text-neutral-400" />
           <Input
             placeholder="Search tracked jobs or notes..."
             value={searchQuery}
@@ -256,7 +248,7 @@ export default function KanbanTrackerPage() {
                             className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors p-0.5 rounded"
                             title="Remove from tracker"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-3.5 w-3.5 stroke-[1.5]" />
                           </button>
                         </div>
 
@@ -298,7 +290,7 @@ export default function KanbanTrackerPage() {
                             }}
                             className="flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
                           >
-                            <Edit3 className="h-3 w-3" /> Notes
+                            <Edit3 className="h-3 w-3 stroke-[1.5]" /> Notes
                           </button>
 
                           {/* Link to Job */}
@@ -307,9 +299,9 @@ export default function KanbanTrackerPage() {
                               href={item.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-1 text-[11px] text-neutral-700 dark:text-neutral-300 hover:underline font-medium"
+                              className="flex items-center gap-0.5 text-[11px] text-neutral-700 dark:text-neutral-300 hover:underline font-medium"
                             >
-                              Direct Link <ExternalLink className="h-3 w-3" />
+                              Direct Link <ArrowUpRight className="h-3 w-3 stroke-[1.5]" />
                             </a>
                           )}
 
@@ -321,7 +313,7 @@ export default function KanbanTrackerPage() {
                                 className="p-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
                                 title={`Move back to ${COLUMNS[colIdx - 1].label}`}
                               >
-                                <ArrowLeft className="h-3 w-3" />
+                                <ArrowLeft className="h-3 w-3 stroke-[1.5]" />
                               </button>
                             )}
                             {colIdx < COLUMNS.length - 1 && (
@@ -330,7 +322,7 @@ export default function KanbanTrackerPage() {
                                 className="p-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
                                 title={`Advance to ${COLUMNS[colIdx + 1].label}`}
                               >
-                                <ArrowRight className="h-3 w-3" />
+                                <ArrowRight className="h-3 w-3 stroke-[1.5]" />
                               </button>
                             )}
                           </div>
