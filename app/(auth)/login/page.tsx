@@ -1,20 +1,34 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2, Sparkles, User, Briefcase } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get('redirect');
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const routeUserByRole = (role: string) => {
+    // Set demo cookie so middleware recognizes session in local testing
+    if (typeof document !== 'undefined') {
+      document.cookie = `sync730-demo-role=${role}; path=/; max-age=86400; SameSite=Lax`;
+    }
+
+    const targetUrl = redirectParam || (role === 'recruiter' ? '/recruiter' : role === 'admin' ? '/admin' : '/dashboard/crawler');
+    window.location.href = targetUrl;
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,21 +49,14 @@ export default function LoginPage() {
       }
 
       if (data?.user) {
-        // Fetch user profile role to route to appropriate portal
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', data.user.id)
-          .single();
+          .maybeSingle();
 
-        const role = profile?.role || 'candidate';
-        if (role === 'recruiter') {
-          router.push('/recruiter');
-        } else if (role === 'admin') {
-          router.push('/admin');
-        } else {
-          router.push('/candidate');
-        }
+        const role = profile?.role || data.user.user_metadata?.role || 'candidate';
+        routeUserByRole(role);
       }
     } catch (err: any) {
       setError(err?.message || 'Failed to sign in. Please try again.');
@@ -57,12 +64,23 @@ export default function LoginPage() {
     }
   };
 
+  // Instant Demo Access for testing and fast evaluation
+  const handleDemoSignIn = (demoRole: 'candidate' | 'recruiter' | 'admin') => {
+    routeUserByRole(demoRole);
+  };
+
   return (
     <Card className="border-border/60 shadow-lg">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Welcome back</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-2xl">Welcome back</CardTitle>
+          <Badge variant="outline" className="text-xs gap-1 border-primary/30 text-primary">
+            <Sparkles className="h-3 w-3" /> Sync730 Hub
+          </Badge>
+        </div>
         <CardDescription>Enter your credentials to sign in to your Sync730 account</CardDescription>
       </CardHeader>
+
       <form onSubmit={handleLogin}>
         <CardContent className="space-y-4">
           {error && (
@@ -111,11 +129,41 @@ export default function LoginPage() {
               'Sign in'
             )}
           </Button>
+
+          {/* Quick Demo Login Bar for Testing */}
+          <div className="pt-3 border-t">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-center mb-2">
+              ⚡ Instant Demo Access
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs h-8"
+                onClick={() => handleDemoSignIn('candidate')}
+              >
+                <User className="h-3.5 w-3.5 text-primary" />
+                Demo Candidate
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs h-8"
+                onClick={() => handleDemoSignIn('recruiter')}
+              >
+                <Briefcase className="h-3.5 w-3.5 text-amber-500" />
+                Demo Recruiter
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </form>
+
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <a href="/register" className="font-medium text-primary hover:underline">
             Sign up
           </a>

@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest) {
   // Run Supabase SSR session updater
   const { supabaseResponse, user, role } = await updateSession(request);
 
-  const isCandidateRoute = pathname.startsWith('/candidate');
+  const isCandidateRoute = pathname.startsWith('/candidate') || pathname.startsWith('/dashboard');
   const isRecruiterRoute = pathname.startsWith('/recruiter');
   const isAdminRoute = pathname.startsWith('/admin');
   const isAuthRoute = pathname === '/login' || pathname === '/register';

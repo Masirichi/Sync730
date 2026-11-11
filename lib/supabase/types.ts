@@ -14,7 +14,6 @@ export interface Profile {
   updated_at?: string;
 }
 
-// UserProfile alias for user_profiles view/table
 export type UserProfile = Profile;
 
 export interface TokenUnlock {
@@ -41,6 +40,46 @@ export interface CandidateWithPrivacy {
   avatar_url?: string | null;
   is_masked: boolean;
   is_unlocked: boolean;
+}
+
+export type LocationTier = 'Worldwide' | 'EMEA' | 'Africa Only';
+
+export interface RemoteJob {
+  id: string;
+  external_id: string;
+  title: string;
+  company: string;
+  company_logo?: string | null;
+  description?: string | null;
+  category?: string | null;
+  job_type: string;
+  candidate_required_location: string;
+  location_tier: LocationTier;
+  salary?: string | null;
+  url?: string | null;
+  source: string;
+  tags?: string[] | null;
+  published_at: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export type TrackerStatus = 'SAVED' | 'APPLIED' | 'INTERVIEWING' | 'OFFERED' | 'REJECTED';
+
+export interface CandidateTrackerItem {
+  id: string;
+  candidate_id: string;
+  job_id?: string | null;
+  status: TrackerStatus;
+  company: string;
+  title: string;
+  location?: string | null;
+  salary?: string | null;
+  url?: string | null;
+  notes?: string | null;
+  applied_date?: string | null;
+  created_at: string;
+  updated_at?: string;
 }
 
 export interface Job {
