@@ -16,20 +16,13 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import {
-  KanbanSquare,
   Plus,
   ArrowRight,
   ArrowLeft,
   Trash2,
   Edit3,
   ExternalLink,
-  MapPin,
-  DollarSign,
-  Briefcase,
   Search,
-  Sparkles,
-  Calendar,
-  Building,
 } from 'lucide-react';
 import { CandidateTrackerItem, TrackerStatus } from '@/lib/supabase/types';
 import {
@@ -41,11 +34,11 @@ import {
 import { toast } from 'sonner';
 
 const COLUMNS: { id: TrackerStatus; label: string; color: string; badgeColor: string }[] = [
-  { id: 'SAVED', label: 'Saved', color: 'border-t-slate-500', badgeColor: 'bg-slate-500/10 text-slate-600 dark:text-slate-400' },
-  { id: 'APPLIED', label: 'Applied', color: 'border-t-blue-500', badgeColor: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
-  { id: 'INTERVIEWING', label: 'Interviewing', color: 'border-t-purple-500', badgeColor: 'bg-purple-500/10 text-purple-600 dark:text-purple-400' },
-  { id: 'OFFERED', label: 'Offered', color: 'border-t-emerald-500', badgeColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
-  { id: 'REJECTED', label: 'Rejected', color: 'border-t-rose-500', badgeColor: 'bg-rose-500/10 text-rose-600 dark:text-rose-400' },
+  { id: 'SAVED', label: 'Saved', color: 'border-t-neutral-400', badgeColor: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' },
+  { id: 'APPLIED', label: 'Applied', color: 'border-t-neutral-600', badgeColor: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200' },
+  { id: 'INTERVIEWING', label: 'Interviewing', color: 'border-t-neutral-800 dark:border-t-neutral-400', badgeColor: 'bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100' },
+  { id: 'OFFERED', label: 'Offered', color: 'border-t-emerald-500', badgeColor: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' },
+  { id: 'REJECTED', label: 'Rejected', color: 'border-t-neutral-300 dark:border-t-neutral-700', badgeColor: 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400' },
 ];
 
 export default function KanbanTrackerPage() {
@@ -146,7 +139,7 @@ export default function KanbanTrackerPage() {
     setNewNotes('');
     setNewStatus('SAVED');
 
-    toast.success(`External job "${newItem.title}" added to ${newItem.status}!`);
+    toast.success(`Job "${newItem.title}" added to ${newItem.status}`);
   };
 
   // Filter items by search query
@@ -164,24 +157,20 @@ export default function KanbanTrackerPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-neutral-200 dark:border-neutral-800 pb-5">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight">Application Tracker</h1>
-            <Badge variant="outline" className="gap-1 border-primary/30 text-primary text-xs">
-              <KanbanSquare className="h-3 w-3" /> Kanban Board
-            </Badge>
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Track and advance jobs from the Verified Remote Feed and external opportunities across your interview pipeline.
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+            Application Tracker
+          </h1>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            Track and advance jobs from the Verified Remote Feed and external opportunities across your pipeline.
           </p>
         </div>
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2.5">
           <Link href="/dashboard/crawler">
-            <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <Button variant="outline" size="sm" className="text-xs h-9 font-medium border-neutral-200 dark:border-neutral-800">
               Browse Remote Feed
             </Button>
           </Link>
@@ -189,7 +178,7 @@ export default function KanbanTrackerPage() {
           <Button
             size="sm"
             onClick={() => setIsAddModalOpen(true)}
-            className="gap-1.5 text-xs font-semibold shadow-sm"
+            className="gap-1.5 text-xs h-9 font-semibold bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950"
           >
             <Plus className="h-4 w-4" /> Add External Job
           </Button>
@@ -199,23 +188,23 @@ export default function KanbanTrackerPage() {
       {/* Search and Summary */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
           <Input
             placeholder="Search tracked jobs or notes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 text-sm"
+            className="pl-9 text-sm border-neutral-200 dark:border-neutral-800"
           />
         </div>
 
-        <div className="text-xs text-muted-foreground flex items-center gap-3">
+        <div className="text-xs text-neutral-500 dark:text-neutral-400 flex items-center gap-3">
           <span>
-            Total Tracked: <strong className="text-foreground">{items.length}</strong>
+            Total Tracked: <strong className="text-neutral-900 dark:text-neutral-100 font-semibold">{items.length}</strong>
           </span>
-          <span>•</span>
+          <span>·</span>
           <span>
             Active Pipeline:{' '}
-            <strong className="text-foreground">
+            <strong className="text-neutral-900 dark:text-neutral-100 font-semibold">
               {items.filter((i) => i.status === 'APPLIED' || i.status === 'INTERVIEWING').length}
             </strong>
           </span>
@@ -230,41 +219,41 @@ export default function KanbanTrackerPage() {
           return (
             <div
               key={col.id}
-              className={`flex flex-col rounded-xl border border-border/80 bg-muted/20 p-3 min-w-[260px] border-t-4 ${col.color}`}
+              className={`flex flex-col rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 p-3 min-w-[260px] border-t-2 ${col.color}`}
             >
               {/* Column Header */}
               <div className="flex items-center justify-between pb-3 px-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
                     {col.label}
                   </span>
-                  <Badge variant="secondary" className={`text-xs px-1.5 py-0 ${col.badgeColor}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${col.badgeColor}`}>
                     {colItems.length}
-                  </Badge>
+                  </span>
                 </div>
               </div>
 
               {/* Cards Container */}
               <div className="space-y-3 min-h-[350px]">
                 {colItems.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-border/60 p-6 text-center text-xs text-muted-foreground/70">
+                  <div className="rounded-lg border border-dashed border-neutral-200 dark:border-neutral-800 p-6 text-center text-xs text-neutral-400">
                     No jobs in {col.label.toLowerCase()}
                   </div>
                 ) : (
                   colItems.map((item) => (
                     <Card
                       key={item.id}
-                      className="group border-border/80 bg-card hover:border-primary/40 hover:shadow-sm transition-all"
+                      className="group border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors shadow-none rounded-lg"
                     >
                       <CardContent className="p-3.5 space-y-2.5">
                         {/* Company & Delete Button */}
                         <div className="flex items-start justify-between gap-2">
-                          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide truncate max-w-[170px]">
+                          <span className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider truncate max-w-[170px]">
                             {item.company}
                           </span>
                           <button
                             onClick={() => handleDelete(item.id)}
-                            className="text-muted-foreground/40 hover:text-destructive transition-colors p-0.5 rounded"
+                            className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors p-0.5 rounded"
                             title="Remove from tracker"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -272,25 +261,18 @@ export default function KanbanTrackerPage() {
                         </div>
 
                         {/* Title */}
-                        <h4 className="text-sm font-bold text-foreground leading-snug">
+                        <h4 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 leading-snug">
                           {item.title}
                         </h4>
 
                         {/* Metadata */}
-                        <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                          {item.location && (
-                            <span className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3 text-muted-foreground/60" />
-                              {item.location}
-                            </span>
-                          )}
-                          {item.salary && (
-                            <span className="flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400">
-                              <DollarSign className="h-3 w-3" />
-                              {item.salary}
-                            </span>
-                          )}
-                        </div>
+                        {(item.location || item.salary) && (
+                          <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-neutral-500 dark:text-neutral-400">
+                            {item.location && <span>{item.location}</span>}
+                            {item.location && item.salary && <span>·</span>}
+                            {item.salary && <span className="font-medium text-neutral-800 dark:text-neutral-200">{item.salary}</span>}
+                          </div>
+                        )}
 
                         {/* Notes Snippet */}
                         {item.notes && (
@@ -299,22 +281,22 @@ export default function KanbanTrackerPage() {
                               setEditingNotesItem(item);
                               setNotesText(item.notes || '');
                             }}
-                            className="rounded bg-muted/40 p-2 text-[11px] text-muted-foreground/90 italic cursor-pointer hover:bg-muted/70 transition-colors line-clamp-2"
+                            className="rounded bg-neutral-100 dark:bg-neutral-900 p-2 text-[11px] text-neutral-600 dark:text-neutral-400 cursor-pointer hover:bg-neutral-200/60 dark:hover:bg-neutral-800 transition-colors line-clamp-2"
                             title="Click to edit notes"
                           >
-                            &ldquo;{item.notes}&rdquo;
+                            {item.notes}
                           </div>
                         )}
 
                         {/* Card Controls */}
-                        <div className="flex items-center justify-between pt-2 border-t text-xs">
+                        <div className="flex items-center justify-between pt-2 border-t border-neutral-100 dark:border-neutral-800 text-xs">
                           {/* Notes Button */}
                           <button
                             onClick={() => {
                               setEditingNotesItem(item);
                               setNotesText(item.notes || '');
                             }}
-                            className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+                            className="flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
                           >
                             <Edit3 className="h-3 w-3" /> Notes
                           </button>
@@ -325,9 +307,9 @@ export default function KanbanTrackerPage() {
                               href={item.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-1 text-[11px] text-primary hover:underline"
+                              className="flex items-center gap-1 text-[11px] text-neutral-700 dark:text-neutral-300 hover:underline font-medium"
                             >
-                              Link <ExternalLink className="h-3 w-3" />
+                              Direct Link <ExternalLink className="h-3 w-3" />
                             </a>
                           )}
 
@@ -336,7 +318,7 @@ export default function KanbanTrackerPage() {
                             {colIdx > 0 && (
                               <button
                                 onClick={() => handleMove(item, 'prev')}
-                                className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+                                className="p-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
                                 title={`Move back to ${COLUMNS[colIdx - 1].label}`}
                               >
                                 <ArrowLeft className="h-3 w-3" />
@@ -345,7 +327,7 @@ export default function KanbanTrackerPage() {
                             {colIdx < COLUMNS.length - 1 && (
                               <button
                                 onClick={() => handleMove(item, 'next')}
-                                className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+                                className="p-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
                                 title={`Advance to ${COLUMNS[colIdx + 1].label}`}
                               >
                                 <ArrowRight className="h-3 w-3" />
@@ -365,71 +347,78 @@ export default function KanbanTrackerPage() {
 
       {/* Modal: Add External Job */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md border-neutral-200 dark:border-neutral-800">
           <form onSubmit={handleAddExternalJob}>
             <DialogHeader>
-              <DialogTitle className="text-lg">Add External Job Application</DialogTitle>
-              <DialogDescription className="text-xs">
-                Log opportunities found on LinkedIn, company portals, or networks directly into your pipeline.
+              <DialogTitle className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
+                Add External Job Application
+              </DialogTitle>
+              <DialogDescription className="text-xs text-neutral-500">
+                Log opportunities found on company career portals or personal outreach into your tracker.
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-3.5 py-4 text-xs">
               <div className="space-y-1.5">
-                <label className="font-semibold text-foreground">Job Title *</label>
+                <label className="font-semibold text-neutral-800 dark:text-neutral-200">Job Title *</label>
                 <Input
                   required
                   placeholder="e.g. Senior Frontend Engineer"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
+                  className="border-neutral-200 dark:border-neutral-800"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-semibold text-foreground">Company Name *</label>
+                <label className="font-semibold text-neutral-800 dark:text-neutral-200">Company Name *</label>
                 <Input
                   required
                   placeholder="e.g. Stripe, Paystack, Google"
                   value={newCompany}
                   onChange={(e) => setNewCompany(e.target.value)}
+                  className="border-neutral-200 dark:border-neutral-800"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-foreground">Location</label>
+                  <label className="font-semibold text-neutral-800 dark:text-neutral-200">Location</label>
                   <Input
                     placeholder="e.g. Worldwide / EMEA / Remote"
                     value={newLocation}
                     onChange={(e) => setNewLocation(e.target.value)}
+                    className="border-neutral-200 dark:border-neutral-800"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-foreground">Salary / Compensation</label>
+                  <label className="font-semibold text-neutral-800 dark:text-neutral-200">Salary / Compensation</label>
                   <Input
                     placeholder="e.g. $120k / Competitive"
                     value={newSalary}
                     onChange={(e) => setNewSalary(e.target.value)}
+                    className="border-neutral-200 dark:border-neutral-800"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-semibold text-foreground">Job Post URL</label>
+                <label className="font-semibold text-neutral-800 dark:text-neutral-200">Job Post URL</label>
                 <Input
                   placeholder="https://..."
                   type="url"
                   value={newUrl}
                   onChange={(e) => setNewUrl(e.target.value)}
+                  className="border-neutral-200 dark:border-neutral-800"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-semibold text-foreground">Initial Stage</label>
+                <label className="font-semibold text-neutral-800 dark:text-neutral-200">Initial Stage</label>
                 <select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value as TrackerStatus)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs"
+                  className="w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-background px-3 py-2 text-xs"
                 >
                   {COLUMNS.map((col) => (
                     <option key={col.id} value={col.id}>
@@ -440,12 +429,13 @@ export default function KanbanTrackerPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-semibold text-foreground">Custom Notes</label>
+                <label className="font-semibold text-neutral-800 dark:text-neutral-200">Custom Notes</label>
                 <Textarea
                   placeholder="e.g. Applied via referral, follow up next Tuesday..."
                   rows={2}
                   value={newNotes}
                   onChange={(e) => setNewNotes(e.target.value)}
+                  className="border-neutral-200 dark:border-neutral-800"
                 />
               </div>
             </div>
@@ -456,10 +446,15 @@ export default function KanbanTrackerPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsAddModalOpen(false)}
+                className="border-neutral-200 dark:border-neutral-800 text-xs"
               >
                 Cancel
               </Button>
-              <Button type="submit" size="sm">
+              <Button
+                type="submit"
+                size="sm"
+                className="bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 text-xs font-semibold"
+              >
                 Save to Tracker
               </Button>
             </DialogFooter>
@@ -472,12 +467,12 @@ export default function KanbanTrackerPage() {
         open={Boolean(editingNotesItem)}
         onOpenChange={(open) => !open && setEditingNotesItem(null)}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md border-neutral-200 dark:border-neutral-800">
           <DialogHeader>
-            <DialogTitle className="text-base">
+            <DialogTitle className="text-base font-bold text-neutral-900 dark:text-neutral-100">
               Notes: {editingNotesItem?.title}
             </DialogTitle>
-            <DialogDescription className="text-xs">
+            <DialogDescription className="text-xs text-neutral-500">
               {editingNotesItem?.company} · {editingNotesItem?.status}
             </DialogDescription>
           </DialogHeader>
@@ -488,7 +483,7 @@ export default function KanbanTrackerPage() {
               placeholder="Add interview notes, recruiter contacts, or reminder dates..."
               value={notesText}
               onChange={(e) => setNotesText(e.target.value)}
-              className="text-xs"
+              className="text-xs border-neutral-200 dark:border-neutral-800"
             />
           </div>
 
@@ -497,10 +492,15 @@ export default function KanbanTrackerPage() {
               variant="outline"
               size="sm"
               onClick={() => setEditingNotesItem(null)}
+              className="border-neutral-200 dark:border-neutral-800 text-xs"
             >
               Cancel
             </Button>
-            <Button size="sm" onClick={handleSaveNotes}>
+            <Button
+              size="sm"
+              onClick={handleSaveNotes}
+              className="bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 text-xs font-semibold"
+            >
               Save Notes
             </Button>
           </DialogFooter>

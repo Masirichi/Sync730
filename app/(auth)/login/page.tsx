@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { AlertCircle, Loader2, Sparkles, User, Briefcase } from 'lucide-react';
+import { AlertCircle, Loader2, User, Briefcase } from 'lucide-react';
 
 function LoginForm() {
   const router = useRouter();
@@ -71,11 +71,6 @@ function LoginForm() {
   return (
     <Card className="border-border/80 shadow-lg">
       <CardHeader className="space-y-1 text-center">
-        <div className="flex justify-center mb-2">
-          <Badge variant="outline" className="gap-1 border-primary/40 text-primary text-xs">
-            <Sparkles className="h-3 w-3" /> Sync730 Access
-          </Badge>
-        </div>
         <CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
         <CardDescription>
           Sign in to access your pre-vetted remote career ecosystem

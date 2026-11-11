@@ -1,70 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Globe,
-  Sparkles,
   Search,
-  BookmarkPlus,
-  Check,
   RefreshCw,
-  ExternalLink,
-  MapPin,
-  DollarSign,
-  Briefcase,
-  ShieldCheck,
   ArrowRight,
-  Code2,
-  Palette,
-  BrainCircuit,
-  Cloud,
-  TrendingUp,
-  Headphones,
-  Landmark,
-  Layers,
 } from 'lucide-react';
-import { RemoteJob, LocationTier } from '@/lib/supabase/types';
+import { RemoteJob } from '@/lib/supabase/types';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
 import { saveJobToTracker, getLocalTrackerItems } from '@/lib/tracker';
 import { createBrowserClient } from '@/lib/supabase/client';
 import {
-  JobCategory,
   JOB_CATEGORIES,
   JOB_CATEGORIES_META,
   normalizeJobCategory,
 } from '@/lib/crawler/categories';
 import { toast } from 'sonner';
 
-// Helper for category icons
-function getCategoryIcon(cat: JobCategory) {
-  switch (cat) {
-    case 'Software & Engineering':
-      return <Code2 className="h-3.5 w-3.5" />;
-    case 'Product & Design':
-      return <Palette className="h-3.5 w-3.5" />;
-    case 'Data & AI':
-      return <BrainCircuit className="h-3.5 w-3.5" />;
-    case 'DevOps & Cloud':
-      return <Cloud className="h-3.5 w-3.5" />;
-    case 'Sales & Marketing':
-      return <TrendingUp className="h-3.5 w-3.5" />;
-    case 'Customer Support & Ops':
-      return <Headphones className="h-3.5 w-3.5" />;
-    case 'Finance & Accounting':
-      return <Landmark className="h-3.5 w-3.5" />;
-    default:
-      return <Layers className="h-3.5 w-3.5" />;
-  }
-}
+// Pre-normalize seed jobs for instant zero-latency first render
+const HYDRATED_INITIAL_JOBS: RemoteJob[] = SEED_REMOTE_JOBS.map((j, idx) => ({
+  ...j,
+  id: `seed-job-${idx + 1}`,
+  category: normalizeJobCategory(j.category || '', j.title, j.description || ''),
+})) as RemoteJob[];
 
 export default function CrawlerJobFeedPage() {
-  const [jobs, setJobs] = useState<RemoteJob[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [jobs, setJobs] = useState<RemoteJob[]>(HYDRATED_INITIAL_JOBS);
+  const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTier, setSelectedTier] = useState<string>('All');
@@ -81,36 +47,29 @@ export default function CrawlerJobFeedPage() {
       );
       setSavedJobIds(savedIds);
 
-      // Try fetching from Supabase remote_jobs table
+      // Try fetching from Supabase remote_jobs table with timeout
       try {
         const supabase = createBrowserClient();
-        const { data, error } = await supabase
+        const fetchPromise = supabase
           .from('remote_jobs')
           .select('*')
           .order('published_at', { ascending: false });
 
-        if (!error && data && data.length > 0) {
-          const normalized = data.map((j: any) => ({
+        const timeoutPromise = new Promise<{ data: null; error: Error }>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), 2500)
+        );
+
+        const res: any = await Promise.race([fetchPromise, timeoutPromise]);
+        if (res && !res.error && res.data && res.data.length > 0) {
+          const normalized = res.data.map((j: any) => ({
             ...j,
             category: normalizeJobCategory(j.category || '', j.title, j.description || ''),
           }));
           setJobs(normalized as RemoteJob[]);
-          setLoading(false);
-          return;
         }
       } catch (err) {
-        console.warn('Supabase fetch notice, loading comprehensive seed data:', err);
+        // Keeps initial hydrated seed jobs
       }
-
-      // Fallback: hydrated multi-source seed jobs with direct URLs & normalized categories
-      const hydratedSeed = SEED_REMOTE_JOBS.map((j, idx) => ({
-        ...j,
-        id: `seed-job-${idx + 1}`,
-        category: normalizeJobCategory(j.category || '', j.title, j.description || ''),
-      })) as RemoteJob[];
-
-      setJobs(hydratedSeed);
-      setLoading(false);
     }
 
     loadData();
@@ -128,13 +87,30 @@ export default function CrawlerJobFeedPage() {
     return () => window.removeEventListener('sync730_tracker_updated', handleTrackerUpdate);
   }, []);
 
+  // Compute live counts per category for the tab bar
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: jobs.length };
+    JOB_CATEGORIES.forEach((cat) => {
+      counts[cat] = 0;
+    });
+
+    jobs.forEach((j) => {
+      const cat = normalizeJobCategory(j.category || '', j.title, j.description || '');
+      if (counts[cat] !== undefined) {
+        counts[cat] = (counts[cat] || 0) + 1;
+      }
+    });
+
+    return counts;
+  }, [jobs]);
+
   // Manual Trigger: Sync Jobs
   const handleSyncJobs = async () => {
     setSyncing(true);
     const catQuery = selectedCategory !== 'All' ? `?category=${encodeURIComponent(selectedCategory)}` : '';
     const catLabel = selectedCategory !== 'All' ? selectedCategory : 'all categories';
 
-    toast.info(`Fetching live remote openings for ${catLabel}...`);
+    toast.info(`Fetching live openings for ${catLabel}...`);
 
     try {
       const res = await fetch(`/api/cron/crawl-jobs${catQuery}`, {
@@ -160,7 +136,7 @@ export default function CrawlerJobFeedPage() {
         });
 
         toast.success(
-          `Sync Complete: ${data.total_processed} verified openings updated with direct apply links!`
+          `Sync Complete: ${data.total_processed} verified openings updated with direct links.`
         );
       } else {
         toast.success('Sync complete: listings are up to date.');
@@ -182,10 +158,10 @@ export default function CrawlerJobFeedPage() {
     if (res.isNew) {
       toast.success(
         <div className="flex items-center justify-between w-full gap-2">
-          <span>Saved to your Kanban Tracker!</span>
+          <span>Saved to your application tracker.</span>
           <Link
             href="/dashboard/tracker"
-            className="text-xs font-semibold underline text-primary shrink-0"
+            className="text-xs font-semibold underline text-neutral-900 dark:text-neutral-100 shrink-0"
           >
             View Tracker →
           </Link>
@@ -196,7 +172,7 @@ export default function CrawlerJobFeedPage() {
     }
   };
 
-  // Helper for category metadata & badge
+  // Helper for category metadata
   const getCategoryMeta = (catStr: string) => {
     const canonical = normalizeJobCategory(catStr);
     return JOB_CATEGORIES_META[canonical] || JOB_CATEGORIES_META['Software & Engineering'];
@@ -233,62 +209,56 @@ export default function CrawlerJobFeedPage() {
   });
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner: Vet-Once Profile Callout */}
-      <div className="rounded-xl border border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4 sm:p-5 shadow-sm">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3">
-            <div className="rounded-lg bg-primary/20 p-2 text-primary shrink-0">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base font-semibold text-foreground">
-                  Complete Your &ldquo;Vet-Once&rdquo; FastTrack
-                </h3>
-                <Badge variant="secondary" className="text-[11px] font-medium text-primary bg-primary/15">
-                  ⭐ Direct Candidate FastTrack
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
-                Get pre-vetted once to unlock fast-tracked direct applications across Software Engineering, Product & Design, Data & AI, DevOps, Sales, and Ops roles.
-              </p>
-            </div>
+    <div className="space-y-7 max-w-7xl mx-auto">
+      {/* Top Callout: Vet-Once Profile (Scale Army human-crafted aesthetic) */}
+      <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-900/40 p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
+              Pre-Vet Once. Apply Directly to Remote Teams.
+            </h3>
+            <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 max-w-2xl leading-relaxed">
+              Complete a single assessment cycle to unlock direct routing to hiring managers across Engineering, Product, Data, DevOps, and Operations.
+            </p>
           </div>
           <Link href="/candidate">
-            <Button size="sm" className="gap-1.5 shrink-0 text-xs font-medium">
+            <Button
+              size="sm"
+              className="gap-2 shrink-0 text-xs font-semibold h-9 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+            >
               Verify Profile <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </Link>
         </div>
       </div>
 
-      {/* Main Header & Sync Button */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-5">
+      {/* Main Header & Actions */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-neutral-200 dark:border-neutral-800 pb-5">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight">Verified Remote Opportunities</h1>
-            <Badge variant="outline" className="gap-1 border-primary/30 text-primary text-xs">
-              <Globe className="h-3 w-3" /> Live Direct Openings
-            </Badge>
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Browse actual remote openings with direct application links filtered strictly for Worldwide, EMEA, and African talent.
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+            Remote Opportunities
+          </h1>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            Open positions with direct application endpoints for Worldwide, EMEA, and African talent.
           </p>
         </div>
 
         {/* Sync Jobs Now Button & Tracker Link */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <Link href="/dashboard/tracker">
-            <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-              Open Kanban Tracker ({savedJobIds.size})
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs h-9 px-3.5 rounded-lg border-neutral-200 dark:border-neutral-800 font-medium text-neutral-700 dark:text-neutral-300"
+            >
+              Tracker ({savedJobIds.size})
             </Button>
           </Link>
           <Button
             size="sm"
             onClick={handleSyncJobs}
             disabled={syncing}
-            className="gap-2 text-xs font-semibold shadow-sm"
+            className="gap-2 text-xs font-semibold h-9 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
             {syncing ? 'Syncing...' : 'Sync Live Jobs'}
@@ -296,60 +266,60 @@ export default function CrawlerJobFeedPage() {
         </div>
       </div>
 
-      {/* Category Filters Bar */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Layers className="h-3.5 w-3.5" /> Job Category
+      {/* Scale Army Category Pill Tabs with Live Role Counts */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+          <span className="font-semibold uppercase tracking-wider text-[11px]">
+            Filter by Department
           </span>
-          <span className="text-xs text-muted-foreground">
-            Showing {filteredJobs.length} {filteredJobs.length === 1 ? 'role' : 'roles'}
+          <span>
+            {filteredJobs.length} {filteredJobs.length === 1 ? 'position' : 'positions'} available
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5">
-          <Button
-            size="sm"
-            variant={selectedCategory === 'All' ? 'default' : 'outline'}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none">
+          <button
             onClick={() => setSelectedCategory('All')}
-            className={`text-xs h-8 px-3 rounded-full transition-colors ${
-              selectedCategory === 'All' ? 'shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            className={`text-xs px-3.5 py-1.5 rounded-full transition-colors whitespace-nowrap font-medium ${
+              selectedCategory === 'All'
+                ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
+                : 'border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-700'
             }`}
           >
-            All Categories
-          </Button>
+            All Roles ({categoryCounts['All'] || jobs.length})
+          </button>
 
           {JOB_CATEGORIES.map((cat) => {
             const meta = JOB_CATEGORIES_META[cat];
             const active = selectedCategory === cat;
+            const count = categoryCounts[cat] || 0;
             return (
-              <Button
+              <button
                 key={cat}
-                size="sm"
-                variant={active ? 'default' : 'outline'}
                 onClick={() => setSelectedCategory(cat)}
-                className={`text-xs h-8 px-3 rounded-full transition-colors whitespace-nowrap gap-1.5 ${
-                  active ? 'shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                className={`text-xs px-3.5 py-1.5 rounded-full transition-colors whitespace-nowrap font-medium ${
+                  active
+                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
+                    : 'border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-700'
                 }`}
               >
-                {getCategoryIcon(cat)}
-                {meta.label}
-              </Button>
+                {meta.label} ({count})
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* Search & Location Filter Pills */}
+      {/* Search and Location Filter Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
           <Input
-            placeholder="Search role, company, or stack (e.g. Next.js, Golang, Figma)..."
+            placeholder="Search role, company, or stack (e.g. Next.js, Go, Python)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 text-sm"
+            className="pl-9 text-sm h-10 border-neutral-200 dark:border-neutral-800 rounded-lg"
           />
         </div>
 
@@ -358,40 +328,42 @@ export default function CrawlerJobFeedPage() {
           {(['All', 'Worldwide', 'EMEA', 'Africa Only'] as const).map((tier) => {
             const active = selectedTier === tier;
             return (
-              <Button
+              <button
                 key={tier}
-                size="sm"
-                variant={active ? 'default' : 'outline'}
                 onClick={() => setSelectedTier(tier)}
-                className={`text-xs h-8 px-3 rounded-full transition-colors ${
-                  active ? 'shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                className={`text-xs px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap font-medium ${
+                  active
+                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
+                    : 'border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-700'
                 }`}
               >
                 {tier === 'All' ? 'All Locations' : tier}
-              </Button>
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* Job Cards Feed */}
+      {/* Scale Army Job Listings Feed */}
       {loading ? (
         <div className="grid gap-4 md:grid-cols-2">
           {[1, 2, 3, 4].map((n) => (
-            <Card key={n} className="animate-pulse p-6">
-              <div className="h-5 bg-muted rounded w-2/3 mb-2" />
-              <div className="h-4 bg-muted rounded w-1/3 mb-4" />
-              <div className="h-16 bg-muted rounded w-full mb-3" />
-              <div className="h-8 bg-muted rounded w-1/4" />
+            <Card key={n} className="p-6 border-neutral-200 dark:border-neutral-800 rounded-xl">
+              <div className="h-4 bg-neutral-100 dark:bg-neutral-800 rounded w-1/4 mb-3 animate-pulse" />
+              <div className="h-6 bg-neutral-100 dark:bg-neutral-800 rounded w-3/4 mb-4 animate-pulse" />
+              <div className="h-4 bg-neutral-100 dark:bg-neutral-800 rounded w-1/2 mb-4 animate-pulse" />
+              <div className="h-12 bg-neutral-100 dark:bg-neutral-800 rounded w-full mb-4 animate-pulse" />
+              <div className="h-8 bg-neutral-100 dark:bg-neutral-800 rounded w-1/3 animate-pulse" />
             </Card>
           ))}
         </div>
       ) : filteredJobs.length === 0 ? (
-        <Card className="p-12 text-center border-dashed">
-          <Globe className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
-          <h3 className="font-semibold text-lg">No matching remote jobs found</h3>
-          <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-            Try adjusting your search query, location filter, or category selector, or click &ldquo;Sync Live Jobs&rdquo; to pull the latest open positions.
+        <div className="rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800 p-12 text-center">
+          <h3 className="font-semibold text-lg text-neutral-900 dark:text-neutral-100">
+            No matching openings found
+          </h3>
+          <p className="text-sm text-neutral-500 mt-1 max-w-md mx-auto">
+            Try adjusting your search criteria, location filter, or category tab, or click &ldquo;Sync Live Jobs&rdquo; to fetch updated postings.
           </p>
           <Button
             size="sm"
@@ -401,11 +373,11 @@ export default function CrawlerJobFeedPage() {
               setSelectedTier('All');
               setSelectedCategory('All');
             }}
-            className="mt-4 text-xs"
+            className="mt-4 text-xs rounded-lg border-neutral-200 dark:border-neutral-800"
           >
-            Clear All Filters
+            Clear Filters
           </Button>
-        </Card>
+        </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {filteredJobs.map((job) => {
@@ -418,119 +390,95 @@ export default function CrawlerJobFeedPage() {
             return (
               <Card
                 key={job.id || job.external_id || job.url}
-                className="group flex flex-col justify-between border-border/70 transition-all duration-200 hover:border-primary/50 hover:shadow-md"
+                className="group flex flex-col justify-between border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 rounded-xl hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors shadow-none"
               >
-                <CardContent className="p-5 space-y-4">
-                  {/* Top Bar: Company, Tier, Category Badge */}
+                <CardContent className="p-6 space-y-4">
+                  {/* Top Bar: Company Name & Location / Category Badges */}
                   <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                          {job.company}
-                        </span>
-                        <Badge
-                          variant="secondary"
-                          className={`text-[10px] font-semibold py-0 px-2 ${
-                            job.location_tier === 'Africa Only'
-                              ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                              : job.location_tier === 'EMEA'
-                              ? 'bg-blue-500/10 text-blue-600 border-blue-500/20'
-                              : 'bg-primary/10 text-primary border-primary/20'
-                          }`}
-                        >
-                          <MapPin className="h-2.5 w-2.5 mr-0.5 inline" />
-                          {job.location_tier}
-                        </Badge>
-                      </div>
-
-                      <h2 className="text-base font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
-                        {job.title}
-                      </h2>
-                    </div>
-
-                    {/* Category Badge */}
-                    <Badge
-                      variant="outline"
-                      className={`text-[10px] font-semibold shrink-0 py-0.5 px-2 gap-1 ${categoryMeta.badgeClass}`}
-                    >
-                      {getCategoryIcon(categoryMeta.id)}
-                      {categoryMeta.shortLabel}
-                    </Badge>
-                  </div>
-
-                  {/* Metadata: Location, Salary, Job Type */}
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Globe className="h-3.5 w-3.5 text-muted-foreground/70" />
-                      {job.candidate_required_location}
+                    <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                      {job.company}
                     </span>
-                    {job.salary && (
-                      <span className="flex items-center gap-1 font-medium text-foreground">
-                        <DollarSign className="h-3.5 w-3.5 text-emerald-600" />
-                        {job.salary}
+
+                    <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                      <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-900">
+                        {job.location_tier}
                       </span>
-                    )}
-                    <span className="flex items-center gap-1">
-                      <Briefcase className="h-3.5 w-3.5 text-muted-foreground/70" />
-                      {job.job_type}
-                    </span>
+                      <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
+                        {categoryMeta.shortLabel}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Description Preview */}
-                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                  {/* Job Title */}
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-700 dark:group-hover:text-neutral-300 transition-colors leading-snug">
+                      {job.title}
+                    </h2>
+
+                    {/* Metadata Line (Clean middot separator, zero cartoon icons) */}
+                    <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 font-medium">
+                      <span>{job.candidate_required_location || 'Remote'}</span>
+                      <span className="mx-1.5">·</span>
+                      <span>{job.job_type || 'Full-time'}</span>
+                      {job.salary && (
+                        <>
+                          <span className="mx-1.5">·</span>
+                          <span className="text-neutral-900 dark:text-neutral-200 font-semibold">
+                            {job.salary}
+                          </span>
+                        </>
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Role Description Preview */}
+                  <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed line-clamp-3">
                     {job.description}
                   </p>
 
-                  {/* Skills / Tags */}
+                  {/* Skills / Tech Tags */}
                   {job.tags && job.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {job.tags.slice(0, 4).map((tag) => (
-                        <Badge
+                        <span
                           key={tag}
-                          variant="outline"
-                          className="text-[11px] py-0 px-2 font-normal bg-muted/30"
+                          className="text-[11px] font-normal px-2.5 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 border border-neutral-200/60 dark:border-neutral-800"
                         >
                           {tag}
-                        </Badge>
+                        </span>
                       ))}
                     </div>
                   )}
 
-                  {/* Card Footer: Vet-Once Badge & Action Buttons */}
-                  <div className="pt-3 border-t flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                      <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-                      <span>Direct Verified Opening</span>
-                    </div>
+                  {/* Card Footer: Status Label & Scale Army Action Buttons */}
+                  <div className="pt-4 border-t border-neutral-100 dark:border-neutral-900 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <span className="text-xs text-neutral-400 dark:text-neutral-500">
+                      Direct verified application
+                    </span>
 
                     <div className="flex items-center gap-2">
                       {/* One-click Save to Tracker */}
                       <Button
                         size="sm"
-                        variant={isSaved ? 'secondary' : 'default'}
+                        variant="outline"
                         onClick={() => handleSaveToTracker(job)}
-                        className={`text-xs h-8 gap-1.5 transition-all ${
-                          isSaved ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-500/10' : ''
+                        className={`text-xs h-9 px-3.5 rounded-lg font-medium transition-colors ${
+                          isSaved
+                            ? 'border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 bg-neutral-100/60 dark:bg-neutral-900'
+                            : 'border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 hover:text-neutral-900'
                         }`}
                       >
-                        {isSaved ? (
-                          <>
-                            <Check className="h-3.5 w-3.5" />
-                            Saved to Tracker
-                          </>
-                        ) : (
-                          <>
-                            <BookmarkPlus className="h-3.5 w-3.5" />
-                            Save to Tracker
-                          </>
-                        )}
+                        {isSaved ? '✓ Saved' : 'Save to Tracker'}
                       </Button>
 
-                      {/* Direct Apply Button */}
+                      {/* Scale Army High-Contrast Direct Apply Button */}
                       {job.url && (
                         <a href={job.url} target="_blank" rel="noopener noreferrer">
-                          <Button size="sm" variant="outline" className="text-xs h-8 gap-1 font-medium hover:border-primary">
-                            Apply Directly <ExternalLink className="h-3 w-3 text-primary" />
+                          <Button
+                            size="sm"
+                            className="text-xs h-9 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 font-semibold"
+                          >
+                            Apply Directly ↗
                           </Button>
                         </a>
                       )}
