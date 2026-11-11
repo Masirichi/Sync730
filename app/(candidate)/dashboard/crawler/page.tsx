@@ -25,6 +25,8 @@ import {
 } from '@/lib/crawler/categories';
 import { toast } from 'sonner';
 import { ResumeGeneratorModal, TargetJobContext } from '@/components/resume/resume-generator-modal';
+import { VetOnceTriggerModal } from '@/components/candidate/vet-once-trigger-modal';
+import { Video } from 'lucide-react';
 
 // Pre-normalize seed jobs for instant zero-latency first render
 const HYDRATED_INITIAL_JOBS: RemoteJob[] = SEED_REMOTE_JOBS.map((j, idx) => ({
@@ -42,6 +44,7 @@ export default function CrawlerJobFeedPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [selectedResumeJob, setSelectedResumeJob] = useState<TargetJobContext | null>(null);
+  const [isVetOnceOpen, setIsVetOnceOpen] = useState(false);
 
   // Load jobs and current tracker state on mount
   useEffect(() => {

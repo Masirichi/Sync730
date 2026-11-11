@@ -6,11 +6,16 @@ export async function middleware(request: NextRequest) {
 
   // Run Supabase SSR session updater
   const { supabaseResponse, user, role } = await updateSession(request);
+  const normalizedRole = role?.toLowerCase() as 'candidate' | 'recruiter' | 'admin' | null;
 
   const isCandidateRoute = pathname.startsWith('/candidate') || pathname.startsWith('/dashboard');
-  const isRecruiterRoute = pathname.startsWith('/recruiter');
+  const isRecruiterRoute = pathname.startsWith('/recruiter') || pathname.startsWith('/console');
   const isAdminRoute = pathname.startsWith('/admin');
-  const isAuthRoute = pathname === '/login' || pathname === '/register';
+  const isAuthRoute =
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname === '/signup/company' ||
+    pathname === '/register/recruiter';
 
   // 1. Role Isolation: Candidate routes
   if (isCandidateRoute) {
@@ -21,21 +26,21 @@ export async function middleware(request: NextRequest) {
     }
 
     // Block non-candidate users (unless admin)
-    if (role === 'recruiter') {
-      return NextResponse.redirect(new URL('/recruiter', request.url));
+    if (normalizedRole === 'recruiter') {
+      return NextResponse.redirect(new URL('/console/jobs', request.url));
     }
   }
 
   // 2. Role Isolation: Recruiter routes
   if (isRecruiterRoute) {
     if (!user) {
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/signup/company', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
     }
 
     // Block candidate users (unless admin)
-    if (role === 'candidate') {
+    if (normalizedRole === 'candidate') {
       return NextResponse.redirect(new URL('/candidate', request.url));
     }
   }
@@ -48,20 +53,20 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    if (role !== 'admin') {
+    if (normalizedRole !== 'admin') {
       // Redirect to their respective authorized portal
-      const targetDashboard = role === 'recruiter' ? '/recruiter' : '/candidate';
+      const targetDashboard = normalizedRole === 'recruiter' ? '/console/jobs' : '/candidate';
       return NextResponse.redirect(new URL(targetDashboard, request.url));
     }
   }
 
   // 4. Authenticated users visiting login/register: redirect to their role portal
   if (isAuthRoute && user) {
-    if (role === 'admin') {
+    if (normalizedRole === 'admin') {
       return NextResponse.redirect(new URL('/admin', request.url));
     }
-    if (role === 'recruiter') {
-      return NextResponse.redirect(new URL('/recruiter', request.url));
+    if (normalizedRole === 'recruiter') {
+      return NextResponse.redirect(new URL('/console/jobs', request.url));
     }
     return NextResponse.redirect(new URL('/candidate', request.url));
   }

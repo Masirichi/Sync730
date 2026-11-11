@@ -27,6 +27,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { ResumeGeneratorModal, TargetJobContext } from '@/components/resume/resume-generator-modal';
+import { VetOnceTriggerModal } from '@/components/candidate/vet-once-trigger-modal';
 import { CandidateTrackerItem, TrackerStatus } from '@/lib/supabase/types';
 import {
   getLocalTrackerItems,
@@ -51,6 +52,7 @@ export default function KanbanTrackerPage() {
   const [editingNotesItem, setEditingNotesItem] = useState<CandidateTrackerItem | null>(null);
   const [notesText, setNotesText] = useState('');
   const [selectedResumeJob, setSelectedResumeJob] = useState<TargetJobContext | null>(null);
+  const [isVetOnceOpen, setIsVetOnceOpen] = useState(false);
 
   // Form state for external job modal
   const [newTitle, setNewTitle] = useState('');
@@ -164,7 +166,16 @@ export default function KanbanTrackerPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsVetOnceOpen(true)}
+            className="gap-1.5 text-xs h-9 font-semibold border-emerald-500/30 text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/15"
+          >
+            <Video className="h-3.5 w-3.5 stroke-[1.5]" />
+            <span>Complete Vet-Once Video Profile</span>
+          </Button>
           <Link href="/dashboard/crawler">
             <Button variant="outline" size="sm" className="gap-1.5 text-xs h-9 font-medium border-neutral-200 dark:border-neutral-800">
               <Compass className="h-3.5 w-3.5 stroke-[1.5]" /> Browse Remote Feed
@@ -361,6 +372,10 @@ export default function KanbanTrackerPage() {
         onClose={() => setSelectedResumeJob(null)}
         job={selectedResumeJob}
       />
+      <VetOnceTriggerModal
+        isOpen={isVetOnceOpen}
+        onClose={() => setIsVetOnceOpen(false)}
+      />
 
       {/* Modal: Add External Job */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
@@ -529,6 +544,10 @@ export default function KanbanTrackerPage() {
         isOpen={Boolean(selectedResumeJob)}
         onClose={() => setSelectedResumeJob(null)}
         job={selectedResumeJob}
+      />
+      <VetOnceTriggerModal
+        isOpen={isVetOnceOpen}
+        onClose={() => setIsVetOnceOpen(false)}
       />
     </div>
   );

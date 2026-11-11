@@ -47,14 +47,18 @@ export async function updateSession(request: NextRequest): Promise<AuthSessionRe
     | 'admin'
     | undefined;
 
-  if (!user && demoRoleCookie) {
+  const isRecruiterPath = request.nextUrl.pathname.startsWith('/console') || request.nextUrl.pathname.startsWith('/recruiter');
+  const defaultDevRole = isRecruiterPath ? 'recruiter' : 'candidate';
+  const effectiveRole = demoRoleCookie || (process.env.NODE_ENV === 'development' ? defaultDevRole : undefined);
+
+  if (!user && effectiveRole) {
     return {
       supabaseResponse,
       user: {
-        id: `demo-${demoRoleCookie}-user`,
-        email: `${demoRoleCookie}@sync730.test`,
+        id: `demo-${effectiveRole}-user`,
+        email: `${effectiveRole}@sync730.test`,
       },
-      role: demoRoleCookie,
+      role: effectiveRole,
     };
   }
 
@@ -62,7 +66,7 @@ export async function updateSession(request: NextRequest): Promise<AuthSessionRe
 
   if (user) {
     if (user.user_metadata?.role) {
-      role = user.user_metadata.role as 'candidate' | 'recruiter' | 'admin';
+      role = String(user.user_metadata.role).toLowerCase() as 'candidate' | 'recruiter' | 'admin';
     } else {
       const { data: profile } = await supabase
         .from('profiles')
@@ -71,7 +75,7 @@ export async function updateSession(request: NextRequest): Promise<AuthSessionRe
         .maybeSingle();
 
       if (profile?.role) {
-        role = profile.role as 'candidate' | 'recruiter' | 'admin';
+        role = String(profile.role).toLowerCase() as 'candidate' | 'recruiter' | 'admin';
       }
     }
   }
