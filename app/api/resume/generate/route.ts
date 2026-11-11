@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   CandidateResumeProfile,
   DEFAULT_CANDIDATE_RESUME_PROFILE,
-  TURNKEY_INFRASTRUCTURE_STATEMENT,
   generateTemplateResume,
 } from '@/lib/resume/tailorer';
 
@@ -60,16 +59,10 @@ ${description.slice(0, 2500) || 'Full remote autonomy, strong engineering and pr
 - Core Skills: ${profile.coreSkills.join(', ')}
 - Tools: ${profile.toolsAndPlatforms.join(', ')}
 
-${
-  profile.includeTurnkeyInfrastructure
-    ? `## Turnkey Candidate Infrastructure Statement (Nigeria/Global South Vetted):\n${TURNKEY_INFRASTRUCTURE_STATEMENT}`
-    : ''
-}
-
 ## Strict Formatting Rules:
 1. Output ONLY clean Markdown format.
 2. Structure with # Candidate Name, ## PROFESSIONAL SUMMARY, ## CORE COMPETENCIES & TECHNICAL EXPERTISE, ## PROFESSIONAL WORK EXPERIENCE, ## EDUCATION & CERTIFICATIONS.
-3. If Turnkey Infrastructure is provided, prominently embed a section ## VERIFIED TURNKEY REMOTE INFRASTRUCTURE to guarantee uninterrupted power, internet, and timezone reliability.
+3. Prioritize clear hierarchy, executive tone, and ATS keyword relevance.
 4. Align keywords and bullet points specifically to ${title} at ${company}.
 5. Quantify achievements with metrics (e.g. 45% LCP boost, 99.9% uptime, 50+ tickets/day).
 6. Do NOT include generic conversational preamble or markdown code fences; return raw markdown directly.`;
@@ -121,7 +114,7 @@ ${
               },
               {
                 role: 'user',
-                content: `Tailor a resume for: ${title} at ${company}. Candidate: ${profile.fullName}, ${profile.yearsExperience} yrs exp. Skills: ${profile.coreSkills.join(', ')}. Include Turnkey remote infrastructure: ${profile.includeTurnkeyInfrastructure}`,
+                content: `Tailor a resume for: ${title} at ${company}. Candidate: ${profile.fullName}, ${profile.yearsExperience} yrs exp. Skills: ${profile.coreSkills.join(', ')}.`,
               },
             ],
             temperature: 0.3,

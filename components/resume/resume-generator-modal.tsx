@@ -44,7 +44,6 @@ interface ResumeGeneratorModalProps {
 
 export function ResumeGeneratorModal({ isOpen, onClose, job }: ResumeGeneratorModalProps) {
   const [candidateName, setCandidateName] = useState('Jane Doe');
-  const [includeInfrastructure, setIncludeInfrastructure] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedResume, setGeneratedResume] = useState<string>('');
   const [matchScore, setMatchScore] = useState<number | null>(null);
@@ -68,7 +67,6 @@ export function ResumeGeneratorModal({ isOpen, onClose, job }: ResumeGeneratorMo
           job_tags: job.tags || [],
           candidate_profile: {
             fullName: candidateName,
-            includeTurnkeyInfrastructure: includeInfrastructure,
           },
         }),
       });
@@ -153,30 +151,16 @@ export function ResumeGeneratorModal({ isOpen, onClose, job }: ResumeGeneratorMo
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
           {/* Controls Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 text-xs">
-            <div>
-              <label className="font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
-                Candidate Name
-              </label>
-              <Input
-                value={candidateName}
-                onChange={(e) => setCandidateName(e.target.value)}
-                placeholder="Candidate Full Name"
-                className="h-8 text-xs bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800"
-              />
-            </div>
-
-            <div className="flex items-center justify-between sm:justify-end gap-3 pt-4 sm:pt-0">
-              <label className="flex items-center gap-2 cursor-pointer text-neutral-700 dark:text-neutral-300">
-                <input
-                  type="checkbox"
-                  checked={includeInfrastructure}
-                  onChange={(e) => setIncludeInfrastructure(e.target.checked)}
-                  className="rounded border-neutral-300 dark:border-neutral-700 text-neutral-900 focus:ring-0 h-3.5 w-3.5"
-                />
-                <span className="font-medium">Embed Verified Turnkey Infrastructure</span>
-              </label>
-            </div>
+          <div className="p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 text-xs">
+            <label className="font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
+              Candidate Name
+            </label>
+            <Input
+              value={candidateName}
+              onChange={(e) => setCandidateName(e.target.value)}
+              placeholder="Candidate Full Name"
+              className="h-8 text-xs bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800 max-w-sm"
+            />
           </div>
 
           {/* Not Generated State: Launch CTA */}
@@ -190,9 +174,10 @@ export function ResumeGeneratorModal({ isOpen, onClose, job }: ResumeGeneratorMo
                   Ready to align your credentials with {job.company}?
                 </h4>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                  Our ATS specialist model analyzes this job&apos;s exact requirements, re-indexes your experience bullets, and injects our verified power and internet infrastructure audit.
+                  Our ATS specialist model analyzes this job&apos;s exact requirements, re-indexes your experience bullets, and structures your achievements with high-impact quantifiable metrics.
                 </p>
               </div>
+
               <Button
                 onClick={handleGenerate}
                 className="bg-neutral-950 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 text-xs font-semibold px-5 h-9 rounded-lg gap-1.5 shadow-sm"

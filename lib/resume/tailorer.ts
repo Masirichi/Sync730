@@ -9,7 +9,6 @@ export interface CandidateResumeProfile {
   coreSkills: string[];
   toolsAndPlatforms: string[];
   professionalSummary: string;
-  includeTurnkeyInfrastructure: boolean;
 }
 
 export const DEFAULT_CANDIDATE_RESUME_PROFILE: CandidateResumeProfile = {
@@ -40,15 +39,7 @@ export const DEFAULT_CANDIDATE_RESUME_PROFILE: CandidateResumeProfile = {
   ],
   professionalSummary:
     'High-velocity Senior Frontend & Full Stack Engineer with 5+ years of remote experience designing resilient, mobile-first web applications. Proven track record of improving Largest Contentful Paint (LCP) by 45%, building scalable design systems, and maintaining 99.9% uptime across asynchronous global teams.',
-  includeTurnkeyInfrastructure: true,
 };
-
-export const TURNKEY_INFRASTRUCTURE_STATEMENT = `VERIFIED TURNKEY REMOTE INFRASTRUCTURE (Vetted & Guaranteed):
-- Power Redundancy: 3.5kVA Hybrid Solar Inverter with 200Ah Lithium Backup (14h+ continuous power runtime)
-- Dual Internet & Failover: Starlink High-Speed Low-Latency Satellite (150 Mbps) + Automatic 5G Mobile Failover
-- Audio & Hardware: Jabra Studio-Grade ANC Noise-Cancelling Headset + Dual 4K Ergonomic Workstation
-- Timezone Alignment: 100% Core Hours Overlap for US EST/CST, UK GMT, and EU CET working hours
-- Contractor Compliance: Verified International Contractor Invoicing (Deel, Wise, Payoneer, Stripe Express)`;
 
 /**
  * Intelligent ATS Resume Template Tailorer
@@ -68,11 +59,6 @@ export function generateTemplateResume(
   const company = job.company || 'Global Remote Partner';
   const tagsList = job.tags && job.tags.length > 0 ? job.tags.join(', ') : profile.toolsAndPlatforms.join(', ');
 
-  const infrastructureSection = profile.includeTurnkeyInfrastructure
-    ? `\n## VERIFIED TURNKEY REMOTE INFRASTRUCTURE
-${TURNKEY_INFRASTRUCTURE_STATEMENT}\n`
-    : '';
-
   return `# ${profile.fullName.toUpperCase()}
 **${profile.location}** | **Email:** ${profile.email} | **Phone:** ${profile.phone}  
 **LinkedIn:** [${profile.linkedinUrl || 'linkedin.com'}](${profile.linkedinUrl || '#'}) | **Portfolio/GitHub:** [${profile.githubOrPortfolio || 'github.com'}](${profile.githubOrPortfolio || '#'})
@@ -81,7 +67,7 @@ ${TURNKEY_INFRASTRUCTURE_STATEMENT}\n`
 
 ## PROFESSIONAL SUMMARY
 Results-driven **${roleTitle}** with ${profile.yearsExperience}+ years of international remote experience delivering mission-critical web software and distributed workflows. Specifically tailored for **${company}**'s opening for **${roleTitle}**, bringing proven expertise in ${profile.coreSkills.slice(0, 3).join(', ')}, and end-to-end performance optimization. Adept at operating across asynchronous cross-functional teams with meticulous documentation and rapid iteration speed.
-${infrastructureSection}
+
 ## CORE COMPETENCIES & TECHNICAL EXPERTISE
 - **Languages & Frameworks:** ${profile.coreSkills.join(' · ')}
 - **Technologies & Tooling:** ${tagsList}
