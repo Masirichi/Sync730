@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Bell, LogOut, Menu, Search, X } from 'lucide-react';
+import { Bell, LogOut, Menu, Search, Settings, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -15,7 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
 import { BrandLogo } from '@/components/site/brand-logo';
 import { createBrowserClient } from '@/lib/supabase/client';
 
@@ -39,46 +38,81 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
     try {
       const supabase = createBrowserClient();
       await supabase.auth.signOut();
+      if (typeof document !== 'undefined') {
+        document.cookie = 'sync730-demo-role=; path=/; max-age=0';
+      }
       router.push('/login');
-    } catch (e) {
+    } catch {
       router.push('/login');
     }
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-lg">
-      <div className="flex h-16 items-center gap-4 px-4 sm:px-6">
-        <div className="lg:hidden"><BrandLogo compact /></div>
-
-        <div className="hidden flex-1 items-center sm:flex">
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search..." className="pl-9" />
+    <header className="sticky top-0 z-40 border-b border-neutral-200/80 dark:border-neutral-800 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-lg">
+      <div className="flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-4">
+          <div className="lg:hidden"><BrandLogo compact /></div>
+          <div className="hidden sm:block">
+            <h2 className="text-base font-bold text-neutral-900 dark:text-neutral-100">
+              Dashboard Overview
+            </h2>
           </div>
         </div>
 
-        <div className="flex flex-1 items-center justify-end gap-2 sm:flex-initial">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive" />
-          </Button>
+        {/* Right Utility Buttons & Profile Card (Inspiration Style) */}
+        <div className="flex items-center gap-3">
+          {/* Notification Button with Red Badge (matching inspiration's bell) */}
+          <button
+            type="button"
+            className="relative h-9 w-9 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+            title="Notifications"
+          >
+            <Bell className="h-4 w-4" />
+            <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center">
+              3
+            </span>
+          </button>
 
+          {/* Settings Button (matching inspiration's gear) */}
+          <button
+            type="button"
+            className="h-9 w-9 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+            title="Settings"
+          >
+            <Settings className="h-4 w-4" />
+          </button>
+
+          {/* User Profile Card (matching inspiration's user card) */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 px-2">
+              <button className="flex items-center gap-2.5 pl-1.5 pr-2.5 py-1 rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-foreground text-background text-xs font-semibold">
+                  <AvatarFallback className="bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-semibold">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
-                <span className="hidden text-sm font-medium sm:inline">{userName}</span>
-              </Button>
+                <div className="hidden sm:flex flex-col text-left">
+                  <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 leading-tight">
+                    {userName}
+                  </span>
+                  <span className="text-[10px] text-neutral-500 dark:text-neutral-400 leading-tight">
+                    San Francisco, CA
+                  </span>
+                </div>
+              </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuContent align="end" className="w-52 border-neutral-200 dark:border-neutral-800">
+              <DropdownMenuLabel className="font-semibold text-xs">Signed in as {userName}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/candidate" className="cursor-pointer">Overview</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/crawler" className="cursor-pointer">Remote Job Feed</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/tracker" className="cursor-pointer">Kanban Tracker</Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive cursor-pointer">
                 <LogOut className="mr-2 h-4 w-4" />
@@ -87,6 +121,7 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* Mobile Menu Trigger */}
           <Button
             variant="ghost"
             size="icon"
@@ -98,25 +133,28 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
         </div>
       </div>
 
+      {/* Mobile Drawer */}
       {mobileOpen && (
-        <nav className="border-t border-border/70 px-4 py-3 lg:hidden">
-          {navItems.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(item.href + '/');
-            return (
+        <div className="border-t border-neutral-200 dark:border-neutral-800 bg-neutral-900 text-white p-4 lg:hidden">
+          <nav className="space-y-1">
+            {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
-                className={cn(
-                  'block rounded-lg px-3 py-2 text-sm font-medium',
-                  active ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-accent'
-                )}
+                className="block rounded-lg px-3 py-2 text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 font-medium"
               >
                 {item.label}
               </Link>
-            );
-          })}
-        </nav>
+            ))}
+            <button
+              onClick={handleSignOut}
+              className="w-full text-left rounded-lg px-3 py-2 text-sm text-rose-400 hover:bg-neutral-800 font-medium mt-2 flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" /> Sign out
+            </button>
+          </nav>
+        </div>
       )}
     </header>
   );
