@@ -23,6 +23,8 @@ import {
   CalendarDays,
   ShieldCheck,
   ChevronsUpDown,
+  Bell,
+  Settings,
 } from 'lucide-react';
 
 // Exact original stats with premium icons and stroke-width
@@ -31,33 +33,25 @@ const stats = [
     label: 'Active Applications',
     value: '7',
     icon: FileCheck2,
-    iconBg: 'bg-blue-50 text-blue-600 border border-blue-200/50 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-900/40',
+    iconBg: 'bg-blue-50 text-blue-600 border border-blue-100 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-900/40',
     trend: '+12.08%',
-    trendType: 'positive',
-  },
-  {
-    label: 'Saved Jobs',
-    value: '12',
-    icon: Bookmark,
-    iconBg: 'bg-rose-50 text-rose-600 border border-rose-200/50 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-900/40',
-    trend: '+4 new',
     trendType: 'positive',
   },
   {
     label: 'Profile Views',
     value: '34',
     icon: TrendingUp,
-    iconBg: 'bg-emerald-50 text-emerald-600 border border-emerald-200/50 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-900/40',
+    iconBg: 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-900/40',
     trend: '+18.5%',
     trendType: 'positive',
   },
   {
-    label: 'New Matches',
-    value: '5',
-    icon: Target,
-    iconBg: 'bg-amber-50 text-amber-600 border border-amber-200/50 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-900/40',
-    trend: 'Today',
-    trendType: 'neutral',
+    label: 'Saved Jobs',
+    value: '12',
+    icon: Bookmark,
+    iconBg: 'bg-purple-50 text-purple-600 border border-purple-100 dark:bg-purple-950/60 dark:text-purple-400 dark:border-purple-900/40',
+    trend: '+4 new',
+    trendType: 'positive',
   },
 ];
 
@@ -72,6 +66,7 @@ const recommendedJobs = [
     match: 95,
     dueNotice: 'Fri, 10 Oct',
     statusBadge: 'FastTrack',
+    statusBadgeColor: 'bg-rose-50 text-rose-700 border border-rose-200/80 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900',
     icon: Code2,
     iconBg: 'bg-emerald-50 text-emerald-600 border border-emerald-200/60 dark:bg-emerald-950/60 dark:text-emerald-400',
   },
@@ -83,7 +78,8 @@ const recommendedJobs = [
     salary: '$90k–$110k',
     match: 88,
     dueNotice: 'Sun, 12 Oct',
-    statusBadge: '2 Days Left',
+    statusBadge: '2 Day Left',
+    statusBadgeColor: 'bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900',
     icon: Palette,
     iconBg: 'bg-blue-50 text-blue-600 border border-blue-200/60 dark:bg-blue-950/60 dark:text-blue-400',
   },
@@ -95,7 +91,8 @@ const recommendedJobs = [
     salary: '$80–$100/hr',
     match: 82,
     dueNotice: 'Mon, 13 Oct',
-    statusBadge: '6 Days Left',
+    statusBadge: '6 Day Left',
+    statusBadgeColor: 'bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900',
     icon: Layers,
     iconBg: 'bg-amber-50 text-amber-600 border border-amber-200/60 dark:bg-amber-950/60 dark:text-amber-400',
   },
@@ -170,42 +167,85 @@ export default function CandidateDashboard() {
   );
 
   return (
-    <div className="space-y-7">
-      {/* Welcome Banner (Retaining existing greeting & subtitle) */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div className="space-y-6">
+      {/* Top Header Row (Matching HireHR's Dashboard Overview header bar) */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-            Welcome back, Jane
+          <h1 className="text-2xl sm:text-[28px] font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
+            Dashboard Overview
           </h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-            Here&apos;s what&apos;s happening with your job search.
+          <p className="mt-0.5 text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">
+            Welcome back, Jane · Pre-vetted African remote talent ecosystem
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <Link href="/dashboard/crawler">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs h-9 px-3.5 rounded-lg border-neutral-200 dark:border-neutral-800 font-medium"
-            >
-              Browse Remote Feed
-            </Button>
-          </Link>
-          <Link href="/dashboard/tracker">
-            <Button
-              size="sm"
-              className="text-xs h-9 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 font-semibold"
-            >
-              Open Tracker
-            </Button>
-          </Link>
+        {/* Right utility buttons & user card (Inspiration style) */}
+        <div className="flex items-center gap-3">
+          {/* Notification Button with red 3 badge */}
+          <button
+            type="button"
+            className="relative h-10 w-10 rounded-full border border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-800 shadow-sm flex items-center justify-center text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/60 transition-colors"
+            title="Notifications"
+          >
+            <Bell className="h-4 w-4 stroke-[1.5]" />
+            <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center shadow-sm">
+              3
+            </span>
+          </button>
+
+          {/* Settings Button */}
+          <button
+            type="button"
+            className="h-10 w-10 rounded-full border border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-800 shadow-sm flex items-center justify-center text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/60 transition-colors"
+            title="Settings"
+          >
+            <Settings className="h-4 w-4 stroke-[1.5]" />
+          </button>
+
+          {/* User Profile Card (Daniel Cohen / New York USA style) */}
+          <div className="flex items-center gap-2.5 pl-1.5 pr-3 py-1 rounded-full border border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-800 shadow-sm">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-bold">
+                JD
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col text-left">
+              <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 leading-tight">
+                Jane Doe
+              </span>
+              <span className="text-[10px] text-neutral-400 dark:text-neutral-500 leading-tight">
+                Lagos, Nigeria
+              </span>
+            </div>
+          </div>
+
+          {/* Quick Action CTAs */}
+          <div className="hidden xl:flex items-center gap-2 pl-2">
+            <Link href="/dashboard/crawler">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-9 px-3 rounded-lg border-neutral-200 dark:border-neutral-800 font-medium"
+              >
+                Remote Feed
+              </Button>
+            </Link>
+            <Link href="/dashboard/tracker">
+              <Button
+                size="sm"
+                className="text-xs h-9 px-3.5 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 font-semibold"
+              >
+                Tracker
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Top 4 Stat Cards Row (Borrowing exact inspiration design logic with premium icons) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => (
+      {/* Row 1: Top 4 Stat Cards Row (Borrowing exact HireHR 4-card top row logic) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        {/* Card 1: Total employee equivalent -> Active Applications */}
+        {stats.slice(0, 1).map((stat) => (
           <Card
             key={stat.label}
             className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-sm transition-all hover:border-neutral-300 dark:hover:border-neutral-700"
@@ -223,35 +263,101 @@ export default function CandidateDashboard() {
               <span className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-50 tracking-tight">
                 {stat.value}
               </span>
-              <span
-                className={`text-xs px-2 py-0.5 rounded-full font-medium border ${
-                  stat.trendType === 'positive'
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800'
-                    : 'bg-neutral-100 text-neutral-600 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700'
-                }`}
-              >
-                {stat.trend}
+              <span className="text-xs px-2 py-0.5 rounded-full font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800 inline-flex items-center gap-1">
+                <TrendingUp className="h-3 w-3 stroke-[1.75]" /> {stat.trend}
               </span>
             </div>
           </Card>
         ))}
+
+        {/* Card 2: Attendance rate equivalent -> Profile Views */}
+        {stats.slice(1, 2).map((stat) => (
+          <Card
+            key={stat.label}
+            className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-sm transition-all hover:border-neutral-300 dark:hover:border-neutral-700"
+          >
+            <div className="flex items-center gap-3">
+              <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${stat.iconBg}`}>
+                <stat.icon className="h-5 w-5 stroke-[1.5]" />
+              </div>
+              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 truncate">
+                {stat.label}
+              </span>
+            </div>
+
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-50 tracking-tight">
+                {stat.value}
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800 inline-flex items-center gap-1">
+                <TrendingUp className="h-3 w-3 stroke-[1.75]" /> {stat.trend}
+              </span>
+            </div>
+          </Card>
+        ))}
+
+        {/* Card 3: Total Revenue equivalent -> Saved Jobs */}
+        {stats.slice(2, 3).map((stat) => (
+          <Card
+            key={stat.label}
+            className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-sm transition-all hover:border-neutral-300 dark:hover:border-neutral-700"
+          >
+            <div className="flex items-center gap-3">
+              <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${stat.iconBg}`}>
+                <stat.icon className="h-5 w-5 stroke-[1.5]" />
+              </div>
+              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 truncate">
+                {stat.label}
+              </span>
+            </div>
+
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-50 tracking-tight">
+                {stat.value}
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full font-semibold border bg-purple-50 text-purple-700 border-purple-200/80 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800 inline-flex items-center gap-1">
+                <Bookmark className="h-3 w-3 stroke-[1.75]" /> {stat.trend}
+              </span>
+            </div>
+          </Card>
+        ))}
+
+        {/* Card 4: Previous Payroll equivalent -> FastTrack Vetting */}
+        <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-sm transition-all hover:border-neutral-300 dark:hover:border-neutral-700 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+            <span className="font-semibold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 stroke-[1.5] text-purple-600 dark:text-purple-400" /> FastTrack Vetting
+            </span>
+            <span className="text-neutral-400 text-[11px]">Nov 2026</span>
+          </div>
+
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl sm:text-[26px] font-extrabold text-neutral-900 dark:text-neutral-50 tracking-tight">
+              Pre-Vetted
+            </span>
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800">
+              Verified
+            </span>
+          </div>
+
+          <p className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400 leading-tight">
+            32 verified remote hiring teams active
+          </p>
+        </Card>
       </div>
 
-      {/* Main Two-Column Section (Inspiration Rhythm) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left / Wide Column (Col 8) */}
-        <div className="lg:col-span-8 space-y-6">
-          {/* Card 1: Recommended for you (Borrowing "Things to do (6)" design logic) */}
-          <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm">
+      {/* Row 2: Middle Section (Things to do on Left, Upcoming Payroll on Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* Left Column (8 cols): Things to do (6) equivalent -> Recommended for you */}
+        <div className="lg:col-span-8">
+          <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 sm:p-6 shadow-sm">
             <div className="flex items-center justify-between pb-4 border-b border-neutral-100 dark:border-neutral-800/80">
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
-                  Recommended for you ({recommendedJobs.length})
-                </h2>
-              </div>
+              <h2 className="text-base font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
+                Recommended for you ({recommendedJobs.length})
+              </h2>
               <Link
                 href="/candidate/jobs"
-                className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 inline-flex items-center gap-1 transition-colors"
+                className="text-xs font-semibold text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 inline-flex items-center gap-1 transition-colors"
               >
                 View all <ArrowRight className="h-3 w-3 stroke-[1.5]" />
               </Link>
@@ -266,9 +372,9 @@ export default function CandidateDashboard() {
                   {/* Left: Square Icon + Title & Subtitle */}
                   <div className="flex items-start gap-3 min-w-0">
                     <div
-                      className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${job.iconBg}`}
+                      className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${job.iconBg}`}
                     >
-                      <job.icon className="h-4 w-4 stroke-[1.5]" />
+                      <job.icon className="h-5 w-5 stroke-[1.5]" />
                     </div>
                     <div className="min-w-0 space-y-0.5">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -285,10 +391,14 @@ export default function CandidateDashboard() {
                     </div>
                   </div>
 
-                  {/* Right: Date notice, Match pill, Apply CTA */}
+                  {/* Right: Date notice, Status pill, Match pill, Apply CTA */}
                   <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-center">
                     <span className="text-xs text-neutral-400 hidden md:inline">
                       {job.dueNotice}
+                    </span>
+
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${job.statusBadgeColor}`}>
+                      {job.statusBadge}
                     </span>
 
                     <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800">
@@ -297,7 +407,7 @@ export default function CandidateDashboard() {
 
                     <Button
                       size="sm"
-                      className="text-xs h-8 px-3 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 font-semibold"
+                      className="text-xs h-7 px-3 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 font-semibold"
                     >
                       Apply
                     </Button>
@@ -314,22 +424,80 @@ export default function CandidateDashboard() {
               ))}
             </div>
           </Card>
+        </div>
 
-          {/* Card 2: Recent Applications (Borrowing "Recent Payroll" data table design logic) */}
-          <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm space-y-4">
+        {/* Right Column (4 cols): Upcoming Payroll equivalent -> Upcoming Interviews */}
+        <div className="lg:col-span-4">
+          <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 sm:p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+              <span className="font-semibold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                <CalendarDays className="h-4 w-4 stroke-[1.5] text-purple-600 dark:text-purple-400" /> Upcoming Interviews
+              </span>
+              <span className="text-neutral-400 text-[11px]">Nov 14, 2026</span>
+            </div>
+
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-extrabold text-neutral-900 dark:text-neutral-50 tracking-tight">
+                2 Scheduled
+              </span>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200/80 dark:bg-amber-950/50 dark:text-amber-300">
+                Pending
+              </span>
+            </div>
+
+            <div className="space-y-3 pt-1">
+              {recruiterContacts.map((contact) => (
+                <div
+                  key={contact.name}
+                  className="flex items-center justify-between p-3 rounded-xl border border-neutral-100 dark:border-neutral-800/80 bg-neutral-50/50 dark:bg-neutral-800/30 gap-2"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Avatar className="h-8 w-8 shrink-0">
+                      <AvatarFallback className="bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-bold">
+                        {contact.initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-neutral-900 dark:text-neutral-100 truncate">
+                        {contact.name}
+                      </p>
+                      <p className="text-[10px] text-neutral-500 truncate">
+                        {contact.company}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Link
+                    href={contact.href}
+                    className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-800 hover:underline shrink-0 inline-flex items-center gap-0.5"
+                  >
+                    {contact.action} <ArrowUpRight className="h-3 w-3 stroke-[1.5]" />
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Row 3: Bottom Section (Recent Payroll Table on Left, Total Employee on Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* Left Column (8 cols): Recent Payroll equivalent -> Recent Applications */}
+        <div className="lg:col-span-8">
+          <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 sm:p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
                 Recent Applications
               </h2>
               <Link
                 href="/candidate/applications"
-                className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 inline-flex items-center gap-1 transition-colors"
+                className="text-xs font-semibold text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 inline-flex items-center gap-1 transition-colors"
               >
                 View all <ArrowRight className="h-3 w-3 stroke-[1.5]" />
               </Link>
             </div>
 
-            {/* Table Search & Filters bar */}
+            {/* Table Search & Filters bar (Inspiration Style) */}
             <div className="flex items-center justify-between gap-3 pt-1">
               <div className="relative flex-1 max-w-xs">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 stroke-[1.5] text-neutral-400" />
@@ -420,84 +588,9 @@ export default function CandidateDashboard() {
           </Card>
         </div>
 
-        {/* Right / Narrow Column (Col 4) */}
-        <div className="lg:col-span-4 space-y-6">
-          {/* Card 1: FastTrack Vetting Status (Borrowing "Previous Payroll" card logic) */}
-          <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm space-y-3">
-            <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
-              <span className="font-semibold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5 stroke-[1.5] text-emerald-600" /> FastTrack Vetting
-              </span>
-              <span>Nov 2026</span>
-            </div>
-
-            <div className="flex items-baseline justify-between pt-1">
-              <span className="text-2xl sm:text-3xl font-extrabold text-neutral-900 dark:text-neutral-50 tracking-tight">
-                Pre-Vetted
-              </span>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-950/50 dark:text-blue-300">
-                Verified
-              </span>
-            </div>
-
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed pt-1">
-              Your assessment is active. 32 verified remote hiring teams have unlocked direct contact routing.
-            </p>
-          </Card>
-
-          {/* Card 2: Upcoming Interviews & Recruiter Activity (Borrowing "Upcoming Payroll" Cody Fisher / Robert Fox cards) */}
-          <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
-              <span className="font-semibold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                <CalendarDays className="h-3.5 w-3.5 stroke-[1.5] text-purple-600" /> Upcoming Interviews
-              </span>
-              <span>Nov 14, 2026</span>
-            </div>
-
-            <div className="flex items-baseline justify-between">
-              <span className="text-2xl font-extrabold text-neutral-900 dark:text-neutral-50 tracking-tight">
-                2 Scheduled
-              </span>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/80 dark:bg-amber-950/50 dark:text-amber-300">
-                Pending
-              </span>
-            </div>
-
-            <div className="space-y-3 pt-2">
-              {recruiterContacts.map((contact) => (
-                <div
-                  key={contact.name}
-                  className="flex items-center justify-between p-3 rounded-xl border border-neutral-100 dark:border-neutral-800/80 bg-neutral-50/50 dark:bg-neutral-800/30 gap-2"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <Avatar className="h-8 w-8 shrink-0">
-                      <AvatarFallback className="bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-bold">
-                        {contact.initials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-neutral-900 dark:text-neutral-100 truncate">
-                        {contact.name}
-                      </p>
-                      <p className="text-[10px] text-neutral-500 truncate">
-                        {contact.company}
-                      </p>
-                    </div>
-                  </div>
-
-                  <Link
-                    href={contact.href}
-                    className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-800 hover:underline shrink-0 inline-flex items-center gap-0.5"
-                  >
-                    {contact.action} <ArrowUpRight className="h-3 w-3 stroke-[1.5]" />
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          {/* Card 3: Profile Match Rate & Skills Breakdown (Borrowing "Total Employee 3,200" barcode card logic) */}
-          <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm space-y-4">
+        {/* Right Column (4 cols): Total Employee 3,200 equivalent -> Profile Match Rate */}
+        <div className="lg:col-span-4">
+          <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 sm:p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500 text-[11px]">
                 Profile Match Rate
@@ -525,36 +618,30 @@ export default function CandidateDashboard() {
               </div>
             </div>
 
-            {/* Segmented Barcode Progress Bar (Inspiration Style) */}
+            {/* Segmented Barcode Soundwave Chart (Recreating HireHR's signature barcode pattern) */}
             <div className="space-y-1.5 pt-1">
-              <div className="flex justify-between text-[11px] font-semibold text-neutral-500">
+              <div className="flex justify-between text-xs font-semibold text-neutral-500">
                 <span>15%</span>
                 <span>63%</span>
                 <span>22%</span>
               </div>
-              <div className="flex h-6 w-full items-center gap-1 overflow-hidden rounded-md bg-neutral-100 dark:bg-neutral-800 p-1">
-                {/* Segment 1: Amber stripes */}
-                <div
-                  className="h-full bg-amber-400 rounded-sm"
-                  style={{ width: '15%' }}
-                  title="Design & Product (15%)"
-                />
-                {/* Segment 2: Blue stripes */}
-                <div
-                  className="h-full bg-blue-600 rounded-sm"
-                  style={{ width: '63%' }}
-                  title="Full Stack & TypeScript (63%)"
-                />
-                {/* Segment 3: Emerald stripes */}
-                <div
-                  className="h-full bg-emerald-500 rounded-sm"
-                  style={{ width: '22%' }}
-                  title="Cloud & DevOps (22%)"
-                />
+              <div className="flex h-10 w-full items-center justify-between gap-[2px] overflow-hidden py-1">
+                {/* Amber stripes (15%) */}
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={`amber-${i}`} className="h-full w-[3px] rounded-full bg-amber-400 shrink-0" />
+                ))}
+                {/* Blue stripes (63%) */}
+                {Array.from({ length: 30 }).map((_, i) => (
+                  <div key={`blue-${i}`} className="h-full w-[3px] rounded-full bg-blue-600 shrink-0" />
+                ))}
+                {/* Green stripes (22%) */}
+                {Array.from({ length: 11 }).map((_, i) => (
+                  <div key={`green-${i}`} className="h-full w-[3px] rounded-full bg-emerald-500 shrink-0" />
+                ))}
               </div>
             </div>
 
-            {/* Legend list matching the inspiration */}
+            {/* Legend list matching HireHR */}
             <div className="space-y-2.5 pt-2 text-xs">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

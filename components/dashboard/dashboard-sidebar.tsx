@@ -37,22 +37,22 @@ export function DashboardSidebar({ items, roleLabel, homeHref }: DashboardSideba
   };
 
   return (
-    <aside className="hidden w-64 shrink-0 bg-[#0d0d0d] text-white border-r border-neutral-900 lg:flex lg:flex-col justify-between">
+    <aside className="hidden w-64 shrink-0 bg-[#101114] text-white rounded-[28px] border border-neutral-800/60 lg:flex lg:flex-col justify-between p-4 my-3 ml-3 h-[calc(100vh-24px)] sticky top-3 shadow-sm select-none">
       <div>
-        {/* Brand Logo Header */}
-        <div className="flex h-[76px] items-center border-b border-neutral-900 px-6">
+        {/* Brand Logo Header with Sync bold white / 730 grey */}
+        <div className="flex h-16 items-center px-3 pt-2 pb-1">
           <BrandLogo inverted />
         </div>
 
         {/* Role Label */}
-        <div className="px-6 pt-6 pb-2">
+        <div className="px-3 pt-4 pb-2">
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-neutral-500">
             {roleLabel} Portal
           </p>
         </div>
 
-        {/* Navigation Items (Inspiration Pill Style) */}
-        <nav className="space-y-1.5 px-3 py-3">
+        {/* Navigation Items (Inspiration Floating Pill Style) */}
+        <nav className="space-y-1 px-1 py-2">
           {items.map((item) => {
             const active = pathname === item.href || (item.href !== '/candidate' && pathname.startsWith(item.href + '/'));
             return (
@@ -60,10 +60,10 @@ export function DashboardSidebar({ items, roleLabel, homeHref }: DashboardSideba
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all',
+                  'flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-all',
                   active
-                    ? 'bg-neutral-800 text-white shadow-sm font-semibold'
-                    : 'text-neutral-400 hover:text-white hover:bg-neutral-900/80'
+                    ? 'bg-[#222329] text-white shadow-sm font-semibold'
+                    : 'text-neutral-400 hover:text-white hover:bg-neutral-800/40'
                 )}
               >
                 <item.icon className="h-4 w-4 shrink-0 stroke-[1.5]" />
@@ -75,10 +75,10 @@ export function DashboardSidebar({ items, roleLabel, homeHref }: DashboardSideba
       </div>
 
       {/* Bottom Log Out Section (Inspiration Style) */}
-      <div className="border-t border-neutral-900 p-4 space-y-2">
+      <div className="p-2 space-y-2">
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl bg-neutral-900/90 hover:bg-neutral-800 border border-neutral-800 text-sm font-medium text-neutral-300 hover:text-white transition-all"
+          className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-2xl bg-[#18191E] hover:bg-[#202127] border border-neutral-800/80 text-sm font-medium text-neutral-300 hover:text-white transition-all shadow-sm"
         >
           <LogOut className="h-4 w-4 shrink-0 stroke-[1.5] text-neutral-400" />
           <span>Log Out</span>

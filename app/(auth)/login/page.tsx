@@ -6,9 +6,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { AlertCircle, Loader2, User, Briefcase } from 'lucide-react';
+import { AlertCircle, Loader2, User, Briefcase, ShieldCheck } from 'lucide-react';
 
 function LoginForm() {
   const router = useRouter();
@@ -26,7 +25,14 @@ function LoginForm() {
       document.cookie = `sync730-demo-role=${role}; path=/; max-age=86400; SameSite=Lax`;
     }
 
-    const targetUrl = redirectParam || (role === 'recruiter' ? '/recruiter' : role === 'admin' ? '/admin' : '/dashboard/crawler');
+    const lower = role.toLowerCase();
+    const targetUrl =
+      redirectParam ||
+      (lower === 'platform_admin' || lower === 'admin'
+        ? '/command/metrics'
+        : lower === 'recruiter'
+        ? '/console/jobs'
+        : '/dashboard/crawler');
     window.location.href = targetUrl;
   };
 
@@ -64,7 +70,7 @@ function LoginForm() {
     }
   };
 
-  const handleDemoSignIn = (role: 'candidate' | 'recruiter' | 'admin') => {
+  const handleDemoSignIn = (role: 'candidate' | 'recruiter' | 'platform_admin') => {
     routeUserByRole(role);
   };
 
@@ -155,6 +161,16 @@ function LoginForm() {
               >
                 <Briefcase className="h-3.5 w-3.5 text-amber-500" />
                 Demo Recruiter
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="col-span-2 gap-1.5 text-xs h-8 bg-neutral-900 text-white hover:bg-neutral-800 border-neutral-700"
+                onClick={() => handleDemoSignIn('platform_admin')}
+              >
+                <ShieldCheck className="h-3.5 w-3.5 text-rose-400" />
+                Demo Platform Admin
               </Button>
             </div>
           </div>

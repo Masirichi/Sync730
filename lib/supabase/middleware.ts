@@ -1,13 +1,15 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
+export type UserRole = 'candidate' | 'recruiter' | 'admin' | 'PLATFORM_ADMIN' | null;
+
 export interface AuthSessionResult {
   supabaseResponse: NextResponse;
   user: {
     id: string;
     email?: string;
   } | null;
-  role: 'candidate' | 'recruiter' | 'admin' | null;
+  role: UserRole;
 }
 
 export async function updateSession(request: NextRequest): Promise<AuthSessionResult> {
@@ -41,33 +43,52 @@ export async function updateSession(request: NextRequest): Promise<AuthSessionRe
   } = await supabase.auth.getUser();
 
   // Support demo role cookie in development / automated testing environments
-  const demoRoleCookie = request.cookies.get('sync730-demo-role')?.value as
-    | 'candidate'
-    | 'recruiter'
-    | 'admin'
-    | undefined;
+  const rawDemoCookie = request.cookies.get('sync730-demo-role')?.value;
+  let demoRole: UserRole = null;
+  if (rawDemoCookie) {
+    const lower = rawDemoCookie.toLowerCase();
+    if (lower === 'platform_admin' || lower === 'admin') {
+      demoRole = 'PLATFORM_ADMIN';
+    } else if (lower === 'recruiter') {
+      demoRole = 'recruiter';
+    } else if (lower === 'candidate') {
+      demoRole = 'candidate';
+    }
+  }
 
   const isRecruiterPath = request.nextUrl.pathname.startsWith('/console') || request.nextUrl.pathname.startsWith('/recruiter');
-  const defaultDevRole = isRecruiterPath ? 'recruiter' : 'candidate';
-  const effectiveRole = demoRoleCookie || (process.env.NODE_ENV === 'development' ? defaultDevRole : undefined);
+  const isCommandPath = request.nextUrl.pathname.startsWith('/command') || request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/api/admin');
+  
+  let defaultDevRole: UserRole = 'candidate';
+  if (isCommandPath) defaultDevRole = 'PLATFORM_ADMIN';
+  else if (isRecruiterPath) defaultDevRole = 'recruiter';
+
+  const effectiveRole = demoRole || (process.env.NODE_ENV === 'development' ? defaultDevRole : null);
 
   if (!user && effectiveRole) {
     return {
       supabaseResponse,
       user: {
-        id: `demo-${effectiveRole}-user`,
-        email: `${effectiveRole}@sync730.test`,
+        id: `demo-${effectiveRole.toLowerCase()}-user`,
+        email: `${effectiveRole.toLowerCase()}@sync730.test`,
       },
       role: effectiveRole,
     };
   }
 
-  let role: 'candidate' | 'recruiter' | 'admin' | null = null;
+  let role: UserRole = null;
 
   if (user) {
-    if (user.user_metadata?.role) {
-      role = String(user.user_metadata.role).toLowerCase() as 'candidate' | 'recruiter' | 'admin';
+    const rawRole = user.user_metadata?.role || user.user_metadata?.Role;
+    if (rawRole) {
+      const lower = String(rawRole).toLowerCase();
+      if (lower === 'platform_admin' || lower === 'admin') {
+        role = 'PLATFORM_ADMIN';
+      } else {
+        role = lower as 'candidate' | 'recruiter';
+      }
     } else {
+      // Check user_profiles or profiles
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
@@ -75,9 +96,19 @@ export async function updateSession(request: NextRequest): Promise<AuthSessionRe
         .maybeSingle();
 
       if (profile?.role) {
-        role = String(profile.role).toLowerCase() as 'candidate' | 'recruiter' | 'admin';
+        const lower = String(profile.role).toLowerCase();
+        if (lower === 'platform_admin' || lower === 'admin') {
+          role = 'PLATFORM_ADMIN';
+        } else {
+          role = lower as 'candidate' | 'recruiter';
+        }
       }
     }
+  }
+
+  // If user is authenticated but role could not be read, fallback to demo cookie if set
+  if (user && !role && demoRole) {
+    role = demoRole;
   }
 
   return { supabaseResponse, user, role };
