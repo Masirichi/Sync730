@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Bell, LogOut, Menu, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { BrandLogo } from '@/components/site/brand-logo';
+import { createBrowserClient } from '@/lib/supabase/client';
 
 interface NavItem {
   label: string;
@@ -31,7 +32,18 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ navItems, userName, userInitials }: DashboardHeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    try {
+      const supabase = createBrowserClient();
+      await supabase.auth.signOut();
+      router.push('/login');
+    } catch (e) {
+      router.push('/login');
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-lg">
@@ -68,7 +80,7 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
               <DropdownMenuItem>Profile</DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive focus:text-destructive">
+              <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive cursor-pointer">
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign out
               </DropdownMenuItem>
