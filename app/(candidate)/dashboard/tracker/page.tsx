@@ -24,7 +24,9 @@ import {
   Search,
   Compass,
   Video,
+  Sparkles,
 } from 'lucide-react';
+import { ResumeGeneratorModal, TargetJobContext } from '@/components/resume/resume-generator-modal';
 import { CandidateTrackerItem, TrackerStatus } from '@/lib/supabase/types';
 import {
   getLocalTrackerItems,
@@ -48,6 +50,7 @@ export default function KanbanTrackerPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingNotesItem, setEditingNotesItem] = useState<CandidateTrackerItem | null>(null);
   const [notesText, setNotesText] = useState('');
+  const [selectedResumeJob, setSelectedResumeJob] = useState<TargetJobContext | null>(null);
 
   // Form state for external job modal
   const [newTitle, setNewTitle] = useState('');
@@ -352,6 +355,13 @@ export default function KanbanTrackerPage() {
         })}
       </div>
 
+{/* Modal: Resume Generator & ATS Studio */}
+      <ResumeGeneratorModal
+        isOpen={Boolean(selectedResumeJob)}
+        onClose={() => setSelectedResumeJob(null)}
+        job={selectedResumeJob}
+      />
+
       {/* Modal: Add External Job */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
         <DialogContent className="sm:max-w-md border-neutral-200 dark:border-neutral-800">
@@ -513,6 +523,13 @@ export default function KanbanTrackerPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Resume Generator & ATS Studio Modal */}
+      <ResumeGeneratorModal
+        isOpen={Boolean(selectedResumeJob)}
+        onClose={() => setSelectedResumeJob(null)}
+        job={selectedResumeJob}
+      />
     </div>
   );
 }

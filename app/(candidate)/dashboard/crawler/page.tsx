@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   Bookmark,
   Check,
+  Sparkles,
 } from 'lucide-react';
 import { RemoteJob } from '@/lib/supabase/types';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
@@ -23,6 +24,7 @@ import {
   normalizeJobCategory,
 } from '@/lib/crawler/categories';
 import { toast } from 'sonner';
+import { ResumeGeneratorModal, TargetJobContext } from '@/components/resume/resume-generator-modal';
 
 // Pre-normalize seed jobs for instant zero-latency first render
 const HYDRATED_INITIAL_JOBS: RemoteJob[] = SEED_REMOTE_JOBS.map((j, idx) => ({
@@ -39,6 +41,7 @@ export default function CrawlerJobFeedPage() {
   const [selectedTier, setSelectedTier] = useState<string>('All');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
+  const [selectedResumeJob, setSelectedResumeJob] = useState<TargetJobContext | null>(null);
 
   // Load jobs and current tracker state on mount
   useEffect(() => {
@@ -460,6 +463,25 @@ export default function CrawlerJobFeedPage() {
                     </span>
 
                     <div className="flex items-center gap-2">
+                      {/* Tailor ATS Resume */}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedResumeJob({
+                          id: job.id,
+                          title: job.title,
+                          company: job.company,
+                          location: job.candidate_required_location || job.location_tier,
+                          description: job.description,
+                          url: job.url,
+                          tags: job.tags,
+                        })}
+                        className="text-xs h-9 px-3.5 rounded-lg border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 font-medium inline-flex items-center gap-1.5"
+                      >
+                        <Sparkles className="h-3.5 w-3.5 stroke-[1.5]" />
+                        Tailor Resume
+                      </Button>
+
                       {/* One-click Save to Tracker */}
                       <Button
                         size="sm"
@@ -501,6 +523,13 @@ export default function CrawlerJobFeedPage() {
           })}
         </div>
       )}
+
+      {/* Resume Generator & ATS Studio Modal */}
+      <ResumeGeneratorModal
+        isOpen={Boolean(selectedResumeJob)}
+        onClose={() => setSelectedResumeJob(null)}
+        job={selectedResumeJob}
+      />
     </div>
   );
 }

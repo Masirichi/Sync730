@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Loader2, Bookmark, ArrowUpRight, Globe2 } from 'lucide-react';
+import { Search, Loader2, Bookmark, ArrowUpRight, Globe2, Sparkles } from 'lucide-react';
+import { ResumeGeneratorModal, TargetJobContext } from '@/components/resume/resume-generator-modal';
 import { createBrowserClient } from '@/lib/supabase/client';
 
 interface JobItem {
@@ -33,6 +34,7 @@ export default function BrowseJobsPage() {
   const [jobsList, setJobsList] = useState<JobItem[]>(defaultJobs);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedResumeJob, setSelectedResumeJob] = useState<TargetJobContext | null>(null);
 
   useEffect(() => {
     async function loadJobs() {
