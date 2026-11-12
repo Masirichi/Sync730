@@ -1,0 +1,66 @@
+[
+  {
+    "id": "log-1794470824573-d73e",
+    "created_at": "2026-11-12T08:07:04.573Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_POSTED",
+    "target_id": "admin-job-1794470824557",
+    "notes": "Published verified admin role: \"Senior Cloud Platform Architect\" at Vetted Tech Africa (Worldwide)"
+  },
+  {
+    "id": "log-1794470754382-1eq6",
+    "created_at": "2026-11-12T08:05:54.382Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_STATUS_CHANGE",
+    "target_id": "admin-job-1794470733620",
+    "notes": "Changed status of job admin-job-1794470733620 to TAKEN_DOWN"
+  },
+  {
+    "id": "log-1794470733624-jppe",
+    "created_at": "2026-11-12T08:05:33.624Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_POSTED",
+    "target_id": "admin-job-1794470733620",
+    "notes": "Published verified admin role: \"Senior Cloud Platform Architect\" at Vetted Tech Africa (Worldwide)"
+  },
+  {
+    "id": "log-1794470657826-s742",
+    "created_at": "2026-11-12T08:04:17.826Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_POSTED",
+    "target_id": "admin-job-1794470657822",
+    "notes": "Published verified admin role: \"Senior Cloud Platform Architect\" at Vetted Tech Africa (Worldwide)"
+  },
+  {
+    "id": "log-1794470285884-j5hc",
+    "created_at": "2026-11-12T07:58:05.884Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_POSTED",
+    "target_id": "admin-job-1794470285866",
+    "notes": "Published verified admin role: \"Senior Cloud Platform Architect\" at Vetted Tech Africa (Worldwide)"
+  },
+  {
+    "id": "log-001",
+    "created_at": "2026-11-08T07:58:05.683Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "SYSTEM_BOOTSTRAP",
+    "target_id": "system",
+    "notes": "Sync730 Platform Admin Command Center initialized with RBAC controls"
+  },
+  {
+    "id": "log-002",
+    "created_at": "2026-11-10T07:58:05.683Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "TOKEN_ADJUSTMENT",
+    "target_id": "ws-fintech-01",
+    "notes": "Granted 2 trial tokens on company workspace initialization"
+  },
+  {
+    "id": "log-003",
+    "created_at": "2026-11-12T01:58:05.683Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "VIDEO_ASSESSMENT_VERIFIED",
+    "target_id": "va-cand-001",
+    "notes": "Verified candidate video integrity for Jane Doe. 0 proctoring infractions."
+  }
+]

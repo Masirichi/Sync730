@@ -59,3 +59,26 @@ export interface AdminCorporateWorkspace {
   company_size?: string | null;
   created_at: string;
 }
+
+export interface AdminRemoteJob {
+  id: string;
+  external_id?: string;
+  title: string;
+  company: string;
+  company_logo?: string | null;
+  candidate_required_location?: string;
+  location_tier: 'Worldwide' | 'EMEA' | 'Africa Only';
+  salary?: string | null;
+  url?: string | null;
+  career_url?: string | null;
+  description?: string | null;
+  category?: string | null;
+  job_type?: string;
+  tags?: string[] | null;
+  source?: string;
+  source_type: 'ADMIN_CURATED' | 'CRAWLER';
+  is_active: boolean;
+  is_featured: boolean;
+  published_at: string;
+  created_at: string;
+}

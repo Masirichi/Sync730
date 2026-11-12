@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Activity,
+  Briefcase,
   CreditCard,
   ShieldAlert,
   Users,
@@ -49,6 +50,12 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
       badge: 'Live',
     },
     {
+      name: 'Job Board',
+      href: '/command/jobs',
+      icon: Briefcase,
+      badge: 'Live',
+    },
+    {
       name: 'Financial & Tokens',
       href: '/command/finance',
       icon: CreditCard,
@@ -69,7 +76,8 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
   ];
 
   let pageTitle = 'Global Operations';
-  if (pathname.startsWith('/command/finance')) pageTitle = 'Financial & Token Management';
+  if (pathname.startsWith('/command/jobs')) pageTitle = 'Job Board Manager & Moderation';
+  else if (pathname.startsWith('/command/finance')) pageTitle = 'Financial & Token Management';
   else if (pathname.startsWith('/command/vetting')) pageTitle = 'Anti-Cheat Video Moderation';
   else if (pathname.startsWith('/command/users')) pageTitle = 'User & Role Directory';
 

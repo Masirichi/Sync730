@@ -13,8 +13,10 @@ import {
   Bookmark,
   Check,
   Sparkles,
+  Star,
 } from 'lucide-react';
 import { RemoteJob } from '@/lib/supabase/types';
+import { getAdminRemoteJobs } from '@/lib/admin/store';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
 import { saveJobToTracker, getLocalTrackerItems } from '@/lib/tracker';
 import { createBrowserClient } from '@/lib/supabase/client';
@@ -48,7 +50,7 @@ export default function CrawlerJobFeedPage() {
 
   // Load jobs and current tracker state on mount
   useEffect(() => {
-    async function loadData() {
+        async function loadData() {
       // Load saved tracker items to reflect "Saved" state
       const trackerItems = getLocalTrackerItems();
       const savedIds = new Set(
@@ -56,29 +58,78 @@ export default function CrawlerJobFeedPage() {
       );
       setSavedJobIds(savedIds);
 
-      // Try fetching from Supabase remote_jobs table with timeout
+      let remoteList: any[] = [];
+
+      // 1. Fetch live jobs from public candidate endpoint /api/jobs
       try {
-        const supabase = createBrowserClient();
-        const fetchPromise = supabase
-          .from('remote_jobs')
-          .select('*')
-          .order('published_at', { ascending: false });
-
-        const timeoutPromise = new Promise<{ data: null; error: Error }>((_, reject) =>
-          setTimeout(() => reject(new Error('timeout')), 2500)
-        );
-
-        const res: any = await Promise.race([fetchPromise, timeoutPromise]);
-        if (res && !res.error && res.data && res.data.length > 0) {
-          const normalized = res.data.map((j: any) => ({
-            ...j,
-            category: normalizeJobCategory(j.category || '', j.title, j.description || ''),
-          }));
-          setJobs(normalized as RemoteJob[]);
+        const apiRes = await fetch('/api/jobs');
+        const apiJson = await apiRes.json();
+        if (apiJson && apiJson.success && apiJson.jobs && apiJson.jobs.length > 0) {
+          setJobs(apiJson.jobs);
+          return;
         }
       } catch {
-        // Keeps initial hydrated seed jobs
+        // Fallback to local store
       }
+
+      // Merge with Admin Curated jobs from store
+      const adminJobs = getAdminRemoteJobs();
+      const jobMap = new Map<string, RemoteJob>();
+
+      // Base seed jobs
+      HYDRATED_INITIAL_JOBS.forEach((sj) => {
+        jobMap.set(sj.id, sj);
+      });
+
+      // DB jobs
+      remoteList.forEach((j: any) => {
+        const id = j.id || j.external_id;
+        jobMap.set(id, {
+          ...j,
+          id,
+          category: normalizeJobCategory(j.category || '', j.title, j.description || ''),
+        });
+      });
+
+      // Admin jobs (latest edits & curated verified posts)
+      adminJobs.forEach((aj) => {
+        jobMap.set(aj.id, {
+          id: aj.id,
+          external_id: aj.external_id || aj.id,
+          title: aj.title,
+          company: aj.company,
+          company_logo: aj.company_logo,
+          description: aj.description,
+          category: normalizeJobCategory(aj.category || '', aj.title, aj.description || ''),
+          job_type: aj.job_type || 'Full-time',
+          candidate_required_location: aj.candidate_required_location || aj.location_tier,
+          location_tier: aj.location_tier,
+          salary: aj.salary,
+          url: aj.career_url || aj.url,
+          source: aj.source || 'company_direct',
+          source_type: aj.source_type,
+          tags: aj.tags,
+          published_at: aj.published_at,
+          created_at: aj.created_at,
+          is_active: aj.is_active,
+          is_featured: aj.is_featured,
+        });
+      });
+
+      // Filter out taken down jobs (is_active === false)
+      const visibleJobs = Array.from(jobMap.values()).filter((j) => j.is_active !== false);
+
+      // Sort by is_featured DESC, then created_at / published_at DESC
+      visibleJobs.sort((a, b) => {
+        if (Boolean(b.is_featured) !== Boolean(a.is_featured)) {
+          return b.is_featured ? 1 : -1;
+        }
+        const timeB = new Date(b.created_at || b.published_at || 0).getTime();
+        const timeA = new Date(a.created_at || a.published_at || 0).getTime();
+        return timeB - timeA;
+      });
+
+      setJobs(visibleJobs);
     }
 
     loadData();
@@ -93,7 +144,13 @@ export default function CrawlerJobFeedPage() {
     };
 
     window.addEventListener('sync730_tracker_updated', handleTrackerUpdate);
-    return () => window.removeEventListener('sync730_tracker_updated', handleTrackerUpdate);
+    window.addEventListener('sync730_admin_jobs_updated', loadData);
+    window.addEventListener('sync730_remote_jobs_updated', loadData);
+    return () => {
+      window.removeEventListener('sync730_tracker_updated', handleTrackerUpdate);
+      window.removeEventListener('sync730_admin_jobs_updated', loadData);
+      window.removeEventListener('sync730_remote_jobs_updated', loadData);
+    };
   }, []);
 
   // Compute live counts per category for the tab bar

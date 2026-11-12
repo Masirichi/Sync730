@@ -12,6 +12,9 @@ export interface Profile {
   location?: string | null;
   created_at: string;
   updated_at?: string;
+  is_active?: boolean;
+  is_featured?: boolean;
+  source_type?: 'ADMIN_CURATED' | 'CRAWLER' | string;
 }
 
 export type UserProfile = Profile;
@@ -71,6 +74,9 @@ export interface RemoteJob {
   published_at: string;
   created_at?: string;
   updated_at?: string;
+  is_active?: boolean;
+  is_featured?: boolean;
+  source_type?: 'ADMIN_CURATED' | 'CRAWLER' | string;
 }
 
 export type TrackerStatus = 'SAVED' | 'APPLIED' | 'INTERVIEWING' | 'OFFERED' | 'REJECTED';
@@ -211,6 +217,9 @@ export interface EmployerJob {
   salary_range?: string;
   description?: string;
   created_at: string;
+  is_active?: boolean;
+  is_featured?: boolean;
+  source_type?: string;
 }
 
 export interface VideoAssessment {

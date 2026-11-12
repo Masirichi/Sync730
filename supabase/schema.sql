@@ -487,6 +487,9 @@ CREATE TABLE IF NOT EXISTS public.remote_jobs (
   source TEXT NOT NULL DEFAULT 'remotive',
   tags JSONB DEFAULT '[]'::jsonb,
   published_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()),
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  is_featured BOOLEAN NOT NULL DEFAULT FALSE,
+  source_type TEXT NOT NULL DEFAULT 'CRAWLER',
   created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()),
   updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now())
 );
