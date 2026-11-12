@@ -25,7 +25,7 @@ export const DEFAULT_WORKSPACE: CorporateWorkspace = {
   created_at: new Date(Date.now() - 3600000 * 24 * 7).toISOString(),
 };
 
-// Initial Seed Candidates with Video Assessments
+// Initial Seed Candidates with Video Assessments & Realistic Video Assets
 export const SEED_VIDEO_ASSESSMENTS: (VideoAssessment & { real_name: string; real_email: string; phone: string })[] = [
   {
     id: 'va-cand-001',
@@ -37,6 +37,8 @@ export const SEED_VIDEO_ASSESSMENTS: (VideoAssessment & { real_name: string; rea
     ai_summary:
       'Demonstrated high-velocity engineering depth across Next.js 14 App Router, Server Actions, and distributed Supabase architectures. Articulated nuanced tradeoffs between streaming SSR and state collocation with high clarity. Verified 0 proctoring infractions.',
     secure_video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    poster_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80',
+    duration_seconds: 165, // 2:45
     proctoring_flags: [],
     status: 'COMPLETED',
     created_at: new Date(Date.now() - 3600000 * 18).toISOString(),
@@ -54,6 +56,8 @@ export const SEED_VIDEO_ASSESSMENTS: (VideoAssessment & { real_name: string; rea
     ai_summary:
       'Presents comprehensive mastery of multi-brand design token architectures, Figma variable systems, and accessible WCAG 2.1 AAA touch states. Communicates design decisions with executive polish and strong business empathy.',
     secure_video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    poster_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
+    duration_seconds: 210, // 3:30
     proctoring_flags: [],
     status: 'COMPLETED',
     created_at: new Date(Date.now() - 3600000 * 36).toISOString(),
@@ -71,12 +75,33 @@ export const SEED_VIDEO_ASSESSMENTS: (VideoAssessment & { real_name: string; rea
     ai_summary:
       'Exemplary incident triage and distributed systems resilience. Detailed multi-cluster ArgoCD GitOps pipelines, Terraform IaC state locking, and automated disaster recovery scenarios across AWS and GCP with zero downtime.',
     secure_video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    poster_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80',
+    duration_seconds: 195, // 3:15
     proctoring_flags: [],
     status: 'COMPLETED',
     created_at: new Date(Date.now() - 3600000 * 52).toISOString(),
     real_name: 'Amara Okonkwo',
     real_email: 'amara.okonkwo@sync730.com',
     phone: '+234 901 234 5678',
+  },
+  {
+    id: 'va-cand-004',
+    candidate_id: 'cand-004-tariq-mansoor',
+    target_role: 'Senior AI / LLM Engineer (RAG & Autonomous Agents)',
+    overall_match_score: 90,
+    technical_depth_score: 93,
+    communication_score: 88,
+    ai_summary:
+      'Flowmingo AI is currently analyzing acoustic clarity, vector embeddings of reasoning depth, and anti-cheating gaze consistency.',
+    secure_video_url: '',
+    poster_url: '',
+    duration_seconds: 0,
+    proctoring_flags: [],
+    status: 'PROCESSING',
+    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
+    real_name: 'Tariq Mansoor',
+    real_email: 'tariq.mansoor@sync730.com',
+    phone: '+234 818 765 4321',
   },
 ];
 

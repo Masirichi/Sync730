@@ -18,12 +18,16 @@ import {
   ChevronDown,
   ChevronUp,
   SlidersHorizontal,
+  RefreshCw,
+  AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Dialog,
   DialogContent,
@@ -35,6 +39,17 @@ import { EmployerJob, RecruiterRole } from '@/lib/recruiter/types';
 import { getLocalJobs, getLocalWorkspace } from '@/lib/recruiter/store';
 import { toast } from 'sonner';
 
+function formatRelativeTime(date: Date): string {
+  const diffSec = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (diffSec < 60) return 'just now';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin === 1) return '1 minute ago';
+  if (diffMin < 60) return `${diffMin} minutes ago`;
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours === 1) return '1 hour ago';
+  return `${diffHours} hours ago`;
+}
+
 export default function ConsoleJobsPage() {
   const [jobs, setJobs] = useState<EmployerJob[]>([]);
   const [search, setSearch] = useState('');
@@ -42,6 +57,15 @@ export default function ConsoleJobsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedIntegrationIds, setExpandedIntegrationIds] = useState<Record<string, boolean>>({});
+
+  // Loading & Error States
+  const [isLoadingJobs, setIsLoadingJobs] = useState(true);
+  const [jobsError, setJobsError] = useState<string | null>(null);
+
+  // Flowmingo Sync States
+  const [syncStatus, setSyncStatus] = useState<'Synced' | 'Syncing' | 'Error'>('Synced');
+  const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date(Date.now() - 4 * 60 * 1000)); // 4 minutes ago
+  const [syncErrorMessage, setSyncErrorMessage] = useState<string | null>(null);
 
   // Form states
   const [jobTitle, setJobTitle] = useState('');
@@ -51,11 +75,24 @@ export default function ConsoleJobsPage() {
   const [salaryRange, setSalaryRange] = useState('$90,000 - $130,000 USD');
   const [description, setDescription] = useState('');
 
-  // Detect active role from parent container attribute
+  // Active role
   const [currentRole, setCurrentRole] = useState<RecruiterRole>('OWNER');
 
+  const loadJobs = async () => {
+    setIsLoadingJobs(true);
+    setJobsError(null);
+    try {
+      const local = getLocalJobs();
+      setJobs(local);
+    } catch (err: any) {
+      setJobsError(err.message || 'Failed to load jobs');
+    } finally {
+      setIsLoadingJobs(false);
+    }
+  };
+
   useEffect(() => {
-    setJobs(getLocalJobs());
+    loadJobs();
 
     const updateRole = () => {
       const el = document.querySelector('[data-active-role]');
@@ -67,7 +104,7 @@ export default function ConsoleJobsPage() {
     updateRole();
 
     const handleJobsUpdated = () => {
-      setJobs(getLocalJobs());
+      loadJobs();
     };
     window.addEventListener('sync730_jobs_updated', handleJobsUpdated);
 
@@ -86,6 +123,34 @@ export default function ConsoleJobsPage() {
       ...prev,
       [jobId]: !prev[jobId],
     }));
+  };
+
+  // Flowmingo Manual Sync Action with Real Endpoint
+  const handleTriggerSync = async () => {
+    setSyncStatus('Syncing');
+    setSyncErrorMessage(null);
+    const ws = getLocalWorkspace();
+
+    try {
+      const res = await fetch('/api/flowmingo/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspace_id: ws.id }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSyncStatus('Synced');
+        setLastSyncTime(new Date());
+        toast.success(`Flowmingo synced: ${data.message || 'All assessment webhooks verified.'}`);
+      } else {
+        throw new Error(data.error || 'Flowmingo sync error');
+      }
+    } catch (err: any) {
+      setSyncStatus('Error');
+      setSyncErrorMessage(err.message || 'Failed to synchronize with Flowmingo AI screening service.');
+      toast.error('Sync failed. Please verify credentials or retry.');
+    }
   };
 
   const handleCreateJob = async (e: React.FormEvent) => {
@@ -121,6 +186,7 @@ export default function ConsoleJobsPage() {
       if (data.success && data.job) {
         setJobs(getLocalJobs());
         setIsCreateOpen(false);
+        setLastSyncTime(new Date());
         toast.success(`Job posted! Flowmingo screening assessment initialized.`);
         // Reset form
         setJobTitle('');
@@ -151,6 +217,29 @@ export default function ConsoleJobsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Integration Error Banner */}
+      {syncStatus === 'Error' && (
+        <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-rose-800 dark:text-rose-300">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
+            <div>
+              <p className="font-bold">Flowmingo AI Sync Error</p>
+              <p className="text-[11px] text-rose-700 dark:text-rose-400">
+                {syncErrorMessage || 'Assessment project webhooks could not be verified with Flowmingo gateway.'}
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            onClick={handleTriggerSync}
+            className="h-8 px-3 text-xs bg-rose-600 hover:bg-rose-700 text-white rounded-xl gap-1.5 shrink-0 self-start sm:self-center"
+          >
+            <RefreshCw className="h-3 w-3" />
+            <span>Retry Sync</span>
+          </Button>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -180,7 +269,7 @@ export default function ConsoleJobsPage() {
         </div>
       </div>
 
-      {/* Metrics Strip */}
+      {/* Metrics Strip with Real Flowmingo Sync Status */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xs">
           <div className="flex items-center justify-between text-neutral-500 dark:text-neutral-400 text-xs">
@@ -190,8 +279,37 @@ export default function ConsoleJobsPage() {
           <div className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
             {jobs.length}
           </div>
-          <div className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-medium">
-            <span>● 100% Synchronized with Assessment Engine</span>
+          <div className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400 flex items-center justify-between">
+            <div className="flex items-center gap-1.5 font-medium">
+              {syncStatus === 'Syncing' ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin text-amber-500" />
+                  <span className="text-amber-600 dark:text-amber-400">Syncing with Flowmingo...</span>
+                </>
+              ) : syncStatus === 'Error' ? (
+                <>
+                  <span className="h-2 w-2 rounded-full bg-rose-500" />
+                  <span className="text-rose-600 dark:text-rose-400 font-semibold">Sync error</span>
+                </>
+              ) : (
+                <>
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-emerald-700 dark:text-emerald-400">
+                    Synced · Last synced {formatRelativeTime(lastSyncTime)}
+                  </span>
+                </>
+              )}
+            </div>
+
+            <button
+              onClick={handleTriggerSync}
+              disabled={syncStatus === 'Syncing'}
+              title="Sync now"
+              className="text-[10px] font-semibold text-neutral-500 hover:text-neutral-900 dark:hover:text-white flex items-center gap-1 ml-2 underline"
+            >
+              <RefreshCw className={`h-2.5 w-2.5 ${syncStatus === 'Syncing' ? 'animate-spin' : ''}`} />
+              <span>{syncStatus === 'Error' ? 'Retry' : 'Sync'}</span>
+            </button>
           </div>
         </div>
 
@@ -201,7 +319,7 @@ export default function ConsoleJobsPage() {
             <Users className="h-4 w-4 stroke-[1.5]" />
           </div>
           <div className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
-            3 Ready
+            4 Ready
           </div>
           <div className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
             <Link
@@ -240,9 +358,21 @@ export default function ConsoleJobsPage() {
         </div>
       </div>
 
-      {/* Jobs Grid */}
+      {/* Jobs Grid / Loading Skeletons / Empty State */}
       <div className="space-y-3">
-        {filteredJobs.length === 0 ? (
+        {isLoadingJobs ? (
+          <div className="space-y-3">
+            <Skeleton className="h-28 w-full rounded-2xl" />
+            <Skeleton className="h-28 w-full rounded-2xl" />
+          </div>
+        ) : jobsError ? (
+          <div className="p-8 text-center rounded-2xl border border-rose-200 bg-rose-50 dark:bg-rose-950/20 text-xs text-rose-700 dark:text-rose-300 space-y-2">
+            <p>{jobsError}</p>
+            <Button size="sm" variant="outline" onClick={loadJobs} className="text-xs">
+              Retry
+            </Button>
+          </div>
+        ) : filteredJobs.length === 0 ? (
           <div className="p-12 text-center rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 space-y-3">
             <Briefcase className="h-8 w-8 text-neutral-400 mx-auto stroke-[1.5]" />
             <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">

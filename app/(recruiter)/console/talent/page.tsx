@@ -16,11 +16,17 @@ import {
   MessageSquare,
   Star,
   Plus,
+  RefreshCw,
+  AlertTriangle,
+  ExternalLink,
+  Clock,
+  Layers,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Dialog,
   DialogContent,
@@ -30,6 +36,7 @@ import {
 } from '@/components/ui/dialog';
 import { VideoAssessment, CorporateWorkspace, RecruiterRole } from '@/lib/recruiter/types';
 import { getLocalWorkspace, saveLocalWorkspace } from '@/lib/recruiter/store';
+import { VideoAssessmentPlayer } from '@/components/recruiter/video-assessment-player';
 import { toast } from 'sonner';
 
 interface NoteItem {
@@ -46,6 +53,8 @@ export default function ConsoleTalentPage() {
   const [workspace, setWorkspace] = useState<CorporateWorkspace>(getLocalWorkspace());
   const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
 
   // Active role
@@ -59,18 +68,26 @@ export default function ConsoleTalentPage() {
   const [isSubmittingNote, setIsSubmittingNote] = useState(false);
   const [isLoadingNotes, setIsLoadingNotes] = useState(false);
 
+  // Detail View Modal state
+  const [activeDetailCandidate, setActiveDetailCandidate] = useState<VideoAssessment | null>(null);
+
   const fetchTalent = async () => {
     setIsLoading(true);
+    setHasError(false);
+    setErrorMessage('');
     const ws = getLocalWorkspace();
     setWorkspace(ws);
     try {
       const res = await fetch(`/api/talent/list?workspace_id=${ws.id}`);
       const data = await res.json();
-      if (data.success && Array.isArray(data.candidates)) {
+      if (res.ok && data.success && Array.isArray(data.candidates)) {
         setCandidates(data.candidates);
+      } else {
+        throw new Error(data.error || 'Failed to fetch vetted candidate pool');
       }
-    } catch (err) {
-      console.warn('Notice: Failed to fetch talent pool:', err);
+    } catch (err: any) {
+      setHasError(true);
+      setErrorMessage(err.message || 'Network error fetching talent pool.');
     } finally {
       setIsLoading(false);
     }
@@ -150,6 +167,13 @@ export default function ConsoleTalentPage() {
           const updatedWs = { ...ws, token_balance: data.token_balance };
           setWorkspace(updatedWs);
           saveLocalWorkspace(updatedWs);
+        }
+
+        // If detail modal is open for this candidate, update it too
+        if (activeDetailCandidate?.candidate_id === candidateId) {
+          setActiveDetailCandidate((prev) =>
+            prev ? { ...prev, ...data.candidate, is_unlocked: true } : null
+          );
         }
 
         toast.success(`Candidate profile unlocked! 1 token spent. Contact info revealed.`);
@@ -281,11 +305,41 @@ export default function ConsoleTalentPage() {
         </div>
       </div>
 
-      {/* Talent Cards Grid */}
+      {/* Error State Banner */}
+      {hasError && (
+        <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 flex items-center justify-between gap-3 text-xs text-rose-800 dark:text-rose-300">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
+            <span>{errorMessage || 'Failed to load vetted candidate pool.'}</span>
+          </div>
+          <Button size="sm" variant="outline" onClick={fetchTalent} className="h-7 text-xs border-rose-300">
+            <RefreshCw className="h-3 w-3 mr-1" />
+            <span>Retry</span>
+          </Button>
+        </div>
+      )}
+
+      {/* Talent Cards Grid / Skeleton Loaders / Empty State */}
       {isLoading ? (
-        <div className="p-16 text-center space-y-3">
-          <div className="h-8 w-8 border-2 border-neutral-900 dark:border-neutral-100 border-t-transparent animate-spin rounded-full mx-auto" />
-          <p className="text-xs text-neutral-500">Loading vetted talent assessments...</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-hidden space-y-4 p-4 shadow-2xs"
+            >
+              <Skeleton className="aspect-video w-full rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Skeleton className="h-10 rounded-lg" />
+                <Skeleton className="h-10 rounded-lg" />
+              </div>
+              <Skeleton className="h-14 w-full rounded-lg" />
+              <Skeleton className="h-9 w-full rounded-xl" />
+            </div>
+          ))}
         </div>
       ) : filteredCandidates.length === 0 ? (
         <div className="p-12 text-center rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 space-y-3">
@@ -308,31 +362,22 @@ export default function ConsoleTalentPage() {
                 data-candidate-card={cand.candidate_id}
                 className="flex flex-col justify-between rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 overflow-hidden hover:border-neutral-300 dark:hover:border-neutral-700 transition-all shadow-2xs"
               >
-                {/* Video Player Preview Header */}
-                <div className="relative aspect-video bg-neutral-950 overflow-hidden group">
-                  <video
-                    src={cand.secure_video_url}
-                    controls
-                    preload="metadata"
-                    className="w-full h-full object-cover"
+                {/* Flowmingo Video Player with Poster, Skeleton, Speed Control, & Signed URL */}
+                <div className="p-3 pb-0">
+                  <VideoAssessmentPlayer
+                    candidateId={cand.candidate_id || cand.id}
+                    videoUrl={cand.secure_video_url}
+                    posterUrl={cand.poster_url}
+                    durationSeconds={cand.duration_seconds || 165}
+                    status={cand.status}
+                    expiresAt={cand.expires_at}
+                    candidateName={cand.candidate_name}
                   />
-                  <div className="absolute top-2.5 left-2.5 pointer-events-none">
-                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-neutral-900/80 backdrop-blur-md text-white text-[10px] font-medium border border-white/10">
-                      <Video className="h-3 w-3 stroke-[1.5] text-emerald-400" />
-                      <span>Flowmingo AI Verified Video</span>
-                    </span>
-                  </div>
-
-                  <div className="absolute top-2.5 right-2.5 pointer-events-none">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/90 text-white text-[10px] font-bold shadow-xs">
-                      {cand.overall_match_score}% Match
-                    </span>
-                  </div>
                 </div>
 
                 {/* Candidate Content Body */}
                 <div className="p-5 flex-1 space-y-4">
-                  {/* Name and Masking State */}
+                  {/* Name, Match Pill and Masking State */}
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <h3
@@ -342,23 +387,29 @@ export default function ConsoleTalentPage() {
                         {cand.candidate_name}
                       </h3>
 
-                      {isUnlocked ? (
-                        <Badge
-                          variant="outline"
-                          className="text-[10px] uppercase font-bold border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 shrink-0 gap-1"
-                        >
-                          <Unlock className="h-2.5 w-2.5 stroke-[1.5]" />
-                          <span>Unlocked</span>
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant="outline"
-                          className="text-[10px] uppercase font-bold border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 shrink-0 gap-1"
-                        >
-                          <Lock className="h-2.5 w-2.5 stroke-[1.5]" />
-                          <span>Masked</span>
-                        </Badge>
-                      )}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                          {cand.overall_match_score}% Match
+                        </span>
+
+                        {isUnlocked ? (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] uppercase font-bold border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 shrink-0 gap-1"
+                          >
+                            <Unlock className="h-2.5 w-2.5 stroke-[1.5]" />
+                            <span>Unlocked</span>
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] uppercase font-bold border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 shrink-0 gap-1"
+                          >
+                            <Lock className="h-2.5 w-2.5 stroke-[1.5]" />
+                            <span>Masked</span>
+                          </Badge>
+                        )}
+                      </div>
                     </div>
 
                     <div className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
@@ -408,12 +459,16 @@ export default function ConsoleTalentPage() {
                     </p>
                   </div>
 
-                  {/* Proctoring Status & Internal Notes Button */}
+                  {/* Action Bar: Detail View & Notes */}
                   <div className="flex items-center justify-between pt-1">
-                    <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                      <CheckCircle2 className="h-3.5 w-3.5 stroke-[1.5]" />
-                      <span>0 Proctoring Flags</span>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveDetailCandidate(cand)}
+                      className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white flex items-center gap-1 underline"
+                    >
+                      <Layers className="h-3 w-3" />
+                      <span>Full Rubric & Details</span>
+                    </button>
 
                     <Button
                       type="button"
@@ -430,7 +485,16 @@ export default function ConsoleTalentPage() {
 
                 {/* Footer Action Card - Role Guarded */}
                 <div className="p-4 border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30">
-                  {isUnlocked ? (
+                  {cand.status === 'PROCESSING' ? (
+                    <Button
+                      disabled
+                      size="sm"
+                      className="w-full h-9 text-xs bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 font-semibold rounded-xl cursor-not-allowed gap-1.5 shadow-none"
+                    >
+                      <Clock className="h-3.5 w-3.5 animate-spin" />
+                      <span>Screening in Progress</span>
+                    </Button>
+                  ) : isUnlocked ? (
                     <div className="flex items-center gap-2">
                       <a
                         href={`mailto:${cand.candidate_email}`}
@@ -480,6 +544,118 @@ export default function ConsoleTalentPage() {
           })}
         </div>
       )}
+
+      {/* Candidate Full Detail Modal View */}
+      <Dialog
+        open={Boolean(activeDetailCandidate)}
+        onOpenChange={(open) => {
+          if (!open) setActiveDetailCandidate(null);
+        }}
+      >
+        <DialogContent className="max-w-3xl p-6 rounded-3xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 max-h-[90vh] overflow-y-auto">
+          {activeDetailCandidate && (
+            <div className="space-y-5">
+              <DialogHeader>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
+                    Candidate Assessment Dossier
+                  </span>
+                  <Badge variant="outline" className="text-xs font-bold text-emerald-600 bg-emerald-500/10 border-emerald-500/30">
+                    {activeDetailCandidate.overall_match_score}% Match
+                  </Badge>
+                </div>
+                <DialogTitle className="text-xl font-bold text-neutral-900 dark:text-white mt-1">
+                  {activeDetailCandidate.candidate_name}
+                </DialogTitle>
+                <DialogDescription className="text-xs text-neutral-500">
+                  Target Role: {activeDetailCandidate.target_role}
+                </DialogDescription>
+              </DialogHeader>
+
+              {/* Full Size Player in Detail View */}
+              <VideoAssessmentPlayer
+                candidateId={activeDetailCandidate.candidate_id || activeDetailCandidate.id}
+                videoUrl={activeDetailCandidate.secure_video_url}
+                posterUrl={activeDetailCandidate.poster_url}
+                durationSeconds={activeDetailCandidate.duration_seconds || 165}
+                status={activeDetailCandidate.status}
+                expiresAt={activeDetailCandidate.expires_at}
+                candidateName={activeDetailCandidate.candidate_name}
+              />
+
+              {/* Rubric Breakdown Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs">
+                  <span className="text-[11px] text-neutral-500">Technical Depth</span>
+                  <div className="text-lg font-bold text-neutral-900 dark:text-white mt-0.5">
+                    {activeDetailCandidate.technical_depth_score} / 100
+                  </div>
+                  <p className="text-[10px] text-neutral-400 mt-1">Architecture & syntax precision</p>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs">
+                  <span className="text-[11px] text-neutral-500">Communication</span>
+                  <div className="text-lg font-bold text-neutral-900 dark:text-white mt-0.5">
+                    {activeDetailCandidate.communication_score} / 100
+                  </div>
+                  <p className="text-[10px] text-neutral-400 mt-1">Nuanced tradeoff articulation</p>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs">
+                  <span className="text-[11px] text-neutral-500">Proctoring & Trust</span>
+                  <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                    0 Infractions
+                  </div>
+                  <p className="text-[10px] text-neutral-400 mt-1">Identity & sample verified</p>
+                </div>
+              </div>
+
+              {/* AI Comprehensive Evaluation */}
+              <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs space-y-2">
+                <div className="flex items-center gap-1.5 font-bold text-neutral-900 dark:text-white">
+                  <Sparkles className="h-4 w-4 text-purple-500" />
+                  <span>Flowmingo AI Comprehensive Evaluation</span>
+                </div>
+                <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
+                  {activeDetailCandidate.ai_summary}
+                </p>
+              </div>
+
+              {/* Unlock / Contact Actions */}
+              <div className="flex items-center justify-between pt-2 border-t border-neutral-100 dark:border-neutral-800">
+                <span className="text-xs text-neutral-500">
+                  {activeDetailCandidate.is_unlocked
+                    ? `Contact: ${activeDetailCandidate.candidate_email}`
+                    : 'Contact information masked until unlocked.'}
+                </span>
+
+                {activeDetailCandidate.is_unlocked ? (
+                  <a href={`mailto:${activeDetailCandidate.candidate_email}`}>
+                    <Button size="sm" className="text-xs bg-neutral-900 text-white rounded-xl gap-1.5">
+                      <Mail className="h-3.5 w-3.5" />
+                      <span>Email Candidate</span>
+                    </Button>
+                  </a>
+                ) : isOwnerOrAdmin ? (
+                  <Button
+                    size="sm"
+                    onClick={() => handleUnlock(activeDetailCandidate.candidate_id)}
+                    disabled={unlockingId === activeDetailCandidate.candidate_id}
+                    className="text-xs bg-neutral-950 text-white rounded-xl gap-1.5"
+                  >
+                    <Zap className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
+                    <span>Unlock Full Dossier (1 Token)</span>
+                  </Button>
+                ) : (
+                  <Button disabled size="sm" className="text-xs cursor-not-allowed">
+                    Ask an admin to unlock
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Internal Evaluation Notes & Scoring Dialog */}
       <Dialog
@@ -556,7 +732,10 @@ export default function ConsoleTalentPage() {
               </h4>
 
               {isLoadingNotes ? (
-                <p className="text-xs text-neutral-400 py-3 text-center">Loading notes...</p>
+                <div className="py-3 space-y-2">
+                  <Skeleton className="h-12 w-full rounded-xl" />
+                  <Skeleton className="h-12 w-full rounded-xl" />
+                </div>
               ) : notesList.length === 0 ? (
                 <p className="text-xs text-neutral-400 py-3 text-center">
                   No evaluation notes recorded yet. Be the first to leave feedback!

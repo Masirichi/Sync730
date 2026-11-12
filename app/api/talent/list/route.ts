@@ -7,6 +7,7 @@ import {
   SEED_VIDEO_ASSESSMENTS,
 } from '@/lib/recruiter/store';
 import { VideoAssessment } from '@/lib/recruiter/types';
+import { signCandidateVideoUrl } from '@/lib/recruiter/video';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,7 +45,6 @@ export async function GET(req: NextRequest) {
       const { data: dbAssessments } = await supabase
         .from('video_assessments')
         .select('*')
-        .eq('status', 'COMPLETED')
         .order('created_at', { ascending: false });
 
       if (dbAssessments && dbAssessments.length > 0) {
@@ -62,10 +62,25 @@ export async function GET(req: NextRequest) {
       assessments = [...SEED_VIDEO_ASSESSMENTS];
     }
 
-    // 3. Apply Strict Server-Side Masking
+    // 3. Apply Strict Server-Side Masking & Signed Expiring Video URLs
     const processedCandidates: VideoAssessment[] = assessments.map((cand) => {
       const isUnlocked = unlockedCandidateIds.has(cand.candidate_id);
-      return formatMaskedCandidate(cand, isUnlocked);
+      const masked = formatMaskedCandidate(cand, isUnlocked);
+      const videoMeta = signCandidateVideoUrl(
+        cand.candidate_id,
+        cand.secure_video_url,
+        cand.status,
+        cand.duration_seconds
+      );
+
+      return {
+        ...masked,
+        status: cand.status,
+        secure_video_url: videoMeta.signedUrl,
+        poster_url: cand.poster_url || videoMeta.posterUrl,
+        duration_seconds: cand.duration_seconds || videoMeta.durationSeconds,
+        expires_at: videoMeta.expiresAt,
+      };
     });
 
     return NextResponse.json({

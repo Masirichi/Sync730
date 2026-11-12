@@ -16,11 +16,14 @@ import {
   ArrowRight,
   AlertCircle,
   HelpCircle,
+  RefreshCw,
+  AlertTriangle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Dialog,
   DialogContent,
@@ -48,6 +51,10 @@ export default function ConsoleTeamPage() {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [selectedPack, setSelectedPack] = useState<'5' | '15' | '50'>('5');
 
+  // Loading & Error states
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   // Invite states
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteName, setInviteName] = useState('');
@@ -57,10 +64,23 @@ export default function ConsoleTeamPage() {
   // Current active role
   const [currentRole, setCurrentRole] = useState<RecruiterRole>('OWNER');
 
+  const loadTeamData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const ws = getLocalWorkspace();
+      setWorkspace(ws);
+      const mems = getLocalMembers(ws.id);
+      setMembers(mems);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load team data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const ws = getLocalWorkspace();
-    setWorkspace(ws);
-    setMembers(getLocalMembers(ws.id));
+    loadTeamData();
 
     const updateRole = () => {
       const el = document.querySelector('[data-active-role]');
@@ -72,9 +92,7 @@ export default function ConsoleTeamPage() {
     updateRole();
 
     const handleUpdate = () => {
-      const updatedWs = getLocalWorkspace();
-      setWorkspace(updatedWs);
-      setMembers(getLocalMembers(updatedWs.id));
+      loadTeamData();
     };
 
     window.addEventListener('sync730_workspace_updated', handleUpdate);
@@ -158,6 +176,20 @@ export default function ConsoleTeamPage() {
         </p>
       </div>
 
+      {/* Error Banner */}
+      {error && (
+        <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 flex items-center justify-between gap-3 text-xs text-rose-800 dark:text-rose-300">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
+            <span>{error}</span>
+          </div>
+          <Button size="sm" variant="outline" onClick={loadTeamData} className="h-7 text-xs border-rose-300">
+            <RefreshCw className="h-3 w-3 mr-1" />
+            <span>Retry</span>
+          </Button>
+        </div>
+      )}
+
       {/* Token Balance & Billing Section (Restricted from Interviewers) */}
       <div id="tokens" className="p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xs space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-neutral-100 dark:border-neutral-800">
@@ -166,15 +198,24 @@ export default function ConsoleTeamPage() {
               <Zap className="h-4 w-4 text-amber-500 fill-amber-500 stroke-[1.5]" />
               <span>Available Candidate Unlock Balance</span>
             </div>
-            <div className="mt-2 text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight flex items-baseline gap-2">
-              <span>{workspace.token_balance}</span>
-              <span className="text-sm font-semibold text-neutral-500 dark:text-neutral-400">
-                Tokens Remaining
-              </span>
-            </div>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-              Standard pricing: <strong>₦20,000 per token</strong>. Each token unlocks complete verified candidate dossiers.
-            </p>
+            {isLoading ? (
+              <div className="mt-2 space-y-1">
+                <Skeleton className="h-9 w-24" />
+                <Skeleton className="h-3 w-48" />
+              </div>
+            ) : (
+              <>
+                <div className="mt-2 text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight flex items-baseline gap-2">
+                  <span>{workspace.token_balance}</span>
+                  <span className="text-sm font-semibold text-neutral-500 dark:text-neutral-400">
+                    Tokens Remaining
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                  Standard pricing: <strong>₦20,000 per token</strong>. Each token unlocks complete verified candidate dossiers.
+                </p>
+              </>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -248,42 +289,54 @@ export default function ConsoleTeamPage() {
           )}
         </div>
 
-        {/* Members List */}
-        <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
-          {members.map((m) => (
-            <div key={m.id} className="py-3.5 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center font-bold text-xs text-neutral-700 dark:text-neutral-300">
-                  {m.full_name?.charAt(0) || m.email?.charAt(0) || 'U'}
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-neutral-900 dark:text-white">
-                    {m.full_name || 'Team Member'}
+        {/* Members List with Loading Skeleton */}
+        {isLoading ? (
+          <div className="space-y-3 py-2">
+            <Skeleton className="h-12 w-full rounded-xl" />
+            <Skeleton className="h-12 w-full rounded-xl" />
+          </div>
+        ) : members.length === 0 ? (
+          <div className="py-8 text-center text-xs text-neutral-400">
+            <Users className="h-6 w-6 text-neutral-400 mx-auto mb-1 opacity-50" />
+            <span>No other team members invited yet.</span>
+          </div>
+        ) : (
+          <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
+            {members.map((m) => (
+              <div key={m.id} className="py-3.5 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center font-bold text-xs text-neutral-700 dark:text-neutral-300">
+                    {m.full_name?.charAt(0) || m.email?.charAt(0) || 'U'}
                   </div>
-                  <div className="text-xs text-neutral-500 flex items-center gap-1.5">
-                    <Mail className="h-3 w-3 stroke-[1.5]" />
-                    <span>{m.email}</span>
+                  <div>
+                    <div className="text-xs font-bold text-neutral-900 dark:text-white">
+                      {m.full_name || 'Team Member'}
+                    </div>
+                    <div className="text-xs text-neutral-500 flex items-center gap-1.5">
+                      <Mail className="h-3 w-3 stroke-[1.5]" />
+                      <span>{m.email}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <Badge
-                  variant="outline"
-                  className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 ${
-                    m.role === 'OWNER'
-                      ? 'border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900'
-                      : m.role === 'ADMIN'
-                      ? 'border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/10'
-                      : 'border-neutral-300 text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800'
-                  }`}
-                >
-                  {m.role}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant="outline"
+                    className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 ${
+                      m.role === 'OWNER'
+                        ? 'border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900'
+                        : m.role === 'ADMIN'
+                        ? 'border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/10'
+                        : 'border-neutral-300 text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800'
+                    }`}
+                  >
+                    {m.role}
+                  </Badge>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Paystack Checkout / Top Up Dialog - Enforcing Confirmed Payment Lockdown */}
@@ -340,7 +393,7 @@ export default function ConsoleTeamPage() {
               })}
             </div>
 
-            {/* Mandated Requirement 2 Notice */}
+            {/* Mandated Requirement Notice */}
             <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-1">
               <div className="flex items-center gap-2 font-bold">
                 <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
