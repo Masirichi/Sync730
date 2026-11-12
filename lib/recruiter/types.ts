@@ -85,18 +85,107 @@ export interface WorkspaceMember {
   created_at?: string;
 }
 
+export type JobStatus = 'active' | 'draft' | 'paused' | 'closed';
+
 export interface EmployerJob {
   id: string;
   workspace_id: string;
   job_title: string;
   flowmingo_project_id: string;
-  status: 'active' | 'draft' | 'closed';
+  status: JobStatus;
   department?: string;
-  location?: string;
+  seniority?: 'Junior' | 'Mid-Level' | 'Senior' | 'Lead' | 'Staff' | 'Principal' | 'Executive';
   job_type?: string;
+  employment_type?: 'Full-time' | 'Part-time' | 'Contract' | 'Internship';
+  work_arrangement?: 'Remote' | 'Hybrid' | 'Onsite';
+  location?: string;
+  location_country?: string;
+  location_state?: string;
+  location_city?: string;
+  eligible_regions?: string[];
+  salary_min?: number;
+  salary_max?: number;
+  salary_currency?: 'NGN' | 'USD' | 'EUR' | 'GBP';
+  salary_period?: 'year' | 'month' | 'hour';
   salary_range?: string;
+  skills?: string[];
   description?: string;
+  requirements?: string;
+  application_deadline?: string;
+  assessment_template?: 'Engineering' | 'Product/Design' | 'Sales' | 'Customer Support' | 'Finance/Operations' | 'Custom';
+  custom_questions?: Array<{ id: string; question: string; time_limit_seconds: number }>;
+  invited_count?: number;
+  assessed_count?: number;
+  shortlisted_count?: number;
   created_at: string;
+  updated_at?: string;
+}
+
+export type PipelineStage = 'Shortlisted' | 'Contacted' | 'Interviewing' | 'Offer' | 'Hired' | 'Rejected';
+
+export interface PipelineStageHistory {
+  from_stage: PipelineStage | 'Applied';
+  to_stage: PipelineStage;
+  moved_by: string;
+  moved_at: string;
+  reason?: string;
+}
+
+export interface ScorecardEntry {
+  id: string;
+  interviewer_id: string;
+  interviewer_name: string;
+  interviewer_role: RecruiterRole;
+  technical_depth: number; // 1-5
+  problem_solving: number; // 1-5
+  culture_values: number; // 1-5
+  communication: number; // 1-5
+  overall_rating: number; // 1-5
+  notes?: string;
+  submitted_at: string;
+}
+
+export interface ScheduledInterview {
+  id: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  interviewer_emails: string[];
+  candidate_email: string;
+  meeting_link?: string;
+  notes?: string;
+  created_at: string;
+  created_by: string;
+}
+
+export interface PipelineCandidate {
+  id: string;
+  job_id: string;
+  candidate_id: string;
+  masked_id: string;
+  candidate_name?: string;
+  candidate_email?: string;
+  stage: PipelineStage;
+  rejection_reason?: string;
+  overall_match_score: number;
+  technical_depth_score: number;
+  communication_score: number;
+  skills: string[];
+  seniority: string;
+  years_of_experience?: number;
+  location?: string;
+  expected_salary?: string;
+  applied_at: string;
+  updated_at: string;
+  stage_history: PipelineStageHistory[];
+  scorecards: ScorecardEntry[];
+  scheduled_interviews: ScheduledInterview[];
+  notes: Array<{
+    id: string;
+    author_name: string;
+    author_role: RecruiterRole;
+    text: string;
+    created_at: string;
+  }>;
 }
 
 export interface VideoAssessment {

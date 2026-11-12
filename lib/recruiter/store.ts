@@ -2,6 +2,12 @@ import {
   CorporateWorkspace,
   WorkspaceMember,
   EmployerJob,
+  JobStatus,
+  PipelineCandidate,
+  PipelineStage,
+  PipelineStageHistory,
+  ScorecardEntry,
+  ScheduledInterview,
   VideoAssessment,
   TokenUnlockRecord,
   CandidateContactLog,
@@ -15,6 +21,7 @@ const ASSESSMENTS_KEY = 'sync730_talent_assessments';
 const UNLOCKS_KEY = 'sync730_token_unlocks';
 const MEMBERS_KEY = 'sync730_workspace_members';
 const CONTACT_LOGS_KEY = 'sync730_candidate_contact_logs';
+const PIPELINE_KEY = 'sync730_pipeline_candidates';
 
 // Default initial corporate workspace
 export const DEFAULT_WORKSPACE: CorporateWorkspace = {
@@ -356,7 +363,7 @@ export const SEED_VIDEO_ASSESSMENTS: (VideoAssessment & {
   },
 ];
 
-// Initial Seed Jobs
+// Initial Seed Jobs with Counts and Multi-Currency Compensation
 export const INITIAL_EMPLOYER_JOBS: EmployerJob[] = [
   {
     id: 'job-emp-001',
@@ -365,11 +372,27 @@ export const INITIAL_EMPLOYER_JOBS: EmployerJob[] = [
     flowmingo_project_id: 'mock_flowmingo_proj_8921',
     status: 'active',
     department: 'Engineering',
-    location: '100% Remote (Global Overlap)',
+    seniority: 'Senior',
     job_type: 'Full-time',
+    employment_type: 'Full-time',
+    work_arrangement: 'Remote',
+    location: '100% Remote (Global Overlap)',
+    eligible_regions: ['Nigeria', 'Africa', 'Worldwide'],
+    salary_min: 95000,
+    salary_max: 130000,
+    salary_currency: 'USD',
+    salary_period: 'year',
     salary_range: '$95,000 - $130,000 USD',
+    skills: ['Next.js', 'React', 'TypeScript', 'Supabase', 'Tailwind CSS'],
     description: 'We are seeking an autonomous Senior Full Stack Engineer to lead web architecture, Core Web Vitals optimization, and real-time backend integrations.',
+    requirements: 'Minimum 5 years building scalable web architectures. Deep experience with Next.js App Router, SSR streaming, and PostgreSQL/Supabase.',
+    application_deadline: '2026-12-31',
+    assessment_template: 'Engineering',
+    invited_count: 18,
+    assessed_count: 12,
+    shortlisted_count: 4,
     created_at: new Date(Date.now() - 3600000 * 72).toISOString(),
+    updated_at: new Date(Date.now() - 3600000 * 24).toISOString(),
   },
   {
     id: 'job-emp-002',
@@ -378,11 +401,356 @@ export const INITIAL_EMPLOYER_JOBS: EmployerJob[] = [
     flowmingo_project_id: 'mock_flowmingo_proj_3104',
     status: 'active',
     department: 'DevOps & Infrastructure',
-    location: 'Remote (US / EMEA Hours)',
+    seniority: 'Staff',
     job_type: 'Full-time',
+    employment_type: 'Full-time',
+    work_arrangement: 'Remote',
+    location: 'Remote (US / EMEA Hours)',
+    eligible_regions: ['Nigeria', 'Africa', 'EMEA'],
+    salary_min: 110000,
+    salary_max: 150000,
+    salary_currency: 'USD',
+    salary_period: 'year',
     salary_range: '$110,000 - $150,000 USD',
+    skills: ['Kubernetes', 'Terraform', 'AWS', 'CI/CD Pipelines'],
     description: 'Scale multi-tenant Kubernetes clusters, manage automated CI/CD deployment gates, and ensure 99.99% uptime across production services.',
+    requirements: 'Demonstrated experience managing multi-region Kubernetes clusters with ArgoCD, Terraform, and automated disaster recovery.',
+    application_deadline: '2026-12-15',
+    assessment_template: 'Engineering',
+    invited_count: 10,
+    assessed_count: 7,
+    shortlisted_count: 2,
     created_at: new Date(Date.now() - 3600000 * 48).toISOString(),
+    updated_at: new Date(Date.now() - 3600000 * 12).toISOString(),
+  },
+  {
+    id: 'job-emp-003',
+    workspace_id: 'ws-sync730-demo',
+    job_title: 'Senior Product Designer (Design Systems)',
+    flowmingo_project_id: 'mock_flowmingo_proj_5521',
+    status: 'draft',
+    department: 'Product & Design',
+    seniority: 'Senior',
+    job_type: 'Full-time',
+    employment_type: 'Full-time',
+    work_arrangement: 'Hybrid',
+    location: 'Lagos, Nigeria (Hybrid)',
+    location_country: 'Nigeria',
+    location_state: 'Lagos',
+    location_city: 'Victoria Island',
+    eligible_regions: ['Nigeria'],
+    salary_min: 15000000,
+    salary_max: 22000000,
+    salary_currency: 'NGN',
+    salary_period: 'year',
+    salary_range: '₦15,000,000 - ₦22,000,000 NGN',
+    skills: ['Figma', 'Design Systems', 'Mobile UX', 'Design Tokens'],
+    description: 'Define and maintain multi-platform UI components, micro-interactions, and design tokens for cross-functional engineering teams.',
+    requirements: 'Strong portfolio demonstrating multi-tenant design tokens, accessibility auditing, and fluid responsive design.',
+    application_deadline: '2027-01-31',
+    assessment_template: 'Product/Design',
+    invited_count: 0,
+    assessed_count: 0,
+    shortlisted_count: 0,
+    created_at: new Date(Date.now() - 3600000 * 12).toISOString(),
+  },
+];
+
+// Seed Pipeline Candidates for Job Stages
+export const INITIAL_PIPELINE_CANDIDATES: PipelineCandidate[] = [
+  {
+    id: 'pipe-001',
+    job_id: 'job-emp-001',
+    candidate_id: 'cand-001-jane-doe',
+    masked_id: 'CAND-001',
+    candidate_name: 'Sync730 Verified Candidate #001',
+    stage: 'Shortlisted',
+    overall_match_score: 95,
+    technical_depth_score: 96,
+    communication_score: 92,
+    skills: ['Next.js', 'React', 'TypeScript', 'Supabase', 'Tailwind CSS'],
+    seniority: 'Senior',
+    years_of_experience: 6,
+    location: 'Lagos, Nigeria (Remote)',
+    expected_salary: '$100,000 - $125,000 USD / year',
+    applied_at: new Date(Date.now() - 3600000 * 48).toISOString(),
+    updated_at: new Date(Date.now() - 3600000 * 24).toISOString(),
+    stage_history: [
+      {
+        from_stage: 'Applied',
+        to_stage: 'Shortlisted',
+        moved_by: 'Alex Morgan (Owner)',
+        moved_at: new Date(Date.now() - 3600000 * 24).toISOString(),
+      },
+    ],
+    scorecards: [
+      {
+        id: 'sc-001',
+        interviewer_id: 'mem-001',
+        interviewer_name: 'Alex Morgan',
+        interviewer_role: 'OWNER',
+        technical_depth: 5,
+        problem_solving: 5,
+        culture_values: 4,
+        communication: 5,
+        overall_rating: 5,
+        notes: 'Outstanding technical articulation on SSR streaming and state collocation.',
+        submitted_at: new Date(Date.now() - 3600000 * 20).toISOString(),
+      },
+    ],
+    scheduled_interviews: [],
+    notes: [
+      {
+        id: 'note-001',
+        author_name: 'Alex Morgan',
+        author_role: 'OWNER',
+        text: 'Top recommendation from Flowmingo video screening. Ready for hiring manager deep dive.',
+        created_at: new Date(Date.now() - 3600000 * 22).toISOString(),
+      },
+    ],
+  },
+  {
+    id: 'pipe-002',
+    job_id: 'job-emp-001',
+    candidate_id: 'cand-004-tunde-balogun',
+    masked_id: 'CAND-004',
+    candidate_name: 'Sync730 Verified Candidate #004',
+    stage: 'Contacted',
+    overall_match_score: 91,
+    technical_depth_score: 94,
+    communication_score: 88,
+    skills: ['React', 'TypeScript', 'Node.js', 'Tailwind CSS'],
+    seniority: 'Senior',
+    years_of_experience: 7,
+    location: 'Ibadan, Nigeria (Remote)',
+    expected_salary: '$90,000 - $115,000 USD / year',
+    applied_at: new Date(Date.now() - 3600000 * 72).toISOString(),
+    updated_at: new Date(Date.now() - 3600000 * 36).toISOString(),
+    stage_history: [
+      {
+        from_stage: 'Applied',
+        to_stage: 'Shortlisted',
+        moved_by: 'Sarah Chen (Tech Lead)',
+        moved_at: new Date(Date.now() - 3600000 * 50).toISOString(),
+      },
+      {
+        from_stage: 'Shortlisted',
+        to_stage: 'Contacted',
+        moved_by: 'Alex Morgan (Owner)',
+        moved_at: new Date(Date.now() - 3600000 * 36).toISOString(),
+      },
+    ],
+    scorecards: [
+      {
+        id: 'sc-002',
+        interviewer_id: 'mem-002',
+        interviewer_name: 'Sarah Chen (Tech Lead)',
+        interviewer_role: 'INTERVIEWER',
+        technical_depth: 4,
+        problem_solving: 4,
+        culture_values: 5,
+        communication: 4,
+        overall_rating: 4,
+        notes: 'Strong frontend architectural fundamentals, solid answers on DOM virtual table optimizations.',
+        submitted_at: new Date(Date.now() - 3600000 * 30).toISOString(),
+      },
+    ],
+    scheduled_interviews: [],
+    notes: [],
+  },
+  {
+    id: 'pipe-003',
+    job_id: 'job-emp-001',
+    candidate_id: 'cand-002-chidi-okafor',
+    masked_id: 'CAND-002',
+    candidate_name: 'Sync730 Verified Candidate #002',
+    stage: 'Interviewing',
+    overall_match_score: 93,
+    technical_depth_score: 95,
+    communication_score: 90,
+    skills: ['Next.js', 'PostgreSQL', 'Kubernetes', 'Docker'],
+    seniority: 'Staff',
+    years_of_experience: 8,
+    location: 'Abuja, Nigeria (Remote)',
+    expected_salary: '$110,000 - $135,000 USD / year',
+    applied_at: new Date(Date.now() - 3600000 * 96).toISOString(),
+    updated_at: new Date(Date.now() - 3600000 * 12).toISOString(),
+    stage_history: [
+      {
+        from_stage: 'Applied',
+        to_stage: 'Shortlisted',
+        moved_by: 'Alex Morgan (Owner)',
+        moved_at: new Date(Date.now() - 3600000 * 70).toISOString(),
+      },
+      {
+        from_stage: 'Shortlisted',
+        to_stage: 'Contacted',
+        moved_by: 'Alex Morgan (Owner)',
+        moved_at: new Date(Date.now() - 3600000 * 40).toISOString(),
+      },
+      {
+        from_stage: 'Contacted',
+        to_stage: 'Interviewing',
+        moved_by: 'Sarah Chen (Tech Lead)',
+        moved_at: new Date(Date.now() - 3600000 * 12).toISOString(),
+      },
+    ],
+    scorecards: [
+      {
+        id: 'sc-003',
+        interviewer_id: 'mem-001',
+        interviewer_name: 'Alex Morgan',
+        interviewer_role: 'OWNER',
+        technical_depth: 5,
+        problem_solving: 5,
+        culture_values: 5,
+        communication: 4,
+        overall_rating: 5,
+        notes: 'Impressive systems background; handled multi-tenant architecture questions with high confidence.',
+        submitted_at: new Date(Date.now() - 3600000 * 14).toISOString(),
+      },
+      {
+        id: 'sc-004',
+        interviewer_id: 'mem-002',
+        interviewer_name: 'Sarah Chen (Tech Lead)',
+        interviewer_role: 'INTERVIEWER',
+        technical_depth: 4,
+        problem_solving: 5,
+        culture_values: 4,
+        communication: 4,
+        overall_rating: 4,
+        notes: 'Clear problem-solving framework. Would be an asset for database optimization.',
+        submitted_at: new Date(Date.now() - 3600000 * 8).toISOString(),
+      },
+    ],
+    scheduled_interviews: [
+      {
+        id: 'int-001',
+        scheduled_at: new Date(Date.now() + 3600000 * 24).toISOString(),
+        duration_minutes: 45,
+        interviewer_emails: ['alex.morgan@acmeglobal.com', 'sarah.tech@acmeglobal.com'],
+        candidate_email: 'chidi.okafor@sync730.com',
+        meeting_link: 'https://meet.google.com/sync-730-int',
+        notes: 'Technical systems deep-dive & architecture review',
+        created_at: new Date(Date.now() - 3600000 * 10).toISOString(),
+        created_by: 'sarah.tech@acmeglobal.com',
+      },
+    ],
+    notes: [
+      {
+        id: 'note-002',
+        author_name: 'Sarah Chen',
+        author_role: 'INTERVIEWER',
+        text: 'Scheduled architecture review interview for tomorrow. Calendar invite sent to candidate.',
+        created_at: new Date(Date.now() - 3600000 * 10).toISOString(),
+      },
+    ],
+  },
+  {
+    id: 'pipe-004',
+    job_id: 'job-emp-001',
+    candidate_id: 'cand-005-kemi-adebayo',
+    masked_id: 'CAND-005',
+    candidate_name: 'Sync730 Verified Candidate #005',
+    stage: 'Offer',
+    overall_match_score: 88,
+    technical_depth_score: 87,
+    communication_score: 91,
+    skills: ['TypeScript', 'React', 'Tailwind CSS'],
+    seniority: 'Senior',
+    years_of_experience: 5,
+    location: 'Lagos, Nigeria (Remote)',
+    expected_salary: '$85,000 - $110,000 USD / year',
+    applied_at: new Date(Date.now() - 3600000 * 120).toISOString(),
+    updated_at: new Date(Date.now() - 3600000 * 16).toISOString(),
+    stage_history: [
+      {
+        from_stage: 'Applied',
+        to_stage: 'Shortlisted',
+        moved_by: 'Alex Morgan',
+        moved_at: new Date(Date.now() - 3600000 * 90).toISOString(),
+      },
+      {
+        from_stage: 'Shortlisted',
+        to_stage: 'Interviewing',
+        moved_by: 'Alex Morgan',
+        moved_at: new Date(Date.now() - 3600000 * 50).toISOString(),
+      },
+      {
+        from_stage: 'Interviewing',
+        to_stage: 'Offer',
+        moved_by: 'Alex Morgan',
+        moved_at: new Date(Date.now() - 3600000 * 16).toISOString(),
+      },
+    ],
+    scorecards: [
+      {
+        id: 'sc-005',
+        interviewer_id: 'mem-001',
+        interviewer_name: 'Alex Morgan',
+        interviewer_role: 'OWNER',
+        technical_depth: 4,
+        problem_solving: 4,
+        culture_values: 5,
+        communication: 5,
+        overall_rating: 5,
+        notes: 'Passed all rounds. Formal offer extended.',
+        submitted_at: new Date(Date.now() - 3600000 * 18).toISOString(),
+      },
+    ],
+    scheduled_interviews: [],
+    notes: [],
+  },
+  {
+    id: 'pipe-005',
+    job_id: 'job-emp-001',
+    candidate_id: 'cand-007-sample',
+    masked_id: 'CAND-007',
+    candidate_name: 'Sync730 Verified Candidate #007',
+    stage: 'Rejected',
+    rejection_reason: 'Skill mismatch: Candidate lacked deep experience in PostgreSQL row level security and realtime subscriptions.',
+    overall_match_score: 74,
+    technical_depth_score: 70,
+    communication_score: 76,
+    skills: ['HTML', 'CSS', 'JavaScript'],
+    seniority: 'Mid-Level',
+    years_of_experience: 3,
+    location: 'Remote',
+    expected_salary: '$60,000 USD / year',
+    applied_at: new Date(Date.now() - 3600000 * 140).toISOString(),
+    updated_at: new Date(Date.now() - 3600000 * 48).toISOString(),
+    stage_history: [
+      {
+        from_stage: 'Applied',
+        to_stage: 'Shortlisted',
+        moved_by: 'Sarah Chen',
+        moved_at: new Date(Date.now() - 3600000 * 100).toISOString(),
+      },
+      {
+        from_stage: 'Shortlisted',
+        to_stage: 'Rejected',
+        moved_by: 'Sarah Chen',
+        moved_at: new Date(Date.now() - 3600000 * 48).toISOString(),
+        reason: 'Skill mismatch: Candidate lacked deep experience in PostgreSQL row level security and realtime subscriptions.',
+      },
+    ],
+    scorecards: [
+      {
+        id: 'sc-006',
+        interviewer_id: 'mem-002',
+        interviewer_name: 'Sarah Chen (Tech Lead)',
+        interviewer_role: 'INTERVIEWER',
+        technical_depth: 2,
+        problem_solving: 3,
+        culture_values: 4,
+        communication: 3,
+        overall_rating: 2,
+        notes: 'Needs more hands-on production experience with distributed database transactions.',
+        submitted_at: new Date(Date.now() - 3600000 * 50).toISOString(),
+      },
+    ],
+    scheduled_interviews: [],
+    notes: [],
   },
 ];
 
@@ -412,6 +780,7 @@ export const INITIAL_MEMBERS: WorkspaceMember[] = [
 let globalServerStore = {
   workspace: DEFAULT_WORKSPACE,
   jobs: [...INITIAL_EMPLOYER_JOBS],
+  pipelineCandidates: [...INITIAL_PIPELINE_CANDIDATES],
   assessments: [...SEED_VIDEO_ASSESSMENTS],
   unlocks: [] as TokenUnlockRecord[],
   members: [...INITIAL_MEMBERS],
@@ -472,6 +841,178 @@ export function saveLocalJobs(jobs: EmployerJob[]) {
     }
   }
   globalServerStore.jobs = jobs;
+}
+
+export function updateJobStatus(jobId: string, status: JobStatus): EmployerJob | null {
+  const jobs = getLocalJobs();
+  const index = jobs.findIndex((j) => j.id === jobId);
+  if (index === -1) return null;
+  const updatedJob = { ...jobs[index], status, updated_at: new Date().toISOString() };
+  jobs[index] = updatedJob;
+  saveLocalJobs(jobs);
+  return updatedJob;
+}
+
+export function duplicateJob(jobId: string): EmployerJob | null {
+  const jobs = getLocalJobs();
+  const source = jobs.find((j) => j.id === jobId);
+  if (!source) return null;
+  const duplicated: EmployerJob = {
+    ...source,
+    id: `job-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+    job_title: `${source.job_title} (Copy)`,
+    flowmingo_project_id: `mock_flowmingo_proj_${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
+    status: 'draft',
+    invited_count: 0,
+    assessed_count: 0,
+    shortlisted_count: 0,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+  saveLocalJobs([duplicated, ...jobs]);
+  return duplicated;
+}
+
+export function updateJob(jobId: string, updates: Partial<EmployerJob>): EmployerJob | null {
+  const jobs = getLocalJobs();
+  const index = jobs.findIndex((j) => j.id === jobId);
+  if (index === -1) return null;
+  const updatedJob = { ...jobs[index], ...updates, updated_at: new Date().toISOString() };
+  jobs[index] = updatedJob;
+  saveLocalJobs(jobs);
+  return updatedJob;
+}
+
+export function getLocalPipelineCandidates(jobId?: string): PipelineCandidate[] {
+  if (typeof window === 'undefined') {
+    return jobId
+      ? globalServerStore.pipelineCandidates.filter((c) => c.job_id === jobId)
+      : globalServerStore.pipelineCandidates;
+  }
+  try {
+    const raw = localStorage.getItem(PIPELINE_KEY);
+    if (!raw) {
+      localStorage.setItem(PIPELINE_KEY, JSON.stringify(INITIAL_PIPELINE_CANDIDATES));
+      return jobId
+        ? INITIAL_PIPELINE_CANDIDATES.filter((c) => c.job_id === jobId)
+        : INITIAL_PIPELINE_CANDIDATES;
+    }
+    const candidates: PipelineCandidate[] = JSON.parse(raw);
+    return jobId ? candidates.filter((c) => c.job_id === jobId) : candidates;
+  } catch {
+    return INITIAL_PIPELINE_CANDIDATES;
+  }
+}
+
+export function saveLocalPipelineCandidates(candidates: PipelineCandidate[]) {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(PIPELINE_KEY, JSON.stringify(candidates));
+      window.dispatchEvent(new Event('sync730_pipeline_updated'));
+    } catch (e) {
+      console.warn('Failed to save pipeline candidates to localStorage:', e);
+    }
+  }
+  globalServerStore.pipelineCandidates = candidates;
+}
+
+export function updateLocalPipelineCandidateStage(
+  id: string,
+  stage: PipelineStage,
+  reason?: string,
+  movedBy?: string
+): PipelineCandidate | null {
+  const all = getLocalPipelineCandidates();
+  const index = all.findIndex((c) => c.id === id);
+  if (index === -1) return null;
+
+  const current = all[index];
+  const historyEntry: PipelineStageHistory = {
+    from_stage: current.stage,
+    to_stage: stage,
+    moved_by: movedBy || 'Hiring Team',
+    moved_at: new Date().toISOString(),
+    reason: stage === 'Rejected' ? reason : undefined,
+  };
+
+  const updated: PipelineCandidate = {
+    ...current,
+    stage,
+    rejection_reason: stage === 'Rejected' ? reason : current.rejection_reason,
+    updated_at: new Date().toISOString(),
+    stage_history: [historyEntry, ...(current.stage_history || [])],
+  };
+
+  all[index] = updated;
+  saveLocalPipelineCandidates(all);
+  return updated;
+}
+
+export function addScorecardToPipelineCandidate(
+  candidateId: string,
+  scorecard: ScorecardEntry
+): PipelineCandidate | null {
+  const all = getLocalPipelineCandidates();
+  const index = all.findIndex((c) => c.id === candidateId);
+  if (index === -1) return null;
+
+  const current = all[index];
+  const updated: PipelineCandidate = {
+    ...current,
+    scorecards: [scorecard, ...(current.scorecards || [])],
+    updated_at: new Date().toISOString(),
+  };
+
+  all[index] = updated;
+  saveLocalPipelineCandidates(all);
+  return updated;
+}
+
+export function addNoteToPipelineCandidate(
+  candidateId: string,
+  note: { author_name: string; author_role: RecruiterRole; text: string }
+): PipelineCandidate | null {
+  const all = getLocalPipelineCandidates();
+  const index = all.findIndex((c) => c.id === candidateId);
+  if (index === -1) return null;
+
+  const current = all[index];
+  const noteEntry = {
+    id: `note-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+    ...note,
+    created_at: new Date().toISOString(),
+  };
+
+  const updated: PipelineCandidate = {
+    ...current,
+    notes: [noteEntry, ...(current.notes || [])],
+    updated_at: new Date().toISOString(),
+  };
+
+  all[index] = updated;
+  saveLocalPipelineCandidates(all);
+  return updated;
+}
+
+export function scheduleInterviewForPipelineCandidate(
+  candidateId: string,
+  interview: ScheduledInterview
+): PipelineCandidate | null {
+  const all = getLocalPipelineCandidates();
+  const index = all.findIndex((c) => c.id === candidateId);
+  if (index === -1) return null;
+
+  const current = all[index];
+  const updated: PipelineCandidate = {
+    ...current,
+    stage: current.stage === 'Shortlisted' || current.stage === 'Contacted' ? 'Interviewing' : current.stage,
+    scheduled_interviews: [interview, ...(current.scheduled_interviews || [])],
+    updated_at: new Date().toISOString(),
+  };
+
+  all[index] = updated;
+  saveLocalPipelineCandidates(all);
+  return updated;
 }
 
 export function getLocalUnlocks(workspaceId?: string): TokenUnlockRecord[] {

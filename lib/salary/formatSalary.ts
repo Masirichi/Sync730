@@ -40,6 +40,51 @@ export function formatSalaryNumber(num: number): string {
 }
 
 /**
+ * Synchronous salary formatter for jobs across recruiter and candidate views.
+ * Formats ranges with appropriate currency symbols (₦, $, €, £) and periods.
+ */
+export function formatSalaryDisplay(job: any): string {
+  if (!job) return 'Salary not listed';
+
+  const min = job.salary_min;
+  const max = job.salary_max;
+  const currency = (job.salary_currency || 'USD').toUpperCase();
+  const period = (job.salary_period || 'year').toLowerCase();
+  const symbol = getCurrencySymbol(currency);
+
+  if (typeof min === 'number' && typeof max === 'number') {
+    const formattedMin = formatSalaryNumber(min);
+    const formattedMax = formatSalaryNumber(max);
+    const periodLabel = period === 'hour' ? '/ hour' : period === 'month' ? '/ month' : '/ year';
+    return formattedMin === formattedMax
+      ? `${symbol}${formattedMin} ${periodLabel}`
+      : `${symbol}${formattedMin} – ${symbol}${formattedMax} ${periodLabel}`;
+  }
+
+  if (typeof min === 'number') {
+    return `${symbol}${formatSalaryNumber(min)} / ${period}`;
+  }
+
+  if (typeof max === 'number') {
+    return `Up to ${symbol}${formatSalaryNumber(max)} / ${period}`;
+  }
+
+  if (job.salary_range) {
+    let clean = String(job.salary_range).trim();
+    if (clean.includes('NGN')) {
+      clean = clean.replace(/NGN\s?/g, '₦');
+    } else if (clean.includes('USD')) {
+      clean = clean.replace(/USD\s?/g, '$');
+    } else if (clean.includes('EUR')) {
+      clean = clean.replace(/EUR\s?/g, '€');
+    }
+    return clean;
+  }
+
+  return 'Salary not listed';
+}
+
+/**
  * Period conversion:
  * - 160 hours = 1 month
  * - 12 months = 1 year

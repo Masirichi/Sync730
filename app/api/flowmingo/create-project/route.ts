@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
-import { EmployerJob } from '@/lib/recruiter/types';
+import { EmployerJob, JobStatus } from '@/lib/recruiter/types';
 import { getLocalJobs, saveLocalJobs } from '@/lib/recruiter/store';
+import { formatSalaryDisplay } from '@/lib/salary/formatSalary';
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,10 +11,27 @@ export async function POST(req: NextRequest) {
       workspace_id,
       job_title,
       department,
+      seniority,
       location,
+      location_country,
+      location_state,
+      location_city,
       job_type,
+      employment_type,
+      work_arrangement,
+      eligible_regions,
+      salary_min,
+      salary_max,
+      salary_currency,
+      salary_period,
       salary_range,
+      skills,
       description,
+      requirements,
+      application_deadline,
+      assessment_template,
+      custom_questions,
+      status = 'active',
     } = body;
 
     if (!job_title || !job_title.trim()) {
@@ -41,6 +59,7 @@ export async function POST(req: NextRequest) {
           body: JSON.stringify({
             title,
             department: department || 'Engineering',
+            template: assessment_template || 'Engineering',
             rubrics: ['technical_depth', 'communication', 'problem_solving'],
           }),
           signal: AbortSignal.timeout(3000),
@@ -63,21 +82,61 @@ export async function POST(req: NextRequest) {
       flowmingoProjectId = `mock_flowmingo_proj_${randHex}`;
     }
 
+    const effectiveArrangement = work_arrangement || (location?.toLowerCase().includes('remote') ? 'Remote' : 'Hybrid');
+    let effectiveLocation = location;
+    if (!effectiveLocation) {
+      if (effectiveArrangement === 'Remote') {
+        effectiveLocation = '100% Remote (Worldwide)';
+      } else if (location_city || location_country) {
+        effectiveLocation = [location_city, location_state, location_country].filter(Boolean).join(', ');
+      } else {
+        effectiveLocation = 'Lagos, Nigeria (Hybrid)';
+      }
+    }
+
+    const formattedSalary = formatSalaryDisplay({
+      salary_min,
+      salary_max,
+      salary_currency: salary_currency || 'USD',
+      salary_period: salary_period || 'year',
+      salary_range,
+    });
+
     const newJob: EmployerJob = {
       id: `job-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
       workspace_id: workspace_id || 'ws-sync730-demo',
       job_title: title,
       flowmingo_project_id: flowmingoProjectId,
-      status: 'active',
+      status: (status as JobStatus) || 'active',
       department: department || 'Engineering',
-      location: location || '100% Remote (Global)',
-      job_type: job_type || 'Full-time',
-      salary_range: salary_range || 'Competitive Remote Salary',
-      description: description || 'High-impact remote role with asynchronous collaboration and continuous ownership.',
+      seniority: seniority || 'Senior',
+      job_type: job_type || employment_type || 'Full-time',
+      employment_type: employment_type || 'Full-time',
+      work_arrangement: effectiveArrangement,
+      location: effectiveLocation,
+      location_country,
+      location_state,
+      location_city,
+      eligible_regions: Array.isArray(eligible_regions) ? eligible_regions : ['Nigeria', 'Worldwide'],
+      salary_min: typeof salary_min === 'number' ? salary_min : undefined,
+      salary_max: typeof salary_max === 'number' ? salary_max : undefined,
+      salary_currency: salary_currency || 'USD',
+      salary_period: salary_period || 'year',
+      salary_range: formattedSalary,
+      skills: Array.isArray(skills) ? skills : ['Next.js', 'React', 'TypeScript'],
+      description: description || 'High-impact role with asynchronous collaboration and continuous ownership.',
+      requirements: requirements || 'Strong relevant engineering or domain background with high autonomy.',
+      application_deadline: application_deadline || undefined,
+      assessment_template: assessment_template || 'Engineering',
+      custom_questions: custom_questions || [],
+      invited_count: 0,
+      assessed_count: 0,
+      shortlisted_count: 0,
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
-    // 2. Persist to Supabase employer_jobs
+    // 2. Persist to Supabase employer_jobs if available
     try {
       const supabase = await createServerClient();
       const { data, error } = await supabase
