@@ -10,12 +10,12 @@ import {
   Building2,
   Mail,
   CheckCircle2,
-  Check,
   Shield,
   UserCheck,
   Lock,
   ArrowRight,
-  Sparkles,
+  AlertCircle,
+  HelpCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,7 +47,6 @@ export default function ConsoleTeamPage() {
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [selectedPack, setSelectedPack] = useState<'5' | '15' | '50'>('5');
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   // Invite states
   const [inviteEmail, setInviteEmail] = useState('');
@@ -91,44 +90,8 @@ export default function ConsoleTeamPage() {
 
   const isOwnerOrAdmin = currentRole === 'OWNER' || currentRole === 'ADMIN';
 
-  // Buy / Top Up Token Packs
-  const handleBuyTokens = async (amount: number, packName: string) => {
-    setIsProcessingPayment(true);
-    try {
-      const res = await fetch('/api/recruiter/tokens/topup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          workspace_id: workspace.id,
-          amount,
-          reason: `Purchased ${packName} (${amount} Tokens)`,
-        }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        const updatedWs = { ...workspace, token_balance: data.new_balance };
-        setWorkspace(updatedWs);
-        saveLocalWorkspace(updatedWs);
-        setIsBuyModalOpen(false);
-        toast.success(`Success! Added ${amount} tokens to ${workspace.company_name}.`);
-      } else {
-        throw new Error(data.error || 'Payment failed');
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Payment processing error.');
-    } finally {
-      setIsProcessingPayment(false);
-    }
-  };
-
-  // Instant +5 Dev Test Tokens
-  const handleQuickTestTokens = async () => {
-    await handleBuyTokens(5, 'Dev Test Pack (+5 Tokens)');
-  };
-
-  // Invite Colleague Action
-  const handleInvite = (e: React.FormEvent) => {
+  // Server-Guarded Invite Colleague Action
+  const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isOwnerOrAdmin) {
       toast.error('Permission denied: Only Owners and Admins can invite team members.');
@@ -141,24 +104,37 @@ export default function ConsoleTeamPage() {
 
     setIsInviting(true);
     try {
-      const newMember: WorkspaceMember = {
-        id: `mem-${Date.now().toString(36)}`,
-        workspace_id: workspace.id,
-        user_id: `user-${Date.now().toString(36)}`,
-        role: inviteRole,
-        email: inviteEmail.trim(),
-        full_name: inviteName.trim() || inviteEmail.split('@')[0],
-        created_at: new Date().toISOString(),
-      };
+      const res = await fetch('/api/recruiter/team/invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workspace_id: workspace.id,
+          email: inviteEmail.trim(),
+          full_name: inviteName.trim() || inviteEmail.split('@')[0],
+          role: inviteRole,
+        }),
+      });
 
-      saveLocalMember(newMember);
-      setMembers(getLocalMembers(workspace.id));
-      setIsInviteModalOpen(false);
-      setInviteEmail('');
-      setInviteName('');
-      toast.success(`Invitation sent to ${inviteEmail} as ${inviteRole}!`);
+      const data = await res.json();
+      if (!res.ok) {
+        if (res.status === 429) {
+          throw new Error(data.error || 'Too many invitations sent. Rate limit exceeded.');
+        }
+        throw new Error(data.error || 'Failed to send invite');
+      }
+
+      if (data.success && data.member) {
+        saveLocalMember(data.member);
+        setMembers(getLocalMembers(workspace.id));
+        setIsInviteModalOpen(false);
+        setInviteEmail('');
+        setInviteName('');
+        toast.success(`Invitation sent to ${inviteEmail} as ${inviteRole}!`);
+      } else {
+        throw new Error(data.error || 'Failed to invite colleague');
+      }
     } catch (err: any) {
-      toast.error('Failed to send invite.');
+      toast.error(err.message || 'Error sending invite.');
     } finally {
       setIsInviting(false);
     }
@@ -182,8 +158,8 @@ export default function ConsoleTeamPage() {
         </p>
       </div>
 
-      {/* Token Balance & Billing Section */}
-      <div className="p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xs space-y-6">
+      {/* Token Balance & Billing Section (Restricted from Interviewers) */}
+      <div id="tokens" className="p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xs space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-neutral-100 dark:border-neutral-800">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
@@ -202,18 +178,6 @@ export default function ConsoleTeamPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* Quick Test Tokens Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleQuickTestTokens}
-              disabled={isProcessingPayment}
-              className="text-xs h-9 px-3 rounded-xl border-amber-500/30 text-amber-800 dark:text-amber-300 bg-amber-500/10 font-semibold gap-1.5"
-            >
-              <Zap className="h-3.5 w-3.5 fill-amber-500" />
-              <span>+5 Dev Test Tokens</span>
-            </Button>
-
             {isOwnerOrAdmin ? (
               <Button
                 onClick={() => setIsBuyModalOpen(true)}
@@ -223,39 +187,42 @@ export default function ConsoleTeamPage() {
                 <span>Buy Token Pack (₦20,000 / Token)</span>
               </Button>
             ) : (
-              <div className="text-xs text-amber-600 italic">
-                Only Owners & Admins can purchase tokens.
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-medium">
+                <Lock className="h-3.5 w-3.5" />
+                <span>Interviewer: Ask an admin to top up</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Pricing Tier Highlights */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/30 space-y-1">
-            <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Starter Pack</div>
-            <div className="text-lg font-bold text-neutral-900 dark:text-white">5 Tokens</div>
-            <div className="text-xs text-neutral-500">₦100,000 (₦20,000 / candidate)</div>
-          </div>
+        {/* Pricing Tier Highlights - Visible to OWNER & ADMIN */}
+        {isOwnerOrAdmin && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/30 space-y-1">
+              <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Starter Pack</div>
+              <div className="text-lg font-bold text-neutral-900 dark:text-white">5 Tokens</div>
+              <div className="text-xs text-neutral-500">₦100,000 (₦20,000 / candidate)</div>
+            </div>
 
-          <div className="p-4 rounded-xl border border-neutral-900 dark:border-white bg-neutral-900/5 dark:bg-white/5 space-y-1 relative">
-            <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
-              10% Off
-            </span>
-            <div className="text-xs font-semibold text-neutral-900 dark:text-white">Growth Pack</div>
-            <div className="text-lg font-bold text-neutral-900 dark:text-white">15 Tokens</div>
-            <div className="text-xs text-neutral-500">₦270,000 (₦18,000 / candidate)</div>
-          </div>
+            <div className="p-4 rounded-xl border border-neutral-900 dark:border-white bg-neutral-900/5 dark:bg-white/5 space-y-1 relative">
+              <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
+                10% Off
+              </span>
+              <div className="text-xs font-semibold text-neutral-900 dark:text-white">Growth Pack</div>
+              <div className="text-lg font-bold text-neutral-900 dark:text-white">15 Tokens</div>
+              <div className="text-xs text-neutral-500">₦270,000 (₦18,000 / candidate)</div>
+            </div>
 
-          <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/30 space-y-1 relative">
-            <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold">
-              20% Off
-            </span>
-            <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Enterprise Pack</div>
-            <div className="text-lg font-bold text-neutral-900 dark:text-white">50 Tokens</div>
-            <div className="text-xs text-neutral-500">₦800,000 (₦16,000 / candidate)</div>
+            <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/30 space-y-1 relative">
+              <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold">
+                20% Off
+              </span>
+              <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Enterprise Pack</div>
+              <div className="text-lg font-bold text-neutral-900 dark:text-white">50 Tokens</div>
+              <div className="text-xs text-neutral-500">₦800,000 (₦16,000 / candidate)</div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Team Members Management Section */}
@@ -319,7 +286,7 @@ export default function ConsoleTeamPage() {
         </div>
       </div>
 
-      {/* Paystack Checkout Modal */}
+      {/* Paystack Checkout / Top Up Dialog - Enforcing Confirmed Payment Lockdown */}
       <Dialog open={isBuyModalOpen} onOpenChange={setIsBuyModalOpen}>
         <DialogContent className="max-w-md p-6 rounded-2xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800">
           <DialogHeader>
@@ -330,7 +297,7 @@ export default function ConsoleTeamPage() {
               Buy Candidate Unlock Tokens
             </DialogTitle>
             <DialogDescription className="text-xs text-neutral-500">
-              Each token unlocks 1 full candidate profile with verified contact details, resume, and code repos.
+              Each token unlocks 1 full candidate profile with verified contact details, resume, and assessment notes.
             </DialogDescription>
           </DialogHeader>
 
@@ -373,30 +340,28 @@ export default function ConsoleTeamPage() {
               })}
             </div>
 
-            {/* Note on Paystack test key */}
-            <div className="p-3 rounded-xl bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 text-[11px] flex items-start gap-2">
-              <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5 stroke-[1.5]" />
-              <span>
-                Simulated Paystack B2B Gateway active. Clicking below will instantly confirm transaction and credit your workspace balance.
-              </span>
+            {/* Mandated Requirement 2 Notice */}
+            <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-1">
+              <div className="flex items-center gap-2 font-bold">
+                <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
+                <span>Top-ups are temporarily unavailable. Contact support.</span>
+              </div>
+              <p className="text-[11px] text-neutral-600 dark:text-neutral-400 pt-0.5 leading-relaxed">
+                Tokens can only be issued after confirmed server-verified payment. Automated B2B payment webhooks are scheduled in Batch R3. To allocate enterprise credits immediately, please contact{' '}
+                <a
+                  href="mailto:support@sync730.com?subject=Recruiter%20Token%20Allocation%20Request"
+                  className="font-semibold underline text-neutral-900 dark:text-white"
+                >
+                  support@sync730.com
+                </a>.
+              </p>
             </div>
 
             <Button
-              onClick={() => handleBuyTokens(PACKS[selectedPack].tokens, PACKS[selectedPack].label)}
-              disabled={isProcessingPayment}
-              className="w-full h-10 bg-neutral-950 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 font-semibold text-xs rounded-xl shadow-xs gap-2"
+              disabled={true}
+              className="w-full h-10 bg-neutral-300 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 font-semibold text-xs rounded-xl cursor-not-allowed shadow-none"
             >
-              {isProcessingPayment ? (
-                <>
-                  <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent animate-spin rounded-full" />
-                  <span>Processing Payment...</span>
-                </>
-              ) : (
-                <>
-                  <span>Pay {PACKS[selectedPack].price} with Paystack</span>
-                  <ArrowRight className="h-3.5 w-3.5 stroke-[1.5]" />
-                </>
-              )}
+              Top-ups are temporarily unavailable
             </Button>
           </div>
         </DialogContent>
@@ -451,7 +416,7 @@ export default function ConsoleTeamPage() {
                 className="w-full h-9 rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 text-xs text-neutral-900 dark:text-neutral-100"
               >
                 <option value="INTERVIEWER">INTERVIEWER (Watch video assessments & leave notes)</option>
-                <option value="ADMIN">ADMIN (Post jobs, buy tokens, invite members)</option>
+                <option value="ADMIN">ADMIN (Post jobs, manage team)</option>
               </select>
             </div>
 

@@ -7,17 +7,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { AlertCircle, Loader2, User, Briefcase, ShieldCheck } from 'lucide-react';
+import { AlertCircle, Loader2, User, Briefcase, ShieldCheck, Clock } from 'lucide-react';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectParam = searchParams.get('redirect');
+  const isTimeout = searchParams.get('timeout') === 'true';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isDevEnvironment = process.env.NODE_ENV !== 'production';
 
   const routeUserByRole = (role: string) => {
     // Set demo cookie so middleware recognizes session in local testing
@@ -49,12 +52,36 @@ function LoginForm() {
       });
 
       if (authError) {
+        // Record failed attempt and check sliding-window rate limit (5 attempts per 15 min)
+        try {
+          const rateRes = await fetch('/api/auth/login-rate-limit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, success: false }),
+          });
+          const rateData = await rateRes.json();
+          if (!rateData.allowed) {
+            setError(rateData.error || 'Too many failed login attempts. Please try again in 15 minutes.');
+            setLoading(false);
+            return;
+          }
+        } catch {}
+
         setError(authError.message);
         setLoading(false);
         return;
       }
 
       if (data?.user) {
+        // Reset rate limit on success
+        try {
+          await fetch('/api/auth/login-rate-limit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, success: true }),
+          });
+        } catch {}
+
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
@@ -87,6 +114,17 @@ function LoginForm() {
 
       <form onSubmit={handleLogin}>
         <CardContent className="space-y-4">
+          {/* Inactivity Timeout Banner */}
+          {isTimeout && (
+            <div
+              role="status"
+              className="flex items-center gap-2 p-3 text-xs text-amber-800 dark:text-amber-200 bg-amber-500/10 rounded-xl border border-amber-500/20"
+            >
+              <Clock className="h-4 w-4 shrink-0 text-amber-600" />
+              <span>Your session expired due to 30 minutes of inactivity. Please sign in again.</span>
+            </div>
+          )}
+
           {error && (
             <div
               role="alert"
@@ -147,43 +185,45 @@ function LoginForm() {
             )}
           </Button>
 
-          {/* Quick Demo Switcher for Evaluation */}
-          <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800">
-            <div className="text-center mb-2.5">
-              <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                Instant Demo Access (Local / Dev)
-              </span>
+          {/* Quick Demo Switcher - Strictly Non-Production Only */}
+          {isDevEnvironment && (
+            <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800">
+              <div className="text-center mb-2.5">
+                <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                  Instant Demo Access (Development Only)
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-1.5 text-xs min-h-[44px] border-neutral-200 dark:border-neutral-800"
+                  onClick={() => handleDemoSignIn('candidate')}
+                >
+                  <User className="h-4 w-4 text-primary" />
+                  <span>Demo Candidate</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-1.5 text-xs min-h-[44px] border-neutral-200 dark:border-neutral-800"
+                  onClick={() => handleDemoSignIn('recruiter')}
+                >
+                  <Briefcase className="h-4 w-4 text-amber-500" />
+                  <span>Demo Recruiter</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="col-span-2 gap-1.5 text-xs min-h-[44px] bg-neutral-900 text-white hover:bg-neutral-800 border-neutral-700"
+                  onClick={() => handleDemoSignIn('platform_admin')}
+                >
+                  <ShieldCheck className="h-4 w-4 text-rose-400" />
+                  <span>Demo Platform Admin</span>
+                </Button>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                className="gap-1.5 text-xs min-h-[44px] border-neutral-200 dark:border-neutral-800"
-                onClick={() => handleDemoSignIn('candidate')}
-              >
-                <User className="h-4 w-4 text-primary" />
-                <span>Demo Candidate</span>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="gap-1.5 text-xs min-h-[44px] border-neutral-200 dark:border-neutral-800"
-                onClick={() => handleDemoSignIn('recruiter')}
-              >
-                <Briefcase className="h-4 w-4 text-amber-500" />
-                <span>Demo Recruiter</span>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="col-span-2 gap-1.5 text-xs min-h-[44px] bg-neutral-900 text-white hover:bg-neutral-800 border-neutral-700"
-                onClick={() => handleDemoSignIn('platform_admin')}
-              >
-                <ShieldCheck className="h-4 w-4 text-rose-400" />
-                <span>Demo Platform Admin</span>
-              </Button>
-            </div>
-          </div>
+          )}
         </CardContent>
       </form>
 

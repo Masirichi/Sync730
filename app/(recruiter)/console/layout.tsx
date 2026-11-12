@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -14,12 +14,10 @@ import {
   Settings,
   ChevronRight,
   LogOut,
-  Sparkles,
   Building2,
   Menu,
   X,
-  ShieldCheck,
-  HelpCircle,
+  ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,7 +35,6 @@ import {
   saveLocalWorkspace,
   DEFAULT_WORKSPACE,
 } from '@/lib/recruiter/store';
-import { BrandLogo } from '@/components/site/brand-logo';
 import { toast } from 'sonner';
 import { createBrowserClient } from '@/lib/supabase/client';
 
@@ -52,7 +49,10 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
   const [isOnboardingLoading, setIsOnboardingLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Sync workspace from store & server
+  // Inactivity timeout tracking (30 minutes)
+  const lastActiveRef = useRef<number>(Date.now());
+
+  // Sync workspace and server role
   useEffect(() => {
     const ws = getLocalWorkspace();
     if (!ws || !ws.company_name || ws.company_name.trim() === '') {
@@ -60,6 +60,17 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
     } else {
       setWorkspace(ws);
     }
+
+    // Fetch server-validated workspace and role
+    fetch('/api/recruiter/workspace')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          if (data.workspace) setWorkspace(data.workspace);
+          if (data.role) setActiveRole(data.role as RecruiterRole);
+        }
+      })
+      .catch(() => {});
 
     const handleUpdate = () => {
       setWorkspace(getLocalWorkspace());
@@ -72,6 +83,56 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
       window.removeEventListener('sync730_unlocks_updated', handleUpdate);
     };
   }, []);
+
+  // 30-minute Session Inactivity Auto-Logout
+  useEffect(() => {
+    const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+
+    const resetTimer = () => {
+      lastActiveRef.current = Date.now();
+      try {
+        localStorage.setItem('sync730_last_recruiter_activity', String(Date.now()));
+      } catch {}
+    };
+
+    const checkInactivity = async () => {
+      let lastActive = lastActiveRef.current;
+      try {
+        const stored = localStorage.getItem('sync730_last_recruiter_activity');
+        if (stored) {
+          const parsed = parseInt(stored, 10);
+          if (!isNaN(parsed) && parsed > lastActive) {
+            lastActive = parsed;
+            lastActiveRef.current = parsed;
+          }
+        }
+      } catch {}
+
+      if (Date.now() - lastActive > INACTIVITY_TIMEOUT_MS) {
+        toast.error('Session expired due to 30 minutes of inactivity. Please sign in again.');
+        try {
+          const supabase = createBrowserClient();
+          await supabase.auth.signOut();
+        } catch {}
+        if (typeof document !== 'undefined') {
+          document.cookie = 'sync730-demo-role=; path=/; max-age=0';
+        }
+        router.push('/login?timeout=true');
+      }
+    };
+
+    const activityEvents = ['mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
+    activityEvents.forEach((ev) => window.addEventListener(ev, resetTimer, { passive: true }));
+    window.addEventListener('visibilitychange', checkInactivity);
+
+    const interval = setInterval(checkInactivity, 30000); // Check every 30 seconds
+
+    return () => {
+      activityEvents.forEach((ev) => window.removeEventListener(ev, resetTimer));
+      window.removeEventListener('visibilitychange', checkInactivity);
+      clearInterval(interval);
+    };
+  }, [router]);
 
   // 1-Step Onboarding Workspace Initializer
   const handleCompleteOnboarding = async (e: React.FormEvent) => {
@@ -93,7 +154,6 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
             'hiring@' +
               newCompanyName.toLowerCase().replace(/[^a-z0-9]/g, '') +
               '.com',
-          token_balance: 2,
         }),
       });
 
@@ -101,6 +161,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
       if (json.success && json.workspace) {
         setWorkspace(json.workspace);
         saveLocalWorkspace(json.workspace);
+        if (json.role) setActiveRole(json.role);
         setShowOnboardModal(false);
         toast.success(`Welcome ${newCompanyName}! 2 free candidate unlock tokens granted.`);
       } else {
@@ -130,6 +191,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
       await supabase.auth.signOut();
       if (typeof document !== 'undefined') {
         document.cookie = 'sync730-demo-role=; path=/; max-age=0';
+        document.cookie = 'sync730-recruiter-role=; path=/; max-age=0';
       }
       router.push('/login');
     } catch {
@@ -137,14 +199,16 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
     }
   };
 
-  // Nav Items borrowed from HireHR design logic
-  const navLinks = [
+  // Nav Items scoped by role permissions
+  // INTERVIEWER cannot access billing history or token top-up
+  const allNavLinks = [
     {
       name: 'Home',
       href: '/console',
       exact: true,
       icon: Home,
       badge: null,
+      roles: ['OWNER', 'ADMIN', 'INTERVIEWER'],
     },
     {
       name: 'Hire & Onboard',
@@ -152,6 +216,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
       exact: false,
       icon: Briefcase,
       badge: null,
+      roles: ['OWNER', 'ADMIN', 'INTERVIEWER'],
     },
     {
       name: 'Vetted Talent',
@@ -159,6 +224,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
       exact: false,
       icon: Users,
       badge: 'Live',
+      roles: ['OWNER', 'ADMIN', 'INTERVIEWER'],
     },
     {
       name: 'Team',
@@ -166,6 +232,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
       exact: false,
       icon: UserCheck,
       badge: null,
+      roles: ['OWNER', 'ADMIN', 'INTERVIEWER'],
     },
     {
       name: 'Payroll & Tokens',
@@ -173,8 +240,11 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
       exact: false,
       icon: CreditCard,
       badge: null,
+      roles: ['OWNER', 'ADMIN'], // Restricted from INTERVIEWER
     },
   ];
+
+  const navLinks = allNavLinks.filter((item) => item.roles.includes(activeRole));
 
   // Derive current header title based on pathname
   let pageTitle = 'Dashboard Overview';
@@ -217,9 +287,14 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
                 <p className="text-xs font-bold text-white truncate">
                   {workspace.company_name || 'My Company'}
                 </p>
-                <p className="text-[10px] text-neutral-400 truncate">
-                  {workspace.billing_email || 'hiring@company.com'}
-                </p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded bg-neutral-800 text-neutral-400 border border-neutral-700/60">
+                    {activeRole}
+                  </span>
+                  <span className="text-[10px] text-neutral-400 truncate">
+                    {workspace.billing_email || 'hiring@company.com'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -258,47 +333,33 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
           </nav>
         </div>
 
-        {/* Bottom Sidebar Footer (HireHR Style) */}
+        {/* Bottom Sidebar Footer */}
         <div className="space-y-4 pt-6 border-t border-neutral-900">
-          {/* Token Balance Pill */}
-          <Link
-            href="/console/team"
-            className="flex items-center justify-between p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 hover:bg-amber-500/15 transition-all"
-          >
-            <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-amber-400 fill-amber-400 stroke-[1.5]" />
-              <span className="text-xs font-bold">{workspace.token_balance} Tokens</span>
+          {/* Token Balance Pill - Role Guarded */}
+          {activeRole === 'INTERVIEWER' ? (
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300">
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-amber-400 fill-amber-400 stroke-[1.5]" />
+                <span className="text-xs font-bold">{workspace.token_balance} Tokens</span>
+              </div>
+              <span className="text-[10px] font-medium text-amber-400/80">
+                Ask an admin to top up
+              </span>
             </div>
-            <span className="text-[10px] uppercase font-semibold text-amber-400/90 underline">
-              Top Up
-            </span>
-          </Link>
-
-          {/* Role Switcher Pill for Testing */}
-          <div className="bg-neutral-900/90 border border-neutral-800/80 rounded-2xl p-1.5">
-            <div className="flex items-center justify-between px-2 pb-1">
-              <span className="text-[10px] text-neutral-400 font-semibold">Demo Role:</span>
-              <span className="text-[10px] font-bold text-white">{activeRole}</span>
-            </div>
-            <div className="grid grid-cols-3 gap-1">
-              {(['OWNER', 'ADMIN', 'INTERVIEWER'] as RecruiterRole[]).map((r) => (
-                <button
-                  key={r}
-                  onClick={() => {
-                    setActiveRole(r);
-                    toast.info(`Switched console demo role to ${r}`);
-                  }}
-                  className={`py-1 text-[10px] rounded-lg font-bold transition-all ${
-                    activeRole === r
-                      ? 'bg-neutral-800 text-white shadow-xs'
-                      : 'text-neutral-400 hover:text-white'
-                  }`}
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
-          </div>
+          ) : (
+            <Link
+              href="/console/team#tokens"
+              className="flex items-center justify-between p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 hover:bg-amber-500/15 transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-amber-400 fill-amber-400 stroke-[1.5]" />
+                <span className="text-xs font-bold">{workspace.token_balance} Tokens</span>
+              </div>
+              <span className="text-[10px] uppercase font-semibold text-amber-400/90 underline">
+                Top Up
+              </span>
+            </Link>
+          )}
 
           {/* Log Out Pill */}
           <button
@@ -331,7 +392,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
             </div>
           </div>
 
-          {/* Right Action Icons & Daniel Cohen Style Profile Pill */}
+          {/* Right Action Icons & User Pill */}
           <div className="flex items-center gap-3">
             {/* Notification Bell */}
             <button
@@ -343,14 +404,16 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
             </button>
 
             {/* Settings Gear */}
-            <Link
-              href="/console/team"
-              className="p-2.5 rounded-full bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-colors shadow-2xs"
-            >
-              <Settings className="h-4 w-4 stroke-[1.5]" />
-            </Link>
+            {activeRole !== 'INTERVIEWER' && (
+              <Link
+                href="/console/team"
+                className="p-2.5 rounded-full bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-colors shadow-2xs"
+              >
+                <Settings className="h-4 w-4 stroke-[1.5]" />
+              </Link>
+            )}
 
-            {/* Daniel Cohen User Pill */}
+            {/* User Pill */}
             <div className="flex items-center gap-3 pl-2 sm:pl-3 border-l border-neutral-200 dark:border-neutral-800">
               <Avatar className="h-9 w-9 rounded-full ring-2 ring-neutral-200/70 dark:ring-neutral-800">
                 <AvatarFallback className="bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-bold">
@@ -368,17 +431,23 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
               </div>
             </div>
 
-            {/* Candidate Portal Link */}
-            <Link href="/dashboard/crawler" className="hidden md:inline-flex">
+            {/* Preview as candidate: Opens read-only preview in a new tab without altering user role */}
+            <a
+              href="/dashboard/crawler?preview=true"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:inline-flex"
+            >
               <Button
                 variant="outline"
                 size="sm"
-                className="text-xs h-8 px-3 rounded-full border-neutral-200 dark:border-neutral-800 font-semibold gap-1.5 ml-2 shadow-2xs"
+                className="text-xs h-8 px-3 rounded-full border-neutral-200 dark:border-neutral-800 font-semibold gap-1.5 ml-2 shadow-2xs hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                title="Preview candidate job board in a new tab (read-only)"
               >
-                <span>Candidate View</span>
-                <ChevronRight className="h-3 w-3 stroke-[1.5]" />
+                <span>Preview as candidate</span>
+                <ExternalLink className="h-3 w-3 stroke-[1.5]" />
               </Button>
-            </Link>
+            </a>
           </div>
         </header>
 
@@ -409,6 +478,16 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
                       <span>{item.name}</span>
                     </Link>
                   ))}
+                  {/* Mobile Preview as Candidate link */}
+                  <a
+                    href="/dashboard/crawler?preview=true"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-amber-300 hover:bg-neutral-800"
+                  >
+                    <ExternalLink className="h-4 w-4 stroke-[1.5]" />
+                    <span>Preview as candidate</span>
+                  </a>
                 </nav>
               </div>
 

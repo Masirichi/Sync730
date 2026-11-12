@@ -34,7 +34,7 @@ import {
   saveLocalWorkspace,
   getLocalAssessments,
 } from '@/lib/recruiter/store';
-import { CorporateWorkspace, VideoAssessment } from '@/lib/recruiter/types';
+import { CorporateWorkspace, VideoAssessment, RecruiterRole } from '@/lib/recruiter/types';
 import { toast } from 'sonner';
 
 export default function ConsoleDashboardOverview() {
@@ -42,6 +42,7 @@ export default function ConsoleDashboardOverview() {
   const [candidates, setCandidates] = useState<VideoAssessment[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
+  const [currentRole, setCurrentRole] = useState<RecruiterRole>('OWNER');
 
   // Sync workspace and fetch candidates
   const loadData = async () => {
@@ -62,6 +63,15 @@ export default function ConsoleDashboardOverview() {
   useEffect(() => {
     loadData();
 
+    const updateRole = () => {
+      const el = document.querySelector('[data-active-role]');
+      if (el) {
+        const r = el.getAttribute('data-active-role') as RecruiterRole;
+        if (r) setCurrentRole(r);
+      }
+    };
+    updateRole();
+
     const handleUpdate = () => {
       setWorkspace(getLocalWorkspace());
       loadData();
@@ -71,21 +81,31 @@ export default function ConsoleDashboardOverview() {
     window.addEventListener('sync730_unlocks_updated', handleUpdate);
     window.addEventListener('sync730_assessments_updated', handleUpdate);
 
+    const interval = setInterval(updateRole, 500);
+
     return () => {
       window.removeEventListener('sync730_workspace_updated', handleUpdate);
       window.removeEventListener('sync730_unlocks_updated', handleUpdate);
       window.removeEventListener('sync730_assessments_updated', handleUpdate);
+      clearInterval(interval);
     };
   }, []);
 
+  const isOwnerOrAdmin = currentRole === 'OWNER' || currentRole === 'ADMIN';
+
   // Quick Unlock Handler for Table Rows
   const handleQuickUnlock = async (candidateId: string) => {
+    if (!isOwnerOrAdmin) {
+      toast.error('Permission denied: Only Owners and Admins can unlock candidate profiles.');
+      return;
+    }
+
     const ws = getLocalWorkspace();
     if (ws.token_balance < 1) {
       toast.error('Insufficient tokens! Please top up your token balance.', {
         action: {
-          label: 'Top Up',
-          onClick: () => window.location.assign('/console/team'),
+          label: 'Manage Tokens',
+          onClick: () => window.location.assign('/console/team#tokens'),
         },
       });
       return;
@@ -129,31 +149,6 @@ export default function ConsoleDashboardOverview() {
     }
   };
 
-  // Dev Test Top Up
-  const handleDevTopUp = async () => {
-    try {
-      const res = await fetch('/api/recruiter/tokens/topup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          workspace_id: workspace.id,
-          tokens_to_add: 5,
-        }),
-      });
-      const data = await res.json();
-      if (data.success && data.workspace) {
-        setWorkspace(data.workspace);
-        saveLocalWorkspace(data.workspace);
-        toast.success('+5 Dev Test Tokens added!');
-      }
-    } catch {
-      const updated = { ...workspace, token_balance: workspace.token_balance + 5 };
-      setWorkspace(updated);
-      saveLocalWorkspace(updated);
-      toast.success('+5 Dev Test Tokens added!');
-    }
-  };
-
   // Filtered recent candidates
   const filteredCandidates = candidates.filter((c) => {
     const q = searchQuery.toLowerCase();
@@ -169,7 +164,7 @@ export default function ConsoleDashboardOverview() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         {/* Left 3 Stat Cards (Col 8) */}
         <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {/* Card 1: Total Candidates Vetted (Total employee style) */}
+          {/* Card 1: Total Candidates Vetted */}
           <Card className="rounded-3xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-sm flex flex-col justify-between">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-2xl bg-blue-50 text-blue-600 border border-blue-200/50 flex items-center justify-center shrink-0">
@@ -233,9 +228,9 @@ export default function ConsoleDashboardOverview() {
           </Card>
         </div>
 
-        {/* Right 2 Payroll-Style Cards (Col 4) */}
+        {/* Right 2 Cards (Col 4) */}
         <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-          {/* Card 4: Previous Payroll Style -> Available Tokens */}
+          {/* Card 4: Available Tokens - Role Guarded */}
           <Card className="rounded-3xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-sm flex items-center justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
@@ -254,16 +249,22 @@ export default function ConsoleDashboardOverview() {
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60">
                 Active
               </span>
-              <button
-                onClick={handleDevTopUp}
-                className="text-[11px] font-bold text-amber-600 hover:text-amber-700 dark:text-amber-400 underline"
-              >
-                +5 Test Tokens
-              </button>
+              {currentRole === 'INTERVIEWER' ? (
+                <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400">
+                  Ask an admin to top up
+                </span>
+              ) : (
+                <Link
+                  href="/console/team#tokens"
+                  className="text-[11px] font-bold text-amber-600 hover:text-amber-700 dark:text-amber-400 underline"
+                >
+                  Manage Tokens
+                </Link>
+              )}
             </div>
           </Card>
 
-          {/* Card 5: Upcoming Payroll Style -> Active Screenings */}
+          {/* Card 5: Active Screenings */}
           <Card className="rounded-3xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-sm flex items-center justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
@@ -465,7 +466,7 @@ export default function ConsoleDashboardOverview() {
               </div>
             </div>
 
-            {/* Table (HireHR Recent Payroll Style) */}
+            {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
@@ -541,7 +542,7 @@ export default function ConsoleDashboardOverview() {
                           )}
                         </td>
 
-                        {/* Action */}
+                        {/* Action - Role Guarded */}
                         <td className="py-3.5 text-right">
                           {isUnlocked ? (
                             <a href={`mailto:${cand.candidate_email}`}>
@@ -554,7 +555,7 @@ export default function ConsoleDashboardOverview() {
                                 <span>Contact</span>
                               </Button>
                             </a>
-                          ) : (
+                          ) : isOwnerOrAdmin ? (
                             <Button
                               onClick={() => handleQuickUnlock(cand.candidate_id)}
                               disabled={unlockingId === cand.candidate_id}
@@ -564,6 +565,17 @@ export default function ConsoleDashboardOverview() {
                               <Zap className="h-3 w-3 text-amber-400 fill-amber-400 stroke-[1.5]" />
                               <span>Unlock</span>
                             </Button>
+                          ) : (
+                            <Link href="/console/talent">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2.5 text-[11px] rounded-full font-semibold border-neutral-200 gap-1"
+                              >
+                                <Video className="h-3 w-3 stroke-[1.5]" />
+                                <span>View Video</span>
+                              </Button>
+                            </Link>
                           )}
                         </td>
                       </tr>
@@ -575,7 +587,7 @@ export default function ConsoleDashboardOverview() {
           </Card>
         </div>
 
-        {/* Right Column: Total Employee / Talent Distribution Visual (Col 4) */}
+        {/* Right Column: Total Employee / Talent Distribution Visual */}
         <div className="lg:col-span-4">
           <Card className="rounded-3xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm space-y-6">
             <div className="flex items-center justify-between">
@@ -606,7 +618,7 @@ export default function ConsoleDashboardOverview() {
               </div>
             </div>
 
-            {/* Segmented Barcode / Striped Distribution Bar (HireHR Visual) */}
+            {/* Segmented Barcode / Striped Distribution Bar */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-[11px] font-bold text-neutral-400">
                 <span>15%</span>
@@ -616,7 +628,6 @@ export default function ConsoleDashboardOverview() {
 
               {/* Striped Visual Barcode Bar */}
               <div className="h-10 w-full flex rounded-2xl overflow-hidden p-1 bg-neutral-100 dark:bg-neutral-800 gap-1">
-                {/* 15% Orange Striped Bar */}
                 <div
                   className="h-full rounded-xl bg-amber-400 flex items-center justify-center relative overflow-hidden"
                   style={{ width: '15%' }}
@@ -625,7 +636,6 @@ export default function ConsoleDashboardOverview() {
                   <div className="absolute inset-0 opacity-20 bg-[repeating-linear-gradient(45deg,#000,#000_2px,transparent_2px,transparent_6px)]" />
                 </div>
 
-                {/* 63% Indigo/Blue Striped Bar */}
                 <div
                   className="h-full rounded-xl bg-indigo-600 flex items-center justify-center relative overflow-hidden"
                   style={{ width: '63%' }}
@@ -634,7 +644,6 @@ export default function ConsoleDashboardOverview() {
                   <div className="absolute inset-0 opacity-20 bg-[repeating-linear-gradient(45deg,#fff,#fff_2px,transparent_2px,transparent_6px)]" />
                 </div>
 
-                {/* 22% Emerald Striped Bar */}
                 <div
                   className="h-full rounded-xl bg-emerald-500 flex items-center justify-center relative overflow-hidden"
                   style={{ width: '22%' }}
@@ -649,56 +658,27 @@ export default function ConsoleDashboardOverview() {
             <div className="space-y-3 pt-2 text-xs">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-indigo-600 shrink-0" />
-                  <span className="font-semibold text-neutral-800 dark:text-neutral-200">
-                    Full Stack & Backend
-                  </span>
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+                  <span className="text-neutral-600 dark:text-neutral-400">Frontend & Mobile</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-neutral-500">
-                  <span>2,000 People</span>
-                  <ExternalLink className="h-3 w-3 stroke-[1.5]" />
-                </div>
+                <span className="font-bold text-neutral-900 dark:text-white">480 devs</span>
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-amber-400 shrink-0" />
-                  <span className="font-semibold text-neutral-800 dark:text-neutral-200">
-                    Frontend & Mobile
-                  </span>
+                  <span className="h-2.5 w-2.5 rounded-full bg-indigo-600" />
+                  <span className="text-neutral-600 dark:text-neutral-400">Full Stack & Cloud</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-neutral-500">
-                  <span>500 People</span>
-                  <ExternalLink className="h-3 w-3 stroke-[1.5]" />
-                </div>
+                <span className="font-bold text-neutral-900 dark:text-white">2,016 devs</span>
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shrink-0" />
-                  <span className="font-semibold text-neutral-800 dark:text-neutral-200">
-                    AI / ML & Cloud
-                  </span>
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                  <span className="text-neutral-600 dark:text-neutral-400">AI / ML & Systems</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-neutral-500">
-                  <span>700 People</span>
-                  <ExternalLink className="h-3 w-3 stroke-[1.5]" />
-                </div>
+                <span className="font-bold text-neutral-900 dark:text-white">704 devs</span>
               </div>
-            </div>
-
-            {/* CTA Link */}
-            <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800">
-              <Link href="/console/talent">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full text-xs h-9 rounded-2xl border-neutral-200 dark:border-neutral-800 font-semibold gap-1.5"
-                >
-                  <span>Explore All 3,200 Candidates</span>
-                  <ArrowUpRight className="h-3.5 w-3.5 stroke-[1.5]" />
-                </Button>
-              </Link>
             </div>
           </Card>
         </div>

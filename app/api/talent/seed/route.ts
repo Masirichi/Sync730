@@ -6,6 +6,19 @@ import {
 } from '@/lib/recruiter/store';
 
 export async function POST(req: NextRequest) {
+  // Production Security Check: Seed routes must return 404 in production environments
+  const isProduction =
+    process.env.NODE_ENV === 'production' ||
+    process.env.VERCEL_ENV === 'production' ||
+    process.env.ENVIRONMENT === 'production';
+
+  if (isProduction) {
+    return NextResponse.json(
+      { error: 'Not found' },
+      { status: 404 }
+    );
+  }
+
   try {
     const supabase = await createServerClient();
     let seededToSupabase = 0;
@@ -33,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Successfully seeded 3 realistic mock candidate video assessments.',
+      message: 'Successfully seeded 3 realistic mock candidate video assessments in development mode.',
       seeded_count: SEED_VIDEO_ASSESSMENTS.length,
       seeded_to_supabase: seededToSupabase,
       candidates: SEED_VIDEO_ASSESSMENTS.map((s) => ({

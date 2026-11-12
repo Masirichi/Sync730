@@ -8,11 +8,21 @@ import {
   formatMaskedCandidate,
 } from '@/lib/recruiter/store';
 import { TokenUnlockRecord } from '@/lib/recruiter/types';
+import { getRecruiterSession, enforceRecruiterRole } from '@/lib/recruiter/auth';
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getRecruiterSession(req);
     const body = await req.json();
     const { candidate_id, workspace_id } = body;
+
+    const targetWsId = workspace_id || session?.workspaceId || 'ws-sync730-demo';
+
+    // RBAC: Only OWNER and ADMIN can unlock candidates with tokens
+    const roleError = enforceRecruiterRole(session, ['OWNER', 'ADMIN'], targetWsId);
+    if (roleError) {
+      return roleError;
+    }
 
     if (!candidate_id) {
       return NextResponse.json(
@@ -21,9 +31,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const wsId = workspace_id || 'ws-sync730-demo';
-
-    // 1. Get current workspace
+    // 1. Get current workspace scoped strictly to session's organization
     let workspace = getLocalWorkspace();
 
     try {
@@ -31,7 +39,7 @@ export async function POST(req: NextRequest) {
       const { data: dbWs } = await supabase
         .from('corporate_workspaces')
         .select('*')
-        .eq('id', wsId)
+        .eq('id', targetWsId)
         .maybeSingle();
 
       if (dbWs) {
@@ -41,19 +49,19 @@ export async function POST(req: NextRequest) {
       // fallback
     }
 
-    // Check balance
+    // Check token balance
     if (workspace.token_balance < 1) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Insufficient tokens. Please purchase a token pack to unlock candidate profiles.',
+          error: 'Insufficient tokens. Top-ups are temporarily unavailable. Contact support.',
           token_balance: workspace.token_balance,
         },
         { status: 402 }
       );
     }
 
-    // 2. Deduct 1 token
+    // 2. Deduct 1 token on the server
     const newBalance = workspace.token_balance - 1;
     workspace.token_balance = newBalance;
 
@@ -62,16 +70,16 @@ export async function POST(req: NextRequest) {
       await supabase
         .from('corporate_workspaces')
         .update({ token_balance: newBalance })
-        .eq('id', wsId);
+        .eq('id', targetWsId);
     } catch (e) {
       // fallback
     }
     saveLocalWorkspace(workspace);
 
-    // 3. Record unlock in token_unlocks
+    // 3. Record unlock in token_unlocks scoped to targetWsId
     const unlockRecord: TokenUnlockRecord = {
       id: `unl-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
-      workspace_id: wsId,
+      workspace_id: targetWsId,
       candidate_id,
       tokens_spent: 1,
       unlocked_at: new Date().toISOString(),
@@ -80,7 +88,7 @@ export async function POST(req: NextRequest) {
     try {
       const supabase = await createServerClient();
       await supabase.from('token_unlocks').insert({
-        workspace_id: wsId,
+        workspace_id: targetWsId,
         candidate_id,
         tokens_spent: 1,
         unlocked_at: unlockRecord.unlocked_at,

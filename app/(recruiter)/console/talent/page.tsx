@@ -8,26 +8,38 @@ import {
   Lock,
   Unlock,
   Zap,
-  Play,
-  Pause,
   Video,
   ShieldCheck,
   CheckCircle2,
   Mail,
-  Phone,
-  FileText,
   Sparkles,
-  ExternalLink,
-  RefreshCw,
-  PlusCircle,
-  AlertCircle,
+  MessageSquare,
+  Star,
+  Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { VideoAssessment, CorporateWorkspace } from '@/lib/recruiter/types';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { VideoAssessment, CorporateWorkspace, RecruiterRole } from '@/lib/recruiter/types';
 import { getLocalWorkspace, saveLocalWorkspace } from '@/lib/recruiter/store';
 import { toast } from 'sonner';
+
+interface NoteItem {
+  id: string;
+  author_email: string;
+  author_role: string;
+  note: string;
+  score?: number;
+  created_at: string;
+}
 
 export default function ConsoleTalentPage() {
   const [candidates, setCandidates] = useState<VideoAssessment[]>([]);
@@ -35,7 +47,17 @@ export default function ConsoleTalentPage() {
   const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
-  const [isSeeding, setIsSeeding] = useState(false);
+
+  // Active role
+  const [currentRole, setCurrentRole] = useState<RecruiterRole>('OWNER');
+
+  // Notes Modal state
+  const [activeCandidateForNotes, setActiveCandidateForNotes] = useState<VideoAssessment | null>(null);
+  const [notesList, setNotesList] = useState<NoteItem[]>([]);
+  const [newNoteText, setNewNoteText] = useState('');
+  const [newNoteScore, setNewNoteScore] = useState<number | ''>(90);
+  const [isSubmittingNote, setIsSubmittingNote] = useState(false);
+  const [isLoadingNotes, setIsLoadingNotes] = useState(false);
 
   const fetchTalent = async () => {
     setIsLoading(true);
@@ -57,6 +79,15 @@ export default function ConsoleTalentPage() {
   useEffect(() => {
     fetchTalent();
 
+    const updateRole = () => {
+      const el = document.querySelector('[data-active-role]');
+      if (el) {
+        const r = el.getAttribute('data-active-role') as RecruiterRole;
+        if (r) setCurrentRole(r);
+      }
+    };
+    updateRole();
+
     const handleUpdate = () => {
       setWorkspace(getLocalWorkspace());
     };
@@ -64,21 +95,31 @@ export default function ConsoleTalentPage() {
     window.addEventListener('sync730_unlocks_updated', handleUpdate);
     window.addEventListener('sync730_assessments_updated', fetchTalent);
 
+    const interval = setInterval(updateRole, 500);
+
     return () => {
       window.removeEventListener('sync730_workspace_updated', handleUpdate);
       window.removeEventListener('sync730_unlocks_updated', handleUpdate);
       window.removeEventListener('sync730_assessments_updated', fetchTalent);
+      clearInterval(interval);
     };
   }, []);
 
+  const isOwnerOrAdmin = currentRole === 'OWNER' || currentRole === 'ADMIN';
+
   // Unlock Candidate Profile Action (1 Token)
   const handleUnlock = async (candidateId: string) => {
+    if (!isOwnerOrAdmin) {
+      toast.error('Permission denied: Only Owners and Admins can unlock candidate profiles.');
+      return;
+    }
+
     const ws = getLocalWorkspace();
     if (ws.token_balance < 1) {
-      toast.error('Insufficient tokens! Please top up your token balance on the Billing page.', {
+      toast.error('Insufficient tokens! Please top up your token balance.', {
         action: {
-          label: 'Top Up Tokens',
-          onClick: () => window.location.assign('/console/team'),
+          label: 'Manage Tokens',
+          onClick: () => window.location.assign('/console/team#tokens'),
         },
       });
       return;
@@ -97,7 +138,6 @@ export default function ConsoleTalentPage() {
 
       const data = await res.json();
       if (data.success && data.candidate) {
-        // Update local candidate list with revealed info
         setCandidates((prev) =>
           prev.map((c) =>
             c.candidate_id === candidateId || c.id === candidateId
@@ -106,7 +146,6 @@ export default function ConsoleTalentPage() {
           )
         );
 
-        // Update token balance
         if (typeof data.token_balance === 'number') {
           const updatedWs = { ...ws, token_balance: data.token_balance };
           setWorkspace(updatedWs);
@@ -124,20 +163,63 @@ export default function ConsoleTalentPage() {
     }
   };
 
-  // Seed 3 Mock Candidates Helper
-  const handleSeedMock = async () => {
-    setIsSeeding(true);
+  // Open Notes Modal
+  const openNotesModal = async (cand: VideoAssessment) => {
+    setActiveCandidateForNotes(cand);
+    setNewNoteText('');
+    setNewNoteScore(cand.overall_match_score || 90);
+    setIsLoadingNotes(true);
+
     try {
-      const res = await fetch('/api/talent/seed', { method: 'POST' });
+      const res = await fetch(
+        `/api/recruiter/talent/notes?candidate_id=${cand.candidate_id || cand.id}&workspace_id=${workspace.id}`
+      );
       const data = await res.json();
-      if (data.success) {
-        toast.success('Seeded 3 realistic candidate video assessments!');
-        await fetchTalent();
+      if (data.success && Array.isArray(data.notes)) {
+        setNotesList(data.notes);
+      } else {
+        setNotesList([]);
       }
     } catch {
-      toast.error('Failed to seed candidates.');
+      setNotesList([]);
     } finally {
-      setIsSeeding(false);
+      setIsLoadingNotes(false);
+    }
+  };
+
+  // Submit Note & Score
+  const handleSaveNote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeCandidateForNotes || !newNoteText.trim()) {
+      toast.error('Please enter an evaluation note.');
+      return;
+    }
+
+    setIsSubmittingNote(true);
+    try {
+      const res = await fetch('/api/recruiter/talent/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          candidate_id: activeCandidateForNotes.candidate_id || activeCandidateForNotes.id,
+          workspace_id: workspace.id,
+          note: newNoteText.trim(),
+          score: typeof newNoteScore === 'number' ? newNoteScore : undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.note) {
+        setNotesList([data.note, ...notesList]);
+        setNewNoteText('');
+        toast.success('Internal evaluation note and score saved.');
+      } else {
+        throw new Error(data.error || 'Failed to save note');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Error saving note.');
+    } finally {
+      setIsSubmittingNote(false);
     }
   };
 
@@ -162,27 +244,22 @@ export default function ConsoleTalentPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Quick Seed Button for Verification */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSeedMock}
-            disabled={isSeeding}
-            className="text-xs h-9 px-3 rounded-xl border-neutral-200 dark:border-neutral-800 font-medium gap-1.5"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${isSeeding ? 'animate-spin' : ''}`} />
-            <span>Dev: Seed 3 Candidates</span>
-          </Button>
-
-          <Link href="/console/team">
-            <Button
-              size="sm"
-              className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 text-xs font-semibold h-9 px-3.5 rounded-xl shadow-xs gap-1.5"
-            >
-              <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-500 stroke-[1.5]" />
-              <span>{workspace.token_balance} Tokens Available</span>
-            </Button>
-          </Link>
+          {isOwnerOrAdmin ? (
+            <Link href="/console/team#tokens">
+              <Button
+                size="sm"
+                className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 text-xs font-semibold h-9 px-3.5 rounded-xl shadow-xs gap-1.5"
+              >
+                <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-500 stroke-[1.5]" />
+                <span>{workspace.token_balance} Tokens Available</span>
+              </Button>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-semibold">
+              <Zap className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+              <span>{workspace.token_balance} Tokens (Ask admin to unlock)</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -217,15 +294,8 @@ export default function ConsoleTalentPage() {
             No candidate assessments found
           </h3>
           <p className="text-xs text-neutral-500 max-w-sm mx-auto">
-            Click &quot;Dev: Seed 3 Candidates&quot; above to instantly populate realistic vetted candidate assessments.
+            Candidates who complete automated technical video screenings will appear here for review and scoring.
           </p>
-          <Button
-            size="sm"
-            onClick={handleSeedMock}
-            className="text-xs h-8 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg"
-          >
-            Seed 3 Mock Candidates
-          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -338,14 +408,27 @@ export default function ConsoleTalentPage() {
                     </p>
                   </div>
 
-                  {/* Proctoring Status */}
-                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                    <CheckCircle2 className="h-3.5 w-3.5 stroke-[1.5]" />
-                    <span>Identity Verified · 0 Proctoring Flags</span>
+                  {/* Proctoring Status & Internal Notes Button */}
+                  <div className="flex items-center justify-between pt-1">
+                    <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                      <CheckCircle2 className="h-3.5 w-3.5 stroke-[1.5]" />
+                      <span>0 Proctoring Flags</span>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openNotesModal(cand)}
+                      className="h-7 px-2 text-[11px] font-semibold text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white gap-1"
+                    >
+                      <MessageSquare className="h-3 w-3 stroke-[1.5]" />
+                      <span>Notes & Score</span>
+                    </Button>
                   </div>
                 </div>
 
-                {/* Footer Action Card */}
+                {/* Footer Action Card - Role Guarded */}
                 <div className="p-4 border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30">
                   {isUnlocked ? (
                     <div className="flex items-center gap-2">
@@ -362,7 +445,7 @@ export default function ConsoleTalentPage() {
                         </Button>
                       </a>
                     </div>
-                  ) : (
+                  ) : isOwnerOrAdmin ? (
                     <Button
                       onClick={() => handleUnlock(cand.candidate_id)}
                       disabled={unlockingId === cand.candidate_id}
@@ -381,6 +464,15 @@ export default function ConsoleTalentPage() {
                         </>
                       )}
                     </Button>
+                  ) : (
+                    <Button
+                      disabled
+                      size="sm"
+                      className="w-full h-9 text-xs bg-neutral-200 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 font-semibold rounded-xl cursor-not-allowed gap-1.5"
+                    >
+                      <Lock className="h-3.5 w-3.5 stroke-[1.5]" />
+                      <span>Ask an admin to unlock</span>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -388,6 +480,120 @@ export default function ConsoleTalentPage() {
           })}
         </div>
       )}
+
+      {/* Internal Evaluation Notes & Scoring Dialog */}
+      <Dialog
+        open={Boolean(activeCandidateForNotes)}
+        onOpenChange={(open) => {
+          if (!open) setActiveCandidateForNotes(null);
+        }}
+      >
+        <DialogContent className="max-w-xl p-6 rounded-2xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-[11px] font-semibold mb-1 w-fit">
+              <MessageSquare className="h-3 w-3 stroke-[1.5]" />
+              <span>Internal Team Rubric & Score</span>
+            </div>
+            <DialogTitle className="text-base font-bold text-neutral-900 dark:text-white">
+              Evaluation Notes for {activeCandidateForNotes?.candidate_name}
+            </DialogTitle>
+            <DialogDescription className="text-xs text-neutral-500">
+              Target Role: {activeCandidateForNotes?.target_role}. Notes and scores are visible to authorized team members in your workspace.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-3">
+            {/* New Note Form */}
+            <form onSubmit={handleSaveNote} className="space-y-3 p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 text-xs">
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-semibold text-neutral-800 dark:text-neutral-200">
+                  Add Your Assessment Note
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <Star className="h-3.5 w-3.5 text-amber-500" />
+                  <span className="text-[11px] text-neutral-500">Score (0-100):</span>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={newNoteScore}
+                    onChange={(e) =>
+                      setNewNoteScore(e.target.value === '' ? '' : parseInt(e.target.value, 10))
+                    }
+                    className="h-7 w-16 text-xs text-center"
+                  />
+                </div>
+              </div>
+
+              <Textarea
+                rows={3}
+                placeholder="Share technical observations, architectural strengths, or concerns from the video assessment..."
+                value={newNoteText}
+                onChange={(e) => setNewNoteText(e.target.value)}
+                className="text-xs"
+                required
+              />
+
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[10px] text-neutral-400">
+                  Role: {currentRole}
+                </span>
+                <Button
+                  type="submit"
+                  disabled={isSubmittingNote}
+                  size="sm"
+                  className="h-8 px-3 text-xs bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 font-semibold rounded-lg"
+                >
+                  {isSubmittingNote ? 'Saving...' : 'Save Evaluation'}
+                </Button>
+              </div>
+            </form>
+
+            {/* Existing Notes List */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
+                Previous Team Notes ({notesList.length})
+              </h4>
+
+              {isLoadingNotes ? (
+                <p className="text-xs text-neutral-400 py-3 text-center">Loading notes...</p>
+              ) : notesList.length === 0 ? (
+                <p className="text-xs text-neutral-400 py-3 text-center">
+                  No evaluation notes recorded yet. Be the first to leave feedback!
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {notesList.map((n) => (
+                    <div
+                      key={n.id}
+                      className="p-3 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 text-xs space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between text-[11px]">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-neutral-900 dark:text-white">
+                            {n.author_email}
+                          </span>
+                          <Badge variant="outline" className="text-[9px] px-1.5 py-0 uppercase">
+                            {n.author_role}
+                          </Badge>
+                        </div>
+                        {typeof n.score === 'number' && (
+                          <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                            Score: {n.score}/100
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
+                        {n.note}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -9,16 +9,15 @@ import {
   MapPin,
   DollarSign,
   Clock,
-  ArrowUpRight,
   Copy,
   Check,
-  CheckCircle2,
   Users,
   Search,
-  Filter,
   ShieldAlert,
   Bot,
-  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,6 +41,7 @@ export default function ConsoleJobsPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [expandedIntegrationIds, setExpandedIntegrationIds] = useState<Record<string, boolean>>({});
 
   // Form states
   const [jobTitle, setJobTitle] = useState('');
@@ -71,7 +71,6 @@ export default function ConsoleJobsPage() {
     };
     window.addEventListener('sync730_jobs_updated', handleJobsUpdated);
 
-    // Check periodically for role switcher changes
     const interval = setInterval(updateRole, 500);
 
     return () => {
@@ -82,10 +81,17 @@ export default function ConsoleJobsPage() {
 
   const canPostJob = currentRole === 'OWNER' || currentRole === 'ADMIN';
 
+  const toggleIntegrationDetails = (jobId: string) => {
+    setExpandedIntegrationIds((prev) => ({
+      ...prev,
+      [jobId]: !prev[jobId],
+    }));
+  };
+
   const handleCreateJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canPostJob) {
-      toast.error('Posting restricted: Interviewers have read-only access to job creation.');
+      toast.error('Posting restricted: Interviewers have read-only access to job management.');
       return;
     }
     if (!jobTitle.trim()) {
@@ -115,7 +121,7 @@ export default function ConsoleJobsPage() {
       if (data.success && data.job) {
         setJobs(getLocalJobs());
         setIsCreateOpen(false);
-        toast.success(`Job posted! Flowmingo project ${data.project_id} initialized.`);
+        toast.success(`Job posted! Flowmingo screening assessment initialized.`);
         // Reset form
         setJobTitle('');
         setDescription('');
@@ -137,9 +143,10 @@ export default function ConsoleJobsPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const filteredJobs = jobs.filter((j) =>
-    j.job_title.toLowerCase().includes(search.toLowerCase()) ||
-    (j.department && j.department.toLowerCase().includes(search.toLowerCase()))
+  const filteredJobs = jobs.filter(
+    (j) =>
+      j.job_title.toLowerCase().includes(search.toLowerCase()) ||
+      (j.department && j.department.toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
@@ -165,9 +172,9 @@ export default function ConsoleJobsPage() {
               <span>Post New Role</span>
             </Button>
           ) : (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-medium">
-              <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
-              <span>Interviewer: Job posting restricted to Owner/Admin</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 text-xs font-medium">
+              <ShieldAlert className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+              <span>Job editing restricted to Owner & Admin</span>
             </div>
           )}
         </div>
@@ -184,7 +191,7 @@ export default function ConsoleJobsPage() {
             {jobs.length}
           </div>
           <div className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-medium">
-            <span>● 100% Synchronized with Flowmingo</span>
+            <span>● 100% Synchronized with Assessment Engine</span>
           </div>
         </div>
 
@@ -197,7 +204,10 @@ export default function ConsoleJobsPage() {
             3 Ready
           </div>
           <div className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
-            <Link href="/console/talent" className="text-neutral-900 dark:text-white underline hover:no-underline font-medium">
+            <Link
+              href="/console/talent"
+              className="text-neutral-900 dark:text-white underline hover:no-underline font-medium"
+            >
               Review candidate video rubrics →
             </Link>
           </div>
@@ -252,86 +262,139 @@ export default function ConsoleJobsPage() {
             )}
           </div>
         ) : (
-          filteredJobs.map((job) => (
-            <div
-              key={job.id}
-              className="p-5 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all shadow-2xs"
-            >
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div className="space-y-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-base font-bold text-neutral-900 dark:text-white">
-                      {job.job_title}
-                    </h3>
-                    <Badge variant="outline" className="text-[10px] uppercase font-bold border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10">
-                      Active
-                    </Badge>
-                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 text-[11px] font-mono">
-                      <Bot className="h-3 w-3 stroke-[1.5]" />
-                      <span>{job.flowmingo_project_id}</span>
+          filteredJobs.map((job) => {
+            const isExpanded = Boolean(expandedIntegrationIds[job.id]);
+
+            return (
+              <div
+                key={job.id}
+                className="p-5 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all shadow-2xs space-y-3"
+              >
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-base font-bold text-neutral-900 dark:text-white">
+                        {job.job_title}
+                      </h3>
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] uppercase font-bold border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
+                      >
+                        Active
+                      </Badge>
                     </div>
-                  </div>
 
-                  <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400">
-                    <span className="flex items-center gap-1">
-                      <Briefcase className="h-3.5 w-3.5 stroke-[1.5]" />
-                      {job.department || 'General'}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5 stroke-[1.5]" />
-                      {job.location || 'Remote'}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <DollarSign className="h-3.5 w-3.5 stroke-[1.5]" />
-                      {job.salary_range || 'Competitive'}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5 stroke-[1.5]" />
-                      {job.job_type || 'Full-time'}
-                    </span>
-                  </div>
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400">
+                      <span className="flex items-center gap-1">
+                        <Briefcase className="h-3.5 w-3.5 stroke-[1.5]" />
+                        {job.department || 'General'}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-3.5 w-3.5 stroke-[1.5]" />
+                        {job.location || 'Remote'}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <DollarSign className="h-3.5 w-3.5 stroke-[1.5]" />
+                        {job.salary_range || 'Competitive'}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5 stroke-[1.5]" />
+                        {job.job_type || 'Full-time'}
+                      </span>
+                    </div>
 
-                  {job.description && (
-                    <p className="text-xs text-neutral-600 dark:text-neutral-300 line-clamp-2 max-w-2xl pt-1">
-                      {job.description}
-                    </p>
-                  )}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center gap-2 shrink-0 pt-2 lg:pt-0">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleCopyLink(job.flowmingo_project_id)}
-                    className="text-xs h-8 px-3 rounded-lg border-neutral-200 dark:border-neutral-800 gap-1.5 font-medium"
-                  >
-                    {copiedId === job.flowmingo_project_id ? (
-                      <>
-                        <Check className="h-3.5 w-3.5 text-emerald-600 stroke-[1.5]" />
-                        <span>Link Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3.5 w-3.5 stroke-[1.5]" />
-                        <span>Candidate Link</span>
-                      </>
+                    {job.description && (
+                      <p className="text-xs text-neutral-600 dark:text-neutral-300 line-clamp-2 max-w-2xl pt-1">
+                        {job.description}
+                      </p>
                     )}
-                  </Button>
+                  </div>
 
-                  <Link href="/console/talent">
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2 shrink-0 pt-2 lg:pt-0">
                     <Button
+                      variant="outline"
                       size="sm"
-                      className="text-xs h-8 px-3 rounded-lg bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-200 font-semibold gap-1.5"
+                      onClick={() => handleCopyLink(job.flowmingo_project_id)}
+                      className="text-xs h-8 px-3 rounded-lg border-neutral-200 dark:border-neutral-800 gap-1.5 font-medium"
                     >
-                      <Users className="h-3.5 w-3.5 stroke-[1.5]" />
-                      <span>View Vetted Talent</span>
+                      {copiedId === job.flowmingo_project_id ? (
+                        <>
+                          <Check className="h-3.5 w-3.5 text-emerald-600 stroke-[1.5]" />
+                          <span>Link Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3.5 w-3.5 stroke-[1.5]" />
+                          <span>Candidate Link</span>
+                        </>
+                      )}
                     </Button>
-                  </Link>
+
+                    <Link href="/console/talent">
+                      <Button
+                        size="sm"
+                        className="text-xs h-8 px-3 rounded-lg bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-200 font-semibold gap-1.5"
+                      >
+                        <Users className="h-3.5 w-3.5 stroke-[1.5]" />
+                        <span>View Vetted Talent</span>
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
+
+                {/* Collapsed Integration Details - Strictly Visible to OWNER and ADMIN */}
+                {canPostJob && (
+                  <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800">
+                    <button
+                      type="button"
+                      onClick={() => toggleIntegrationDetails(job.id)}
+                      className="flex items-center gap-1.5 text-[11px] font-semibold text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
+                    >
+                      <SlidersHorizontal className="h-3 w-3 stroke-[1.5]" />
+                      <span>Integration details</span>
+                      {isExpanded ? (
+                        <ChevronUp className="h-3 w-3 stroke-[1.5]" />
+                      ) : (
+                        <ChevronDown className="h-3 w-3 stroke-[1.5]" />
+                      )}
+                    </button>
+
+                    {isExpanded && (
+                      <div className="mt-2.5 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-200/80 dark:border-neutral-800 text-xs space-y-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="text-[11px] text-neutral-500">Provider:</span>
+                          <span className="font-semibold text-neutral-800 dark:text-neutral-200">
+                            Flowmingo AI (Automated Video Screening)
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="text-[11px] text-neutral-500">Internal Project ID:</span>
+                          <code className="text-[11px] font-mono bg-neutral-200/70 dark:bg-neutral-800 px-2 py-0.5 rounded text-neutral-800 dark:text-neutral-200">
+                            {job.flowmingo_project_id}
+                          </code>
+                        </div>
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="text-[11px] text-neutral-500">Candidate Screening Link:</span>
+                          <div className="flex items-center gap-1.5">
+                            <code className="text-[10px] font-mono text-neutral-600 dark:text-neutral-400">
+                              https://sync730.com/vet/{job.flowmingo_project_id}
+                            </code>
+                            <button
+                              onClick={() => handleCopyLink(job.flowmingo_project_id)}
+                              className="text-[11px] text-neutral-800 dark:text-neutral-200 underline font-semibold"
+                            >
+                              Copy
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 

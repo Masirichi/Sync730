@@ -52,8 +52,9 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Block recruiters from candidate view (admins can view)
-    if (normalizedRole === 'recruiter') {
+    // Block recruiters from candidate view (admins can view, recruiters can view in read-only preview mode)
+    const isPreview = request.nextUrl.searchParams.get('preview') === 'true';
+    if (normalizedRole === 'recruiter' && !isPreview) {
       return NextResponse.redirect(new URL('/console/jobs', request.url));
     }
   }
