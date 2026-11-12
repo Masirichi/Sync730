@@ -34,6 +34,8 @@ export interface TargetJobContext {
   description?: string | null;
   url?: string | null;
   tags?: string[] | null;
+  salary?: string | null;
+  category?: string | null;
 }
 
 interface ResumeGeneratorModalProps {

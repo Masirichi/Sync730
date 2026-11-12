@@ -1,5 +1,68 @@
 [
   {
+    "id": "d9fdc75f-cf7e-44c6-b871-003855c1a548",
+    "external_id": "ext-mwdlv7jn",
+    "title": "Principal Infrastructure Engineer",
+    "company": "TechNova Africa",
+    "company_name": "TechNova Africa",
+    "career_url": "https://technova.africa/careers/principal-infra",
+    "url": "https://technova.africa/careers/principal-infra",
+    "apply_url": "https://technova.africa/careers/principal-infra",
+    "location_tier": "Africa Only",
+    "candidate_required_location": "Africa Only (Remote)",
+    "salary": "?3,500,000 - ?5,000,000 / month",
+    "description": "Lead continental multi-region distributed cloud infrastructure and kubernetes platforms.",
+    "category": "Software & Engineering",
+    "job_type": "Full-time",
+    "tags": [
+      "Verified Partner",
+      "Platform Curated",
+      "Africa Only"
+    ],
+    "skills": [
+      "Software Architecture",
+      "Cloud Infrastructure",
+      "Remote Work",
+      "System Design"
+    ],
+    "source": "company_direct",
+    "source_name": "Platform Curated",
+    "source_type": "ADMIN_CURATED",
+    "employer_type": "direct",
+    "open_to_nigeria": true,
+    "is_active": true,
+    "is_featured": true,
+    "published_at": "2026-11-12T13:50:33.204Z",
+    "created_at": "2026-11-12T13:50:33.204Z",
+    "posted_at": "2026-11-12T13:50:33.204Z",
+    "last_verified_at": "2026-11-12T13:50:33.204Z"
+  },
+  {
+    "id": "admin-job-1794490024525",
+    "external_id": "ext-mwdl10lp",
+    "title": "Staff Platform Architect",
+    "company": "Test Corp",
+    "career_url": "https://testcorp.com/careers/arch",
+    "url": "https://testcorp.com/careers/arch",
+    "location_tier": "Worldwide",
+    "candidate_required_location": "Worldwide Remote",
+    "salary": ",000 / yr",
+    "description": "Test platform architecture job",
+    "category": "Software & Engineering",
+    "job_type": "Full-time",
+    "tags": [
+      "Verified Partner",
+      "Platform Curated",
+      "Worldwide"
+    ],
+    "source": "company_direct",
+    "source_type": "ADMIN_CURATED",
+    "is_active": true,
+    "is_featured": true,
+    "published_at": "2026-11-12T13:27:04.525Z",
+    "created_at": "2026-11-12T13:27:04.525Z"
+  },
+  {
     "id": "admin-job-1794470824557",
     "external_id": "ext-mwd9lht9",
     "title": "Senior Cloud Platform Architect",

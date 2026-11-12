@@ -7,10 +7,16 @@ import { freehireAdapter } from './adapters/freehire';
 import { companyDirectAdapter } from './adapters/company-direct';
 import { remotiveAdapter } from './adapters/remotive';
 import { arbeitnowAdapter } from './adapters/arbeitnow';
+import { remoteOkAdapter } from './adapters/remoteok';
+import { devGlobalJobsAdapter } from './adapters/devglobaljobs';
+import { himalayasAdapter } from './adapters/himalayas';
+import { jobicyAdapter } from './adapters/jobicy';
 import { JobCategory, JOB_CATEGORIES, normalizeJobCategory } from './categories';
+import { normalizeJobRecord, deduplicateJobs } from './job-utils';
 
 export * from './types';
 export * from './categories';
+export * from './job-utils';
 export {
   scaleArmyAdapter,
   bruntworkAdapter,
@@ -19,6 +25,10 @@ export {
   companyDirectAdapter,
   remotiveAdapter,
   arbeitnowAdapter,
+  remoteOkAdapter,
+  devGlobalJobsAdapter,
+  himalayasAdapter,
+  jobicyAdapter,
 };
 
 export const CRAWLER_ADAPTERS: CrawlerAdapter[] = [
@@ -29,6 +39,10 @@ export const CRAWLER_ADAPTERS: CrawlerAdapter[] = [
   companyDirectAdapter,
   remotiveAdapter,
   arbeitnowAdapter,
+  remoteOkAdapter,
+  devGlobalJobsAdapter,
+  himalayasAdapter,
+  jobicyAdapter,
 ];
 
 export const ADAPTERS_MAP: Record<JobSource, CrawlerAdapter> = {
@@ -39,6 +53,10 @@ export const ADAPTERS_MAP: Record<JobSource, CrawlerAdapter> = {
   company_direct: companyDirectAdapter,
   remotive: remotiveAdapter,
   arbeitnow: arbeitnowAdapter,
+  remoteok: remoteOkAdapter,
+  devglobaljobs: devGlobalJobsAdapter,
+  himalayas: himalayasAdapter,
+  jobicy: jobicyAdapter,
 };
 
 export interface CrawlResult {
@@ -79,6 +97,10 @@ export async function crawlSources(options?: {
     company_direct: 0,
     remotive: 0,
     arbeitnow: 0,
+    remoteok: 0,
+    devglobaljobs: 0,
+    himalayas: 0,
+    jobicy: 0,
   };
 
   const categoryCounts: Record<JobCategory, number> = {
@@ -105,27 +127,16 @@ export async function crawlSources(options?: {
     }
   }
 
-  // Deduplicate by external_id and normalize category
-  const seen = new Set<string>();
+  // Deduplicate and normalize jobs using title + company + apply_url hash (keeping most recent)
+  const normalizedList = allJobs.map((raw) => normalizeJobRecord(raw as Partial<RemoteJob>));
+  const deduplicated = deduplicateJobs(normalizedList);
   const normalizedJobs: Omit<RemoteJob, 'id'>[] = [];
 
-  for (const rawJob of allJobs) {
-    if (seen.has(rawJob.external_id)) continue;
-    seen.add(rawJob.external_id);
+  for (const job of deduplicated) {
+    const canonicalCategory = job.category || 'Software & Engineering';
 
-    const canonicalCategory = normalizeJobCategory(
-      rawJob.category || '',
-      rawJob.title,
-      rawJob.description || ''
-    );
-
-    const job = {
-      ...rawJob,
-      category: canonicalCategory,
-    };
-
-    if (categoryCounts[canonicalCategory] !== undefined) {
-      categoryCounts[canonicalCategory]++;
+    if (categoryCounts[canonicalCategory as JobCategory] !== undefined) {
+      categoryCounts[canonicalCategory as JobCategory]++;
     }
 
     if (locationStats[job.location_tier] !== undefined) {

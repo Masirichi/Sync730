@@ -1,5 +1,53 @@
 [
   {
+    "id": "log-1794491496046-cyu5",
+    "created_at": "2026-11-12T13:51:36.046Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_STATUS_CHANGE",
+    "target_id": "d9fdc75f-cf7e-44c6-b871-003855c1a548",
+    "notes": "Toggled featured status of job d9fdc75f-cf7e-44c6-b871-003855c1a548 to FEATURED (Pinned)"
+  },
+  {
+    "id": "log-1794491476182-gncv",
+    "created_at": "2026-11-12T13:51:16.182Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_STATUS_CHANGE",
+    "target_id": "d9fdc75f-cf7e-44c6-b871-003855c1a548",
+    "notes": "Toggled featured status of job d9fdc75f-cf7e-44c6-b871-003855c1a548 to UNFEATURED"
+  },
+  {
+    "id": "log-1794491465466-bqai",
+    "created_at": "2026-11-12T13:51:05.466Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_STATUS_CHANGE",
+    "target_id": "d9fdc75f-cf7e-44c6-b871-003855c1a548",
+    "notes": "Changed status of job d9fdc75f-cf7e-44c6-b871-003855c1a548 to ACTIVE (Republished)"
+  },
+  {
+    "id": "log-1794491455989-0gre",
+    "created_at": "2026-11-12T13:50:55.989Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_STATUS_CHANGE",
+    "target_id": "d9fdc75f-cf7e-44c6-b871-003855c1a548",
+    "notes": "Changed status of job d9fdc75f-cf7e-44c6-b871-003855c1a548 to TAKEN_DOWN"
+  },
+  {
+    "id": "log-1794491433211-e50u",
+    "created_at": "2026-11-12T13:50:33.211Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_POSTED",
+    "target_id": "d9fdc75f-cf7e-44c6-b871-003855c1a548",
+    "notes": "Published verified admin role: \"Principal Infrastructure Engineer\" at TechNova Africa (Africa Only)"
+  },
+  {
+    "id": "log-1794490024556-lh4r",
+    "created_at": "2026-11-12T13:27:04.556Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_POSTED",
+    "target_id": "admin-job-1794490024525",
+    "notes": "Published verified admin role: \"Staff Platform Architect\" at Test Corp (Worldwide)"
+  },
+  {
     "id": "log-1794470824573-d73e",
     "created_at": "2026-11-12T08:07:04.573Z",
     "admin_id": "usr-admin-001",

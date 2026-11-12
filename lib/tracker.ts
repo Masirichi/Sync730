@@ -101,7 +101,7 @@ export async function fetchCandidateTracker(candidateId?: string): Promise<Candi
 
 // Save a job from crawler to tracker
 export async function saveJobToTracker(
-  job: RemoteJob,
+  job: Partial<RemoteJob>,
   candidateId?: string
 ): Promise<{ success: boolean; item: CandidateTrackerItem; isNew: boolean }> {
   const currentItems = getLocalTrackerItems();
@@ -114,14 +114,14 @@ export async function saveJobToTracker(
   const newItem: CandidateTrackerItem = {
     id: `track-${Date.now()}-${Math.random().toString(36).substring(7)}`,
     candidate_id: candidateId || 'local-candidate-01',
-    job_id: job.id || job.external_id,
-    company: job.company,
-    title: job.title,
-    location: job.candidate_required_location || job.location_tier,
+    job_id: job.id || job.external_id || '',
+    company: job.company_name || job.company || 'Direct Employer',
+    title: job.title || 'Role',
+    location: job.candidate_required_location || job.location_tier || 'Remote',
     salary: job.salary || null,
     status: 'SAVED',
-    url: job.url || null,
-    notes: `Saved from Verified Remote Feed (${job.location_tier}). Source: ${job.source}.`,
+    url: job.apply_url || job.url || null,
+    notes: `Saved from Verified Remote Feed (${job.location_tier || 'Remote'}). Source: ${job.source_name || job.source || 'Direct'}.`,
     applied_date: null,
     created_at: new Date().toISOString(),
   };
@@ -142,6 +142,50 @@ export async function saveJobToTracker(
   }
 
   return { success: true, item: newItem, isNew: true };
+}
+
+// Remove job by job_id or item id
+export function removeJobFromTracker(jobId: string): boolean {
+  const current = getLocalTrackerItems();
+  const updated = current.filter((i) => i.job_id !== jobId && i.id !== jobId);
+  saveLocalTrackerItems(updated);
+  return true;
+}
+
+// Check if job is saved
+export function isJobSavedInTracker(jobId: string): boolean {
+  const current = getLocalTrackerItems();
+  return current.some((i) => i.job_id === jobId || i.id === jobId);
+}
+
+// Mark job as applied (or add to tracker as APPLIED)
+export function markJobAsApplied(job: Partial<RemoteJob>): CandidateTrackerItem {
+  const current = getLocalTrackerItems();
+  const existingIndex = current.findIndex((i) => i.job_id === job.id || i.job_id === job.external_id);
+
+  if (existingIndex >= 0) {
+    current[existingIndex].status = 'APPLIED';
+    current[existingIndex].applied_date = current[existingIndex].applied_date || new Date().toISOString();
+    saveLocalTrackerItems(current);
+    return current[existingIndex];
+  } else {
+    const newItem: CandidateTrackerItem = {
+      id: `track-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      candidate_id: 'local-candidate-01',
+      job_id: job.id || job.external_id || '',
+      company: job.company_name || job.company || 'Direct Employer',
+      title: job.title || 'Role',
+      location: job.candidate_required_location || job.location_tier || 'Remote',
+      salary: job.salary || null,
+      status: 'APPLIED',
+      url: job.apply_url || job.url || null,
+      notes: `Applied directly via verified link on ${new Date().toLocaleDateString()}.`,
+      applied_date: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+    };
+    saveLocalTrackerItems([newItem, ...current]);
+    return newItem;
+  }
 }
 
 // Update card status / column

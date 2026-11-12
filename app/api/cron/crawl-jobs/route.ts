@@ -70,9 +70,22 @@ async function handleJobCrawl(request: NextRequest) {
 
   try {
     const supabase = createBrowserClient();
+    const supabasePayload = jobs.map((j: any) => ({
+      external_id: j.external_id,
+      job_title: j.title,
+      company_name: j.company || j.company_name,
+      career_url: j.apply_url || j.url || j.source_url || '#',
+      region_allowance: j.location_tier || 'Worldwide',
+      salary_range: j.salary || null,
+      job_description: j.description || '',
+      source_type: 'CRAWLER',
+      is_active: true,
+      is_featured: false,
+    }));
+
     const { data, error } = await supabase
       .from('remote_jobs')
-      .upsert(jobs, { onConflict: 'external_id' })
+      .upsert(supabasePayload, { onConflict: 'external_id' })
       .select('id');
 
     if (error) {

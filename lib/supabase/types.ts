@@ -46,6 +46,9 @@ export interface CandidateWithPrivacy {
 }
 
 export type LocationTier = 'Worldwide' | 'EMEA' | 'Africa Only';
+export type EmployerType = 'direct' | 'agency';
+export type LocationRule = 'worldwide' | 'emea' | 'africa_only';
+export type SalaryPeriod = 'hour' | 'month' | 'year';
 
 export type JobSource =
   | 'remotive'
@@ -54,13 +57,38 @@ export type JobSource =
   | 'bruntwork'
   | 'jobberman'
   | 'freehire'
-  | 'company_direct';
+  | 'company_direct'
+  | 'remoteok'
+  | 'devglobaljobs'
+  | 'himalayas'
+  | 'jobicy';
 
 export interface RemoteJob {
   id: string;
   external_id: string;
   title: string;
   company: string;
+  company_name?: string;
+  source_name?: string;
+  source_url?: string;
+  apply_url?: string;
+  posted_at?: string;
+  last_verified_at?: string | null;
+  expires_at?: string | null;
+  employer_type?: EmployerType;
+  seniority?: string;
+  location_rule?: LocationRule;
+  eligible_countries?: string[];
+  open_to_nigeria?: boolean;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  salary_currency?: string | null;
+  salary_period?: SalaryPeriod | null;
+  skills?: string[];
+  responsibilities?: string | null;
+  requirements?: string | null;
+  timezone_overlap?: string | null;
+  payment_method?: string | null;
   company_logo?: string | null;
   description?: string | null;
   category?: string | null;
@@ -105,6 +133,11 @@ export interface Job {
   description: string;
   location: string;
   salary_range: string | null;
+  salary?: string | null;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  salary_currency?: string | null;
+  salary_period?: SalaryPeriod | null;
   job_type: 'full-time' | 'part-time' | 'contract' | 'internship';
   status: 'draft' | 'open' | 'closed';
   created_at: string;

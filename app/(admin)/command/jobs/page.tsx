@@ -44,6 +44,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
+import SalaryDisplay from '@/components/ui/SalaryDisplay';
 import { AdminRemoteJob } from '@/lib/admin/types';
 import {
   getAdminRemoteJobs,
@@ -76,14 +77,82 @@ export default function AdminJobsManagerPage() {
   const [jobDescription, setJobDescription] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
 
+  // Live Sync State (Platform Admin Exclusive)
+  const [syncingLive, setSyncingLive] = useState(false);
+  const [lastSyncedAt, setLastSyncedAt] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('sync730_admin_last_synced_at');
+      if (stored) return parseInt(stored, 10);
+    }
+    return Date.now() - 300000;
+  });
+  const [timeAgoText, setTimeAgoText] = useState<string>('5 minutes ago');
+
+  useEffect(() => {
+    const calcTimeAgo = (ts: number) => {
+      const diffSec = Math.floor((Date.now() - ts) / 1000);
+      if (diffSec < 60) return 'just now';
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin === 1) return '1 minute ago';
+      if (diffMin < 60) return `${diffMin} minutes ago`;
+      const diffHr = Math.floor(diffMin / 60);
+      if (diffHr === 1) return '1 hour ago';
+      return `${diffHr} hours ago`;
+    };
+
+    setTimeAgoText(calcTimeAgo(lastSyncedAt));
+    const interval = setInterval(() => {
+      setTimeAgoText(calcTimeAgo(lastSyncedAt));
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [lastSyncedAt]);
+
+  const handleSyncLiveJobs = async () => {
+    setSyncingLive(true);
+    toast.info('Crawling verified sources: RemoteOK, DevGlobalJobs, Himalayas, Jobicy, Remotive, Arbeitnow...');
+    try {
+      const res = await fetch('/api/cron/crawl-jobs', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      const now = Date.now();
+      setLastSyncedAt(now);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sync730_admin_last_synced_at', now.toString());
+      }
+      if (data.success) {
+        toast.success(
+          data.total_processed && data.total_processed > 0
+            ? `Sync complete: ${data.total_processed} live jobs processed across 11 sources.`
+            : 'Job crawl complete; all feeds synchronized.'
+        );
+        await loadJobs();
+      } else {
+        toast.error(data.error || 'Live crawl failed.');
+      }
+    } catch {
+      toast.error('Crawl network error or timeout. Serving latest catalog.');
+    } finally {
+      setSyncingLive(false);
+    }
+  };
+
   // Load jobs from API and Store
   const loadJobs = async () => {
     try {
       setLoading(true);
       const res = await fetch('/api/admin/jobs');
       const data = await res.json();
+      const localJobs = getAdminRemoteJobs();
       if (data.success && data.remote_jobs && data.remote_jobs.length > 0) {
-        setRemoteJobs(data.remote_jobs);
+        const merged = [...data.remote_jobs];
+        localJobs.forEach((lj) => {
+          if (!merged.some((m) => m.id === lj.id || (m.title === lj.title && m.company === lj.company))) {
+            merged.unshift(lj);
+          }
+        });
+        setRemoteJobs(merged);
         setEmployerJobs(data.employer_jobs || []);
       } else {
         // Fallback to local store
@@ -100,7 +169,7 @@ export default function AdminJobsManagerPage() {
     loadJobs();
 
     const handleUpdate = () => {
-      setRemoteJobs(getAdminRemoteJobs());
+      loadJobs();
     };
 
     window.addEventListener('sync730_admin_jobs_updated', handleUpdate);
@@ -154,6 +223,7 @@ export default function AdminJobsManagerPage() {
       const data = await res.json();
       if (data.success && data.job) {
         toast.success(`Published verified role: "${resolvedTitle}" at ${resolvedCompany}`);
+        saveAdminRemoteJob(data.job);
         // Add to local state immediately
         setRemoteJobs((prev) => [data.job, ...prev.filter((j) => j.id !== data.job.id)]);
         // Reset form & close modal
@@ -220,6 +290,7 @@ export default function AdminJobsManagerPage() {
 
       const data = await res.json();
       if (data.success) {
+        toggleAdminJobActive(job.id, job.is_active);
         toast.success(
           optimisticStatus
             ? `Republished "${job.title}" to candidate feed.`
@@ -262,6 +333,7 @@ export default function AdminJobsManagerPage() {
 
       const data = await res.json();
       if (data.success) {
+        toggleAdminJobFeatured(job.id, job.is_featured);
         toast.success(
           optimisticFeatured
             ? `Pinned "${job.title}" as Featured Partner at top of feed.`
@@ -335,7 +407,20 @@ export default function AdminJobsManagerPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="text-xs text-neutral-400 font-medium hidden md:inline">
+            Last synced: {timeAgoText}
+          </span>
+
+          <Button
+            size="sm"
+            onClick={handleSyncLiveJobs}
+            disabled={syncingLive}
+            className="h-9 px-3.5 text-xs font-semibold rounded-xl bg-neutral-900 border border-neutral-700 hover:bg-neutral-800 text-neutral-200 hover:text-white gap-2 shadow-xs transition-colors"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 stroke-[1.75] ${syncingLive ? 'animate-spin text-emerald-400' : 'text-neutral-400'}`} />
+            <span>{syncingLive ? 'Syncing...' : 'Sync Live Jobs'}</span>
+          </Button>
           <Link href="/dashboard/crawler" target="_blank">
             <Button
               variant="outline"
@@ -747,6 +832,14 @@ export default function AdminJobsManagerPage() {
                             <div className="text-xs text-neutral-400 mt-0.5 flex items-center gap-1.5">
                               <Building2 className="h-3 w-3 text-neutral-500 stroke-[1.5]" />
                               <span>{job.company}</span>
+                              {job.employer_type === 'agency' && (
+                                <span
+                                  className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30 cursor-help"
+                                  title="This role is posted by a staffing/outsourcing company on behalf of a client."
+                                >
+                                  Agency listing
+                                </span>
+                              )}
                             </div>
                           </td>
 
@@ -765,13 +858,18 @@ export default function AdminJobsManagerPage() {
                             </span>
                           </td>
 
-                          {/* Salary */}
+                          {/* Salary Column */}
+                          <td className="py-4 px-4 text-neutral-300 font-medium">
+                            <SalaryDisplay job={job as any} className="text-neutral-300 font-medium text-xs" />
+                          </td>
+                          {false && (
                           <td className="py-4 px-4 text-neutral-300 font-medium">
                             {job.salary || (
                               <span className="text-neutral-600 text-xs">—</span>
                             )}
                           </td>
 
+                          )}
                           {/* Source Type */}
                           <td className="py-4 px-4">
                             {isCurated ? (

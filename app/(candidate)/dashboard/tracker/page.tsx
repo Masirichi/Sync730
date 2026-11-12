@@ -15,6 +15,13 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Plus,
   ArrowRight,
   ArrowLeft,
@@ -25,6 +32,7 @@ import {
   Compass,
   Video,
   Sparkles,
+  Calendar,
 } from 'lucide-react';
 import { ResumeGeneratorModal, TargetJobContext } from '@/components/resume/resume-generator-modal';
 import { VetOnceTriggerModal } from '@/components/candidate/vet-once-trigger-modal';
@@ -35,13 +43,14 @@ import {
   updateTrackerStatus,
   addExternalTrackerJob,
 } from '@/lib/tracker';
+import { formatStandardDate } from '@/lib/crawler/job-utils';
 import { toast } from 'sonner';
 
 const COLUMNS: { id: TrackerStatus; label: string; color: string; badgeColor: string }[] = [
   { id: 'SAVED', label: 'Saved', color: 'border-t-neutral-400', badgeColor: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' },
   { id: 'APPLIED', label: 'Applied', color: 'border-t-neutral-600', badgeColor: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200' },
   { id: 'INTERVIEWING', label: 'Interviewing', color: 'border-t-neutral-800 dark:border-t-neutral-400', badgeColor: 'bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100' },
-  { id: 'OFFERED', label: 'Offered', color: 'border-t-emerald-500', badgeColor: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' },
+  { id: 'OFFERED', label: 'Offer', color: 'border-t-emerald-500', badgeColor: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' },
   { id: 'REJECTED', label: 'Rejected', color: 'border-t-neutral-300 dark:border-t-neutral-700', badgeColor: 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400' },
 ];
 
@@ -75,17 +84,12 @@ export default function KanbanTrackerPage() {
     return () => window.removeEventListener('sync730_tracker_updated', handleUpdate);
   }, []);
 
-  // Move item between columns
-  const handleMove = async (item: CandidateTrackerItem, direction: 'prev' | 'next') => {
-    const currentIndex = COLUMNS.findIndex((c) => c.id === item.status);
-    const targetIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-
-    if (targetIndex < 0 || targetIndex >= COLUMNS.length) return;
-
-    const targetStatus = COLUMNS[targetIndex].id;
-    const updated = await updateTrackerStatus(item.id, targetStatus);
+  // Update card status via dropdown
+  const handleStatusChange = async (itemId: string, newStatus: TrackerStatus) => {
+    const colMatch = COLUMNS.find((c) => c.id === newStatus);
+    const updated = await updateTrackerStatus(itemId, newStatus);
     setItems(updated);
-    toast.success(`Moved to ${COLUMNS[targetIndex].label}`);
+    toast.success(`Moved to ${colMatch?.label || newStatus}`);
   };
 
   // Delete item
@@ -137,7 +141,8 @@ export default function KanbanTrackerPage() {
     setNewNotes('');
     setNewStatus('SAVED');
 
-    toast.success(`Job "${newItem.title}" added to ${newItem.status}`);
+    const col = COLUMNS.find((c) => c.id === newItem.status);
+    toast.success(`Job "${newItem.title}" added to ${col?.label || newItem.status}`);
   };
 
   // Filter items by search query
@@ -154,14 +159,14 @@ export default function KanbanTrackerPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header showing live count Tracker (X) */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-neutral-200 dark:border-neutral-800 pb-5">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-            Application Tracker
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+            <span>Tracker ({items.length})</span>
           </h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-            Track and advance jobs from the Verified Remote Feed and external opportunities across your pipeline.
+            Track and advance jobs across Saved, Applied, Interviewing, Offer, and Rejected.
           </p>
         </div>
 
@@ -220,7 +225,7 @@ export default function KanbanTrackerPage() {
 
       {/* 5-Column Kanban Board */}
       <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-4 items-start overflow-x-auto pb-4">
-        {COLUMNS.map((col, colIdx) => {
+        {COLUMNS.map((col) => {
           const colItems = filteredItems.filter((i) => i.status === col.id);
 
           return (
@@ -272,28 +277,44 @@ export default function KanbanTrackerPage() {
                           {item.title}
                         </h4>
 
-                        {/* Metadata */}
-                        {(item.location || item.salary) && (
-                          <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-neutral-500 dark:text-neutral-400">
-                            {item.location && <span>{item.location}</span>}
-                            {item.location && item.salary && <span>·</span>}
-                            {item.salary && <span className="font-medium text-neutral-800 dark:text-neutral-200">{item.salary}</span>}
-                          </div>
-                        )}
+                        {/* Metadata & Date Added */}
+                        <div className="space-y-1">
+                          {(item.location || item.salary) && (
+                            <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-neutral-500 dark:text-neutral-400">
+                              {item.location && <span>{item.location}</span>}
+                              {item.location && item.salary && <span>·</span>}
+                              {item.salary && (
+                                <span className="font-medium text-neutral-800 dark:text-neutral-200">
+                                  {item.salary}
+                                </span>
+                              )}
+                            </div>
+                          )}
 
-                        {/* Notes Snippet */}
-                        {item.notes && (
-                          <div
-                            onClick={() => {
-                              setEditingNotesItem(item);
-                              setNotesText(item.notes || '');
-                            }}
-                            className="rounded bg-neutral-100 dark:bg-neutral-900 p-2 text-[11px] text-neutral-600 dark:text-neutral-400 cursor-pointer hover:bg-neutral-200/60 dark:hover:bg-neutral-800 transition-colors line-clamp-2"
-                            title="Click to edit notes"
-                          >
-                            {item.notes}
+                          {/* Date Added */}
+                          <div className="flex items-center gap-1 text-[10px] text-neutral-400">
+                            <Calendar className="h-3 w-3" />
+                            <span>Added {formatStandardDate(item.created_at) || 'Recently'}</span>
                           </div>
-                        )}
+                        </div>
+
+                        {/* Notes Field */}
+                        <div
+                          onClick={() => {
+                            setEditingNotesItem(item);
+                            setNotesText(item.notes || '');
+                          }}
+                          className="rounded bg-neutral-100 dark:bg-neutral-900 p-2 text-[11px] text-neutral-600 dark:text-neutral-400 cursor-pointer hover:bg-neutral-200/60 dark:hover:bg-neutral-800 transition-colors line-clamp-2"
+                          title="Click to edit notes"
+                        >
+                          {item.notes ? (
+                            <span>{item.notes}</span>
+                          ) : (
+                            <span className="italic text-neutral-400 flex items-center gap-1">
+                              <Edit3 className="h-3 w-3" /> Add notes...
+                            </span>
+                          )}
+                        </div>
 
                         {/* Interviewing Sandbox Upsell Button */}
                         {col.id === 'INTERVIEWING' && (
@@ -309,18 +330,26 @@ export default function KanbanTrackerPage() {
                           </div>
                         )}
 
-                        {/* Card Controls */}
-                        <div className="flex items-center justify-between pt-2 border-t border-neutral-100 dark:border-neutral-800 text-xs">
-                          {/* Notes Button */}
-                          <button
-                            onClick={() => {
-                              setEditingNotesItem(item);
-                              setNotesText(item.notes || '');
-                            }}
-                            className="flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
-                          >
-                            <Edit3 className="h-3 w-3 stroke-[1.5]" /> Notes
-                          </button>
+                        {/* Status Dropdown & Actions */}
+                        <div className="flex items-center justify-between pt-2 border-t border-neutral-100 dark:border-neutral-800 text-xs gap-2">
+                          {/* Status Dropdown */}
+                          <div className="flex-1 max-w-[130px]">
+                            <Select
+                              value={item.status}
+                              onValueChange={(val) => handleStatusChange(item.id, val as TrackerStatus)}
+                            >
+                              <SelectTrigger className="h-7 text-[11px] px-2 py-0 border-neutral-200 dark:border-neutral-800">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {COLUMNS.map((c) => (
+                                  <SelectItem key={c.id} value={c.id} className="text-xs">
+                                    {c.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
 
                           {/* Link to Job */}
                           {item.url && (
@@ -328,33 +357,11 @@ export default function KanbanTrackerPage() {
                               href={item.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-0.5 text-[11px] text-neutral-700 dark:text-neutral-300 hover:underline font-medium"
+                              className="flex items-center gap-0.5 text-[11px] text-neutral-700 dark:text-neutral-300 hover:underline font-medium shrink-0"
                             >
-                              Direct Link <ArrowUpRight className="h-3 w-3 stroke-[1.5]" />
+                              Link <ArrowUpRight className="h-3 w-3 stroke-[1.5]" />
                             </a>
                           )}
-
-                          {/* Move Left / Right Chevron Controls */}
-                          <div className="flex items-center gap-1">
-                            {colIdx > 0 && (
-                              <button
-                                onClick={() => handleMove(item, 'prev')}
-                                className="p-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
-                                title={`Move back to ${COLUMNS[colIdx - 1].label}`}
-                              >
-                                <ArrowLeft className="h-3 w-3 stroke-[1.5]" />
-                              </button>
-                            )}
-                            {colIdx < COLUMNS.length - 1 && (
-                              <button
-                                onClick={() => handleMove(item, 'next')}
-                                className="p-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
-                                title={`Advance to ${COLUMNS[colIdx + 1].label}`}
-                              >
-                                <ArrowRight className="h-3 w-3 stroke-[1.5]" />
-                              </button>
-                            )}
-                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -366,185 +373,175 @@ export default function KanbanTrackerPage() {
         })}
       </div>
 
-{/* Modal: Resume Generator & ATS Studio */}
-      <ResumeGeneratorModal
-        isOpen={Boolean(selectedResumeJob)}
-        onClose={() => setSelectedResumeJob(null)}
-        job={selectedResumeJob}
-      />
-      <VetOnceTriggerModal
-        isOpen={isVetOnceOpen}
-        onClose={() => setIsVetOnceOpen(false)}
-      />
-
-      {/* Modal: Add External Job */}
-      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-md border-neutral-200 dark:border-neutral-800">
-          <form onSubmit={handleAddExternalJob}>
-            <DialogHeader>
-              <DialogTitle className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
-                Add External Job Application
-              </DialogTitle>
-              <DialogDescription className="text-xs text-neutral-500">
-                Log opportunities found on company career portals or personal outreach into your tracker.
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-3.5 py-4 text-xs">
-              <div className="space-y-1.5">
-                <label className="font-semibold text-neutral-800 dark:text-neutral-200">Job Title *</label>
-                <Input
-                  required
-                  placeholder="e.g. Senior Frontend Engineer"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="border-neutral-200 dark:border-neutral-800"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-neutral-800 dark:text-neutral-200">Company Name *</label>
-                <Input
-                  required
-                  placeholder="e.g. Stripe, Paystack, Google"
-                  value={newCompany}
-                  onChange={(e) => setNewCompany(e.target.value)}
-                  className="border-neutral-200 dark:border-neutral-800"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="font-semibold text-neutral-800 dark:text-neutral-200">Location</label>
-                  <Input
-                    placeholder="e.g. Worldwide / EMEA / Remote"
-                    value={newLocation}
-                    onChange={(e) => setNewLocation(e.target.value)}
-                    className="border-neutral-200 dark:border-neutral-800"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="font-semibold text-neutral-800 dark:text-neutral-200">Salary / Compensation</label>
-                  <Input
-                    placeholder="e.g. $120k / Competitive"
-                    value={newSalary}
-                    onChange={(e) => setNewSalary(e.target.value)}
-                    className="border-neutral-200 dark:border-neutral-800"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-neutral-800 dark:text-neutral-200">Job Post URL</label>
-                <Input
-                  placeholder="https://..."
-                  type="url"
-                  value={newUrl}
-                  onChange={(e) => setNewUrl(e.target.value)}
-                  className="border-neutral-200 dark:border-neutral-800"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-neutral-800 dark:text-neutral-200">Initial Stage</label>
-                <select
-                  value={newStatus}
-                  onChange={(e) => setNewStatus(e.target.value as TrackerStatus)}
-                  className="w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-background px-3 py-2 text-xs"
-                >
-                  {COLUMNS.map((col) => (
-                    <option key={col.id} value={col.id}>
-                      {col.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="font-semibold text-neutral-800 dark:text-neutral-200">Custom Notes</label>
-                <Textarea
-                  placeholder="e.g. Applied via referral, follow up next Tuesday..."
-                  rows={2}
-                  value={newNotes}
-                  onChange={(e) => setNewNotes(e.target.value)}
-                  className="border-neutral-200 dark:border-neutral-800"
-                />
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setIsAddModalOpen(false)}
-                className="border-neutral-200 dark:border-neutral-800 text-xs"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                size="sm"
-                className="bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 text-xs font-semibold"
-              >
-                Save to Tracker
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal: Edit Notes */}
+      {/* Edit Notes Modal */}
       <Dialog
         open={Boolean(editingNotesItem)}
         onOpenChange={(open) => !open && setEditingNotesItem(null)}
       >
-        <DialogContent className="sm:max-w-md border-neutral-200 dark:border-neutral-800">
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-base font-bold text-neutral-900 dark:text-neutral-100">
-              Notes: {editingNotesItem?.title}
+            <DialogTitle className="text-base font-bold">
+              Job Notes: {editingNotesItem?.title}
             </DialogTitle>
             <DialogDescription className="text-xs text-neutral-500">
-              {editingNotesItem?.company} · {editingNotesItem?.status}
+              Save key insights, interviewer names, dates, or next action items.
             </DialogDescription>
           </DialogHeader>
 
           <div className="py-2">
             <Textarea
               rows={4}
-              placeholder="Add interview notes, recruiter contacts, or reminder dates..."
               value={notesText}
               onChange={(e) => setNotesText(e.target.value)}
-              className="text-xs border-neutral-200 dark:border-neutral-800"
+              placeholder="e.g. Recruiter reach-out call on Tuesday at 3pm WAT..."
+              className="text-xs"
             />
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setEditingNotesItem(null)}
-              className="border-neutral-200 dark:border-neutral-800 text-xs"
+              className="text-xs"
             >
               Cancel
             </Button>
-            <Button
-              size="sm"
-              onClick={handleSaveNotes}
-              className="bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 text-xs font-semibold"
-            >
+            <Button size="sm" onClick={handleSaveNotes} className="text-xs">
               Save Notes
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Resume Generator & ATS Studio Modal */}
-      <ResumeGeneratorModal
-        isOpen={Boolean(selectedResumeJob)}
-        onClose={() => setSelectedResumeJob(null)}
-        job={selectedResumeJob}
-      />
+      {/* Add External Job Modal */}
+      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold">Add External Application</DialogTitle>
+            <DialogDescription className="text-xs text-neutral-500">
+              Track jobs you found on LinkedIn, Wellfound, or company portals in one place.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleAddExternalJob} className="space-y-3.5 py-2">
+            <div>
+              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
+                Job Title *
+              </label>
+              <Input
+                placeholder="e.g. Senior Frontend Engineer"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                className="text-xs h-9"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
+                Company Name *
+              </label>
+              <Input
+                placeholder="e.g. Paystack / Stripe"
+                value={newCompany}
+                onChange={(e) => setNewCompany(e.target.value)}
+                className="text-xs h-9"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
+                  Location Tier
+                </label>
+                <Input
+                  placeholder="Remote / Africa"
+                  value={newLocation}
+                  onChange={(e) => setNewLocation(e.target.value)}
+                  className="text-xs h-9"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
+                  Salary / Rate
+                </label>
+                <Input
+                  placeholder="e.g. $80k - $100k"
+                  value={newSalary}
+                  onChange={(e) => setNewSalary(e.target.value)}
+                  className="text-xs h-9"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
+                Status Column
+              </label>
+              <Select
+                value={newStatus}
+                onValueChange={(val) => setNewStatus(val as TrackerStatus)}
+              >
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {COLUMNS.map((col) => (
+                    <SelectItem key={col.id} value={col.id} className="text-xs">
+                      {col.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
+                Job URL
+              </label>
+              <Input
+                placeholder="https://..."
+                value={newUrl}
+                onChange={(e) => setNewUrl(e.target.value)}
+                className="text-xs h-9"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
+                Notes
+              </label>
+              <Textarea
+                placeholder="Initial thoughts, referral contact..."
+                value={newNotes}
+                onChange={(e) => setNewNotes(e.target.value)}
+                rows={2}
+                className="text-xs"
+              />
+            </div>
+
+            <DialogFooter className="gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAddModalOpen(false)}
+                className="text-xs"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" className="text-xs">
+                Add to Tracker
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Vet-Once Video Profile Modal */}
       <VetOnceTriggerModal
         isOpen={isVetOnceOpen}
         onClose={() => setIsVetOnceOpen(false)}
