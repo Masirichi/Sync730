@@ -49,6 +49,7 @@ import {
   RotateCcw,
   ShieldCheck,
   Calendar,
+  Clock,
 } from 'lucide-react';
 import { RemoteJob } from '@/lib/supabase/types';
 import { getAdminRemoteJobs } from '@/lib/admin/store';
@@ -88,6 +89,10 @@ import SalaryDisplay from '@/components/ui/SalaryDisplay';
 import { DisplayPeriod } from '@/lib/salary/formatSalary';
 import { toast } from 'sonner';
 import { ResumeGeneratorModal, TargetJobContext } from '@/components/resume/resume-generator-modal';
+import { TailorResumePanel } from '@/components/resume/tailor-resume-panel';
+import { ReportMatchDialog } from '@/components/jobs/report-match-dialog';
+import { getCandidateProfile, CandidateProfile } from '@/lib/candidate/profile';
+import { computeJobMatchScore } from '@/lib/candidate/matching';
 
 // Pre-normalize seed jobs for instant zero-latency first render
 const HYDRATED_INITIAL_JOBS: RemoteJob[] = deduplicateJobs(
@@ -197,6 +202,26 @@ function CrawlerJobFeedContent() {
   // Tracker & Resume ATS Modal states
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [selectedResumeJob, setSelectedResumeJob] = useState<TargetJobContext | null>(null);
+  const [isTailorPanelOpen, setIsTailorPanelOpen] = useState<boolean>(false);
+  const [tailorTargetJob, setTailorTargetJob] = useState<TargetJobContext | null>(null);
+  const [reportDialogJob, setReportDialogJob] = useState<{
+    id: string;
+    title: string;
+    company: string;
+    score?: number | null;
+  } | null>(null);
+
+  // Candidate Profile State & Sync Listener
+  const [profile, setProfile] = useState<CandidateProfile | null>(() => getCandidateProfile());
+
+  useEffect(() => {
+    setProfile(getCandidateProfile());
+    const handleProfileUpdate = () => {
+      setProfile(getCandidateProfile());
+    };
+    window.addEventListener('sync730_profile_updated', handleProfileUpdate);
+    return () => window.removeEventListener('sync730_profile_updated', handleProfileUpdate);
+  }, []);
 
   // Apply Prompt Flow State
   const [pendingApplyJob, setPendingApplyJob] = useState<RemoteJob | null>(null);
@@ -518,8 +543,27 @@ function CrawlerJobFeedContent() {
       return true;
     });
 
-    return sortJobs(filtered, sortBy, debouncedSearchQuery);
-  }, [jobs, matchesNonCategoryFilters, selectedCategory, sortBy, debouncedSearchQuery]);
+    return sortJobs(filtered, sortBy, debouncedSearchQuery, profile);
+  }, [jobs, matchesNonCategoryFilters, selectedCategory, sortBy, debouncedSearchQuery, profile]);
+
+  // Top 3 Recommended Jobs by AI Match Score (Requirement 3)
+  const recommendedJobs = useMemo(() => {
+    if (!profile) return [];
+    const hasProfileData =
+      (profile.skills && profile.skills.length > 0) ||
+      (profile.targetRoles && profile.targetRoles.length > 0);
+    if (!hasProfileData) return [];
+
+    return [...jobs]
+      .filter((j) => j.is_active !== false && !isJobExpired(j.expires_at))
+      .map((job) => ({
+        job,
+        match: computeJobMatchScore(job, profile),
+      }))
+      .filter((item) => item.match.score !== null && item.match.score >= 50)
+      .sort((a, b) => (b.match.score || 0) - (a.match.score || 0))
+      .slice(0, 3);
+  }, [jobs, profile]);
 
   // Paginated visible slice
   const paginatedJobs = useMemo(() => {
@@ -643,23 +687,62 @@ function CrawlerJobFeedContent() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Top Banner: Vet-Once Profile */}
+      {/* Verify Profile Banner (Requirement 6 - Honest state-aware copy) */}
       <div className="rounded-2xl border border-neutral-200/90 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-900/40 p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              {profile?.verificationStatus === 'verified' ? (
+                <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300 text-[10px] font-bold px-2 py-0.5">
+                  <ShieldCheck className="h-3 w-3 mr-1 inline" /> FastTrack Verified
+                </Badge>
+              ) : profile?.verificationStatus === 'in_progress' ? (
+                <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300 text-[10px] font-bold px-2 py-0.5">
+                  <Clock className="h-3 w-3 mr-1 inline" /> Assessment In Progress
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-400">
+                  Technical Verification · 15 minutes
+                </Badge>
+              )}
+            </div>
+
             <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
-              Pre-Vet Once. Apply Directly to Remote Teams.
+              {profile?.verificationStatus === 'verified'
+                ? 'Your Engineering Profile is Verified'
+                : profile?.verificationStatus === 'in_progress'
+                ? 'Resume Your Technical Verification'
+                : 'Get FastTrack Verified in 15 Minutes'}
             </h3>
+
             <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 max-w-2xl leading-relaxed">
-              Complete a single assessment cycle to unlock direct routing to hiring managers across Engineering, Product, Data, DevOps, and Operations.
+              {profile?.verificationStatus === 'verified'
+                ? 'You have completed the technical assessment cycle. Your profile is prioritized in search and routed directly to hiring teams with your verified scorecard.'
+                : 'Assessment covers role-specific architecture, technical problem solving, and scenario evaluation (15 min). Unlocks the FastTrack badge and direct routing to verified remote employers.'}
             </p>
           </div>
-          <Link href="/candidate">
+
+          <Link href="/dashboard/sandbox">
             <Button
               size="sm"
               className="gap-1.5 shrink-0 text-xs font-semibold h-9 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 inline-flex items-center"
             >
-              Verify Profile <ArrowRight className="h-3.5 w-3.5 stroke-[1.5]" />
+              {profile?.verificationStatus === 'verified' ? (
+                <>
+                  <span>View Scorecard</span>
+                  <ArrowRight className="h-3.5 w-3.5 stroke-[1.5]" />
+                </>
+              ) : profile?.verificationStatus === 'in_progress' ? (
+                <>
+                  <span>Resume Assessment</span>
+                  <ArrowRight className="h-3.5 w-3.5 stroke-[1.5]" />
+                </>
+              ) : (
+                <>
+                  <span>Start Assessment (15m)</span>
+                  <ArrowRight className="h-3.5 w-3.5 stroke-[1.5]" />
+                </>
+              )}
             </Button>
           </Link>
         </div>
@@ -1094,6 +1177,93 @@ function CrawlerJobFeedContent() {
       ) : (
         /* State View 4: Filtered Job Listings Feed & Pagination */
         <div className="space-y-6">
+          {/* Top Section: Recommended for You (Requirement 3) */}
+          {recommendedJobs.length > 0 && (
+            <div className="p-5 rounded-2xl border border-blue-200/80 dark:border-blue-950/60 bg-gradient-to-r from-blue-50/50 via-white to-indigo-50/30 dark:from-blue-950/20 dark:via-neutral-950 dark:to-indigo-950/10 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <h3 className="text-sm font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
+                      Recommended for You
+                    </h3>
+                    <Badge variant="secondary" className="text-[10px] bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300">
+                      Top Matches
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    Highest alignment computed against your skills, target roles, seniority fit, and location preferences.
+                  </p>
+                </div>
+                <Link
+                  href="/dashboard/profile"
+                  className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 shrink-0"
+                >
+                  <span>Edit Profile & Preferences</span>
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                {recommendedJobs.map(({ job, match }) => (
+                  <Card
+                    key={`rec-${job.id}`}
+                    onClick={() => handleOpenJobDetail(job.id)}
+                    className="group flex flex-col justify-between border border-blue-200/60 dark:border-blue-900/40 bg-white/90 dark:bg-neutral-950/80 rounded-xl p-4 hover:border-blue-400 transition-all shadow-none cursor-pointer"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 truncate">
+                          {job.company_name || job.company}
+                        </span>
+                        <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/20 px-1.5 py-0.5 rounded">
+                          {match.score}% match
+                        </span>
+                      </div>
+
+                      <h4 className="text-xs font-bold text-neutral-900 dark:text-white line-clamp-1 group-hover:text-blue-600 transition-colors">
+                        {job.title}
+                      </h4>
+
+                      <p className="text-[11px] text-neutral-500 line-clamp-1">
+                        {match.reason}
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-neutral-100 dark:border-neutral-900 flex items-center justify-between gap-1 text-[11px]">
+                      <span className="text-neutral-600 dark:text-neutral-300 font-medium truncate">
+                        <SalaryDisplay job={job} period={displayPeriod} />
+                      </span>
+                      <span className="text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-0.5 shrink-0">
+                        View →
+                      </span>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Profile Setup Prompt if not filled */}
+          {(!profile?.skills?.length && !profile?.targetRoles?.length) && (
+            <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+              <div className="space-y-0.5">
+                <span className="font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+                  Want tailored recommendations?
+                </span>
+                <p className="text-neutral-500">
+                  Complete your candidate profile to see your top 3 matches calculated by honest multi-factor fit.
+                </p>
+              </div>
+              <Link href="/dashboard/profile">
+                <Button size="sm" variant="outline" className="text-xs h-8 px-3 rounded-lg border-neutral-200 dark:border-neutral-800 font-semibold shrink-0">
+                  Complete Profile →
+                </Button>
+              </Link>
+            </div>
+          )}
+
           {/* Result Count Info Header */}
           <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
             <span>
@@ -1220,6 +1390,67 @@ function CrawlerJobFeedContent() {
                       </div>
                     </div>
 
+                    {/* Honest AI Match Score Bar & One-line Reason (Requirement 2) */}
+                    {(() => {
+                      const match = computeJobMatchScore(job, profile);
+                      if (match.isProfileComplete && match.score !== null) {
+                        return (
+                          <div className="p-2.5 rounded-lg bg-neutral-50/70 dark:bg-neutral-900/40 border border-neutral-200/70 dark:border-neutral-800/80 space-y-1.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1">
+                                  <Sparkles className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                                  {match.score}% match
+                                </span>
+                                <div className="w-20 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full ${
+                                      match.score >= 80 ? 'bg-emerald-500' : match.score >= 65 ? 'bg-blue-500' : 'bg-amber-500'
+                                    }`}
+                                    style={{ width: `${match.score}%` }}
+                                  />
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setReportDialogJob({
+                                    id: job.id,
+                                    title: job.title,
+                                    company: job.company_name || job.company,
+                                    score: match.score,
+                                  });
+                                }}
+                                className="text-[10px] text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 underline cursor-pointer"
+                              >
+                                Report a bad match
+                              </button>
+                            </div>
+                            <p className="text-[11px] text-neutral-600 dark:text-neutral-400 line-clamp-1">
+                              {match.reason}
+                            </p>
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="px-2.5 py-1.5 rounded-lg bg-neutral-50/50 dark:bg-neutral-900/30 border border-neutral-200/50 dark:border-neutral-800/50 flex items-center justify-between text-[11px] text-neutral-400">
+                            <span className="flex items-center gap-1">
+                              <Sparkles className="h-3 w-3 text-neutral-400" />
+                              Complete your profile to see match scores
+                            </span>
+                            <Link
+                              href="/dashboard/profile"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-neutral-700 dark:text-neutral-300 font-semibold hover:underline text-[11px]"
+                            >
+                              Set up →
+                            </Link>
+                          </div>
+                        );
+                      }
+                    })()}
+
                     {/* Role Description Preview */}
                     <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed line-clamp-3">
                       {job.description}
@@ -1275,19 +1506,19 @@ function CrawlerJobFeedContent() {
                           variant="outline"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedResumeJob({
-                              id: job.id,
+                            setTailorTargetJob({
                               title: job.title,
                               company: job.company_name || job.company,
                               location: job.candidate_required_location || job.location_tier,
-                              description: job.description,
-                              url: job.apply_url || job.url,
-                              tags: job.tags,
+                              description: job.description || '',
+                              salary: job.salary || undefined,
+                              category: job.category || 'Software & Engineering',
                             });
+                            setIsTailorPanelOpen(true);
                           }}
                           className="text-xs h-9 px-3 rounded-lg border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 font-medium inline-flex items-center gap-1.5"
                         >
-                          <Sparkles className="h-3.5 w-3.5 stroke-[1.5]" />
+                          <Sparkles className="h-3.5 w-3.5 stroke-[1.5] text-amber-500" />
                           Tailor Resume
                         </Button>
 
@@ -1382,12 +1613,32 @@ function CrawlerJobFeedContent() {
         </DialogContent>
       </Dialog>
 
-      {/* Resume Generator & ATS Studio Modal */}
-      <ResumeGeneratorModal
-        isOpen={Boolean(selectedResumeJob)}
-        onClose={() => setSelectedResumeJob(null)}
-        job={selectedResumeJob}
+      {/* Ethical AI Disclosure Footer (Requirement 8) */}
+      <div className="pt-6 pb-2 border-t border-neutral-200 dark:border-neutral-800 text-center text-xs text-neutral-400 dark:text-neutral-500">
+        Scores and suggestions are AI-generated and may be wrong. You decide where to apply.
+      </div>
+
+      {/* Resume ATS Tailoring Side Panel (Requirement 5) */}
+      <TailorResumePanel
+        isOpen={isTailorPanelOpen}
+        onClose={() => {
+          setIsTailorPanelOpen(false);
+          setTailorTargetJob(null);
+        }}
+        job={tailorTargetJob}
       />
+
+      {/* Report Bad Match Dialog (Requirement 8) */}
+      {reportDialogJob && (
+        <ReportMatchDialog
+          isOpen={Boolean(reportDialogJob)}
+          onClose={() => setReportDialogJob(null)}
+          jobId={reportDialogJob.id}
+          jobTitle={reportDialogJob.title}
+          companyName={reportDialogJob.company}
+          currentScore={reportDialogJob.score}
+        />
+      )}
     </div>
   );
 }

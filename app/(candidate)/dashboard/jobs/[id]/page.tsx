@@ -33,6 +33,9 @@ import {
   Briefcase,
   GraduationCap,
   ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  BookOpen,
 } from 'lucide-react';
 import { RemoteJob } from '@/lib/supabase/types';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
@@ -51,6 +54,10 @@ import {
   markJobAsApplied,
 } from '@/lib/tracker';
 import { ResumeGeneratorModal, TargetJobContext } from '@/components/resume/resume-generator-modal';
+import { TailorResumePanel } from '@/components/resume/tailor-resume-panel';
+import { ReportMatchDialog } from '@/components/jobs/report-match-dialog';
+import { getCandidateProfile, CandidateProfile } from '@/lib/candidate/profile';
+import { computeJobMatchScore, MatchScoreResult } from '@/lib/candidate/matching';
 import { toast } from 'sonner';
 
 function JobDetailContent() {
@@ -81,6 +88,24 @@ function JobDetailContent() {
   const [showApplyModal, setShowApplyModal] = useState<boolean>(false);
   const [hasClickedApply, setHasClickedApply] = useState<boolean>(false);
   const [isResumeModalOpen, setIsResumeModalOpen] = useState<boolean>(false);
+  const [isTailorPanelOpen, setIsTailorPanelOpen] = useState<boolean>(false);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState<boolean>(false);
+  const [isBreakdownOpen, setIsBreakdownOpen] = useState<boolean>(false);
+  const [profile, setProfile] = useState<CandidateProfile | null>(() => getCandidateProfile());
+
+  useEffect(() => {
+    setProfile(getCandidateProfile());
+    const handleProfileUpdate = () => {
+      setProfile(getCandidateProfile());
+    };
+    window.addEventListener('sync730_profile_updated', handleProfileUpdate);
+    return () => window.removeEventListener('sync730_profile_updated', handleProfileUpdate);
+  }, []);
+
+  const matchScore = useMemo(() => {
+    if (!job) return null;
+    return computeJobMatchScore(job, profile);
+  }, [job, profile]);
 
   // Preserve query string back to crawler
   const backQueryString = searchParams?.toString();
@@ -371,6 +396,121 @@ function JobDetailContent() {
         </div>
       </div>
 
+      {/* AI Match Score & Collapsible Breakdown */}
+      {matchScore && (
+        <Card className="border-neutral-200/90 dark:border-neutral-800 bg-gradient-to-r from-blue-50/30 via-white to-white dark:from-blue-950/20 dark:via-neutral-950 dark:to-neutral-950 overflow-hidden">
+          <CardContent className="p-5 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                {matchScore.isProfileComplete && matchScore.score !== null ? (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-1.5 font-bold text-sm text-neutral-900 dark:text-neutral-100">
+                        <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <span>{matchScore.score}% match</span>
+                      </div>
+                      <div className="w-24 h-2 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${
+                            matchScore.score >= 80 ? 'bg-emerald-500' : matchScore.score >= 65 ? 'bg-blue-500' : 'bg-amber-500'
+                          }`}
+                          style={{ width: `${matchScore.score}%` }}
+                        />
+                      </div>
+                    </div>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                      {matchScore.reason}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
+                    <Sparkles className="h-4 w-4 text-blue-500 shrink-0" />
+                    <span>Complete your profile to see match scores and detailed breakdown</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {matchScore.isProfileComplete && matchScore.breakdown ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsBreakdownOpen(!isBreakdownOpen)}
+                    className="text-xs h-8 gap-1.5 border-neutral-200 dark:border-neutral-800"
+                  >
+                    <span>{isBreakdownOpen ? 'Hide breakdown' : 'See breakdown'}</span>
+                    {isBreakdownOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                  </Button>
+                ) : (
+                  <Link href="/dashboard/profile">
+                    <Button size="sm" className="text-xs h-8 px-3 rounded-lg bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
+                      Complete Profile →
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </div>
+
+            {/* Collapsible Breakdown */}
+            {isBreakdownOpen && matchScore.breakdown && (
+              <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800/80 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs animate-in fade-in duration-150">
+                <div className="p-2.5 rounded-lg bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
+                  <span className="font-semibold text-neutral-500 text-[10px] uppercase tracking-wider block">Skill Overlap</span>
+                  <div className="font-bold text-neutral-900 dark:text-white">
+                    {matchScore.breakdown.matchedSkills.length}/{matchScore.breakdown.totalJobSkills} skills matched ({matchScore.breakdown.skillOverlapPct}%)
+                  </div>
+                  <div className="text-[11px] text-neutral-500 truncate" title={matchScore.breakdown.matchedSkills.join(', ')}>
+                    {matchScore.breakdown.matchedSkills.join(', ') || 'No direct overlap'}
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-lg bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
+                  <span className="font-semibold text-neutral-500 text-[10px] uppercase tracking-wider block">Seniority Fit</span>
+                  <div className="font-bold text-neutral-900 dark:text-white">
+                    {matchScore.breakdown.seniorityFit}
+                  </div>
+                  <div className="text-[11px] text-neutral-500">
+                    Candidate: {profile?.seniority || 'Mid'} vs Job: {job.seniority || 'Mid'}
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-lg bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
+                  <span className="font-semibold text-neutral-500 text-[10px] uppercase tracking-wider block">Location Eligibility</span>
+                  <div className="font-bold text-neutral-900 dark:text-white">
+                    {matchScore.breakdown.locationReason}
+                  </div>
+                  <div className="text-[11px] text-neutral-500">
+                    {job.location_tier}
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-lg bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
+                  <span className="font-semibold text-neutral-500 text-[10px] uppercase tracking-wider block">Compensation</span>
+                  <div className="font-bold text-neutral-900 dark:text-white">
+                    {matchScore.breakdown.salaryFit}
+                  </div>
+                  <div className="text-[11px] text-neutral-500">
+                    Based on your stated minimum
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Match Card Footer: Ethical Guarantee & Report Link */}
+            <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 dark:border-neutral-900 text-[11px] text-neutral-400">
+              <span>Scores are based on skills, seniority, location & compensation fit only.</span>
+              <button
+                type="button"
+                onClick={() => setIsReportDialogOpen(true)}
+                className="hover:text-neutral-700 dark:hover:text-neutral-200 underline inline-flex items-center gap-1 transition-colors cursor-pointer"
+              >
+                Report a bad match
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
         {/* Left Column (2 cols): Description, Responsibilities, Requirements */}
@@ -444,6 +584,71 @@ function JobDetailContent() {
                   </p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Skills to Strengthen Card (Requirement 4) */}
+          <Card className="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-none rounded-xl">
+            <CardContent className="p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
+                  <Sparkles className="h-4 w-4 text-blue-500" />
+                  <span>Skills to Strengthen</span>
+                </h3>
+                {matchScore?.isProfileComplete && matchScore.breakdown && (
+                  <Badge variant="outline" className="text-[10px]">
+                    {matchScore.breakdown.missingSkills.length} to practice
+                  </Badge>
+                )}
+              </div>
+
+              {matchScore?.isProfileComplete && matchScore.breakdown ? (
+                matchScore.breakdown.missingSkills.length > 0 ? (
+                  <div className="space-y-2.5">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                      Preparing these skills will help close gaps for this role:
+                    </p>
+                    <div className="space-y-2">
+                      {matchScore.breakdown.missingSkills.map((skill) => (
+                        <div
+                          key={skill}
+                          className="p-2.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/40 flex items-center justify-between gap-2"
+                        >
+                          <div>
+                            <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 block">
+                              {skill}
+                            </span>
+                            <span className="text-[10px] text-neutral-400">
+                              Learning resource & practice
+                            </span>
+                          </div>
+                          <Link
+                            href={`/dashboard/prep?role=${encodeURIComponent(job.title)}&skill=${encodeURIComponent(skill)}`}
+                            className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 shrink-0"
+                          >
+                            <span>Interview Prep</span>
+                            <ArrowUpRight className="h-3 w-3" />
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-500/20 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                    <span>Your profile covers all core skills identified for this position!</span>
+                  </div>
+                )
+              ) : (
+                <div className="space-y-2 text-xs text-neutral-500">
+                  <p>Complete your candidate profile to identify your specific skill gaps for this position.</p>
+                  <Link href="/dashboard/profile">
+                    <Button variant="outline" size="sm" className="text-xs h-7 px-2.5">
+                      Set up profile →
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -535,7 +740,7 @@ function JobDetailContent() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setIsResumeModalOpen(true)}
+              onClick={() => setIsTailorPanelOpen(true)}
               className="gap-1.5 text-xs h-9 font-semibold border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800"
             >
               <Sparkles className="h-3.5 w-3.5 text-amber-500" />
@@ -587,11 +792,26 @@ function JobDetailContent() {
         </DialogContent>
       </Dialog>
 
-      {/* Resume ATS Tailoring Modal */}
-      <ResumeGeneratorModal
-        isOpen={isResumeModalOpen}
-        onClose={() => setIsResumeModalOpen(false)}
+      {/* Ethical AI Disclosure Footer */}
+      <div className="pt-6 border-t border-neutral-200 dark:border-neutral-800 text-center text-xs text-neutral-400 dark:text-neutral-500">
+        Scores and suggestions are AI-generated and may be wrong. You decide where to apply.
+      </div>
+
+      {/* Resume ATS Tailoring Side Panel */}
+      <TailorResumePanel
+        isOpen={isTailorPanelOpen}
+        onClose={() => setIsTailorPanelOpen(false)}
         job={targetJobCtx}
+      />
+
+      {/* Report Bad Match Dialog */}
+      <ReportMatchDialog
+        isOpen={isReportDialogOpen}
+        onClose={() => setIsReportDialogOpen(false)}
+        jobId={job.id}
+        jobTitle={job.title}
+        companyName={job.company_name || job.company}
+        currentScore={matchScore?.score}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import { RemoteJob } from '@/lib/supabase/types';
+import { computeJobMatchScore } from '@/lib/candidate/matching';
 
 export type SeniorityLevel = 'Entry' | 'Mid' | 'Senior' | 'Lead/Staff';
 export type JobTypeOption = 'Full-time' | 'Contract' | 'Part-time';
@@ -200,7 +201,8 @@ function getMatchScore(job: RemoteJob, q: string): number {
 export function sortJobs(
   jobs: RemoteJob[],
   sortBy: SortOption,
-  searchQuery: string = ''
+  searchQuery: string = '',
+  profile?: any
 ): RemoteJob[] {
   const sorted = [...jobs];
 
@@ -222,12 +224,19 @@ export function sortJobs(
 
   // Best match:
   // 1. Featured jobs first (is_featured)
-  // 2. Query relevance
-  // 3. Newest
+  // 2. Candidate Match Score (when candidate profile is complete)
+  // 3. Query relevance
+  // 4. Newest
   const q = searchQuery.toLowerCase().trim();
   return sorted.sort((a, b) => {
     if (Boolean(b.is_featured) !== Boolean(a.is_featured)) {
       return b.is_featured ? 1 : -1;
+    }
+
+    if (profile) {
+      const matchA = computeJobMatchScore(a, profile).score || 0;
+      const matchB = computeJobMatchScore(b, profile).score || 0;
+      if (matchA !== matchB) return matchB - matchA;
     }
 
     if (q) {

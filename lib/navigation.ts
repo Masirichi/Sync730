@@ -12,13 +12,17 @@ import {
   Globe,
   FileText,
   MessageSquare,
+  User,
+  Sparkles,
 } from 'lucide-react';
 
 export const candidateNavItems = [
-  { label: 'Dashboard', href: '/candidate', icon: LayoutGrid },
   { label: 'Remote Job Feed', href: '/dashboard/crawler', icon: Compass },
+  { label: 'Candidate Profile', href: '/dashboard/profile', icon: User },
   { label: 'Kanban Tracker', href: '/dashboard/tracker', icon: Columns3 },
+  { label: 'Interview Prep', href: '/dashboard/prep', icon: Sparkles },
   { label: 'AI Mock Sandbox', href: '/dashboard/sandbox', icon: Video },
+  { label: 'Dashboard', href: '/candidate', icon: LayoutGrid },
   { label: 'Browse Jobs', href: '/candidate/jobs', icon: Briefcase },
   { label: 'My Applications', href: '/candidate/applications', icon: FileCheck2 },
   { label: 'Saved Jobs', href: '/candidate/saved', icon: Bookmark },
