@@ -5,6 +5,8 @@ import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
 import { RemoteJob } from '@/lib/supabase/types';
 import { normalizeJobCategory } from '@/lib/crawler/categories';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     let remoteJobs: any[] = [];

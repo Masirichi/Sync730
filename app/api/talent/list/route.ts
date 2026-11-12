@@ -8,6 +8,8 @@ import {
 } from '@/lib/recruiter/store';
 import { VideoAssessment } from '@/lib/recruiter/types';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const workspaceId = req.nextUrl.searchParams.get('workspace_id') || 'ws-sync730-demo';
