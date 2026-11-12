@@ -287,7 +287,7 @@ function InterviewPrepContent() {
           <CardHeader className="pb-3 border-b border-neutral-100 dark:border-neutral-900">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-[11px] bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20">
+                <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20">
                   Question {currentQuestionIndex + 1} of {questions.length}
                 </Badge>
                 <span className="text-xs text-neutral-500 font-medium">
@@ -390,7 +390,7 @@ function InterviewPrepContent() {
                     <div className="text-2xl font-black text-neutral-900 dark:text-white">
                       {feedbackScores.overall}/100
                     </div>
-                    <div className="text-[10px] uppercase font-bold text-neutral-400">
+                    <div className="text-xs uppercase font-bold text-neutral-400">
                       Overall Score
                     </div>
                   </div>
@@ -473,15 +473,15 @@ function InterviewPrepContent() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-[10px]">
+                    <Badge variant="outline" className="text-xs">
                       {session.role}
                     </Badge>
                     {session.skill && (
-                      <Badge variant="secondary" className="text-[10px]">
+                      <Badge variant="secondary" className="text-xs">
                         {session.skill}
                       </Badge>
                     )}
-                    <span className="text-[11px] text-neutral-400">
+                    <span className="text-xs text-neutral-400">
                       {new Date(session.createdAt).toLocaleDateString()}
                     </span>
                   </div>
@@ -495,7 +495,7 @@ function InterviewPrepContent() {
                   {session.question}
                 </div>
 
-                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 line-clamp-2">
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 line-clamp-2">
                   Answer: "{session.answer}"
                 </p>
               </div>

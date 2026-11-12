@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Login Page",
+    "url": "http://localhost:3000/login",
+    "performance": 76,
+    "accessibility": 100
+  },
+  {
+    "name": "Jobs Board",
+    "url": "http://localhost:3000/dashboard/crawler",
+    "performance": 71,
+    "accessibility": 100
+  },
+  {
+    "name": "Job Detail Page",
+    "url": "http://localhost:3000/dashboard/jobs/seed-job-1",
+    "performance": 71,
+    "accessibility": 100
+  },
+  {
+    "name": "Application Tracker",
+    "url": "http://localhost:3000/dashboard/tracker",
+    "performance": 71,
+    "accessibility": 100
+  },
+  {
+    "name": "Candidate Profile",
+    "url": "http://localhost:3000/dashboard/profile",
+    "performance": 72,
+    "accessibility": 100
+  }
+]

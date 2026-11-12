@@ -35,26 +35,32 @@ export default function CandidateDashboardLayout({ children }: { children: React
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col min-w-0">
         {/* Mobile Top Header (Small screens only) */}
-        <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 m-3 mb-0 rounded-2xl">
+        <header className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 m-3 mb-0 rounded-2xl">
           <BrandLogo compact />
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-xl border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300"
-            aria-label="Toggle menu"
+            className="p-2.5 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300"
+            aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-drawer"
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-        </div>
+        </header>
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden mx-3 mt-2 bg-[#101114] text-white rounded-2xl p-4 space-y-2 border border-neutral-800">
+          <nav
+            id="mobile-nav-drawer"
+            aria-label="Mobile Navigation"
+            className="lg:hidden mx-3 mt-2 bg-[#101114] text-white rounded-2xl p-4 space-y-2 border border-neutral-800"
+          >
             {candidateNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium ${
+                className={`flex items-center gap-3 px-3.5 py-3 min-h-[44px] rounded-xl text-sm font-medium ${
                   pathname === item.href
                     ? 'bg-[#222329] text-white font-semibold'
                     : 'text-neutral-400 hover:text-white'
@@ -66,16 +72,20 @@ export default function CandidateDashboardLayout({ children }: { children: React
             ))}
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm font-medium text-neutral-300 hover:text-white mt-2"
+              className="flex items-center gap-3 w-full px-3.5 py-3 min-h-[44px] rounded-xl bg-neutral-900 border border-neutral-800 text-sm font-medium text-neutral-300 hover:text-white mt-2"
             >
               <LogOut className="h-4 w-4 text-neutral-400" />
               <span>Log Out</span>
             </button>
-          </div>
+          </nav>
         )}
 
         {/* Floating White Main Surface Island */}
-        <main className="flex-1 m-3 lg:ml-0 bg-white dark:bg-neutral-900 rounded-[32px] border border-neutral-200/70 dark:border-neutral-800 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6 sm:p-8 lg:p-9 min-h-[calc(100vh-24px)] overflow-y-auto">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 m-3 lg:ml-0 bg-white dark:bg-neutral-900 rounded-[32px] border border-neutral-200/70 dark:border-neutral-800 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6 sm:p-8 lg:p-9 min-h-[calc(100vh-24px)] overflow-y-auto outline-none focus:ring-0"
+        >
           {children}
         </main>
       </div>

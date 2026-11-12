@@ -279,7 +279,7 @@ export default function CandidateProfilePage() {
             variant="outline"
             size="sm"
             onClick={profile.skills.length === 0 ? handleRestoreDefaults : handleReset}
-            className="text-xs h-9 gap-1.5 border-neutral-200 dark:border-neutral-800"
+            className="text-xs min-h-[44px] px-4 gap-1.5 border-neutral-200 dark:border-neutral-800"
             title="Toggle incomplete state to test empty score handling"
           >
             <RotateCcw className="h-3.5 w-3.5" />
@@ -289,7 +289,7 @@ export default function CandidateProfilePage() {
           <Button
             size="sm"
             onClick={() => handleSave()}
-            className="text-xs h-9 gap-1.5 bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 font-semibold"
+            className="text-xs min-h-[44px] px-4 gap-1.5 bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 font-semibold"
           >
             {isSaved ? <Check className="h-4 w-4 text-emerald-500" /> : <Save className="h-4 w-4" />}
             <span>{isSaved ? 'Saved!' : 'Save Profile'}</span>
@@ -303,13 +303,13 @@ export default function CandidateProfilePage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
+                <h2 className="text-sm font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
                   Profile strength: {strength.score}%
-                </h3>
+                </h2>
                 <span
-                  className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                     strength.score >= 80
-                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                      ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30'
                       : strength.score >= 60
                       ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
                       : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
@@ -326,7 +326,7 @@ export default function CandidateProfilePage() {
             </div>
 
             <Link href="/dashboard/crawler">
-              <Button variant="outline" size="sm" className="text-xs h-8 gap-1.5">
+              <Button variant="outline" size="sm" className="text-xs min-h-[44px] px-3.5 gap-1.5">
                 <span>View Job Matches</span>
                 <ArrowRight className="h-3 w-3" />
               </Button>
@@ -334,7 +334,7 @@ export default function CandidateProfilePage() {
           </div>
 
           {/* Progress Bar */}
-          <Progress value={strength.score} className="h-2 rounded-full" />
+          <Progress value={strength.score} aria-label="Profile completion strength" className="h-2 rounded-full" />
 
           {/* Checklist */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-2">
@@ -357,7 +357,7 @@ export default function CandidateProfilePage() {
                     {check.label}
                   </div>
                   {!check.completed && (
-                    <p className="text-[10px] text-neutral-400 leading-tight">
+                    <p className="text-xs text-neutral-400 leading-tight">
                       {check.hint}
                     </p>
                   )}
@@ -412,7 +412,7 @@ export default function CandidateProfilePage() {
                 <div>
                   <span className="font-semibold text-neutral-900 dark:text-neutral-100">Click to upload</span> or drag and drop
                 </div>
-                <div className="text-[11px] text-neutral-400">PDF or DOCX format (Max 5MB)</div>
+                <div className="text-xs text-neutral-700 dark:text-neutral-300 font-medium">PDF or DOCX format (Max 5MB)</div>
               </div>
             </label>
 
@@ -421,11 +421,11 @@ export default function CandidateProfilePage() {
                 <div className="font-semibold text-neutral-900 dark:text-neutral-100 truncate">
                   {profile.cvFile.name}
                 </div>
-                <div className="text-[11px] text-neutral-400">
+                <div className="text-xs text-neutral-700 dark:text-neutral-300 font-medium">
                   {(profile.cvFile.size / 1024 / 1024).toFixed(2)} MB · Uploaded {new Date(profile.cvFile.uploadedAt).toLocaleDateString()}
                 </div>
                 {profile.cvFile.parsedSummary && (
-                  <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-snug line-clamp-2 pt-1 border-t border-neutral-100 dark:border-neutral-800">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-snug line-clamp-2 pt-1 border-t border-neutral-100 dark:border-neutral-800">
                     {profile.cvFile.parsedSummary}
                   </p>
                 )}
@@ -447,57 +447,64 @@ export default function CandidateProfilePage() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Full Name *</Label>
+                <Label htmlFor="profile-fullName" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Full Name *</Label>
                 <Input
+                  id="profile-fullName"
                   value={profile.fullName}
                   onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
                   placeholder="e.g. Adaeze Okonkwo"
-                  className="text-xs h-9 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
                   required
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Email Address *</Label>
+                <Label htmlFor="profile-email" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Email Address *</Label>
                 <Input
+                  id="profile-email"
                   type="email"
                   value={profile.email}
                   onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                   placeholder="e.g. adaeze@sync730.dev"
-                  className="text-xs h-9 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
                   required
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Location (City, Country) *</Label>
+                <Label htmlFor="profile-location" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Location (City, Country) *</Label>
                 <Input
+                  id="profile-location"
                   value={profile.location}
                   onChange={(e) => setProfile({ ...profile, location: e.target.value })}
                   placeholder="e.g. Lagos, Nigeria"
-                  className="text-xs h-9 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
                   required
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Phone Number (Optional)</Label>
+                <Label htmlFor="profile-phone" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Phone Number (Optional)</Label>
                 <Input
+                  id="profile-phone"
+                  type="tel"
+                  autoComplete="tel"
                   value={profile.phone || ''}
                   onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                   placeholder="+234 803 123 4567"
-                  className="text-xs h-9 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Professional Bio / Summary</Label>
+              <Label htmlFor="profile-bio" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Professional Bio / Summary</Label>
               <Textarea
+                id="profile-bio"
                 value={profile.bio || ''}
                 onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                 placeholder="Senior Engineer specializing in scalable distributed microservices and accessible frontend design systems..."
-                className="text-xs min-h-[70px] bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+                className="text-base sm:text-sm min-h-[90px] bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
               />
             </div>
           </CardContent>
@@ -542,14 +549,14 @@ export default function CandidateProfilePage() {
                   onChange={(e) => setNewRoleInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddRole())}
                   placeholder="Add target role (e.g. Senior Frontend Engineer)"
-                  className="text-xs h-9 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
                 />
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={handleAddRole}
-                  className="text-xs h-9 shrink-0 gap-1"
+                  className="text-xs min-h-[44px] px-4 shrink-0 gap-1"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   <span>Add Role</span>
@@ -560,10 +567,12 @@ export default function CandidateProfilePage() {
             {/* Experience & Seniority Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-neutral-100 dark:border-neutral-800">
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                <Label htmlFor="profile-yearsOfExperience" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
                   Years of Experience *
                 </Label>
                 <Input
+                  id="profile-yearsOfExperience"
+                  aria-label="Years of Experience"
                   type="number"
                   min={0}
                   max={40}
@@ -571,7 +580,7 @@ export default function CandidateProfilePage() {
                   onChange={(e) =>
                     setProfile({ ...profile, yearsOfExperience: parseInt(e.target.value, 10) || 0 })
                   }
-                  className="text-xs h-9 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
                   required
                 />
               </div>
@@ -584,7 +593,7 @@ export default function CandidateProfilePage() {
                   value={profile.seniority}
                   onValueChange={(val: SeniorityLevel) => setProfile({ ...profile, seniority: val })}
                 >
-                  <SelectTrigger className="text-xs h-9 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800">
+                  <SelectTrigger className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -625,14 +634,14 @@ export default function CandidateProfilePage() {
                 onChange={(e) => setNewSkillName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
                 placeholder="Skill name (e.g. Kubernetes, React, Python)"
-                className="text-xs h-9 bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800 flex-1"
+                className="text-xs min-h-[44px] px-4 bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800 flex-1"
               />
 
               <Select
                 value={newSkillLevel}
                 onValueChange={(val: SkillProficiency['level']) => setNewSkillLevel(val)}
               >
-                <SelectTrigger className="text-xs h-9 w-full sm:w-36 bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800">
+                <SelectTrigger className="text-xs min-h-[44px] px-4 w-full sm:w-36 bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -648,7 +657,7 @@ export default function CandidateProfilePage() {
                 type="button"
                 size="sm"
                 onClick={handleAddSkill}
-                className="text-xs h-9 w-full sm:w-auto shrink-0 gap-1 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+                className="text-xs min-h-[44px] px-4 w-full sm:w-auto shrink-0 gap-1 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>Add Skill</span>
@@ -673,7 +682,7 @@ export default function CandidateProfilePage() {
                         handleUpdateSkillLevel(skill.name, val)
                       }
                     >
-                      <SelectTrigger className="h-7 text-[11px] w-24 bg-neutral-50 dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800">
+                      <SelectTrigger className="h-7 text-xs w-24 bg-neutral-50 dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -753,7 +762,7 @@ export default function CandidateProfilePage() {
                     setProfile({ ...profile, minSalaryExpectation: parseInt(e.target.value, 10) || null })
                   }
                   placeholder="e.g. 85000"
-                  className="text-xs h-9 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
                   required
                 />
               </div>
@@ -766,7 +775,7 @@ export default function CandidateProfilePage() {
                   value={profile.salaryCurrency}
                   onValueChange={(val: any) => setProfile({ ...profile, salaryCurrency: val })}
                 >
-                  <SelectTrigger className="text-xs h-9 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800">
+                  <SelectTrigger className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -784,7 +793,7 @@ export default function CandidateProfilePage() {
 
         {/* Save Bar & Ethical Disclosure */}
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-xs text-neutral-400 dark:text-neutral-500">
+          <div className="text-xs text-neutral-700 dark:text-neutral-300 font-medium">
             Scores and suggestions are AI-generated and may be wrong. You decide where to apply.
           </div>
 

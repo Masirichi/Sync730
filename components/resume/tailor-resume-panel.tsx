@@ -45,6 +45,17 @@ interface RequirementGap {
 }
 
 export function TailorResumePanel({ isOpen, onClose, job }: TailorResumePanelProps) {
+  // Accessibility: Close panel on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
   const [candidateSummary, setCandidateSummary] = useState<string>('');
   const [bullets, setBullets] = useState<EditableBullet[]>([]);
@@ -170,18 +181,18 @@ ${gaps.length > 0 ? gaps.map((g) => `- ${g.requirement}: ${g.note}`).join('\n') 
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div role="dialog" aria-modal="true" aria-labelledby="tailor-panel-title" className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
         <div className="w-screen max-w-2xl bg-white dark:bg-[#0c0d12] border-l border-neutral-200 dark:border-neutral-800 shadow-2xl flex flex-col">
           {/* Header */}
           <div className="p-5 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/80 dark:bg-neutral-900/60">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 text-[10px] font-bold uppercase tracking-wider">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 text-xs font-bold uppercase tracking-wider">
                   <Sparkles className="h-3 w-3" />
                   <span>AI suggestions, review before sending</span>
                 </div>
-                <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
+                <h2 id="tailor-panel-title" className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
                   Tailor Resume for {job.company}
                 </h2>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
@@ -189,8 +200,10 @@ ${gaps.length > 0 ? gaps.map((g) => `- ${g.requirement}: ${g.note}`).join('\n') 
                 </p>
               </div>
               <button
+                type="button"
                 onClick={onClose}
-                className="p-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                aria-label="Close resume tailoring panel"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800 text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -213,12 +226,9 @@ ${gaps.length > 0 ? gaps.map((g) => `- ${g.requirement}: ${g.note}`).join('\n') 
                 <label className="text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
                   Tailored Professional Summary
                 </label>
-                <span className="text-[11px] text-neutral-400">Editable</span>
+                <span className="text-xs text-neutral-400">Editable</span>
               </div>
-              <Textarea
-                value={candidateSummary}
-                onChange={(e) => setCandidateSummary(e.target.value)}
-                className="text-xs min-h-[90px] leading-relaxed bg-neutral-50 dark:bg-neutral-900/70 border-neutral-200 dark:border-neutral-800"
+              <Textarea value={candidateSummary} onChange={(e) => setCandidateSummary(e.target.value)} className="text-base sm:text-sm min-h-[90px] leading-relaxed bg-neutral-50 dark:bg-neutral-900/70 border-neutral-200 dark:border-neutral-800"
               />
             </div>
 
@@ -229,7 +239,7 @@ ${gaps.length > 0 ? gaps.map((g) => `- ${g.requirement}: ${g.note}`).join('\n') 
                   <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100">
                     Suggested Experience Bullet Points ({bullets.length})
                   </h4>
-                  <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
                     Rephrased to match the role's language while preserving factual accuracy.
                   </p>
                 </div>
@@ -242,15 +252,12 @@ ${gaps.length > 0 ? gaps.map((g) => `- ${g.requirement}: ${g.note}`).join('\n') 
                     className="p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/40 space-y-2"
                   >
                     <div className="flex items-center justify-between">
-                      <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20">
+                      <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20">
                         Skill: {b.originalSkill}
                       </Badge>
-                      <span className="text-[10px] text-neutral-400">{b.relevance}</span>
+                      <span className="text-xs text-neutral-400">{b.relevance}</span>
                     </div>
-                    <Textarea
-                      value={b.suggestedText}
-                      onChange={(e) => handleUpdateBullet(b.id, e.target.value)}
-                      className="text-xs min-h-[60px] bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800"
+                    <Textarea value={b.suggestedText} onChange={(e) => handleUpdateBullet(b.id, e.target.value)} className="text-base sm:text-sm min-h-[60px] bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800"
                     />
                   </div>
                 ))}
@@ -264,7 +271,7 @@ ${gaps.length > 0 ? gaps.map((g) => `- ${g.requirement}: ${g.note}`).join('\n') 
                   <AlertTriangle className="h-3.5 w-3.5" />
                   <span>Unmatched Role Requirements ({gaps.length})</span>
                 </div>
-                <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   These requirements were not found in your CV. We flagged them as gaps rather than inventing experience.
                 </p>
 
@@ -277,7 +284,7 @@ ${gaps.length > 0 ? gaps.map((g) => `- ${g.requirement}: ${g.note}`).join('\n') 
                       <div className="font-semibold text-neutral-900 dark:text-neutral-200">
                         {g.requirement}
                       </div>
-                      <p className="text-neutral-500 dark:text-neutral-400 text-[11px]">
+                      <p className="text-neutral-500 dark:text-neutral-400 text-xs">
                         {g.note}
                       </p>
                     </div>
@@ -289,7 +296,7 @@ ${gaps.length > 0 ? gaps.map((g) => `- ${g.requirement}: ${g.note}`).join('\n') 
 
           {/* Footer Actions */}
           <div className="p-4 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/60 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-[11px] text-neutral-400 dark:text-neutral-500">
+            <div className="text-xs text-neutral-400 dark:text-neutral-500">
               Scores and suggestions are AI-generated and may be wrong. You decide where to apply.
             </div>
 
@@ -298,7 +305,7 @@ ${gaps.length > 0 ? gaps.map((g) => `- ${g.requirement}: ${g.note}`).join('\n') 
                 variant="outline"
                 size="sm"
                 onClick={handleCopy}
-                className="text-xs h-9 gap-1.5 flex-1 sm:flex-initial"
+                className="text-xs min-h-[44px] px-4 gap-1.5 flex-1 sm:flex-initial font-medium"
               >
                 {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
                 <span>{copied ? 'Copied' : 'Copy Text'}</span>
@@ -306,7 +313,7 @@ ${gaps.length > 0 ? gaps.map((g) => `- ${g.requirement}: ${g.note}`).join('\n') 
               <Button
                 size="sm"
                 onClick={handleDownload}
-                className="text-xs h-9 gap-1.5 bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 flex-1 sm:flex-initial"
+                className="text-xs min-h-[44px] px-4 gap-1.5 bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 flex-1 sm:flex-initial font-semibold"
               >
                 <Download className="h-3.5 w-3.5" />
                 <span>Download (.txt)</span>

@@ -46,13 +46,13 @@ export function DashboardSidebar({ items, roleLabel, homeHref }: DashboardSideba
 
         {/* Role Label */}
         <div className="px-3 pt-4 pb-2">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-neutral-500">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-400">
             {roleLabel} Portal
           </p>
         </div>
 
         {/* Navigation Items (Inspiration Floating Pill Style) */}
-        <nav className="space-y-1 px-1 py-2">
+        <nav aria-label="Desktop Sidebar Navigation" className="space-y-1.5 px-1 py-2">
           {items.map((item) => {
             const active = pathname === item.href || (item.href !== '/candidate' && pathname.startsWith(item.href + '/'));
             return (
@@ -60,7 +60,7 @@ export function DashboardSidebar({ items, roleLabel, homeHref }: DashboardSideba
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-all',
+                  'flex items-center gap-3 rounded-2xl px-3.5 py-2.5 min-h-[44px] text-sm font-medium transition-all',
                   active
                     ? 'bg-[#222329] text-white shadow-sm font-semibold'
                     : 'text-neutral-400 hover:text-white hover:bg-neutral-800/40'
@@ -78,14 +78,14 @@ export function DashboardSidebar({ items, roleLabel, homeHref }: DashboardSideba
       <div className="p-2 space-y-2">
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-2xl bg-[#18191E] hover:bg-[#202127] border border-neutral-800/80 text-sm font-medium text-neutral-300 hover:text-white transition-all shadow-sm"
+          className="flex items-center gap-3 w-full px-3.5 py-2.5 min-h-[44px] rounded-2xl bg-[#18191E] hover:bg-[#202127] border border-neutral-800/80 text-sm font-medium text-neutral-300 hover:text-white transition-all shadow-sm"
         >
           <LogOut className="h-4 w-4 shrink-0 stroke-[1.5] text-neutral-400" />
           <span>Log Out</span>
         </button>
         <Link
           href={homeHref}
-          className="block text-center text-xs text-neutral-500 hover:text-neutral-300 transition-colors py-1"
+          className="block text-center text-xs text-neutral-400 hover:text-white transition-colors py-2"
         >
           Back to public site
         </Link>

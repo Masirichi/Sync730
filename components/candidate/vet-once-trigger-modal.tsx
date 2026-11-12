@@ -79,7 +79,7 @@ export function VetOnceTriggerModal({ isOpen, onClose, defaultRole = 'Senior Ful
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-lg p-6 rounded-2xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800">
         <DialogHeader>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-[11px] font-semibold mb-2 w-fit">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-semibold mb-2 w-fit">
             <Video className="h-3 w-3 stroke-[1.5]" />
             <span>Flowmingo AI Vet-Once Assessment</span>
           </div>
@@ -168,7 +168,7 @@ export function VetOnceTriggerModal({ isOpen, onClose, defaultRole = 'Senior Ful
                 <ShieldCheck className="h-4 w-4 text-emerald-600 stroke-[1.5]" />
                 <span>Standardized Flowmingo Assessment Rubrics</span>
               </div>
-              <p className="text-[11px] text-neutral-500 leading-relaxed">
+              <p className="text-xs text-neutral-500 leading-relaxed">
                 Includes 3 timed spoken answers evaluating Next.js architecture, system design concurrency, and STAR communication clarity.
               </p>
             </div>

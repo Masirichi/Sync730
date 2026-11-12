@@ -15,7 +15,7 @@
     --secondary: 40 14% 94%;
     --secondary-foreground: 0 0% 4%;
     --muted: 40 12% 94%;
-    --muted-foreground: 0 0% 39%;
+    --muted-foreground: 0 0% 30%;
     --accent: 40 12% 91%;
     --accent-foreground: 0 0% 4%;
     --destructive: 0 72% 51%;
@@ -46,7 +46,7 @@
     --secondary: 0 0% 13%;
     --secondary-foreground: 40 20% 98%;
     --muted: 0 0% 13%;
-    --muted-foreground: 40 8% 68%;
+    --muted-foreground: 40 8% 76%;
     --accent: 0 0% 17%;
     --accent-foreground: 40 20% 98%;
     --destructive: 0 63% 45%;
@@ -70,11 +70,49 @@
   * { @apply border-border; }
   body {
     @apply bg-background text-foreground;
+    font-size: 14px;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* High contrast 2px focus ring across interactive elements */
+  :focus-visible {
+    outline: 2px solid #0f172a !important;
+    outline-offset: 2px !important;
+  }
+  .dark :focus-visible {
+    outline: 2px solid #ffffff !important;
+    outline-offset: 2px !important;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mobile input font-size 16px to prevent iOS viewport auto-zoom */
+@media screen and (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
   }
 }
 
 @layer utilities {
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  }
+  .pt-safe {
+    padding-top: max(1rem, env(safe-area-inset-top, 0px));
+  }
   .animate-fade-up { animation: fade-up 0.6s ease-out forwards; }
   @keyframes fade-up {
     from { opacity: 0; transform: translateY(16px); }

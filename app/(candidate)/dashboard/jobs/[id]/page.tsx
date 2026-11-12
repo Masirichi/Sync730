@@ -290,7 +290,7 @@ function JobDetailContent() {
       <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-4">
         <Link
           href={backHref}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-colors"
+          aria-label="Back to jobs" className="inline-flex items-center gap-2 text-xs font-semibold min-h-[44px] py-2 text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           <span>Back to jobs</span>
@@ -299,14 +299,14 @@ function JobDetailContent() {
         {/* Verification Pill */}
         {job.last_verified_at ? (
           <span
-            className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20"
             title="The application link and role status were checked and verified active by Sync730."
           >
             <ShieldCheck className="h-3.5 w-3.5" />
             <span>Link checked {formatStandardDate(job.last_verified_at)}</span>
           </span>
         ) : (
-          <span className="text-[11px] text-neutral-400">Standard listing</span>
+          <span className="text-xs text-neutral-400">Standard listing</span>
         )}
       </div>
 
@@ -322,7 +322,7 @@ function JobDetailContent() {
             {/* Agency Badge & Tooltip */}
             {job.employer_type === 'agency' && (
               <span
-                className="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 cursor-help"
+                className="text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 cursor-help"
                 title="This role is posted by a staffing/outsourcing company on behalf of a client."
               >
                 Agency listing
@@ -332,7 +332,7 @@ function JobDetailContent() {
 
           <div className="flex items-center gap-1.5 flex-wrap">
             {job.is_featured && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                 ★ Featured Partner
               </span>
             )}
@@ -376,7 +376,7 @@ function JobDetailContent() {
           <span>Posted {formatPostedAgo(job.posted_at || job.published_at)} · via {job.source_name || job.source || 'Direct'}</span>
 
           {isClosedWarning && (
-            <span className="ml-1 text-[11px] font-medium text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded border border-neutral-200 dark:border-neutral-700">
+            <span className="ml-1 text-xs font-medium text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded border border-neutral-200 dark:border-neutral-700">
               May be closed
             </span>
           )}
@@ -384,11 +384,11 @@ function JobDetailContent() {
           {/* Eligibility Badge */}
           <span className="ml-auto">
             {job.open_to_nigeria ? (
-              <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+              <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
                 ● Open to Nigeria
               </span>
             ) : (
-              <span className="text-[11px] font-medium text-neutral-500 bg-neutral-100 dark:bg-neutral-800 px-2.5 py-0.5 rounded-full border border-neutral-200 dark:border-neutral-700">
+              <span className="text-xs font-medium text-neutral-500 bg-neutral-100 dark:bg-neutral-800 px-2.5 py-0.5 rounded-full border border-neutral-200 dark:border-neutral-700">
                 Not open to Nigeria
               </span>
             )}
@@ -455,41 +455,41 @@ function JobDetailContent() {
             {isBreakdownOpen && matchScore.breakdown && (
               <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800/80 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs animate-in fade-in duration-150">
                 <div className="p-2.5 rounded-lg bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
-                  <span className="font-semibold text-neutral-500 text-[10px] uppercase tracking-wider block">Skill Overlap</span>
+                  <span className="font-semibold text-neutral-500 text-xs uppercase tracking-wider block">Skill Overlap</span>
                   <div className="font-bold text-neutral-900 dark:text-white">
                     {matchScore.breakdown.matchedSkills.length}/{matchScore.breakdown.totalJobSkills} skills matched ({matchScore.breakdown.skillOverlapPct}%)
                   </div>
-                  <div className="text-[11px] text-neutral-500 truncate" title={matchScore.breakdown.matchedSkills.join(', ')}>
+                  <div className="text-xs text-neutral-500 truncate" title={matchScore.breakdown.matchedSkills.join(', ')}>
                     {matchScore.breakdown.matchedSkills.join(', ') || 'No direct overlap'}
                   </div>
                 </div>
 
                 <div className="p-2.5 rounded-lg bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
-                  <span className="font-semibold text-neutral-500 text-[10px] uppercase tracking-wider block">Seniority Fit</span>
+                  <span className="font-semibold text-neutral-500 text-xs uppercase tracking-wider block">Seniority Fit</span>
                   <div className="font-bold text-neutral-900 dark:text-white">
                     {matchScore.breakdown.seniorityFit}
                   </div>
-                  <div className="text-[11px] text-neutral-500">
+                  <div className="text-xs text-neutral-500">
                     Candidate: {profile?.seniority || 'Mid'} vs Job: {job.seniority || 'Mid'}
                   </div>
                 </div>
 
                 <div className="p-2.5 rounded-lg bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
-                  <span className="font-semibold text-neutral-500 text-[10px] uppercase tracking-wider block">Location Eligibility</span>
+                  <span className="font-semibold text-neutral-500 text-xs uppercase tracking-wider block">Location Eligibility</span>
                   <div className="font-bold text-neutral-900 dark:text-white">
                     {matchScore.breakdown.locationReason}
                   </div>
-                  <div className="text-[11px] text-neutral-500">
+                  <div className="text-xs text-neutral-500">
                     {job.location_tier}
                   </div>
                 </div>
 
                 <div className="p-2.5 rounded-lg bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
-                  <span className="font-semibold text-neutral-500 text-[10px] uppercase tracking-wider block">Compensation</span>
+                  <span className="font-semibold text-neutral-500 text-xs uppercase tracking-wider block">Compensation</span>
                   <div className="font-bold text-neutral-900 dark:text-white">
                     {matchScore.breakdown.salaryFit}
                   </div>
-                  <div className="text-[11px] text-neutral-500">
+                  <div className="text-xs text-neutral-500">
                     Based on your stated minimum
                   </div>
                 </div>
@@ -497,7 +497,7 @@ function JobDetailContent() {
             )}
 
             {/* Match Card Footer: Ethical Guarantee & Report Link */}
-            <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 dark:border-neutral-900 text-[11px] text-neutral-400">
+            <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 dark:border-neutral-900 text-xs text-neutral-400">
               <span>Scores are based on skills, seniority, location & compensation fit only.</span>
               <button
                 type="button"
@@ -596,7 +596,7 @@ function JobDetailContent() {
                   <span>Skills to Strengthen</span>
                 </h3>
                 {matchScore?.isProfileComplete && matchScore.breakdown && (
-                  <Badge variant="outline" className="text-[10px]">
+                  <Badge variant="outline" className="text-xs">
                     {matchScore.breakdown.missingSkills.length} to practice
                   </Badge>
                 )}
@@ -618,13 +618,13 @@ function JobDetailContent() {
                             <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 block">
                               {skill}
                             </span>
-                            <span className="text-[10px] text-neutral-400">
+                            <span className="text-xs text-neutral-600 dark:text-neutral-400 font-medium">
                               Learning resource & practice
                             </span>
                           </div>
                           <Link
                             href={`/dashboard/prep?role=${encodeURIComponent(job.title)}&skill=${encodeURIComponent(skill)}`}
-                            className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 shrink-0"
+                            className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 shrink-0"
                           >
                             <span>Interview Prep</span>
                             <ArrowUpRight className="h-3 w-3" />
@@ -680,7 +680,7 @@ function JobDetailContent() {
           {/* Source Info Card */}
           <Card className="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-none rounded-xl">
             <CardContent className="p-5 space-y-2.5 text-xs text-neutral-600 dark:text-neutral-400">
-              <span className="font-semibold text-neutral-900 dark:text-neutral-100 block uppercase tracking-wider text-[11px]">
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100 block uppercase tracking-wider text-xs">
                 Original Source
               </span>
               <p>
@@ -703,13 +703,13 @@ function JobDetailContent() {
       </div>
 
       {/* Sticky Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md border-t border-neutral-200 dark:border-neutral-800 py-3.5 px-4 shadow-lg">
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md border-t border-neutral-200 dark:border-neutral-800 py-3.5 px-4 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))] shadow-lg">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
           <div className="hidden sm:block truncate max-w-sm">
             <p className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">
               {job.title}
             </p>
-            <p className="text-[11px] text-neutral-500 truncate">
+            <p className="text-xs text-neutral-700 dark:text-neutral-300 font-medium truncate">
               {job.company_name || job.company} · <SalaryDisplay job={job} />
             </p>
           </div>
@@ -721,7 +721,8 @@ function JobDetailContent() {
               size="sm"
               onClick={handleToggleSave}
               disabled={isSaving}
-              className="w-[100px] text-xs h-9 font-semibold border-neutral-200 dark:border-neutral-800"
+              aria-label={isSaved ? `Remove ${job.title} from saved jobs` : `Save ${job.title} to saved jobs`}
+              className="w-[104px] text-xs min-h-[44px] h-11 font-semibold border-neutral-200 dark:border-neutral-800"
             >
               {isSaved ? (
                 <>
@@ -741,7 +742,8 @@ function JobDetailContent() {
               variant="outline"
               size="sm"
               onClick={() => setIsTailorPanelOpen(true)}
-              className="gap-1.5 text-xs h-9 font-semibold border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              aria-label={`Tailor resume for ${job.title} at ${job.company_name || job.company}`}
+              className="gap-1.5 text-xs min-h-[44px] h-11 px-4 font-semibold border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800"
             >
               <Sparkles className="h-3.5 w-3.5 text-amber-500" />
               <span>Tailor Resume</span>
@@ -751,7 +753,8 @@ function JobDetailContent() {
             <Button
               size="sm"
               onClick={handleApplyDirectly}
-              className="gap-1.5 text-xs h-9 font-semibold bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 px-4"
+              aria-label={`Apply directly for ${job.title} at ${job.company_name || job.company}`}
+              className="gap-1.5 text-xs min-h-[44px] h-11 font-semibold bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 px-5"
             >
               <span>Apply Directly</span>
               <ArrowUpRight className="h-3.5 w-3.5 stroke-[2]" />
@@ -777,14 +780,14 @@ function JobDetailContent() {
               variant="outline"
               size="sm"
               onClick={() => handleConfirmApplication(false)}
-              className="text-xs h-9"
+              className="text-xs min-h-[44px] h-11"
             >
               Not yet
             </Button>
             <Button
               size="sm"
               onClick={() => handleConfirmApplication(true)}
-              className="text-xs h-9 bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950"
+              className="text-xs min-h-[44px] h-11 bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950"
             >
               Yes, I applied
             </Button>
@@ -793,7 +796,7 @@ function JobDetailContent() {
       </Dialog>
 
       {/* Ethical AI Disclosure Footer */}
-      <div className="pt-6 border-t border-neutral-200 dark:border-neutral-800 text-center text-xs text-neutral-400 dark:text-neutral-500">
+      <div className="pt-6 border-t border-neutral-200 dark:border-neutral-800 text-center text-xs text-neutral-700 dark:text-neutral-300 font-medium">
         Scores and suggestions are AI-generated and may be wrong. You decide where to apply.
       </div>
 

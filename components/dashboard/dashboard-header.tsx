@@ -68,7 +68,7 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
             title="Notifications"
           >
             <Bell className="h-4 w-4 stroke-[1.5]" />
-            <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center">
+            <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-rose-500 text-xs font-bold text-white flex items-center justify-center">
               3
             </span>
           </button>
@@ -95,7 +95,7 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
                   <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 leading-tight">
                     {userName}
                   </span>
-                  <span className="text-[10px] text-neutral-500 dark:text-neutral-400 leading-tight">
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400 leading-tight">
                     San Francisco, CA
                   </span>
                 </div>

@@ -693,29 +693,29 @@ function CrawlerJobFeedContent() {
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               {profile?.verificationStatus === 'verified' ? (
-                <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300 text-[10px] font-bold px-2 py-0.5">
-                  <ShieldCheck className="h-3 w-3 mr-1 inline" /> FastTrack Verified
+                <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300 text-xs font-bold px-2.5 py-1">
+                  <ShieldCheck className="h-3.5 w-3.5 mr-1 inline" /> FastTrack Verified
                 </Badge>
               ) : profile?.verificationStatus === 'in_progress' ? (
-                <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300 text-[10px] font-bold px-2 py-0.5">
-                  <Clock className="h-3 w-3 mr-1 inline" /> Assessment In Progress
+                <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300 text-xs font-bold px-2.5 py-1">
+                  <Clock className="h-3.5 w-3.5 mr-1 inline" /> Assessment In Progress
                 </Badge>
               ) : (
-                <Badge variant="outline" className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-400">
+                <Badge variant="outline" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 px-2.5 py-1">
                   Technical Verification · 15 minutes
                 </Badge>
               )}
             </div>
 
-            <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
+            <h2 className="text-base font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
               {profile?.verificationStatus === 'verified'
                 ? 'Your Engineering Profile is Verified'
                 : profile?.verificationStatus === 'in_progress'
                 ? 'Resume Your Technical Verification'
                 : 'Get FastTrack Verified in 15 Minutes'}
-            </h3>
+            </h2>
 
-            <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 max-w-2xl leading-relaxed">
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 max-w-2xl leading-relaxed">
               {profile?.verificationStatus === 'verified'
                 ? 'You have completed the technical assessment cycle. Your profile is prioritized in search and routed directly to hiring teams with your verified scorecard.'
                 : 'Assessment covers role-specific architecture, technical problem solving, and scenario evaluation (15 min). Unlocks the FastTrack badge and direct routing to verified remote employers.'}
@@ -725,7 +725,7 @@ function CrawlerJobFeedContent() {
           <Link href="/dashboard/sandbox">
             <Button
               size="sm"
-              className="gap-1.5 shrink-0 text-xs font-semibold h-9 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 inline-flex items-center"
+              className="gap-1.5 shrink-0 text-xs font-semibold min-h-[44px] px-4 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 inline-flex items-center"
             >
               {profile?.verificationStatus === 'verified' ? (
                 <>
@@ -763,7 +763,7 @@ function CrawlerJobFeedContent() {
         <div className="flex flex-wrap items-center gap-3">
           {/* Period Toggle */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
               Period:
             </span>
             <Select value={displayPeriod} onValueChange={(val: DisplayPeriod) => handlePeriodChange(val)}>
@@ -800,7 +800,7 @@ function CrawlerJobFeedContent() {
       {/* Department Chips (Hides any category with 0 jobs & updates live) */}
       <div className="space-y-2.5">
         <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
-          <span className="font-semibold uppercase tracking-wider text-[11px]">
+          <span className="font-semibold uppercase tracking-wider text-xs">
             Filter by Department
           </span>
           <span className="font-medium">
@@ -812,8 +812,10 @@ function CrawlerJobFeedContent() {
         <div className="flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none">
           {/* All Roles Chip */}
           <button
+            type="button"
+            aria-pressed={selectedCategory === 'All'}
             onClick={() => setSelectedCategory('All')}
-            className={`text-xs px-3.5 py-1.5 rounded-full transition-colors whitespace-nowrap font-medium ${
+            className={`text-xs min-h-[44px] px-4 py-2 rounded-full transition-colors whitespace-nowrap font-medium inline-flex items-center justify-center ${
               selectedCategory === 'All'
                 ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
                 : 'border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-700'
@@ -830,8 +832,10 @@ function CrawlerJobFeedContent() {
             return (
               <button
                 key={cat}
+                type="button"
+                aria-pressed={active}
                 onClick={() => setSelectedCategory(cat)}
-                className={`text-xs px-3.5 py-1.5 rounded-full transition-colors whitespace-nowrap font-medium ${
+                className={`text-xs min-h-[44px] px-4 py-2 rounded-full transition-colors whitespace-nowrap font-medium inline-flex items-center justify-center ${
                   active
                     ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
                     : 'border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-700'
@@ -850,21 +854,24 @@ function CrawlerJobFeedContent() {
         <div className="relative flex-1 max-w-lg">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 stroke-[1.5] text-neutral-400" />
           <Input
-            placeholder="Search title, company, skills, or keywords (debounced)..."
+            type="search"
+            aria-label="Search remote jobs by title, company, or skills"
+            placeholder="Search title, company, skills, or keywords..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 pr-8 text-xs sm:text-sm h-10 border-neutral-200 dark:border-neutral-800 rounded-xl bg-white dark:bg-neutral-950"
+            className="pl-9 pr-12 text-base sm:text-sm min-h-[44px] h-11 border-neutral-200 dark:border-neutral-800 rounded-xl bg-white dark:bg-neutral-950"
           />
           {searchQuery && (
             <button
+              type="button"
               onClick={() => {
                 setSearchQuery('');
                 setDebouncedSearchQuery('');
               }}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+              className="absolute right-1 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] flex items-center justify-center text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100"
               aria-label="Clear search query"
             >
-              <X className="h-3.5 w-3.5 stroke-[1.5]" />
+              <X className="h-4 w-4 stroke-[1.5]" />
             </button>
           )}
         </div>
@@ -877,7 +884,9 @@ function CrawlerJobFeedContent() {
               <Button
                 variant="outline"
                 size="sm"
-                className={`h-10 px-3.5 text-xs font-semibold rounded-xl border transition-colors inline-flex items-center gap-1.5 ${
+                aria-expanded={isFiltersOpen}
+                aria-controls="filter-options-panel"
+                className={`min-h-[44px] h-11 px-4 text-xs font-semibold rounded-xl border transition-colors inline-flex items-center gap-1.5 ${
                   isFiltersOpen || activeFiltersCount > 0
                     ? 'border-neutral-900 dark:border-neutral-100 bg-neutral-100/70 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100'
                     : 'border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400'
@@ -886,7 +895,7 @@ function CrawlerJobFeedContent() {
                 <SlidersHorizontal className="h-3.5 w-3.5 stroke-[1.5]" />
                 <span>Filters</span>
                 {activeFiltersCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-neutral-900 text-white dark:bg-white dark:text-neutral-950">
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-xs font-bold bg-neutral-900 text-white dark:bg-white dark:text-neutral-950">
                     {activeFiltersCount}
                   </span>
                 )}
@@ -916,7 +925,7 @@ function CrawlerJobFeedContent() {
 
       {/* Collapsible Filters Panel */}
       <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-        <CollapsibleContent className="transition-all animate-in fade-in-50 duration-200">
+        <CollapsibleContent id="filter-options-panel" className="transition-all animate-in fade-in-50 duration-200">
           <div className="p-5 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-950/40 space-y-5">
             {/* Filter Section Header */}
             <div className="flex items-center justify-between pb-3 border-b border-neutral-200/80 dark:border-neutral-800">
@@ -926,7 +935,7 @@ function CrawlerJobFeedContent() {
                   Filter Opportunities
                 </h4>
                 {activeFiltersCount > 0 && (
-                  <Badge variant="secondary" className="text-[10px] px-2 py-0.5 rounded-full font-semibold">
+                  <Badge variant="secondary" className="text-xs px-2 py-0.5 rounded-full font-semibold">
                     {activeFiltersCount} Active
                   </Badge>
                 )}
@@ -958,7 +967,7 @@ function CrawlerJobFeedContent() {
                       <button
                         key={sen}
                         onClick={() => handleToggleSeniority(sen)}
-                        className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-colors ${
+                        type="button" aria-pressed={active} className={`text-xs min-h-[44px] px-3.5 py-2 rounded-lg font-medium transition-colors inline-flex items-center justify-center ${
                           active
                             ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-semibold shadow-xs'
                             : 'border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 hover:border-neutral-400'
@@ -984,7 +993,7 @@ function CrawlerJobFeedContent() {
                       <button
                         key={type}
                         onClick={() => handleToggleJobType(type)}
-                        className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-colors ${
+                        type="button" aria-pressed={active} className={`text-xs min-h-[44px] px-3.5 py-2 rounded-lg font-medium transition-colors inline-flex items-center justify-center ${
                           active
                             ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-semibold shadow-xs'
                             : 'border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 hover:border-neutral-400'
@@ -1012,7 +1021,7 @@ function CrawlerJobFeedContent() {
                     <span className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 block">
                       Open to Nigeria / Africa
                     </span>
-                    <span className="text-[10px] text-neutral-500 block">Worldwide & African eligible</span>
+                    <span className="text-xs text-neutral-500 block">Worldwide & African eligible</span>
                   </div>
                   <Switch
                     checked={openToAfricaOnly}
@@ -1027,7 +1036,7 @@ function CrawlerJobFeedContent() {
                     <span className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 block">
                       Saved Only
                     </span>
-                    <span className="text-[10px] text-neutral-500 block">Bookmarked in your tracker</span>
+                    <span className="text-xs text-neutral-500 block">Bookmarked in your tracker</span>
                   </div>
                   <Switch
                     checked={savedOnly}
@@ -1042,7 +1051,7 @@ function CrawlerJobFeedContent() {
                     <span className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 block">
                       Show expired
                     </span>
-                    <span className="text-[10px] text-neutral-500 block">Include past expires_at</span>
+                    <span className="text-xs text-neutral-500 block">Include past expires_at</span>
                   </div>
                   <Switch
                     checked={showExpired}
@@ -1065,7 +1074,7 @@ function CrawlerJobFeedContent() {
                       <button
                         key={preset.label}
                         onClick={() => setMinSalary(preset.value)}
-                        className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-colors ${
+                        type="button" aria-pressed={active} className={`text-xs min-h-[44px] px-3.5 py-2 rounded-lg font-medium transition-colors inline-flex items-center justify-center ${
                           active
                             ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-semibold shadow-xs'
                             : 'border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 hover:border-neutral-400'
@@ -1098,8 +1107,10 @@ function CrawlerJobFeedContent() {
                   />
                   {skillSearchQuery && (
                     <button
+                      type="button"
+                      aria-label="Clear skill search query"
                       onClick={() => setSkillSearchQuery('')}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-neutral-400 hover:text-neutral-700"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] flex items-center justify-center text-neutral-400 hover:text-neutral-700"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -1177,6 +1188,10 @@ function CrawlerJobFeedContent() {
       ) : (
         /* State View 4: Filtered Job Listings Feed & Pagination */
         <div className="space-y-6">
+          {/* Accessible live region for dynamic search results */}
+          <div role="status" aria-live="polite" className="sr-only">
+            {filteredJobs.length} {filteredJobs.length === 1 ? 'position found' : 'positions found'}
+          </div>
           {/* Top Section: Recommended for You (Requirement 3) */}
           {recommendedJobs.length > 0 && (
             <div className="p-5 rounded-2xl border border-blue-200/80 dark:border-blue-950/60 bg-gradient-to-r from-blue-50/50 via-white to-indigo-50/30 dark:from-blue-950/20 dark:via-neutral-950 dark:to-indigo-950/10 space-y-4">
@@ -1184,10 +1199,10 @@ function CrawlerJobFeedContent() {
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    <h3 className="text-sm font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
+                    <h2 className="text-sm font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
                       Recommended for You
-                    </h3>
-                    <Badge variant="secondary" className="text-[10px] bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300">
+                    </h2>
+                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300">
                       Top Matches
                     </Badge>
                   </div>
@@ -1213,29 +1228,29 @@ function CrawlerJobFeedContent() {
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between gap-1.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 truncate">
+                        <span className="text-xs font-bold uppercase tracking-wider text-neutral-500 truncate">
                           {job.company_name || job.company}
                         </span>
-                        <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/20 px-1.5 py-0.5 rounded">
+                        <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-600/30 px-1.5 py-0.5 rounded">
                           {match.score}% match
                         </span>
                       </div>
 
-                      <h4 className="text-xs font-bold text-neutral-900 dark:text-white line-clamp-1 group-hover:text-blue-600 transition-colors">
+                      <h3 className="text-xs font-bold text-neutral-900 dark:text-white line-clamp-1 group-hover:text-blue-600 transition-colors">
                         {job.title}
-                      </h4>
+                      </h3>
 
-                      <p className="text-[11px] text-neutral-500 line-clamp-1">
+                      <p className="text-xs text-neutral-500 line-clamp-1">
                         {match.reason}
                       </p>
                     </div>
 
-                    <div className="pt-3 border-t border-neutral-100 dark:border-neutral-900 flex items-center justify-between gap-1 text-[11px]">
+                    <div className="pt-3 border-t border-neutral-100 dark:border-neutral-900 flex items-center justify-between gap-1 text-xs">
                       <span className="text-neutral-600 dark:text-neutral-300 font-medium truncate">
                         <SalaryDisplay job={job} period={displayPeriod} />
                       </span>
                       <span className="text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-0.5 shrink-0">
-                        View →
+                        View details <span className="sr-only">for {job.title}</span> →
                       </span>
                     </div>
                   </Card>
@@ -1310,7 +1325,7 @@ function CrawlerJobFeedContent() {
                         {/* Agency Listing Badge with Tooltip */}
                         {job.employer_type === 'agency' && (
                           <span
-                            className="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 cursor-help"
+                            className="text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 cursor-help"
                             title="This role is posted by a staffing/outsourcing company on behalf of a client."
                             onClick={(e) => e.stopPropagation()}
                           >
@@ -1322,17 +1337,17 @@ function CrawlerJobFeedContent() {
                       <div className="flex items-center gap-1.5 flex-wrap justify-end">
                         {/* Featured Partner Pill */}
                         {job.is_featured && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                             ★ Featured
                           </span>
                         )}
-                        <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-900">
+                        <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-900">
                           {job.location_tier}
                         </span>
-                        <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
+                        <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
                           {categoryMeta.shortLabel}
                         </span>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-900 text-neutral-500 border border-neutral-200/60 dark:border-neutral-800">
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 font-semibold">
                           {seniority}
                         </span>
                       </div>
@@ -1340,7 +1355,7 @@ function CrawlerJobFeedContent() {
 
                     {/* Job Title */}
                     <div>
-                      <h2 className="text-lg sm:text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-700 dark:group-hover:text-neutral-300 transition-colors leading-snug">
+                      <h3 className="text-lg sm:text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-700 dark:group-hover:text-neutral-300 transition-colors leading-snug">
                         <Link
                           href={`/dashboard/jobs/${job.id}?${searchParams.toString()}`}
                           onClick={(e) => e.stopPropagation()}
@@ -1348,7 +1363,7 @@ function CrawlerJobFeedContent() {
                         >
                           {job.title}
                         </Link>
-                      </h2>
+                      </h3>
 
                       {/* Metadata Line */}
                       <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 font-medium">
@@ -1364,13 +1379,13 @@ function CrawlerJobFeedContent() {
                       </p>
 
                       {/* Freshness & Source under the meta line */}
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-neutral-400 dark:text-neutral-500">
+                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-neutral-700 dark:text-neutral-300 font-medium">
                         <span>
                           Posted {formatPostedAgo(job.posted_at || job.published_at)} · via {job.source_name || job.source || 'Direct'}
                         </span>
 
                         {isClosedWarning && (
-                          <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 border border-neutral-200 dark:border-neutral-700">
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700">
                             May be closed
                           </span>
                         )}
@@ -1378,12 +1393,12 @@ function CrawlerJobFeedContent() {
                         {/* Eligibility Badge */}
                         <span className="ml-auto">
                           {job.open_to_nigeria ? (
-                            <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                              ● Open to Nigeria
+                            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                              Status: Open to Nigeria
                             </span>
                           ) : (
-                            <span className="text-[10px] font-medium text-neutral-500 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full border border-neutral-200 dark:border-neutral-700">
-                              Not open to Nigeria
+                            <span className="text-xs font-medium text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2.5 py-0.5 rounded-full border border-neutral-200 dark:border-neutral-700">
+                              Status: Not open to Nigeria
                             </span>
                           )}
                         </span>
@@ -1422,19 +1437,19 @@ function CrawlerJobFeedContent() {
                                     score: match.score,
                                   });
                                 }}
-                                className="text-[10px] text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 underline cursor-pointer"
+                                className="text-xs text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white underline font-medium cursor-pointer"
                               >
                                 Report a bad match
                               </button>
                             </div>
-                            <p className="text-[11px] text-neutral-600 dark:text-neutral-400 line-clamp-1">
+                            <p className="text-xs text-neutral-600 dark:text-neutral-400 line-clamp-1">
                               {match.reason}
                             </p>
                           </div>
                         );
                       } else {
                         return (
-                          <div className="px-2.5 py-1.5 rounded-lg bg-neutral-50/50 dark:bg-neutral-900/30 border border-neutral-200/50 dark:border-neutral-800/50 flex items-center justify-between text-[11px] text-neutral-400">
+                          <div className="px-2.5 py-1.5 rounded-lg bg-neutral-50/50 dark:bg-neutral-900/30 border border-neutral-200/50 dark:border-neutral-800/50 flex items-center justify-between text-xs text-neutral-400">
                             <span className="flex items-center gap-1">
                               <Sparkles className="h-3 w-3 text-neutral-400" />
                               Complete your profile to see match scores
@@ -1442,7 +1457,7 @@ function CrawlerJobFeedContent() {
                             <Link
                               href="/dashboard/profile"
                               onClick={(e) => e.stopPropagation()}
-                              className="text-neutral-700 dark:text-neutral-300 font-semibold hover:underline text-[11px]"
+                              className="text-neutral-700 dark:text-neutral-300 font-semibold hover:underline text-xs"
                             >
                               Set up →
                             </Link>
@@ -1452,7 +1467,7 @@ function CrawlerJobFeedContent() {
                     })()}
 
                     {/* Role Description Preview */}
-                    <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed line-clamp-3">
+                    <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed line-clamp-3">
                       {job.description}
                     </p>
 
@@ -1462,7 +1477,7 @@ function CrawlerJobFeedContent() {
                         {cleanSkills.slice(0, 4).map((tag) => (
                           <span
                             key={tag}
-                            className="text-[11px] font-normal px-2.5 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 border border-neutral-200/60 dark:border-neutral-800"
+                            className="text-xs font-normal px-2.5 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 border border-neutral-200/60 dark:border-neutral-800"
                           >
                             {tag}
                           </span>
@@ -1473,7 +1488,7 @@ function CrawlerJobFeedContent() {
                               e.stopPropagation();
                               handleOpenJobDetail(job.id);
                             }}
-                            className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-900 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 border border-neutral-200/60 dark:border-neutral-800 cursor-pointer"
+                            className="text-xs font-medium px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-900 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 border border-neutral-200/60 dark:border-neutral-800 cursor-pointer"
                           >
                             +{cleanSkills.length - 4} more
                           </span>
@@ -1486,7 +1501,7 @@ function CrawlerJobFeedContent() {
                       <div>
                         {job.last_verified_at ? (
                           <span
-                            className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 cursor-help"
+                            className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 dark:text-emerald-400 cursor-help"
                             title="The application link and role status were checked and verified active by Sync730."
                           >
                             <ShieldCheck className="h-3.5 w-3.5" />
@@ -1516,7 +1531,8 @@ function CrawlerJobFeedContent() {
                             });
                             setIsTailorPanelOpen(true);
                           }}
-                          className="text-xs h-9 px-3 rounded-lg border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 font-medium inline-flex items-center gap-1.5"
+                          aria-label={`Tailor resume for ${job.title} at ${job.company_name || job.company}`}
+                          className="text-xs min-h-[44px] h-11 px-3.5 rounded-lg border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 font-medium inline-flex items-center gap-1.5"
                         >
                           <Sparkles className="h-3.5 w-3.5 stroke-[1.5] text-amber-500" />
                           Tailor Resume
@@ -1527,7 +1543,8 @@ function CrawlerJobFeedContent() {
                           size="sm"
                           variant="outline"
                           onClick={(e) => handleToggleSaveJob(e, job)}
-                          className={`w-[90px] text-xs h-9 px-2 rounded-lg font-medium transition-colors inline-flex items-center justify-center gap-1 ${
+                          aria-label={isSaved ? `Remove ${job.title} from saved jobs` : `Save ${job.title} to saved jobs`}
+                          className={`min-h-[44px] h-11 px-3 w-[100px] text-xs rounded-lg font-medium transition-colors inline-flex items-center justify-center gap-1 ${
                             isSaved
                               ? 'border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 bg-neutral-100/60 dark:bg-neutral-900'
                               : 'border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 hover:text-neutral-900'
@@ -1550,7 +1567,8 @@ function CrawlerJobFeedContent() {
                         <Button
                           size="sm"
                           onClick={(e) => handleApplyClick(e, job)}
-                          className="text-xs h-9 px-3.5 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 font-semibold inline-flex items-center gap-1"
+                          aria-label={`Apply directly for ${job.title} at ${job.company_name || job.company}`}
+                          className="text-xs min-h-[44px] h-11 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 font-semibold inline-flex items-center gap-1"
                         >
                           <span>Apply Directly</span>
                           <ArrowUpRight className="h-3.5 w-3.5 stroke-[1.5]" />
@@ -1573,7 +1591,7 @@ function CrawlerJobFeedContent() {
               >
                 Load more ({filteredJobs.length - visibleCount} remaining)
               </Button>
-              <span className="text-[11px] text-neutral-400">
+              <span className="text-xs text-neutral-700 dark:text-neutral-300 font-medium">
                 Showing {Math.min(visibleCount, filteredJobs.length)} of {filteredJobs.length} positions
               </span>
             </div>
@@ -1614,7 +1632,7 @@ function CrawlerJobFeedContent() {
       </Dialog>
 
       {/* Ethical AI Disclosure Footer (Requirement 8) */}
-      <div className="pt-6 pb-2 border-t border-neutral-200 dark:border-neutral-800 text-center text-xs text-neutral-400 dark:text-neutral-500">
+      <div className="pt-6 pb-2 border-t border-neutral-200 dark:border-neutral-800 text-center text-xs text-neutral-700 dark:text-neutral-300 font-medium">
         Scores and suggestions are AI-generated and may be wrong. You decide where to apply.
       </div>
 
@@ -1645,7 +1663,8 @@ function CrawlerJobFeedContent() {
 
 function JobFeedLoadingSkeleton() {
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div role="status" aria-live="polite" aria-busy="true" className="space-y-6 max-w-7xl mx-auto">
+      <span className="sr-only">Loading remote opportunities...</span>
       <div className="h-24 rounded-2xl bg-neutral-100 dark:bg-neutral-900 animate-pulse" />
       <div className="grid gap-4 md:grid-cols-2">
         {Array.from({ length: 6 }).map((_, idx) => (

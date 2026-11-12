@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Login Page",
+    "url": "http://localhost:3000/login",
+    "passes": 38,
+    "violations": 0,
+    "incomplete": 0,
+    "details": []
+  },
+  {
+    "name": "Jobs Board (/dashboard/crawler)",
+    "url": "http://localhost:3000/dashboard/crawler",
+    "passes": 36,
+    "violations": 0,
+    "incomplete": 1,
+    "details": []
+  },
+  {
+    "name": "Job Detail Page (/dashboard/jobs/seed-job-1)",
+    "url": "http://localhost:3000/dashboard/jobs/seed-job-1",
+    "passes": 32,
+    "violations": 0,
+    "incomplete": 1,
+    "details": []
+  },
+  {
+    "name": "Application Tracker (/dashboard/tracker)",
+    "url": "http://localhost:3000/dashboard/tracker",
+    "passes": 36,
+    "violations": 0,
+    "incomplete": 1,
+    "details": []
+  },
+  {
+    "name": "Candidate Profile (/dashboard/profile)",
+    "url": "http://localhost:3000/dashboard/profile",
+    "passes": 38,
+    "violations": 0,
+    "incomplete": 1,
+    "details": []
+  }
+]

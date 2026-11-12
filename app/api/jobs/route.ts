@@ -132,11 +132,18 @@ export async function GET(request: NextRequest) {
       return timeB - timeA;
     });
 
-    return NextResponse.json({
-      success: true,
-      jobs: deduplicated,
-      total: deduplicated.length,
-    });
+        return NextResponse.json(
+      {
+        success: true,
+        jobs: deduplicated,
+        total: deduplicated.length,
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+        },
+      }
+    );
   } catch (err: any) {
     console.error('Error in /api/jobs GET:', err);
     return NextResponse.json(

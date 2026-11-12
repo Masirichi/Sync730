@@ -18,7 +18,6 @@ export function BrandLogo({
   const logo = (
     <span
       className={`inline-flex items-center gap-2 select-none group ${className}`}
-      aria-label="Sync730"
       title="Sync730"
     >
       {showText && (
@@ -33,8 +32,8 @@ export function BrandLogo({
           <span
             className={`font-semibold ${
               inverted
-                ? 'text-neutral-400'
-                : 'text-neutral-400 dark:text-neutral-500'
+                ? 'text-neutral-300'
+                : 'text-neutral-600 dark:text-neutral-400'
             }`}
           >
             730
@@ -47,14 +46,15 @@ export function BrandLogo({
             ? '/assets/logo/sync730_icon_white.png'
             : '/assets/logo/sync730_icon_black.png'
         }
-        alt="Sync730"
+        alt={showText ? '' : 'Sync730'}
+        aria-hidden={showText ? true : undefined}
         className={compact ? 'h-6 w-6 object-contain' : 'h-7 w-7 object-contain'}
       />
     </span>
   );
 
   return href ? (
-    <Link href={href} className="inline-flex items-center">
+    <Link href={href} aria-label="Sync730 Home" className="inline-flex items-center">
       {logo}
     </Link>
   ) : (

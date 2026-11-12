@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row bg-background">
       {/* Left Branding Panel (Desktop) */}
-      <div className="relative hidden flex-1 flex-col justify-between overflow-hidden bg-foreground p-10 text-background lg:flex xl:p-14 select-none">
+      <aside aria-label="Brand introduction" className="relative hidden flex-1 flex-col justify-between overflow-hidden bg-foreground p-10 text-background lg:flex xl:p-14 select-none">
         <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full border border-background/20" />
         <div className="absolute bottom-24 right-20 h-40 w-40 rounded-full bg-background/5" />
         
@@ -20,7 +20,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="relative flex items-center justify-between">
           <BrandLogo inverted />
           {isB2B && (
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/10 text-white/90 border border-white/20">
+            <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/10 text-white/90 border border-white/20">
               Enterprise B2B
             </span>
           )}
@@ -100,18 +100,18 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </div>
         )}
 
-        <p className="relative text-sm text-background/45">© 2026 Sync730</p>
-      </div>
+        <p className="relative text-sm text-background/70">© 2026 Sync730</p>
+      </aside>
 
       {/* Right Form Area (Wider container with ample breathing room) */}
-      <div className="flex flex-1 items-center justify-center p-4 sm:p-8 lg:p-12 overflow-y-auto">
+      <main id="main-content" tabIndex={-1} className="flex flex-1 items-center justify-center p-4 sm:p-8 lg:p-12 overflow-y-auto outline-none">
         <div className="w-full max-w-lg">
           <div className="mb-6 lg:hidden flex justify-center">
             <BrandLogo />
           </div>
           {children}
         </div>
-      </div>
+      </main>
     </div>
   );
 }
