@@ -185,45 +185,46 @@ function LoginForm() {
             )}
           </Button>
 
-          {/* Quick Demo Switcher - Strictly Non-Production Only */}
-          {isDevEnvironment && (
-            <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800">
-              <div className="text-center mb-2.5">
-                <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                  Instant Demo Access (Development Only)
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
+          {/* Instant Demo Access without registration to test features and updates */}
+          <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800">
+            <div className="text-center mb-2.5">
+              <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+                Instant Demo Access (Test Features & Updates)
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <a href="/api/auth/demo-login?role=platform_admin&redirect=/command/metrics" className="col-span-2">
                 <Button
                   type="button"
                   variant="outline"
-                  className="gap-1.5 text-xs min-h-[44px] border-neutral-200 dark:border-neutral-800"
-                  onClick={() => handleDemoSignIn('candidate')}
+                  className="w-full gap-2 text-xs min-h-[44px] bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 border-neutral-700 shadow-sm"
                 >
-                  <User className="h-4 w-4 text-primary" />
-                  <span>Demo Candidate</span>
+                  <ShieldCheck className="h-4 w-4 text-emerald-400 dark:text-emerald-600" />
+                  <span className="font-bold">Sign In as Demo Admin (Command Center)</span>
                 </Button>
+              </a>
+              <a href="/api/auth/demo-login?role=recruiter&redirect=/console/talent">
                 <Button
                   type="button"
                   variant="outline"
-                  className="gap-1.5 text-xs min-h-[44px] border-neutral-200 dark:border-neutral-800"
-                  onClick={() => handleDemoSignIn('recruiter')}
+                  className="w-full gap-1.5 text-xs min-h-[44px] border-neutral-200 dark:border-neutral-800"
                 >
                   <Briefcase className="h-4 w-4 text-amber-500" />
                   <span>Demo Recruiter</span>
                 </Button>
+              </a>
+              <a href="/api/auth/demo-login?role=candidate&redirect=/dashboard/crawler">
                 <Button
                   type="button"
                   variant="outline"
-                  className="col-span-2 gap-1.5 text-xs min-h-[44px] bg-neutral-900 text-white hover:bg-neutral-800 border-neutral-700"
-                  onClick={() => handleDemoSignIn('platform_admin')}
+                  className="w-full gap-1.5 text-xs min-h-[44px] border-neutral-200 dark:border-neutral-800"
                 >
-                  <ShieldCheck className="h-4 w-4 text-rose-400" />
-                  <span>Demo Platform Admin</span>
+                  <User className="h-4 w-4 text-primary" />
+                  <span>Demo Candidate</span>
                 </Button>
-              </div>
+              </a>
             </div>
-          )}
+          </div>
         </CardContent>
       </form>
 

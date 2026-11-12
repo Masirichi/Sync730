@@ -114,10 +114,47 @@ export interface VideoAssessment {
   status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'PROCESSING';
   created_at: string;
   expires_at?: number;
+
+  // Rich Talent Profile Attributes
+  seniority?: 'Junior' | 'Mid-Level' | 'Senior' | 'Lead' | 'Staff' | 'Principal';
+  skills?: string[];
+  years_of_experience?: number;
+  availability?: 'Available' | 'Open to offers' | 'Not looking';
+  expected_salary?: string;
+  location?: string;
+  timezone?: string;
+  open_to_nigeria?: boolean;
+  open_to_africa?: boolean;
+  open_to_remote?: boolean;
+  consent_to_show_recruiters?: boolean;
+  assessment_completed_date?: string;
+
+  // Video Review & Deep Dive Assets
+  transcript?: Array<{ time: number; timestamp_label: string; text: string }>;
+  key_moments?: Array<{ time: number; timestamp_label: string; title: string; summary: string }>;
+
+  // Relative job match analysis
+  relative_match?: any;
+
   // Fields populated on unlock
   candidate_name?: string;
   candidate_email?: string;
+  phone?: string;
+  whatsapp?: string;
+  cv_url?: string;
   is_unlocked?: boolean;
+}
+
+export interface CandidateContactLog {
+  id: string;
+  workspace_id: string;
+  candidate_id: string;
+  contact_type: 'EMAIL' | 'WHATSAPP';
+  recipient: string;
+  subject?: string;
+  message_template: string;
+  logged_at: string;
+  logged_by: string;
 }
 
 export interface TokenUnlockRecord {

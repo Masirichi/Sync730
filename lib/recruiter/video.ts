@@ -1,7 +1,8 @@
 // lib/recruiter/video.ts
 // Signed expiring video URLs and metadata helpers for Flowmingo AI assessment videos.
+// Strict Security: 15-minute expiring lifetime, dynamically regenerated on load.
 
-const VIDEO_EXPIRATION_TTL_MS = 60 * 60 * 1000; // 1 hour
+const VIDEO_EXPIRATION_TTL_MS = 15 * 60 * 1000; // Exactly 15 minutes as required
 
 export interface SignedVideoMeta {
   signedUrl: string;

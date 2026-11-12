@@ -461,7 +461,7 @@ export default function ConsoleJobsPage() {
                       )}
                     </Button>
 
-                    <Link href="/console/talent">
+                    <Link href={`/console/talent?job=${job.id}`}>
                       <Button
                         size="sm"
                         className="text-xs h-8 px-3 rounded-lg bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-200 font-semibold gap-1.5"

@@ -87,12 +87,13 @@ export async function getRecruiterSession(req: NextRequest): Promise<RecruiterSe
       }
     }
 
-    // 2. In Production: reject unauthenticated callers
-    if (isProd && !user) {
+    // 2. In Production: reject unauthenticated callers unless demo testing cookie is set
+    const demoCookie = req.cookies.get('sync730-demo-role')?.value?.toLowerCase();
+    if (isProd && !user && !demoCookie) {
       return null;
     }
 
-    // 3. In Non-production / Local Testing: use local workspace and role header/cookie
+    // 3. In Non-production or with Demo Role: use local workspace and role header/cookie
     const localWs = getLocalWorkspace();
     const headerRole = req.headers.get('x-recruiter-role') as RecruiterRole | null;
     const cookieRole = req.cookies.get('sync730-recruiter-role')?.value as RecruiterRole | null;
@@ -101,12 +102,14 @@ export async function getRecruiterSession(req: NextRequest): Promise<RecruiterSe
     const headerWsId = req.headers.get('x-workspace-id');
     const resolvedWsId = headerWsId || localWs.id || 'ws-sync730-demo';
 
+    const isPlatformAdmin = demoCookie === 'admin' || demoCookie === 'platform_admin';
+
     return {
-      userId: user?.id || 'usr-recruiter-demo',
-      email: user?.email || localWs.billing_email || 'hiring@acmeglobal.com',
+      userId: user?.id || (demoCookie ? `demo-${demoCookie}-user` : 'usr-recruiter-demo'),
+      email: user?.email || (demoCookie ? `${demoCookie}@sync730.com` : localWs.billing_email || 'hiring@acmeglobal.com'),
       workspaceId: resolvedWsId,
       role: resolvedRole,
-      isPlatformAdmin: false,
+      isPlatformAdmin,
     };
   } catch (error) {
     console.error('Error resolving recruiter session:', error);

@@ -1,9 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
-
-const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 export const metadata: Metadata = {
   title: 'Sync730 — The work network for what comes next',
@@ -28,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
+      <body className="min-h-screen bg-background font-sans antialiased text-foreground" suppressHydrationWarning>
         <nav aria-label="Skip links">
           <a
             href="#main-content"

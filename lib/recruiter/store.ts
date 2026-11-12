@@ -4,6 +4,7 @@ import {
   EmployerJob,
   VideoAssessment,
   TokenUnlockRecord,
+  CandidateContactLog,
   RecruiterRole,
 } from './types';
 import { createBrowserClient } from '@/lib/supabase/client';
@@ -13,6 +14,7 @@ const JOBS_KEY = 'sync730_employer_jobs';
 const ASSESSMENTS_KEY = 'sync730_talent_assessments';
 const UNLOCKS_KEY = 'sync730_token_unlocks';
 const MEMBERS_KEY = 'sync730_workspace_members';
+const CONTACT_LOGS_KEY = 'sync730_candidate_contact_logs';
 
 // Default initial corporate workspace
 export const DEFAULT_WORKSPACE: CorporateWorkspace = {
@@ -25,8 +27,14 @@ export const DEFAULT_WORKSPACE: CorporateWorkspace = {
   created_at: new Date(Date.now() - 3600000 * 24 * 7).toISOString(),
 };
 
-// Initial Seed Candidates with Video Assessments & Realistic Video Assets
-export const SEED_VIDEO_ASSESSMENTS: (VideoAssessment & { real_name: string; real_email: string; phone: string })[] = [
+// Initial Seed Candidates with Video Assessments & Rich Vetting Metrics
+export const SEED_VIDEO_ASSESSMENTS: (VideoAssessment & {
+  real_name: string;
+  real_email: string;
+  phone: string;
+  whatsapp?: string;
+  cv_url?: string;
+})[] = [
   {
     id: 'va-cand-001',
     candidate_id: 'cand-001-jane-doe',
@@ -41,10 +49,66 @@ export const SEED_VIDEO_ASSESSMENTS: (VideoAssessment & { real_name: string; rea
     duration_seconds: 165, // 2:45
     proctoring_flags: [],
     status: 'COMPLETED',
-    created_at: new Date(Date.now() - 3600000 * 18).toISOString(),
+    created_at: new Date(Date.now() - 3600000 * 24 * 14).toISOString(),
+    seniority: 'Senior',
+    skills: ['Next.js', 'React', 'TypeScript', 'Supabase', 'Node.js', 'Tailwind CSS', 'PostgreSQL'],
+    years_of_experience: 6,
+    availability: 'Available',
+    expected_salary: '$95,000 - $125,000 USD',
+    location: 'Lagos, Nigeria',
+    timezone: 'WAT (UTC+1)',
+    open_to_nigeria: true,
+    open_to_africa: true,
+    open_to_remote: true,
+    consent_to_show_recruiters: true,
+    assessment_completed_date: new Date(Date.now() - 3600000 * 24 * 14).toISOString(),
     real_name: 'Jane Doe',
     real_email: 'jane.doe@sync730.com',
     phone: '+234 812 345 6789',
+    whatsapp: '+2348123456789',
+    cv_url: 'https://sync730.blob.core.windows.net/resumes/jane_doe_fullstack_lead.pdf',
+    transcript: [
+      {
+        time: 15,
+        timestamp_label: '0:15',
+        text: 'In our enterprise Next.js application, we segregated dynamic client state from heavy server-side streaming chunks to eliminate hydration waterfalls.',
+      },
+      {
+        time: 48,
+        timestamp_label: '0:48',
+        text: 'For Supabase, we enforced granular Row-Level Security policies tied to JWT auth claims and tuned postgres indexes for tenant isolation.',
+      },
+      {
+        time: 95,
+        timestamp_label: '1:35',
+        text: 'When handling high-frequency webhooks, we buffered incoming payloads through idempotent queue workers to guarantee at-least-once processing without race conditions.',
+      },
+      {
+        time: 140,
+        timestamp_label: '2:20',
+        text: 'To ensure zero regressions, we maintain 90% unit test coverage using Vitest and verify critical user flows with Playwright end-to-end.',
+      },
+    ],
+    key_moments: [
+      {
+        time: 15,
+        timestamp_label: '0:15',
+        title: 'App Router Hydration & Streaming Optimization',
+        summary: 'Deep architectural dive on eliminating client waterfalls using React Server Components.',
+      },
+      {
+        time: 48,
+        timestamp_label: '0:48',
+        title: 'Multi-Tenant Supabase RLS & Index Tuning',
+        summary: 'Details strict database security boundaries with zero authorization bypasses.',
+      },
+      {
+        time: 95,
+        timestamp_label: '1:35',
+        title: 'Idempotent Webhook & Queue Worker Architecture',
+        summary: 'Explains distributed concurrency safeguards for external payment and partner events.',
+      },
+    ],
   },
   {
     id: 'va-cand-002',
@@ -60,10 +124,55 @@ export const SEED_VIDEO_ASSESSMENTS: (VideoAssessment & { real_name: string; rea
     duration_seconds: 210, // 3:30
     proctoring_flags: [],
     status: 'COMPLETED',
-    created_at: new Date(Date.now() - 3600000 * 36).toISOString(),
+    created_at: new Date(Date.now() - 3600000 * 24 * 45).toISOString(),
+    seniority: 'Lead',
+    skills: ['Figma', 'Design Systems', 'Mobile UX', 'Design Tokens', 'User Research', 'Accessibility (WCAG)'],
+    years_of_experience: 8,
+    availability: 'Open to offers',
+    expected_salary: '$110,000 - $135,000 USD',
+    location: 'Abuja, Nigeria',
+    timezone: 'WAT (UTC+1)',
+    open_to_nigeria: true,
+    open_to_africa: true,
+    open_to_remote: true,
+    consent_to_show_recruiters: true,
+    assessment_completed_date: new Date(Date.now() - 3600000 * 24 * 45).toISOString(),
     real_name: 'Chinedu Eze',
     real_email: 'chinedu.eze@sync730.com',
     phone: '+234 803 987 6543',
+    whatsapp: '+2348039876543',
+    cv_url: 'https://sync730.blob.core.windows.net/resumes/chinedu_eze_lead_designer.pdf',
+    transcript: [
+      {
+        time: 20,
+        timestamp_label: '0:20',
+        text: 'Our design system unified 4 distinct mobile and desktop brand properties into a single semantic token matrix using Figma Variables.',
+      },
+      {
+        time: 75,
+        timestamp_label: '1:15',
+        text: 'We audited color contrast to ensure WCAG 2.1 AAA compliance and established 48x48 pixel touch target baselines across all mobile touchpoints.',
+      },
+      {
+        time: 150,
+        timestamp_label: '2:30',
+        text: 'Collaborating directly with engineering via Storybook and token transformers, we reduced handoff drift and shipping cycle times by 40%.',
+      },
+    ],
+    key_moments: [
+      {
+        time: 20,
+        timestamp_label: '0:20',
+        title: 'Multi-Brand Token Architecture',
+        summary: 'Demonstrates unified typography, elevation, and palette primitives across cross-functional platforms.',
+      },
+      {
+        time: 75,
+        timestamp_label: '1:15',
+        title: 'Accessibility & Contrast Compliance',
+        summary: 'Emphasizes inclusive design guidelines for diverse global audiences.',
+      },
+    ],
   },
   {
     id: 'va-cand-003',
@@ -79,10 +188,55 @@ export const SEED_VIDEO_ASSESSMENTS: (VideoAssessment & { real_name: string; rea
     duration_seconds: 195, // 3:15
     proctoring_flags: [],
     status: 'COMPLETED',
-    created_at: new Date(Date.now() - 3600000 * 52).toISOString(),
+    created_at: new Date(Date.now() - 3600000 * 24 * 70).toISOString(),
+    seniority: 'Staff',
+    skills: ['Kubernetes', 'Terraform', 'AWS', 'GCP', 'ArgoCD', 'CI/CD Pipelines', 'Prometheus', 'Grafana'],
+    years_of_experience: 10,
+    availability: 'Available',
+    expected_salary: '$130,000 - $160,000 USD',
+    location: 'Nairobi, Kenya',
+    timezone: 'EAT (UTC+3)',
+    open_to_nigeria: true,
+    open_to_africa: true,
+    open_to_remote: true,
+    consent_to_show_recruiters: true,
+    assessment_completed_date: new Date(Date.now() - 3600000 * 24 * 70).toISOString(),
     real_name: 'Amara Okonkwo',
     real_email: 'amara.okonkwo@sync730.com',
     phone: '+234 901 234 5678',
+    whatsapp: '+2349012345678',
+    cv_url: 'https://sync730.blob.core.windows.net/resumes/amara_okonkwo_staff_sre.pdf',
+    transcript: [
+      {
+        time: 18,
+        timestamp_label: '0:18',
+        text: 'We managed multi-region EKS clusters backed by Karpenter for dynamic node autoscaling based on custom Prometheus queue depth metrics.',
+      },
+      {
+        time: 68,
+        timestamp_label: '1:08',
+        text: 'During simulated regional network partition drills, our ArgoCD GitOps sync restored 100% of cluster state within 90 seconds.',
+      },
+      {
+        time: 130,
+        timestamp_label: '2:10',
+        text: 'We implemented OpenTelemetry tracing across all gRPC services, allowing us to drop mean time to detection (MTTD) from 15 minutes to under 2 minutes.',
+      },
+    ],
+    key_moments: [
+      {
+        time: 18,
+        timestamp_label: '0:18',
+        title: 'Kubernetes Autoscaling with Karpenter',
+        summary: 'Cost-optimized infrastructure scaling managing spike loads with zero latency degradation.',
+      },
+      {
+        time: 68,
+        timestamp_label: '1:08',
+        title: 'GitOps Disaster Recovery Drill',
+        summary: 'Proves failover resilience and automated cluster state reconciliation.',
+      },
+    ],
   },
   {
     id: 'va-cand-004',
@@ -92,16 +246,113 @@ export const SEED_VIDEO_ASSESSMENTS: (VideoAssessment & { real_name: string; rea
     technical_depth_score: 93,
     communication_score: 88,
     ai_summary:
-      'Flowmingo AI is currently analyzing acoustic clarity, vector embeddings of reasoning depth, and anti-cheating gaze consistency.',
+      'Flowmingo AI is currently transcribing and analyzing acoustic clarity, vector embeddings of reasoning depth, and anti-cheating gaze consistency.',
     secure_video_url: '',
     poster_url: '',
     duration_seconds: 0,
     proctoring_flags: [],
     status: 'PROCESSING',
     created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
+    seniority: 'Senior',
+    skills: ['Python', 'FastAPI', 'LangChain', 'Vector DBs', 'PyTorch', 'Next.js'],
+    years_of_experience: 7,
+    availability: 'Open to offers',
+    expected_salary: '$115,000 - $145,000 USD',
+    location: 'Cairo, Egypt',
+    timezone: 'EET (UTC+2)',
+    open_to_nigeria: true,
+    open_to_africa: true,
+    open_to_remote: true,
+    consent_to_show_recruiters: true,
+    assessment_completed_date: new Date(Date.now() - 3600000 * 2).toISOString(),
     real_name: 'Tariq Mansoor',
     real_email: 'tariq.mansoor@sync730.com',
     phone: '+234 818 765 4321',
+    whatsapp: '+2348187654321',
+    cv_url: 'https://sync730.blob.core.windows.net/resumes/tariq_mansoor_ai_engineer.pdf',
+  },
+  {
+    id: 'va-cand-005',
+    candidate_id: 'cand-005-kemi-adebayo',
+    target_role: 'Mid-Level Frontend Engineer (React & TypeScript)',
+    overall_match_score: 87,
+    technical_depth_score: 88,
+    communication_score: 91,
+    ai_summary:
+      'Strong execution on accessible web components, React 18 concurrent rendering, and performant state normalization. Articulates component lifecycle clearly.',
+    secure_video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    poster_url: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&auto=format&fit=crop&q=80',
+    duration_seconds: 180, // 3:00
+    proctoring_flags: [],
+    status: 'COMPLETED',
+    created_at: new Date(Date.now() - 3600000 * 24 * 390).toISOString(), // ~13 months ago (flags >12m advisory)
+    seniority: 'Mid-Level',
+    skills: ['React', 'TypeScript', 'Tailwind CSS', 'Redux Toolkit', 'Jest', 'HTML5/CSS3'],
+    years_of_experience: 4,
+    availability: 'Available',
+    expected_salary: '$60,000 - $80,000 USD',
+    location: 'Ibadan, Nigeria',
+    timezone: 'WAT (UTC+1)',
+    open_to_nigeria: true,
+    open_to_africa: true,
+    open_to_remote: true,
+    consent_to_show_recruiters: true,
+    assessment_completed_date: new Date(Date.now() - 3600000 * 24 * 390).toISOString(),
+    real_name: 'Kemi Adebayo',
+    real_email: 'kemi.adebayo@sync730.com',
+    phone: '+234 814 555 1234',
+    whatsapp: '+2348145551234',
+    cv_url: 'https://sync730.blob.core.windows.net/resumes/kemi_adebayo_frontend.pdf',
+    transcript: [
+      {
+        time: 12,
+        timestamp_label: '0:12',
+        text: 'I structured our design tokens in Tailwind and built responsive data tables handling 5,000 rows with virtual windowing.',
+      },
+      {
+        time: 55,
+        timestamp_label: '0:55',
+        text: 'Using React Query for server caching eliminated redundant fetch calls and gave users instant offline feedback.',
+      },
+    ],
+    key_moments: [
+      {
+        time: 12,
+        timestamp_label: '0:12',
+        title: 'Virtual Table Performance Tuning',
+        summary: 'Discusses 60fps scrolling and memory management on low-spec mobile devices.',
+      },
+    ],
+  },
+  {
+    id: 'va-cand-006',
+    candidate_id: 'cand-006-emeka-offor',
+    target_role: 'Staff Backend Architect (Go & Distributed Systems)',
+    overall_match_score: 94,
+    technical_depth_score: 98,
+    communication_score: 90,
+    ai_summary: 'Architected high-throughput financial transaction settlement engines.',
+    secure_video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
+    poster_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&auto=format&fit=crop&q=80',
+    duration_seconds: 150,
+    proctoring_flags: [],
+    status: 'COMPLETED',
+    created_at: new Date(Date.now() - 3600000 * 24 * 30).toISOString(),
+    seniority: 'Staff',
+    skills: ['Go', 'gRPC', 'Kafka', 'PostgreSQL', 'Distributed Systems'],
+    years_of_experience: 11,
+    availability: 'Not looking', // Marked 'Not looking' -> Hidden by default as required!
+    expected_salary: '$140,000 - $170,000 USD',
+    location: 'Enugu, Nigeria',
+    timezone: 'WAT (UTC+1)',
+    open_to_nigeria: true,
+    open_to_africa: true,
+    open_to_remote: true,
+    consent_to_show_recruiters: false, // Consent false -> Hidden as required!
+    assessment_completed_date: new Date(Date.now() - 3600000 * 24 * 30).toISOString(),
+    real_name: 'Emeka Offor',
+    real_email: 'emeka.offor@sync730.com',
+    phone: '+234 802 333 4444',
   },
 ];
 
@@ -164,6 +415,7 @@ let globalServerStore = {
   assessments: [...SEED_VIDEO_ASSESSMENTS],
   unlocks: [] as TokenUnlockRecord[],
   members: [...INITIAL_MEMBERS],
+  contactLogs: [] as CandidateContactLog[],
 };
 
 /* ==============================================================================
@@ -251,7 +503,7 @@ export function saveLocalUnlock(unlock: TokenUnlockRecord) {
   globalServerStore.unlocks.push(unlock);
 }
 
-export function getLocalAssessments(): (VideoAssessment & { real_name?: string; real_email?: string; phone?: string })[] {
+export function getLocalAssessments(): (VideoAssessment & { real_name?: string; real_email?: string; phone?: string; whatsapp?: string; cv_url?: string })[] {
   if (typeof window === 'undefined') return globalServerStore.assessments;
   try {
     const raw = localStorage.getItem(ASSESSMENTS_KEY);
@@ -315,11 +567,46 @@ export function saveLocalMember(member: WorkspaceMember) {
   globalServerStore.members.push(member);
 }
 
+export function getLocalCandidateContactLogs(workspaceId?: string): CandidateContactLog[] {
+  if (typeof window === 'undefined') {
+    return workspaceId
+      ? globalServerStore.contactLogs.filter((l) => l.workspace_id === workspaceId)
+      : globalServerStore.contactLogs;
+  }
+  try {
+    const raw = localStorage.getItem(CONTACT_LOGS_KEY);
+    const logs: CandidateContactLog[] = raw ? JSON.parse(raw) : [];
+    return workspaceId ? logs.filter((l) => l.workspace_id === workspaceId) : logs;
+  } catch {
+    return [];
+  }
+}
+
+export function saveLocalCandidateContactLog(log: CandidateContactLog) {
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = getLocalCandidateContactLogs();
+      const updated = [log, ...existing];
+      localStorage.setItem(CONTACT_LOGS_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new Event('sync730_contact_logs_updated'));
+    } catch (e) {
+      console.warn('Failed to save contact log to localStorage:', e);
+    }
+  }
+  globalServerStore.contactLogs.unshift(log);
+}
+
 /**
  * Mask a candidate assessment according to strict B2B privacy rules
  */
 export function formatMaskedCandidate(
-  cand: VideoAssessment & { real_name?: string; real_email?: string; phone?: string },
+  cand: VideoAssessment & {
+    real_name?: string;
+    real_email?: string;
+    phone?: string;
+    whatsapp?: string;
+    cv_url?: string;
+  },
   isUnlocked: boolean
 ): VideoAssessment {
   if (isUnlocked) {
@@ -327,6 +614,9 @@ export function formatMaskedCandidate(
       ...cand,
       candidate_name: cand.real_name || cand.candidate_name || 'Verified Professional',
       candidate_email: cand.real_email || cand.candidate_email || 'candidate@sync730.com',
+      phone: cand.phone || '+234 812 000 0000',
+      whatsapp: cand.whatsapp || cand.phone || '+2348120000000',
+      cv_url: cand.cv_url || 'https://sync730.blob.core.windows.net/resumes/verified_cv.pdf',
       is_unlocked: true,
     };
   }
@@ -337,6 +627,9 @@ export function formatMaskedCandidate(
     ...cand,
     candidate_name: `Sync730 Verified Candidate #${shortId}`,
     candidate_email: 'masked@sync730.com',
+    phone: undefined,
+    whatsapp: undefined,
+    cv_url: undefined,
     is_unlocked: false,
   };
 }
