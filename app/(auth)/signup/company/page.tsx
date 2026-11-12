@@ -36,6 +36,7 @@ export default function CompanySignupPage() {
   const [companySize, setCompanySize] = useState('10-50 Employees');
   const [industry, setIndustry] = useState('Technology & Software');
   const [password, setPassword] = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -50,6 +51,11 @@ export default function CompanySignupPage() {
 
     if (!resolvedName || !resolvedEmail || !resolvedCompany || !resolvedPassword) {
       toast.error('Please complete all required fields.');
+      return;
+    }
+
+    if (!termsAccepted) {
+      toast.error('Please accept the Recruiter Terms of Use and NDPA 2023 compliance policy.');
       return;
     }
 
@@ -114,6 +120,7 @@ export default function CompanySignupPage() {
         user_id: userId,
         role: 'OWNER',
         email: resolvedEmail,
+        status: 'Active',
         full_name: resolvedName,
         created_at: new Date().toISOString(),
       });
@@ -288,6 +295,30 @@ export default function CompanySignupPage() {
               <span>
                 Includes <strong>2 Free Candidate Unlocks</strong> and instant workspace access.
               </span>
+            </div>
+
+            {/* Recruiter Terms & NDPA 2023 Compliance Acceptance */}
+            <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 space-y-2">
+              <label className="flex items-start gap-2.5 cursor-pointer text-xs select-none">
+                <input
+                  type="checkbox"
+                  required
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-neutral-300 dark:border-neutral-700 text-neutral-900 focus:ring-neutral-900 shrink-0 cursor-pointer"
+                />
+                <span className="text-neutral-700 dark:text-neutral-300 leading-snug">
+                  I agree to the{' '}
+                  <span className="font-semibold text-neutral-900 dark:text-white underline">
+                    Recruiter Terms of Service
+                  </span>{' '}
+                  and commit to handle candidate dossiers strictly for recruitment purposes in full compliance with the{' '}
+                  <span className="font-semibold text-neutral-900 dark:text-white underline">
+                    Nigeria Data Protection Act 2023 (NDPA)
+                  </span>
+                  .
+                </span>
+              </label>
             </div>
 
             {/* Submit Button */}

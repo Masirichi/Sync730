@@ -82,7 +82,87 @@ export interface WorkspaceMember {
   role: RecruiterRole;
   email?: string;
   full_name?: string;
+  status: 'Active' | 'Invited';
+  last_active?: string;
+  invited_at?: string;
+  expires_at?: string; // 7 days from invitation
+  invited_by?: string;
   created_at?: string;
+}
+
+export type AuditLogAction =
+  | 'TOKEN_PURCHASE'
+  | 'TOKEN_UNLOCK'
+  | 'ROLE_CHANGE'
+  | 'MEMBER_INVITE'
+  | 'MEMBER_REMOVE'
+  | 'INVITE_REVOKED'
+  | 'INVITE_RESENT'
+  | 'JOB_CREATED'
+  | 'JOB_UPDATED'
+  | 'JOB_PAUSED'
+  | 'JOB_CLOSED'
+  | 'JOB_DUPLICATED'
+  | 'DATA_EXPORT'
+  | 'LOGIN_NEW_DEVICE'
+  | 'SETTINGS_UPDATED';
+
+export interface AuditLogEntry {
+  id: string;
+  workspace_id: string;
+  actor_id: string;
+  actor_name: string;
+  actor_email: string;
+  actor_role: RecruiterRole;
+  action: AuditLogAction;
+  target_resource?: string;
+  details: string;
+  metadata?: Record<string, any>;
+  ip_address?: string;
+  user_agent?: string;
+  created_at: string;
+}
+
+export type NotificationType =
+  | 'NEW_VETTED_CANDIDATE'
+  | 'VIDEO_AWAITING_REVIEW'
+  | 'PAYMENT_CONFIRMED'
+  | 'LOW_TOKENS'
+  | 'TEAMMATE_COMMENT';
+
+export interface ConsoleNotification {
+  id: string;
+  workspace_id: string;
+  type: NotificationType;
+  title: string;
+  description: string;
+  link?: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface NotificationSettings {
+  in_app: {
+    NEW_VETTED_CANDIDATE: boolean;
+    VIDEO_AWAITING_REVIEW: boolean;
+    PAYMENT_CONFIRMED: boolean;
+    LOW_TOKENS: boolean;
+    TEAMMATE_COMMENT: boolean;
+  };
+  email: {
+    NEW_VETTED_CANDIDATE: boolean;
+    VIDEO_AWAITING_REVIEW: boolean;
+    PAYMENT_CONFIRMED: boolean;
+    LOW_TOKENS: boolean;
+    TEAMMATE_COMMENT: boolean;
+  };
+  whatsapp: {
+    NEW_VETTED_CANDIDATE: boolean;
+    VIDEO_AWAITING_REVIEW: boolean;
+    PAYMENT_CONFIRMED: boolean;
+    LOW_TOKENS: boolean;
+    TEAMMATE_COMMENT: boolean;
+  };
 }
 
 export type JobStatus = 'active' | 'draft' | 'paused' | 'closed';

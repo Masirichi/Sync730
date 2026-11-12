@@ -1648,6 +1648,14 @@ function VettedTalentContent() {
                       If this candidate has withdrawn their application or is unreachable after 5 business days, 1 replacement token is refunded back to your organization upon review.
                     </div>
 
+                    {/* NDPA 2023 Statutory Compliance Notice */}
+                    <div className="p-3 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/40 text-[11px] text-blue-900 dark:text-blue-300 leading-relaxed flex items-start gap-2">
+                      <ShieldCheck className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                      <span>
+                        <strong>Notice:</strong> Use this information only for recruitment. Handle it in line with the Nigeria Data Protection Act 2023.
+                      </span>
+                    </div>
+
                     <div className="flex items-center justify-end gap-2 pt-2">
                       <Button
                         type="button"

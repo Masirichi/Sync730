@@ -12,6 +12,11 @@ import {
   TokenUnlockRecord,
   CandidateContactLog,
   RecruiterRole,
+  AuditLogEntry,
+  AuditLogAction,
+  ConsoleNotification,
+  NotificationType,
+  NotificationSettings,
 } from './types';
 import { createBrowserClient } from '@/lib/supabase/client';
 
@@ -22,6 +27,9 @@ const UNLOCKS_KEY = 'sync730_token_unlocks';
 const MEMBERS_KEY = 'sync730_workspace_members';
 const CONTACT_LOGS_KEY = 'sync730_candidate_contact_logs';
 const PIPELINE_KEY = 'sync730_pipeline_candidates';
+const AUDIT_LOGS_KEY = 'sync730_recruiter_audit_logs';
+const NOTIFICATIONS_KEY = 'sync730_console_notifications';
+const NOTIFICATION_SETTINGS_KEY = 'sync730_notification_settings';
 
 // Default initial corporate workspace
 export const DEFAULT_WORKSPACE: CorporateWorkspace = {
@@ -763,29 +771,264 @@ export const INITIAL_MEMBERS: WorkspaceMember[] = [
     role: 'OWNER',
     email: 'alex.morgan@acmeglobal.com',
     full_name: 'Alex Morgan',
+    status: 'Active',
+    last_active: 'Just now',
     created_at: new Date(Date.now() - 3600000 * 24 * 7).toISOString(),
   },
   {
     id: 'mem-002',
     workspace_id: 'ws-sync730-demo',
+    user_id: 'admin-user-02',
+    role: 'ADMIN',
+    email: 'david.okonkwo@acmeglobal.com',
+    full_name: 'David Okonkwo',
+    status: 'Active',
+    last_active: '2 hours ago',
+    created_at: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
+  },
+  {
+    id: 'mem-003',
+    workspace_id: 'ws-sync730-demo',
     user_id: 'interviewer-user-01',
     role: 'INTERVIEWER',
     email: 'sarah.tech@acmeglobal.com',
     full_name: 'Sarah Chen (Tech Lead)',
+    status: 'Active',
+    last_active: 'Yesterday',
     created_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
+  },
+  {
+    id: 'inv-001',
+    workspace_id: 'ws-sync730-demo',
+    user_id: 'pending-inv-001',
+    role: 'INTERVIEWER',
+    email: 'amara.nwosu@acmeglobal.com',
+    full_name: 'Amara Nwosu',
+    status: 'Invited',
+    invited_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
+    expires_at: new Date(Date.now() + 3600000 * 24 * 5).toISOString(), // 5 days remaining of 7
+    invited_by: 'Alex Morgan',
+    created_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
   },
 ];
 
-// In-Memory store for Server-side fallback
-let globalServerStore = {
-  workspace: DEFAULT_WORKSPACE,
-  jobs: [...INITIAL_EMPLOYER_JOBS],
-  pipelineCandidates: [...INITIAL_PIPELINE_CANDIDATES],
-  assessments: [...SEED_VIDEO_ASSESSMENTS],
-  unlocks: [] as TokenUnlockRecord[],
-  members: [...INITIAL_MEMBERS],
-  contactLogs: [] as CandidateContactLog[],
+// Initial Immutable Audit Logs
+export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
+  {
+    id: 'aud-001',
+    workspace_id: 'ws-sync730-demo',
+    actor_id: 'recruiter-admin-user',
+    actor_name: 'Alex Morgan',
+    actor_email: 'alex.morgan@acmeglobal.com',
+    actor_role: 'OWNER',
+    action: 'TOKEN_PURCHASE',
+    target_resource: 'ord_growth_pack_01',
+    details: 'Purchased Growth Pack (15 Tokens) for ₦270,000 via Paystack verified card transaction.',
+    metadata: { pack_id: 'growth', tokens: 15, amount: 270000, reference: 'pay_ref_growth_98421' },
+    ip_address: '102.89.43.12 (Lagos, NG)',
+    user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0.0.0',
+    created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
+  },
+  {
+    id: 'aud-002',
+    workspace_id: 'ws-sync730-demo',
+    actor_id: 'admin-user-02',
+    actor_name: 'David Okonkwo',
+    actor_email: 'david.okonkwo@acmeglobal.com',
+    actor_role: 'ADMIN',
+    action: 'TOKEN_UNLOCK',
+    target_resource: 'cand-001-jane-doe',
+    details: 'Unlocked candidate Jane Doe (Senior Full Stack Engineer) contact dossier for 1 token. Handled under NDPA 2023 compliance.',
+    metadata: { candidate_id: 'cand-001-jane-doe', tokens_spent: 1, balance_after: 2 },
+    ip_address: '105.112.98.54 (Abuja, NG)',
+    user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
+    created_at: new Date(Date.now() - 3600000 * 18).toISOString(),
+  },
+  {
+    id: 'aud-003',
+    workspace_id: 'ws-sync730-demo',
+    actor_id: 'recruiter-admin-user',
+    actor_name: 'Alex Morgan',
+    actor_email: 'alex.morgan@acmeglobal.com',
+    actor_role: 'OWNER',
+    action: 'MEMBER_INVITE',
+    target_resource: 'inv-001',
+    details: 'Invited Amara Nwosu (amara.nwosu@acmeglobal.com) as INTERVIEWER with 7-day expiration window.',
+    metadata: { invitee_email: 'amara.nwosu@acmeglobal.com', role: 'INTERVIEWER', expires_in_days: 7 },
+    ip_address: '102.89.43.12 (Lagos, NG)',
+    user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0.0.0',
+    created_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
+  },
+  {
+    id: 'aud-004',
+    workspace_id: 'ws-sync730-demo',
+    actor_id: 'recruiter-admin-user',
+    actor_name: 'Alex Morgan',
+    actor_email: 'alex.morgan@acmeglobal.com',
+    actor_role: 'OWNER',
+    action: 'ROLE_CHANGE',
+    target_resource: 'mem-002',
+    details: 'Updated David Okonkwo role from INTERVIEWER to ADMIN.',
+    metadata: { member_id: 'mem-002', old_role: 'INTERVIEWER', new_role: 'ADMIN' },
+    ip_address: '102.89.43.12 (Lagos, NG)',
+    user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0.0.0',
+    created_at: new Date(Date.now() - 3600000 * 24 * 4).toISOString(),
+  },
+  {
+    id: 'aud-005',
+    workspace_id: 'ws-sync730-demo',
+    actor_id: 'admin-user-02',
+    actor_name: 'David Okonkwo',
+    actor_email: 'david.okonkwo@acmeglobal.com',
+    actor_role: 'ADMIN',
+    action: 'JOB_UPDATED',
+    target_resource: 'job-001',
+    details: 'Updated job "Senior Backend Engineer (Go & Distributed Systems)" status to Active.',
+    metadata: { job_id: 'job-001', status: 'active' },
+    ip_address: '105.112.98.54 (Abuja, NG)',
+    user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
+    created_at: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
+  },
+  {
+    id: 'aud-006',
+    workspace_id: 'ws-sync730-demo',
+    actor_id: 'recruiter-admin-user',
+    actor_name: 'Alex Morgan',
+    actor_email: 'alex.morgan@acmeglobal.com',
+    actor_role: 'OWNER',
+    action: 'DATA_EXPORT',
+    target_resource: 'pipeline-export-job-001',
+    details: 'Exported pipeline candidate dataset for "Senior Backend Engineer" (14 candidates) as CSV.',
+    metadata: { job_id: 'job-001', record_count: 14, format: 'CSV' },
+    ip_address: '102.89.43.12 (Lagos, NG)',
+    user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0.0.0',
+    created_at: new Date(Date.now() - 3600000 * 24 * 6).toISOString(),
+  },
+  {
+    id: 'aud-007',
+    workspace_id: 'ws-sync730-demo',
+    actor_id: 'recruiter-admin-user',
+    actor_name: 'Alex Morgan',
+    actor_email: 'alex.morgan@acmeglobal.com',
+    actor_role: 'OWNER',
+    action: 'LOGIN_NEW_DEVICE',
+    target_resource: 'session_auth_01',
+    details: 'Authenticated from new desktop environment: Chrome 130 on Windows 11 (IP: 102.89.43.12). 2FA verified.',
+    metadata: { ip: '102.89.43.12', os: 'Windows 11', browser: 'Chrome 130' },
+    ip_address: '102.89.43.12 (Lagos, NG)',
+    user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0.0.0',
+    created_at: new Date(Date.now() - 3600000 * 24 * 7).toISOString(),
+  },
+];
+
+// Initial Console Notifications
+export const INITIAL_NOTIFICATIONS: ConsoleNotification[] = [
+  {
+    id: 'notif-001',
+    workspace_id: 'ws-sync730-demo',
+    type: 'NEW_VETTED_CANDIDATE',
+    title: '3 New Vetted Candidates Available',
+    description: 'Fresh AI-vetted candidates matched your open role: Senior Backend Engineer.',
+    link: '/console/talent?job=job-001',
+    is_read: false,
+    created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+  },
+  {
+    id: 'notif-002',
+    workspace_id: 'ws-sync730-demo',
+    type: 'VIDEO_AWAITING_REVIEW',
+    title: 'Candidate Video Awaiting Review',
+    description: 'Jane Doe submitted their technical screening response for Lead Product Designer.',
+    link: '/console/jobs/job-001/pipeline',
+    is_read: false,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+  },
+  {
+    id: 'notif-003',
+    workspace_id: 'ws-sync730-demo',
+    type: 'PAYMENT_CONFIRMED',
+    title: 'Payment Confirmed · Tokens Added',
+    description: 'Starter Pack (5 tokens) payment was verified. Balance is now 2 tokens.',
+    link: '/console/billing',
+    is_read: false,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+  },
+  {
+    id: 'notif-004',
+    workspace_id: 'ws-sync730-demo',
+    type: 'LOW_TOKENS',
+    title: 'Low Token Balance Warning',
+    description: 'Your workspace has 2 candidate unlock tokens remaining. Top up to keep unlocking dossiers.',
+    link: '/console/billing',
+    is_read: true,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+  },
+  {
+    id: 'notif-005',
+    workspace_id: 'ws-sync730-demo',
+    type: 'TEAMMATE_COMMENT',
+    title: 'New Scorecard from Sarah Chen',
+    description: 'Sarah Chen rated candidate Tunde Bakare with 4.8/5 on Architecture & Concurrency.',
+    link: '/console/jobs/job-001/pipeline',
+    is_read: true,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+  },
+];
+
+export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
+  in_app: {
+    NEW_VETTED_CANDIDATE: true,
+    VIDEO_AWAITING_REVIEW: true,
+    PAYMENT_CONFIRMED: true,
+    LOW_TOKENS: true,
+    TEAMMATE_COMMENT: true,
+  },
+  email: {
+    NEW_VETTED_CANDIDATE: true,
+    VIDEO_AWAITING_REVIEW: true,
+    PAYMENT_CONFIRMED: true,
+    LOW_TOKENS: true,
+    TEAMMATE_COMMENT: false,
+  },
+  whatsapp: {
+    NEW_VETTED_CANDIDATE: false,
+    VIDEO_AWAITING_REVIEW: false,
+    PAYMENT_CONFIRMED: true,
+    LOW_TOKENS: true,
+    TEAMMATE_COMMENT: false,
+  },
 };
+
+// In-Memory store for Server-side fallback (persisted across Next.js route chunks on globalThis)
+interface GlobalServerStoreType {
+  workspace: CorporateWorkspace;
+  jobs: EmployerJob[];
+  pipelineCandidates: PipelineCandidate[];
+  assessments: any[];
+  unlocks: TokenUnlockRecord[];
+  members: WorkspaceMember[];
+  contactLogs: CandidateContactLog[];
+  auditLogs: AuditLogEntry[];
+  notifications: ConsoleNotification[];
+  notificationSettings: NotificationSettings;
+}
+
+const g = globalThis as unknown as { __sync730_server_store__?: GlobalServerStoreType };
+if (!g.__sync730_server_store__) {
+  g.__sync730_server_store__ = {
+    workspace: DEFAULT_WORKSPACE,
+    jobs: [...INITIAL_EMPLOYER_JOBS],
+    pipelineCandidates: [...INITIAL_PIPELINE_CANDIDATES],
+    assessments: [...SEED_VIDEO_ASSESSMENTS],
+    unlocks: [] as TokenUnlockRecord[],
+    members: [...INITIAL_MEMBERS],
+    contactLogs: [] as CandidateContactLog[],
+    auditLogs: [...INITIAL_AUDIT_LOGS],
+    notifications: [...INITIAL_NOTIFICATIONS],
+    notificationSettings: { ...DEFAULT_NOTIFICATION_SETTINGS },
+  };
+}
+const globalServerStore: GlobalServerStoreType = g.__sync730_server_store__;
 
 /* ==============================================================================
  * B2B Store Client Functions
@@ -1106,6 +1349,381 @@ export function saveLocalMember(member: WorkspaceMember) {
     }
   }
   globalServerStore.members.push(member);
+}
+
+/**
+ * Update member role with Last-Owner protection and privilege hierarchy enforcement.
+ */
+export function updateWorkspaceMemberRole(
+  workspaceId: string,
+  memberId: string,
+  newRole: RecruiterRole,
+  actor: { id: string; name: string; email: string; role: RecruiterRole }
+): { success: boolean; member?: WorkspaceMember; error?: string } {
+  const members = getLocalMembers(workspaceId);
+  const targetMember = members.find((m) => m.id === memberId);
+  if (!targetMember) {
+    return { success: false, error: 'Member not found.' };
+  }
+
+  // RULE 1: Cannot demote the last OWNER
+  if (targetMember.role === 'OWNER' && newRole !== 'OWNER') {
+    const activeOwners = members.filter((m) => m.role === 'OWNER' && m.status === 'Active');
+    if (activeOwners.length <= 1) {
+      return {
+        success: false,
+        error: 'Cannot remove or demote the last workspace Owner. Assign another Owner first.',
+      };
+    }
+  }
+
+  // RULE 2: Only OWNER can promote/demote other ADMINs and OWNERs
+  if (actor.role !== 'OWNER') {
+    if (newRole === 'OWNER' || newRole === 'ADMIN' || targetMember.role === 'OWNER' || targetMember.role === 'ADMIN') {
+      return {
+        success: false,
+        error: 'Permission denied: Only workspace Owners can assign, modify, or demote Admin and Owner roles.',
+      };
+    }
+  }
+
+  const oldRole = targetMember.role;
+  const updatedMember: WorkspaceMember = {
+    ...targetMember,
+    role: newRole,
+  };
+
+  const updatedList = members.map((m) => (m.id === memberId ? updatedMember : m));
+
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(MEMBERS_KEY, JSON.stringify(updatedList));
+      window.dispatchEvent(new Event('sync730_members_updated'));
+    } catch (e) {
+      console.warn('Failed to persist updated member:', e);
+    }
+  }
+  globalServerStore.members = updatedList;
+
+  // Record in immutable audit log
+  addAuditLogEntry({
+    workspace_id: workspaceId,
+    actor_id: actor.id,
+    actor_name: actor.name,
+    actor_email: actor.email,
+    actor_role: actor.role,
+    action: 'ROLE_CHANGE',
+    target_resource: memberId,
+    details: `Changed role of ${targetMember.full_name || targetMember.email} from ${oldRole} to ${newRole}.`,
+    metadata: { member_id: memberId, old_role: oldRole, new_role: newRole },
+  });
+
+  return { success: true, member: updatedMember };
+}
+
+/**
+ * Remove a member from the workspace with Last-Owner protection and privilege hierarchy enforcement.
+ */
+export function removeWorkspaceMember(
+  workspaceId: string,
+  memberId: string,
+  actor: { id: string; name: string; email: string; role: RecruiterRole }
+): { success: boolean; error?: string } {
+  const members = getLocalMembers(workspaceId);
+  const targetMember = members.find((m) => m.id === memberId);
+  if (!targetMember) {
+    return { success: false, error: 'Member not found.' };
+  }
+
+  // RULE 1: Cannot remove the last OWNER
+  if (targetMember.role === 'OWNER') {
+    const activeOwners = members.filter((m) => m.role === 'OWNER' && m.status === 'Active');
+    if (activeOwners.length <= 1) {
+      return {
+        success: false,
+        error: 'Cannot remove or demote the last workspace Owner. Your organization must retain at least one Owner.',
+      };
+    }
+  }
+
+  // RULE 2: Only OWNER can remove other ADMINs and OWNERs
+  if (actor.role !== 'OWNER') {
+    if (targetMember.role === 'OWNER' || targetMember.role === 'ADMIN') {
+      return {
+        success: false,
+        error: 'Permission denied: Only workspace Owners can remove Admins or Owners from the organization.',
+      };
+    }
+  }
+
+  const updatedList = members.filter((m) => m.id !== memberId);
+
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(MEMBERS_KEY, JSON.stringify(updatedList));
+      window.dispatchEvent(new Event('sync730_members_updated'));
+    } catch (e) {
+      console.warn('Failed to persist removed member:', e);
+    }
+  }
+  globalServerStore.members = updatedList;
+
+  // Record in immutable audit log
+  addAuditLogEntry({
+    workspace_id: workspaceId,
+    actor_id: actor.id,
+    actor_name: actor.name,
+    actor_email: actor.email,
+    actor_role: actor.role,
+    action: 'MEMBER_REMOVE',
+    target_resource: memberId,
+    details: `Removed team member ${targetMember.full_name || targetMember.email} (${targetMember.role}) from the workspace.`,
+    metadata: { member_id: memberId, member_role: targetMember.role },
+  });
+
+  return { success: true };
+}
+
+/**
+ * Revoke a pending workspace invitation
+ */
+export function revokeWorkspaceInvite(
+  workspaceId: string,
+  inviteId: string,
+  actor: { id: string; name: string; email: string; role: RecruiterRole }
+): { success: boolean; error?: string } {
+  const members = getLocalMembers(workspaceId);
+  const targetInvite = members.find((m) => m.id === inviteId && m.status === 'Invited');
+  if (!targetInvite) {
+    return { success: false, error: 'Pending invitation not found.' };
+  }
+
+  if (actor.role !== 'OWNER' && targetInvite.role === 'ADMIN') {
+    return {
+      success: false,
+      error: 'Permission denied: Only workspace Owners can revoke Admin invitations.',
+    };
+  }
+
+  const updatedList = members.filter((m) => m.id !== inviteId);
+
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(MEMBERS_KEY, JSON.stringify(updatedList));
+      window.dispatchEvent(new Event('sync730_members_updated'));
+    } catch (e) {
+      console.warn('Failed to persist revoked invite:', e);
+    }
+  }
+  globalServerStore.members = updatedList;
+
+  // Record in immutable audit log
+  addAuditLogEntry({
+    workspace_id: workspaceId,
+    actor_id: actor.id,
+    actor_name: actor.name,
+    actor_email: actor.email,
+    actor_role: actor.role,
+    action: 'INVITE_REVOKED',
+    target_resource: inviteId,
+    details: `Revoked pending invitation for ${targetInvite.full_name || targetInvite.email} (${targetInvite.role}).`,
+    metadata: { invite_id: inviteId, invitee_email: targetInvite.email, role: targetInvite.role },
+  });
+
+  return { success: true };
+}
+
+/**
+ * Resend a pending workspace invitation (resets 7-day expiration)
+ */
+export function resendWorkspaceInvite(
+  workspaceId: string,
+  inviteId: string,
+  actor: { id: string; name: string; email: string; role: RecruiterRole }
+): { success: boolean; error?: string; expires_at?: string } {
+  const members = getLocalMembers(workspaceId);
+  const targetInvite = members.find((m) => m.id === inviteId && m.status === 'Invited');
+  if (!targetInvite) {
+    return { success: false, error: 'Pending invitation not found.' };
+  }
+
+  // Reset 7-day expiry window
+  const newExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const updatedInvite: WorkspaceMember = {
+    ...targetInvite,
+    expires_at: newExpiresAt,
+  };
+
+  const updatedList = members.map((m) => (m.id === inviteId ? updatedInvite : m));
+
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(MEMBERS_KEY, JSON.stringify(updatedList));
+      window.dispatchEvent(new Event('sync730_members_updated'));
+    } catch (e) {
+      console.warn('Failed to persist resent invite:', e);
+    }
+  }
+  globalServerStore.members = updatedList;
+
+  // Record in immutable audit log
+  addAuditLogEntry({
+    workspace_id: workspaceId,
+    actor_id: actor.id,
+    actor_name: actor.name,
+    actor_email: actor.email,
+    actor_role: actor.role,
+    action: 'INVITE_RESENT',
+    target_resource: inviteId,
+    details: `Resent workspace invitation to ${targetInvite.email} with renewed 7-day expiration.`,
+    metadata: { invite_id: inviteId, invitee_email: targetInvite.email, expires_at: newExpiresAt },
+  });
+
+  return { success: true, expires_at: newExpiresAt };
+}
+
+/**
+ * Immutable Audit Log Store
+ */
+export function getLocalAuditLogs(workspaceId?: string): AuditLogEntry[] {
+  if (typeof window === 'undefined') {
+    return workspaceId
+      ? globalServerStore.auditLogs.filter((l) => l.workspace_id === workspaceId)
+      : globalServerStore.auditLogs;
+  }
+  try {
+    const raw = localStorage.getItem(AUDIT_LOGS_KEY);
+    if (!raw) {
+      localStorage.setItem(AUDIT_LOGS_KEY, JSON.stringify(INITIAL_AUDIT_LOGS));
+      return INITIAL_AUDIT_LOGS;
+    }
+    const logs: AuditLogEntry[] = JSON.parse(raw);
+    return workspaceId ? logs.filter((l) => l.workspace_id === workspaceId) : logs;
+  } catch {
+    return INITIAL_AUDIT_LOGS;
+  }
+}
+
+export function addAuditLogEntry(entry: Omit<AuditLogEntry, 'id' | 'created_at'>): AuditLogEntry {
+  const newEntry: AuditLogEntry = {
+    ...entry,
+    id: `aud-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+    created_at: new Date().toISOString(),
+  };
+
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = getLocalAuditLogs();
+      const updated = [newEntry, ...existing];
+      localStorage.setItem(AUDIT_LOGS_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new Event('sync730_audit_logs_updated'));
+    } catch (e) {
+      console.warn('Failed to append audit log to localStorage:', e);
+    }
+  }
+  globalServerStore.auditLogs.unshift(newEntry);
+  return newEntry;
+}
+
+/**
+ * Console Notifications Store
+ */
+export function getLocalNotifications(workspaceId?: string): ConsoleNotification[] {
+  if (typeof window === 'undefined') {
+    return workspaceId
+      ? globalServerStore.notifications.filter((n) => n.workspace_id === workspaceId)
+      : globalServerStore.notifications;
+  }
+  try {
+    const raw = localStorage.getItem(NOTIFICATIONS_KEY);
+    if (!raw) {
+      localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(INITIAL_NOTIFICATIONS));
+      return INITIAL_NOTIFICATIONS;
+    }
+    const notifs: ConsoleNotification[] = JSON.parse(raw);
+    return workspaceId ? notifs.filter((n) => n.workspace_id === workspaceId) : notifs;
+  } catch {
+    return INITIAL_NOTIFICATIONS;
+  }
+}
+
+export function markNotificationRead(notificationId: string): void {
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = getLocalNotifications();
+      const updated = existing.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n));
+      localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new Event('sync730_notifications_updated'));
+    } catch (e) {
+      console.warn('Failed to mark notification read:', e);
+    }
+  }
+  globalServerStore.notifications = globalServerStore.notifications.map((n) =>
+    n.id === notificationId ? { ...n, is_read: true } : n
+  );
+}
+
+export function markAllNotificationsRead(workspaceId?: string): void {
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = getLocalNotifications();
+      const updated = existing.map((n) =>
+        !workspaceId || n.workspace_id === workspaceId ? { ...n, is_read: true } : n
+      );
+      localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new Event('sync730_notifications_updated'));
+    } catch (e) {
+      console.warn('Failed to mark all notifications read:', e);
+    }
+  }
+  globalServerStore.notifications = globalServerStore.notifications.map((n) =>
+    !workspaceId || n.workspace_id === workspaceId ? { ...n, is_read: true } : n
+  );
+}
+
+export function clearAllNotifications(workspaceId?: string): void {
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = getLocalNotifications();
+      const updated = workspaceId ? existing.filter((n) => n.workspace_id !== workspaceId) : [];
+      localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new Event('sync730_notifications_updated'));
+    } catch (e) {
+      console.warn('Failed to clear notifications:', e);
+    }
+  }
+  globalServerStore.notifications = workspaceId
+    ? globalServerStore.notifications.filter((n) => n.workspace_id !== workspaceId)
+    : [];
+}
+
+/**
+ * Notification Settings Store
+ */
+export function getLocalNotificationSettings(): NotificationSettings {
+  if (typeof window === 'undefined') return globalServerStore.notificationSettings;
+  try {
+    const raw = localStorage.getItem(NOTIFICATION_SETTINGS_KEY);
+    if (!raw) {
+      localStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(DEFAULT_NOTIFICATION_SETTINGS));
+      return DEFAULT_NOTIFICATION_SETTINGS;
+    }
+    return JSON.parse(raw);
+  } catch {
+    return DEFAULT_NOTIFICATION_SETTINGS;
+  }
+}
+
+export function saveLocalNotificationSettings(settings: NotificationSettings): void {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(settings));
+      window.dispatchEvent(new Event('sync730_notification_settings_updated'));
+    } catch (e) {
+      console.warn('Failed to save notification settings:', e);
+    }
+  }
+  globalServerStore.notificationSettings = { ...settings };
 }
 
 export function getLocalCandidateContactLogs(workspaceId?: string): CandidateContactLog[] {
