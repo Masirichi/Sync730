@@ -1,0 +1,83 @@
+[
+  {
+    "id": "9ecac0fc-a53a-4428-8be2-8bb1eb95a4c8",
+    "created_at": "2026-11-12T23:15:43.107Z",
+    "full_name": "Chioma Adebayo",
+    "email": "candidate_1794525343007@test.ng",
+    "country": "nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Remote work",
+      "Fair pay"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T23:15:43.104Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "10ff5e24-0338-45fd-bfcc-ee08dadf41b5",
+    "created_at": "2026-11-12T23:15:43.470Z",
+    "full_name": "User 1",
+    "email": "rate_limit_test_1_1794525343406@example.com",
+    "country": null,
+    "track": null,
+    "priorities": [],
+    "consent": true,
+    "consent_at": "2026-11-12T23:15:43.470Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "33f8f76d-2f90-46a7-80d3-a9c65fbaeee9",
+    "created_at": "2026-11-12T23:15:43.636Z",
+    "full_name": "User 2",
+    "email": "rate_limit_test_2_1794525343473@example.com",
+    "country": null,
+    "track": null,
+    "priorities": [],
+    "consent": true,
+    "consent_at": "2026-11-12T23:15:43.636Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "493a1295-7aa0-48d8-a04d-12e3ce5f1c64",
+    "created_at": "2026-11-12T23:15:43.768Z",
+    "full_name": "User 3",
+    "email": "rate_limit_test_3_1794525343639@example.com",
+    "country": null,
+    "track": null,
+    "priorities": [],
+    "consent": true,
+    "consent_at": "2026-11-12T23:15:43.768Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "bede8ab9-1840-411b-99aa-ed39256cb248",
+    "created_at": "2026-11-12T23:15:43.985Z",
+    "full_name": "User 4",
+    "email": "rate_limit_test_4_1794525343772@example.com",
+    "country": null,
+    "track": null,
+    "priorities": [],
+    "consent": true,
+    "consent_at": "2026-11-12T23:15:43.985Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "94cfa313-a1c4-4f59-ae75-c0f04884abe9",
+    "created_at": "2026-11-12T23:15:44.153Z",
+    "full_name": "User 5",
+    "email": "rate_limit_test_5_1794525343994@example.com",
+    "country": null,
+    "track": null,
+    "priorities": [],
+    "consent": true,
+    "consent_at": "2026-11-12T23:15:44.153Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  }
+]

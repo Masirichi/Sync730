@@ -12,7 +12,7 @@ import { AlertCircle, Loader2, User, Briefcase, ShieldCheck, Clock } from 'lucid
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectParam = searchParams.get('redirect');
+  const redirectParam = searchParams.get('next') || searchParams.get('redirect');
   const isTimeout = searchParams.get('timeout') === 'true';
 
   const [email, setEmail] = useState('');

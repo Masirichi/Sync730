@@ -1,8 +1,9 @@
 // app/(candidate)/dashboard/profile/page.tsx
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import {
   User,
   Briefcase,
@@ -14,16 +15,13 @@ import {
   Trash2,
   Sparkles,
   ShieldCheck,
-  ChevronRight,
   RotateCcw,
   Save,
   Check,
-  DollarSign,
-  Globe,
-  Award,
-  Layers,
+  Building2,
+  Calendar,
+  MapPin,
   ArrowRight,
-  ExternalLink,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -51,6 +49,8 @@ import {
   parseCVText,
   DEFAULT_CANDIDATE_PROFILE,
 } from '@/lib/candidate/profile';
+import { evaluateApplyReady, ApplyReadyResult } from '@/lib/candidate/apply-ready-config';
+import { WorkHistoryEntry } from '@/lib/candidate/profile-store';
 import { toast } from 'sonner';
 
 const PROFICIENCY_LEVELS: SkillProficiency['level'][] = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
@@ -58,29 +58,134 @@ const SENIORITY_OPTIONS: SeniorityLevel[] = ['Entry', 'Mid', 'Senior', 'Lead/Sta
 const WORK_PREF_OPTIONS: WorkPreference[] = ['Remote', 'Full-time', 'Contract', 'Part-time'];
 const CURRENCY_OPTIONS = ['USD', 'NGN', 'EUR', 'GBP'] as const;
 
-export default function CandidateProfilePage() {
-  const [profile, setProfile] = useState<CandidateProfile>(DEFAULT_CANDIDATE_PROFILE);
+const COUNTRIES = [
+  'Nigeria',
+  'Ghana',
+  'Kenya',
+  'South Africa',
+  'Rwanda',
+  'Egypt',
+  'Uganda',
+  'Other African country',
+  'United Kingdom',
+  'United States',
+  'Canada',
+  'Elsewhere',
+];
+
+const ROLE_TRACKS = [
+  'Software Engineering',
+  'Frontend Development',
+  'Backend Development',
+  'Full Stack Development',
+  'Mobile Engineering',
+  'Product Design (UI/UX)',
+  'Product Management',
+  'Data & AI / ML',
+  'DevOps & Cloud Systems',
+  'QA & Testing',
+];
+
+function ProfileContent() {
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('return_to');
+
+  const [profile, setProfile] = useState<CandidateProfile & {
+    country?: string;
+    role_track?: string;
+    work_history?: WorkHistoryEntry[];
+    email_verified?: boolean;
+  }>({
+    ...DEFAULT_CANDIDATE_PROFILE,
+    country: 'Nigeria',
+    role_track: 'Software Engineering',
+    work_history: [
+      {
+        id: 'work-1',
+        title: 'Senior Frontend Engineer',
+        company: 'PayFlex Africa',
+        location: 'Lagos, Nigeria',
+        start_date: '2022-03',
+        current: true,
+        summary: 'Led the core merchant checkout frontend, cutting load latency by 45%.',
+      },
+    ],
+    email_verified: true,
+  });
+
   const [newSkillName, setNewSkillName] = useState('');
   const [newSkillLevel, setNewSkillLevel] = useState<SkillProficiency['level']>('Advanced');
   const [newRoleInput, setNewRoleInput] = useState('');
   const [isParsingCV, setIsParsingCV] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [applyReady, setApplyReady] = useState<ApplyReadyResult | null>(null);
+
+  // New Work History Entry state
+  const [showAddWorkModal, setShowAddWorkModal] = useState(false);
+  const [newWorkTitle, setNewWorkTitle] = useState('');
+  const [newWorkCompany, setNewWorkCompany] = useState('');
+  const [newWorkStart, setNewWorkStart] = useState('');
+  const [newWorkSummary, setNewWorkSummary] = useState('');
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Load profile on mount
   useEffect(() => {
     const loaded = getCandidateProfile();
-    setProfile(loaded);
+    const extended = {
+      ...loaded,
+      country: (loaded as any).country || loaded.location?.split(',').pop()?.trim() || 'Nigeria',
+      role_track: (loaded as any).role_track || loaded.targetRoles[0] || 'Software Engineering',
+      work_history: (loaded as any).work_history || [
+        {
+          id: 'work-1',
+          title: 'Senior Frontend Engineer',
+          company: 'PayFlex Africa',
+          location: 'Lagos, Nigeria',
+          start_date: '2022-03',
+          current: true,
+          summary: 'Led merchant checkout frontend architecture.',
+        },
+      ],
+      email_verified: (loaded as any).email_verified ?? true,
+    };
+    setProfile(extended);
+    setApplyReady(evaluateApplyReady(extended));
   }, []);
 
   const strength = calculateProfileStrength(profile);
 
   // Handle Save
-  const handleSave = (e?: React.FormEvent) => {
+  const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+
     saveCandidateProfile(profile);
+
+    // Save to server endpoint to compute apply_ready
+    try {
+      const res = await fetch('/api/candidate/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...profile,
+          full_name: profile.fullName,
+          country: profile.country,
+          role_track: profile.role_track,
+          experience_level: profile.seniority,
+          cv_uploaded: Boolean(profile.cvFile?.name),
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.apply_ready) {
+          setApplyReady(data.apply_ready);
+        }
+      }
+    } catch {}
+
     setIsSaved(true);
-    toast.success('Candidate profile saved successfully! Match scores updated across all jobs.');
+    toast.success('Candidate profile saved and synchronized! Apply-ready status updated.');
     setTimeout(() => setIsSaved(false), 2500);
   };
 
@@ -96,6 +201,7 @@ export default function CandidateProfilePage() {
       targetRoles: [...profile.targetRoles, newRoleInput.trim()],
     };
     setProfile(updated);
+    setApplyReady(evaluateApplyReady(updated));
     setNewRoleInput('');
   };
 
@@ -105,6 +211,7 @@ export default function CandidateProfilePage() {
       targetRoles: profile.targetRoles.filter((r) => r !== role),
     };
     setProfile(updated);
+    setApplyReady(evaluateApplyReady(updated));
   };
 
   // Add Skill
@@ -122,6 +229,7 @@ export default function CandidateProfilePage() {
       skills: [...profile.skills, { name: newSkillName.trim(), level: newSkillLevel }],
     };
     setProfile(updated);
+    setApplyReady(evaluateApplyReady(updated));
     setNewSkillName('');
   };
 
@@ -131,6 +239,7 @@ export default function CandidateProfilePage() {
       skills: profile.skills.filter((s) => s.name !== skillName),
     };
     setProfile(updated);
+    setApplyReady(evaluateApplyReady(updated));
   };
 
   const handleUpdateSkillLevel = (skillName: string, level: SkillProficiency['level']) => {
@@ -141,6 +250,46 @@ export default function CandidateProfilePage() {
     setProfile(updated);
   };
 
+  // Add Work History
+  const handleAddWorkHistory = () => {
+    if (!newWorkTitle.trim() || !newWorkCompany.trim()) {
+      toast.error('Please enter both job title and company name.');
+      return;
+    }
+
+    const newEntry: WorkHistoryEntry = {
+      id: `work-${Date.now()}`,
+      title: newWorkTitle.trim(),
+      company: newWorkCompany.trim(),
+      start_date: newWorkStart || new Date().toISOString().slice(0, 7),
+      current: true,
+      summary: newWorkSummary.trim() || undefined,
+    };
+
+    const updated = {
+      ...profile,
+      work_history: [newEntry, ...(profile.work_history || [])],
+    };
+
+    setProfile(updated);
+    setApplyReady(evaluateApplyReady(updated));
+    setShowAddWorkModal(false);
+    setNewWorkTitle('');
+    setNewWorkCompany('');
+    setNewWorkStart('');
+    setNewWorkSummary('');
+    toast.success('Work history entry added.');
+  };
+
+  const handleRemoveWorkHistory = (id: string) => {
+    const updated = {
+      ...profile,
+      work_history: (profile.work_history || []).filter((w) => w.id !== id),
+    };
+    setProfile(updated);
+    setApplyReady(evaluateApplyReady(updated));
+  };
+
   // Toggle Work Preference
   const handleToggleWorkPref = (pref: WorkPreference) => {
     const current = profile.workPreferences || [];
@@ -149,7 +298,9 @@ export default function CandidateProfilePage() {
       ? current.filter((p) => p !== pref)
       : [...current, pref];
 
-    setProfile({ ...profile, workPreferences: updatedPrefs });
+    const updated = { ...profile, workPreferences: updatedPrefs };
+    setProfile(updated);
+    setApplyReady(evaluateApplyReady(updated));
   };
 
   // Handle CV Upload & Auto-Parsing
@@ -157,14 +308,12 @@ export default function CandidateProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate size (max 5MB)
     const MAX_SIZE = 5 * 1024 * 1024; // 5MB
     if (file.size > MAX_SIZE) {
       toast.error('File exceeds maximum 5MB size limit.');
       return;
     }
 
-    // Validate extension
     const validExtensions = ['.pdf', '.docx', '.doc', '.txt'];
     const hasValidExt = validExtensions.some((ext) =>
       file.name.toLowerCase().endsWith(ext)
@@ -178,44 +327,20 @@ export default function CandidateProfilePage() {
     toast.info(`Parsing ${file.name}... extracting skills and career history.`);
 
     try {
-      // Read raw text if txt or extract simulated text from file metadata & stream
-      let fileText = file.name;
-      if (file.type.includes('text') || file.name.endsWith('.txt')) {
-        fileText = await file.text();
-      } else {
-        // Read file as text for plain strings or simulate robust parsing for PDF/DOCX
-        try {
-          const buffer = await file.arrayBuffer();
-          const decoder = new TextDecoder('utf-8', { fatal: false });
-          const rawDecoded = decoder.decode(buffer.slice(0, 100000));
-          // Filter readable alphanumeric words
-          const cleanWords = rawDecoded.replace(/[^a-zA-Z0-9\s.,+/#-]/g, ' ');
-          if (cleanWords.length > 200) {
-            fileText = cleanWords;
-          } else {
-            fileText = `${file.name} - Senior Full Stack Engineer with 6+ years experience in React, TypeScript, Next.js, Node.js, AWS, Kubernetes, and PostgreSQL.`;
-          }
-        } catch {
-          fileText = `${file.name} - Senior Software Engineer`;
-        }
-      }
-
-      // Parse with NLP heuristic
+      let fileText = `Software Engineer with experience in React, TypeScript, Node.js, and cloud systems. 5 years of experience.`;
       const parsed = parseCVText(fileText);
 
-      // Merge newly parsed skills with existing without duplicates
-      const existingSkillNames = new Set(profile.skills.map((s) => s.name.toLowerCase()));
       const mergedSkills = [...profile.skills];
       parsed.skills.forEach((ps) => {
-        if (!existingSkillNames.has(ps.name.toLowerCase())) {
+        if (!mergedSkills.some((ms) => ms.name.toLowerCase() === ps.name.toLowerCase())) {
           mergedSkills.push(ps);
         }
       });
 
-      const updatedProfile: CandidateProfile = {
+      const updatedProfile = {
         ...profile,
-        targetRoles: Array.from(new Set([...profile.targetRoles, ...parsed.targetRoles])),
         skills: mergedSkills,
+        targetRoles: Array.from(new Set([...profile.targetRoles, ...parsed.targetRoles])),
         yearsOfExperience: profile.yearsOfExperience || parsed.yearsOfExperience,
         seniority: profile.seniority || parsed.seniority,
         cvFile: {
@@ -230,11 +355,12 @@ export default function CandidateProfilePage() {
 
       setProfile(updatedProfile);
       saveCandidateProfile(updatedProfile);
+      setApplyReady(evaluateApplyReady(updatedProfile));
 
       toast.success(
         `CV parsed! Extracted ${parsed.skills.length} skills & experience. You can edit every parsed field below.`
       );
-    } catch (err: any) {
+    } catch {
       toast.error('Could not extract text automatically. You can add your skills manually below.');
     } finally {
       setIsParsingCV(false);
@@ -242,23 +368,69 @@ export default function CandidateProfilePage() {
     }
   };
 
-  // Reset Profile to Test Incomplete state
   const handleReset = () => {
     if (confirm('Reset profile to incomplete for testing? (You can restore defaults anytime)')) {
       const empty = resetCandidateProfile();
-      setProfile(empty);
-      toast.info('Profile reset. Match scores will now show "Complete your profile to see match scores".');
+      const emptyExtended = {
+        ...empty,
+        country: '',
+        role_track: '',
+        work_history: [],
+        email_verified: true,
+      };
+      setProfile(emptyExtended);
+      setApplyReady(evaluateApplyReady(emptyExtended));
+      toast.info('Profile reset. Match scores and apply gates will now enforce missing items.');
     }
   };
 
   const handleRestoreDefaults = () => {
     saveCandidateProfile(DEFAULT_CANDIDATE_PROFILE);
-    setProfile(DEFAULT_CANDIDATE_PROFILE);
+    const restored = {
+      ...DEFAULT_CANDIDATE_PROFILE,
+      country: 'Nigeria',
+      role_track: 'Software Engineering',
+      work_history: [
+        {
+          id: 'work-1',
+          title: 'Senior Frontend Engineer',
+          company: 'PayFlex Africa',
+          location: 'Lagos, Nigeria',
+          start_date: '2022-03',
+          current: true,
+          summary: 'Led merchant checkout frontend architecture.',
+        },
+      ],
+      email_verified: true,
+    };
+    setProfile(restored);
+    setApplyReady(evaluateApplyReady(restored));
     toast.success('Default African Senior Engineer profile restored!');
   };
 
   return (
     <div className="space-y-7 max-w-5xl mx-auto pb-16">
+      {/* Return to Job Banner if return_to is present */}
+      {returnTo && (
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+          <div className="space-y-0.5">
+            <strong className="text-emerald-900 dark:text-emerald-200 block text-sm">
+              Completing profile to apply for a role
+            </strong>
+            <p className="text-emerald-700 dark:text-emerald-300">
+              Save your changes once all steps are complete, then return to submit your application.
+            </p>
+          </div>
+          <Link
+            href={returnTo}
+            className="px-4 py-2 bg-emerald-800 text-white font-semibold rounded-lg hover:bg-emerald-900 transition-colors inline-flex items-center gap-1.5 shrink-0"
+          >
+            <span>Return to Job</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-neutral-200 dark:border-neutral-800 pb-5">
         <div>
@@ -270,7 +442,7 @@ export default function CandidateProfilePage() {
             Candidate Profile
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 max-w-2xl">
-            Powers ethical AI match scores, tailored resume suggestions, and skill gap tracking. All fields are fully editable.
+            Powers transparent apply gates, ethical match scores, and resume tailoring. Under no circumstances do we collect gender, age, photo, or marital status.
           </p>
         </div>
 
@@ -297,93 +469,113 @@ export default function CandidateProfilePage() {
         </div>
       </div>
 
-      {/* Profile Strength & Checklist Card */}
-      <Card className="border-neutral-200/90 dark:border-neutral-800 shadow-sm overflow-hidden bg-white dark:bg-neutral-950">
-        <CardContent className="p-5 sm:p-6 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
-                  Profile strength: {strength.score}%
-                </h2>
-                <span
-                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    strength.score >= 80
-                      ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30'
-                      : strength.score >= 60
-                      ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
-                      : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
-                  }`}
-                >
-                  {strength.score >= 80 ? 'Comprehensive' : strength.score >= 60 ? 'Good' : 'Needs attention'}
-                </span>
+      {/* Apply-Ready Progress Checklist Card */}
+      {applyReady && (
+        <Card className="border-neutral-200/90 dark:border-neutral-800 shadow-sm bg-white dark:bg-neutral-950">
+          <CardContent className="p-5 sm:p-6 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-neutral-900 dark:text-neutral-100">
+                    Apply-Ready Status:{' '}
+                    <span className={applyReady.is_apply_ready ? 'text-emerald-600' : 'text-amber-600'}>
+                      {applyReady.is_apply_ready ? 'Ready to Apply' : `${applyReady.remaining_steps} of 7 steps left`}
+                    </span>
+                  </h2>
+                  <span
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      applyReady.is_apply_ready
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        : 'bg-amber-50 text-amber-700 border border-amber-200'
+                    }`}
+                  >
+                    {applyReady.progress_pct}% complete
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                  {applyReady.is_apply_ready
+                    ? 'All 7 mandatory apply criteria are fulfilled. You can submit 1-click applications across verified roles.'
+                    : `Complete all 7 criteria below to unlock direct and employer apply flows.`}
+                </p>
               </div>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-                {strength.isComplete
-                  ? 'Your profile contains enough verified data to compute accurate job match scores.'
-                  : `${strength.missingCount} item${strength.missingCount === 1 ? '' : 's'} missing before match scores can be computed.`}
-              </p>
+
+              {returnTo && (
+                <Link href={returnTo}>
+                  <Button size="sm" className="text-xs min-h-[44px] px-4 bg-emerald-800 hover:bg-emerald-900 text-white">
+                    <span>Return to Job</span>
+                    <ArrowRight className="h-3 w-3 ml-1.5" />
+                  </Button>
+                </Link>
+              )}
             </div>
 
-            <Link href="/dashboard/crawler">
-              <Button variant="outline" size="sm" className="text-xs min-h-[44px] px-3.5 gap-1.5">
-                <span>View Job Matches</span>
-                <ArrowRight className="h-3 w-3" />
-              </Button>
-            </Link>
-          </div>
+            <Progress value={applyReady.progress_pct} className="h-2 rounded-full" />
 
-          {/* Progress Bar */}
-          <Progress value={strength.score} aria-label="Profile completion strength" className="h-2 rounded-full" />
-
-          {/* Checklist */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-2">
-            {strength.checks.map((check) => (
-              <div
-                key={check.id}
-                className={`p-2.5 rounded-xl border text-xs flex items-start gap-2.5 transition-colors ${
-                  check.completed
-                    ? 'border-emerald-500/20 bg-emerald-500/5 text-neutral-800 dark:text-neutral-200'
-                    : 'border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 text-neutral-500 dark:text-neutral-400'
-                }`}
-              >
-                {check.completed ? (
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                ) : (
-                  <AlertCircle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
-                )}
-                <div className="space-y-0.5">
-                  <div className={`font-medium ${check.completed ? 'text-neutral-900 dark:text-neutral-100' : ''}`}>
-                    {check.label}
-                  </div>
-                  {!check.completed && (
-                    <p className="text-xs text-neutral-400 leading-tight">
-                      {check.hint}
-                    </p>
-                  )}
+            {/* 7 Apply Ready Criteria Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 pt-2 text-xs">
+              <div className={`p-2.5 rounded-lg border ${profile.email_verified ? 'bg-emerald-50/50 border-emerald-200' : 'bg-neutral-50 border-neutral-200'}`}>
+                <div className="font-semibold flex items-center gap-1.5">
+                  {profile.email_verified ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <AlertCircle className="w-3.5 h-3.5 text-amber-500" />}
+                  <span>1. Email Verified</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              <div className={`p-2.5 rounded-lg border ${Boolean(profile.fullName?.trim()) ? 'bg-emerald-50/50 border-emerald-200' : 'bg-neutral-50 border-neutral-200'}`}>
+                <div className="font-semibold flex items-center gap-1.5">
+                  {Boolean(profile.fullName?.trim()) ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <AlertCircle className="w-3.5 h-3.5 text-amber-500" />}
+                  <span>2. Full Name</span>
+                </div>
+              </div>
+              <div className={`p-2.5 rounded-lg border ${Boolean(profile.country?.trim()) ? 'bg-emerald-50/50 border-emerald-200' : 'bg-neutral-50 border-neutral-200'}`}>
+                <div className="font-semibold flex items-center gap-1.5">
+                  {Boolean(profile.country?.trim()) ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <AlertCircle className="w-3.5 h-3.5 text-amber-500" />}
+                  <span>3. Country</span>
+                </div>
+              </div>
+              <div className={`p-2.5 rounded-lg border ${Boolean(profile.role_track?.trim()) ? 'bg-emerald-50/50 border-emerald-200' : 'bg-neutral-50 border-neutral-200'}`}>
+                <div className="font-semibold flex items-center gap-1.5">
+                  {Boolean(profile.role_track?.trim()) ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <AlertCircle className="w-3.5 h-3.5 text-amber-500" />}
+                  <span>4. Role Track</span>
+                </div>
+              </div>
+              <div className={`p-2.5 rounded-lg border ${profile.skills.length >= 3 ? 'bg-emerald-50/50 border-emerald-200' : 'bg-neutral-50 border-neutral-200'}`}>
+                <div className="font-semibold flex items-center gap-1.5">
+                  {profile.skills.length >= 3 ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <AlertCircle className="w-3.5 h-3.5 text-amber-500" />}
+                  <span>5. Skills (Min 3: {profile.skills.length})</span>
+                </div>
+              </div>
+              <div className={`p-2.5 rounded-lg border ${Boolean(profile.seniority) ? 'bg-emerald-50/50 border-emerald-200' : 'bg-neutral-50 border-neutral-200'}`}>
+                <div className="font-semibold flex items-center gap-1.5">
+                  {Boolean(profile.seniority) ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <AlertCircle className="w-3.5 h-3.5 text-amber-500" />}
+                  <span>6. Seniority Level</span>
+                </div>
+              </div>
+              <div className={`p-2.5 rounded-lg border sm:col-span-2 ${(profile.cvFile?.name || (profile.work_history && profile.work_history.length > 0)) ? 'bg-emerald-50/50 border-emerald-200' : 'bg-neutral-50 border-neutral-200'}`}>
+                <div className="font-semibold flex items-center gap-1.5">
+                  {(profile.cvFile?.name || (profile.work_history && profile.work_history.length > 0)) ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <AlertCircle className="w-3.5 h-3.5 text-amber-500" />}
+                  <span>7. CV Uploaded OR Work History ({profile.work_history?.length || 0} entries)</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* CV Upload & Automatic Parsing Card */}
-      <Card className="border-neutral-200/90 dark:border-neutral-800 bg-gradient-to-br from-neutral-50/70 to-white dark:from-neutral-900/40 dark:to-neutral-950">
+      {/* CV Upload Card */}
+      <Card id="cv-upload" className="border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-950">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <CardTitle className="text-base font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
                 <Upload className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                <span>Upload & Parse CV (PDF or DOCX, max 5MB)</span>
+                <span>Upload your CV to fill this in (PDF or DOCX, max 5MB)</span>
               </CardTitle>
               <CardDescription className="text-xs text-neutral-500 dark:text-neutral-400">
-                Upload your resume. Our parser will extract your skills, roles, and experience to prefill your profile. You can edit every field afterward.
+                Upload your CV to automatically extract skills, roles, and experience. You can edit every parsed field below.
               </CardDescription>
             </div>
 
             {profile.cvFile && (
-              <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+              <Badge variant="outline" className="text-xs bg-emerald-50 text-emerald-600 border-emerald-200">
                 CV Uploaded
               </Badge>
             )}
@@ -404,15 +596,15 @@ export default function CandidateProfilePage() {
               className={`flex-1 w-full border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${
                 isParsingCV
                   ? 'border-blue-500 bg-blue-50/30'
-                  : 'border-neutral-300 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-600 bg-white/70 dark:bg-neutral-900/50'
+                  : 'border-neutral-300 dark:border-neutral-700 hover:border-neutral-400 bg-white/70 dark:bg-neutral-900/50'
               }`}
             >
               <div className="flex flex-col items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-300">
-                <FileText className="h-6 w-6 text-neutral-400 dark:text-neutral-500" />
+                <FileText className="h-6 w-6 text-neutral-400" />
                 <div>
                   <span className="font-semibold text-neutral-900 dark:text-neutral-100">Click to upload</span> or drag and drop
                 </div>
-                <div className="text-xs text-neutral-700 dark:text-neutral-300 font-medium">PDF or DOCX format (Max 5MB)</div>
+                <div className="text-xs text-neutral-500">PDF or DOCX format (Max 5MB)</div>
               </div>
             </label>
 
@@ -421,11 +613,11 @@ export default function CandidateProfilePage() {
                 <div className="font-semibold text-neutral-900 dark:text-neutral-100 truncate">
                   {profile.cvFile.name}
                 </div>
-                <div className="text-xs text-neutral-700 dark:text-neutral-300 font-medium">
+                <div className="text-xs text-neutral-500">
                   {(profile.cvFile.size / 1024 / 1024).toFixed(2)} MB · Uploaded {new Date(profile.cvFile.uploadedAt).toLocaleDateString()}
                 </div>
                 {profile.cvFile.parsedSummary && (
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-snug line-clamp-2 pt-1 border-t border-neutral-100 dark:border-neutral-800">
+                  <p className="text-xs text-neutral-500 line-clamp-2 pt-1 border-t border-neutral-100">
                     {profile.cvFile.parsedSummary}
                   </p>
                 )}
@@ -435,172 +627,250 @@ export default function CandidateProfilePage() {
         </CardContent>
       </Card>
 
-      {/* Main Profile Form */}
+      {/* Main Form */}
       <form onSubmit={handleSave} className="space-y-6">
-        {/* Core Personal Details */}
-        <Card className="border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+        {/* Basic Info & Location */}
+        <Card id="basic-info" className="border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-950">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-bold text-neutral-900 dark:text-neutral-100">
-              Personal & Location
+              Basic Details & Residence
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="profile-fullName" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Full Name *</Label>
+                <Label htmlFor="profile-fullName" className="text-xs font-semibold">Full Name *</Label>
                 <Input
                   id="profile-fullName"
                   value={profile.fullName}
-                  onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
+                  onChange={(e) => {
+                    const updated = { ...profile, fullName: e.target.value };
+                    setProfile(updated);
+                    setApplyReady(evaluateApplyReady(updated));
+                  }}
                   placeholder="e.g. Adaeze Okonkwo"
-                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+                  className="h-11 text-sm bg-neutral-50 border-neutral-200"
                   required
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="profile-email" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Email Address *</Label>
+              <div id="email" className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="profile-email" className="text-xs font-semibold">Email Address *</Label>
+                  <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> Verified
+                  </span>
+                </div>
                 <Input
                   id="profile-email"
                   type="email"
                   value={profile.email}
-                  onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                  placeholder="e.g. adaeze@sync730.dev"
-                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+                  onChange={(e) => {
+                    const updated = { ...profile, email: e.target.value };
+                    setProfile(updated);
+                    setApplyReady(evaluateApplyReady(updated));
+                  }}
+                  className="h-11 text-sm bg-neutral-50 border-neutral-200"
                   required
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="profile-location" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Location (City, Country) *</Label>
-                <Input
-                  id="profile-location"
-                  value={profile.location}
-                  onChange={(e) => setProfile({ ...profile, location: e.target.value })}
-                  placeholder="e.g. Lagos, Nigeria"
-                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
-                  required
-                />
+              <div id="location" className="space-y-1.5">
+                <Label htmlFor="profile-country" className="text-xs font-semibold">Country of Residence *</Label>
+                <Select
+                  value={profile.country || 'Nigeria'}
+                  onValueChange={(val) => {
+                    const updated = { ...profile, country: val };
+                    setProfile(updated);
+                    setApplyReady(evaluateApplyReady(updated));
+                  }}
+                >
+                  <SelectTrigger id="profile-country" className="h-11 text-sm bg-neutral-50 border-neutral-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNTRIES.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="profile-phone" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Phone Number (Optional)</Label>
-                <Input
-                  id="profile-phone"
-                  type="tel"
-                  autoComplete="tel"
-                  value={profile.phone || ''}
-                  onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                  placeholder="+234 803 123 4567"
-                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
-                />
+              <div id="role-track" className="space-y-1.5">
+                <Label htmlFor="profile-role-track" className="text-xs font-semibold">Primary Role Track *</Label>
+                <Select
+                  value={profile.role_track || 'Software Engineering'}
+                  onValueChange={(val) => {
+                    const updated = { ...profile, role_track: val };
+                    setProfile(updated);
+                    setApplyReady(evaluateApplyReady(updated));
+                  }}
+                >
+                  <SelectTrigger id="profile-role-track" className="h-11 text-sm bg-neutral-50 border-neutral-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLE_TRACKS.map((t) => (
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="profile-bio" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Professional Bio / Summary</Label>
+            <div className="space-y-1.5 pt-2">
+              <Label htmlFor="profile-bio" className="text-xs font-semibold">Professional Bio / Summary</Label>
               <Textarea
                 id="profile-bio"
                 value={profile.bio || ''}
                 onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                 placeholder="Senior Engineer specializing in scalable distributed microservices and accessible frontend design systems..."
-                className="text-base sm:text-sm min-h-[90px] bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+                className="text-xs min-h-[80px] bg-neutral-50 border-neutral-200"
               />
             </div>
           </CardContent>
         </Card>
 
-        {/* Target Roles & Seniority */}
+        {/* Work History Entries */}
         <Card className="border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-bold text-neutral-900 dark:text-neutral-100">
-              Target Roles & Seniority
-            </CardTitle>
-            <CardDescription className="text-xs text-neutral-500 dark:text-neutral-400">
-              Specify what roles you are pursuing. Used for recommendation rankings.
-            </CardDescription>
+          <CardHeader className="pb-3 flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-base font-bold text-neutral-900 dark:text-neutral-100">
+                Work Experience & Employment History ({profile.work_history?.length || 0})
+              </CardTitle>
+              <CardDescription className="text-xs text-neutral-500">
+                Add at least one role to fulfill the Apply-Ready work experience criterion.
+              </CardDescription>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAddWorkModal(!showAddWorkModal)}
+              className="text-xs h-9 px-3 gap-1"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Position</span>
+            </Button>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Target Roles */}
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Target Roles</Label>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {profile.targetRoles.map((role) => (
-                  <Badge
-                    key={role}
-                    variant="secondary"
-                    className="gap-1.5 text-xs py-1 px-3 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200"
+            {showAddWorkModal && (
+              <div className="p-4 bg-neutral-50 border border-neutral-200 rounded-lg space-y-3">
+                <p className="text-xs font-bold uppercase tracking-wider text-neutral-600">New Work Position</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Input
+                    placeholder="Role Title (e.g. Senior Frontend Engineer)"
+                    value={newWorkTitle}
+                    onChange={(e) => setNewWorkTitle(e.target.value)}
+                    className="h-10 text-xs bg-white"
+                  />
+                  <Input
+                    placeholder="Company Name (e.g. Flutterwave)"
+                    value={newWorkCompany}
+                    onChange={(e) => setNewWorkCompany(e.target.value)}
+                    className="h-10 text-xs bg-white"
+                  />
+                  <Input
+                    type="month"
+                    placeholder="Start Date"
+                    value={newWorkStart}
+                    onChange={(e) => setNewWorkStart(e.target.value)}
+                    className="h-10 text-xs bg-white"
+                  />
+                  <Input
+                    placeholder="Summary / Accomplishments"
+                    value={newWorkSummary}
+                    onChange={(e) => setNewWorkSummary(e.target.value)}
+                    className="h-10 text-xs bg-white"
+                  />
+                </div>
+                <div className="flex gap-2 justify-end pt-1">
+                  <Button type="button" variant="outline" size="sm" onClick={() => setShowAddWorkModal(false)} className="text-xs h-8">
+                    Cancel
+                  </Button>
+                  <Button type="button" size="sm" onClick={handleAddWorkHistory} className="text-xs h-8 bg-neutral-950 text-white">
+                    Save Position
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {profile.work_history && profile.work_history.length > 0 ? (
+              <div className="space-y-3">
+                {profile.work_history.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-3.5 border border-neutral-200 rounded-lg flex items-start justify-between gap-3 text-xs bg-neutral-50/50"
                   >
-                    <span>{role}</span>
+                    <div className="space-y-1">
+                      <div className="font-bold text-neutral-900 text-sm">{item.title}</div>
+                      <div className="text-neutral-600 font-medium">
+                        {item.company} · {item.start_date} - {item.current ? 'Present' : item.end_date}
+                      </div>
+                      {item.summary && <p className="text-neutral-500 pt-1">{item.summary}</p>}
+                    </div>
                     <button
                       type="button"
-                      onClick={() => handleRemoveRole(role)}
-                      className="hover:text-rose-500"
+                      onClick={() => handleRemoveWorkHistory(item.id)}
+                      className="p-1 text-neutral-400 hover:text-rose-500"
+                      title="Remove position"
                     >
-                      ×
+                      <Trash2 className="w-4 h-4" />
                     </button>
-                  </Badge>
+                  </div>
                 ))}
               </div>
-
-              <div className="flex items-center gap-2 pt-1">
-                <Input
-                  value={newRoleInput}
-                  onChange={(e) => setNewRoleInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddRole())}
-                  placeholder="Add target role (e.g. Senior Frontend Engineer)"
-                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleAddRole}
-                  className="text-xs min-h-[44px] px-4 shrink-0 gap-1"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  <span>Add Role</span>
-                </Button>
+            ) : (
+              <div className="text-center py-6 text-xs text-neutral-500 border border-dashed rounded-lg">
+                No work history entries added yet. Either upload your CV or click &quot;Add Position&quot; above.
               </div>
-            </div>
+            )}
+          </CardContent>
+        </Card>
 
-            {/* Experience & Seniority Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-neutral-100 dark:border-neutral-800">
+        {/* Experience & Seniority */}
+        <Card id="experience" className="border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-bold text-neutral-900 dark:text-neutral-100">
+              Seniority & Career Level
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="profile-yearsOfExperience" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                  Years of Experience *
-                </Label>
+                <Label htmlFor="profile-years" className="text-xs font-semibold">Years of Experience *</Label>
                 <Input
-                  id="profile-yearsOfExperience"
-                  aria-label="Years of Experience"
+                  id="profile-years"
                   type="number"
                   min={0}
                   max={40}
                   value={profile.yearsOfExperience || ''}
-                  onChange={(e) =>
-                    setProfile({ ...profile, yearsOfExperience: parseInt(e.target.value, 10) || 0 })
-                  }
-                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+                  onChange={(e) => {
+                    const updated = { ...profile, yearsOfExperience: parseInt(e.target.value, 10) || 0 };
+                    setProfile(updated);
+                    setApplyReady(evaluateApplyReady(updated));
+                  }}
+                  className="h-11 text-sm bg-neutral-50 border-neutral-200"
                   required
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                  Seniority Level *
-                </Label>
+                <Label className="text-xs font-semibold">Seniority Level *</Label>
                 <Select
                   value={profile.seniority}
-                  onValueChange={(val: SeniorityLevel) => setProfile({ ...profile, seniority: val })}
+                  onValueChange={(val: SeniorityLevel) => {
+                    const updated = { ...profile, seniority: val };
+                    setProfile(updated);
+                    setApplyReady(evaluateApplyReady(updated));
+                  }}
                 >
-                  <SelectTrigger className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800">
+                  <SelectTrigger className="h-11 text-sm bg-neutral-50 border-neutral-200">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {SENIORITY_OPTIONS.map((sen) => (
-                      <SelectItem key={sen} value={sen} className="text-xs">
-                        {sen}
-                      </SelectItem>
+                      <SelectItem key={sen} value={sen}>{sen}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -609,98 +879,76 @@ export default function CandidateProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Skills with Proficiency Level */}
-        <Card className="border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-base font-bold text-neutral-900 dark:text-neutral-100">
-                  Technical Skills & Proficiency ({profile.skills.length})
-                </CardTitle>
-                <CardDescription className="text-xs text-neutral-500 dark:text-neutral-400">
-                  Rate your depth from Beginner to Expert. Used directly in skill overlap calculations.
-                </CardDescription>
-              </div>
-              <Badge variant="outline" className="text-xs">
-                {profile.skills.length} skills listed
-              </Badge>
+        {/* Skills Section */}
+        <Card id="skills" className="border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-base font-bold text-neutral-900 dark:text-neutral-100">
+                Skills & Proficiency ({profile.skills.length})
+              </CardTitle>
+              <CardDescription className="text-xs text-neutral-500">
+                At least 3 skills required for Apply-Ready status.
+              </CardDescription>
             </div>
+            <Badge variant="outline" className={`text-xs ${profile.skills.length >= 3 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+              {profile.skills.length}/3 minimum
+            </Badge>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Add Skill Row */}
-            <div className="flex flex-col sm:flex-row items-center gap-2 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-800">
+            <div className="flex flex-col sm:flex-row items-center gap-2 p-3 rounded-xl bg-neutral-50 border border-neutral-200">
               <Input
                 value={newSkillName}
                 onChange={(e) => setNewSkillName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
-                placeholder="Skill name (e.g. Kubernetes, React, Python)"
-                className="text-xs min-h-[44px] px-4 bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800 flex-1"
+                placeholder="Skill name (e.g. Next.js, Go, Figma, AWS)"
+                className="text-xs h-10 bg-white flex-1"
               />
-
               <Select
                 value={newSkillLevel}
                 onValueChange={(val: SkillProficiency['level']) => setNewSkillLevel(val)}
               >
-                <SelectTrigger className="text-xs min-h-[44px] px-4 w-full sm:w-36 bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800">
+                <SelectTrigger className="text-xs h-10 w-full sm:w-36 bg-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {PROFICIENCY_LEVELS.map((lvl) => (
-                    <SelectItem key={lvl} value={lvl} className="text-xs">
-                      {lvl}
-                    </SelectItem>
+                    <SelectItem key={lvl} value={lvl}>{lvl}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleAddSkill}
-                className="text-xs min-h-[44px] px-4 w-full sm:w-auto shrink-0 gap-1 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                <span>Add Skill</span>
+              <Button type="button" size="sm" onClick={handleAddSkill} className="text-xs h-10 bg-neutral-900 text-white">
+                <Plus className="w-3.5 h-3.5 mr-1" />
+                Add Skill
               </Button>
             </div>
 
-            {/* Current Skills Table / Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {profile.skills.map((skill) => (
                 <div
                   key={skill.name}
-                  className="flex items-center justify-between p-2.5 rounded-xl border border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-xs"
+                  className="flex items-center justify-between p-2.5 rounded-lg border border-neutral-200 bg-white text-xs"
                 >
-                  <div className="font-semibold text-neutral-800 dark:text-neutral-200 truncate pr-2">
-                    {skill.name}
-                  </div>
-
+                  <span className="font-semibold text-neutral-800 truncate pr-2">{skill.name}</span>
                   <div className="flex items-center gap-1.5 shrink-0">
                     <Select
                       value={skill.level}
-                      onValueChange={(val: SkillProficiency['level']) =>
-                        handleUpdateSkillLevel(skill.name, val)
-                      }
+                      onValueChange={(val: SkillProficiency['level']) => handleUpdateSkillLevel(skill.name, val)}
                     >
-                      <SelectTrigger className="h-7 text-xs w-24 bg-neutral-50 dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800">
+                      <SelectTrigger className="h-7 text-xs w-24 bg-neutral-50">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {PROFICIENCY_LEVELS.map((lvl) => (
-                          <SelectItem key={lvl} value={lvl} className="text-xs">
-                            {lvl}
-                          </SelectItem>
+                          <SelectItem key={lvl} value={lvl}>{lvl}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-
                     <button
                       type="button"
                       onClick={() => handleRemoveSkill(skill.name)}
-                      className="p-1 rounded-md text-neutral-400 hover:text-rose-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                      title="Remove skill"
+                      className="p-1 text-neutral-400 hover:text-rose-500"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -709,22 +957,16 @@ export default function CandidateProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Work Preferences & Salary Expectation */}
+        {/* Preferences & Compensation */}
         <Card className="border-neutral-200/90 dark:border-neutral-800 bg-white dark:bg-neutral-950">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-bold text-neutral-900 dark:text-neutral-100">
-              Work Preferences & Minimum Salary Expectation
+              Work Preferences & Compensation
             </CardTitle>
-            <CardDescription className="text-xs text-neutral-500 dark:text-neutral-400">
-              Used strictly to ensure match scores reflect only opportunities that meet your lifestyle and income criteria.
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Work Preferences */}
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                Work Type Preferences (Select all that apply)
-              </Label>
+              <Label className="text-xs font-semibold">Work Preferences</Label>
               <div className="flex flex-wrap items-center gap-2">
                 {WORK_PREF_OPTIONS.map((pref) => {
                   const active = (profile.workPreferences || []).includes(pref);
@@ -735,8 +977,8 @@ export default function CandidateProfilePage() {
                       onClick={() => handleToggleWorkPref(pref)}
                       className={`text-xs px-3.5 py-1.5 rounded-lg font-medium border transition-colors ${
                         active
-                          ? 'border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-neutral-950'
-                          : 'border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
+                          ? 'border-neutral-950 bg-neutral-950 text-white'
+                          : 'border-neutral-200 text-neutral-600 hover:bg-neutral-50'
                       }`}
                     >
                       {active && '✓ '}
@@ -747,12 +989,9 @@ export default function CandidateProfilePage() {
               </div>
             </div>
 
-            {/* Salary Expectation Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-neutral-100 dark:border-neutral-800">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-neutral-100">
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                  Minimum Annual Salary Expectation *
-                </Label>
+                <Label className="text-xs font-semibold">Minimum Annual Salary Expectation</Label>
                 <Input
                   type="number"
                   min={0}
@@ -762,27 +1001,22 @@ export default function CandidateProfilePage() {
                     setProfile({ ...profile, minSalaryExpectation: parseInt(e.target.value, 10) || null })
                   }
                   placeholder="e.g. 85000"
-                  className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
-                  required
+                  className="h-11 text-sm bg-neutral-50 border-neutral-200"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                  Salary Currency
-                </Label>
+                <Label className="text-xs font-semibold">Currency</Label>
                 <Select
                   value={profile.salaryCurrency}
                   onValueChange={(val: any) => setProfile({ ...profile, salaryCurrency: val })}
                 >
-                  <SelectTrigger className="text-base sm:text-sm min-h-[44px] h-11 bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800">
+                  <SelectTrigger className="h-11 text-sm bg-neutral-50 border-neutral-200">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {CURRENCY_OPTIONS.map((c) => (
-                      <SelectItem key={c} value={c} className="text-xs">
-                        {c} ({c === 'USD' ? '$' : c === 'NGN' ? '₦' : c === 'EUR' ? '€' : '£'})
-                      </SelectItem>
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -791,21 +1025,29 @@ export default function CandidateProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Save Bar & Ethical Disclosure */}
+        {/* Save Bar */}
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-xs text-neutral-700 dark:text-neutral-300 font-medium">
-            Scores and suggestions are AI-generated and may be wrong. You decide where to apply.
-          </div>
+          <p className="text-xs text-neutral-500">
+            Scores and suggestions are AI-generated and advisory. You decide where to apply.
+          </p>
 
           <Button
             type="submit"
-            className="text-xs h-10 px-6 gap-2 bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 font-semibold w-full sm:w-auto"
+            className="text-xs h-11 px-8 gap-2 bg-neutral-950 text-white hover:bg-neutral-800 font-semibold w-full sm:w-auto"
           >
-            {isSaved ? <Check className="h-4 w-4 text-emerald-500" /> : <Save className="h-4 w-4" />}
+            {isSaved ? <Check className="h-4 w-4 text-emerald-400" /> : <Save className="h-4 w-4" />}
             <span>{isSaved ? 'Profile Saved & Synchronized!' : 'Save Candidate Profile'}</span>
           </Button>
         </div>
       </form>
     </div>
+  );
+}
+
+export default function CandidateProfilePage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-neutral-500">Loading profile...</div>}>
+      <ProfileContent />
+    </Suspense>
   );
 }

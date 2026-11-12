@@ -1,0 +1,430 @@
+[
+  {
+    "id": "candidate-default-01",
+    "user_id": "user-ready-1794527380073",
+    "email_verified": true,
+    "full_name": "Babajide Sanwo",
+    "email": "user-ready-1794527380073@sync730.dev",
+    "country": "Nigeria",
+    "location": "Lagos, Nigeria",
+    "role_track": "Software Engineering",
+    "target_roles": [
+      "Senior Frontend Engineer",
+      "Full Stack TypeScript Architect"
+    ],
+    "skills": [
+      {
+        "name": "TypeScript",
+        "level": "Expert"
+      },
+      {
+        "name": "React",
+        "level": "Advanced"
+      },
+      {
+        "name": "Node.js",
+        "level": "Advanced"
+      }
+    ],
+    "years_of_experience": 5,
+    "experience_level": "Senior",
+    "work_history": [
+      {
+        "id": "w1",
+        "title": "Senior Engineer",
+        "company": "Fintech Hub",
+        "start_date": "2021-01",
+        "current": true
+      }
+    ],
+    "cv_uploaded": true,
+    "cv_file_name": "Adaeze_Okonkwo_Senior_Engineer_CV.pdf",
+    "cv_file_size": 1450000,
+    "cv_uploaded_at": "2026-11-10T23:49:40.427Z",
+    "work_preferences": [
+      "Remote",
+      "Full-time"
+    ],
+    "min_salary_expectation": 85000,
+    "salary_currency": "USD",
+    "bio": "Senior Software Engineer specializing in resilient, accessible Next.js web applications.",
+    "is_apply_ready": true,
+    "missing_items": [],
+    "apply_ready_progress_pct": 100,
+    "last_updated": "2026-11-12T23:49:40.432Z"
+  },
+  {
+    "id": "candidate-default-01",
+    "user_id": "default-candidate-user",
+    "email_verified": true,
+    "full_name": "Adaeze Okonkwo",
+    "email": "adaeze.okonkwo@sync730.dev",
+    "country": "Nigeria",
+    "location": "Lagos, Nigeria",
+    "role_track": "Software Engineering",
+    "target_roles": [
+      "Senior Frontend Engineer",
+      "Full Stack TypeScript Architect"
+    ],
+    "skills": [
+      {
+        "name": "React",
+        "level": "Expert"
+      },
+      {
+        "name": "TypeScript",
+        "level": "Expert"
+      },
+      {
+        "name": "Next.js",
+        "level": "Advanced"
+      },
+      {
+        "name": "Tailwind CSS",
+        "level": "Expert"
+      },
+      {
+        "name": "Node.js",
+        "level": "Advanced"
+      }
+    ],
+    "years_of_experience": 6,
+    "experience_level": "Senior",
+    "work_history": [
+      {
+        "id": "work-1",
+        "title": "Senior Frontend Engineer",
+        "company": "PayFlex Africa",
+        "location": "Lagos, Nigeria",
+        "start_date": "2022-03",
+        "current": true,
+        "summary": "Led the core merchant checkout frontend, cutting load latency by 45%."
+      }
+    ],
+    "cv_uploaded": true,
+    "cv_file_name": "Adaeze_Okonkwo_Senior_Engineer_CV.pdf",
+    "cv_file_size": 1450000,
+    "cv_uploaded_at": "2026-11-10T23:49:37.000Z",
+    "work_preferences": [
+      "Remote",
+      "Full-time"
+    ],
+    "min_salary_expectation": 85000,
+    "salary_currency": "USD",
+    "bio": "Senior Software Engineer specializing in resilient, accessible Next.js web applications.",
+    "is_apply_ready": true,
+    "missing_items": [],
+    "apply_ready_progress_pct": 100,
+    "last_updated": "2026-11-12T23:49:37.000Z"
+  },
+  {
+    "id": "candidate-default-01",
+    "user_id": "user-heavy-1794527380600",
+    "email_verified": true,
+    "full_name": "Active Applicant",
+    "email": "user-heavy-1794527380600@sync730.dev",
+    "country": "Nigeria",
+    "location": "Lagos, Nigeria",
+    "role_track": "Software Engineering",
+    "target_roles": [
+      "Senior Frontend Engineer",
+      "Full Stack TypeScript Architect"
+    ],
+    "skills": [
+      {
+        "name": "A",
+        "level": "Expert"
+      },
+      {
+        "name": "B",
+        "level": "Advanced"
+      },
+      {
+        "name": "C",
+        "level": "Mid"
+      }
+    ],
+    "years_of_experience": 6,
+    "experience_level": "Mid",
+    "work_history": [
+      {
+        "id": "work-1",
+        "title": "Senior Frontend Engineer",
+        "company": "PayFlex Africa",
+        "location": "Lagos, Nigeria",
+        "start_date": "2022-03",
+        "current": true,
+        "summary": "Led the core merchant checkout frontend, cutting load latency by 45%."
+      }
+    ],
+    "cv_uploaded": true,
+    "cv_file_name": "Adaeze_Okonkwo_Senior_Engineer_CV.pdf",
+    "cv_file_size": 1450000,
+    "cv_uploaded_at": "2026-11-10T23:49:40.427Z",
+    "work_preferences": [
+      "Remote",
+      "Full-time"
+    ],
+    "min_salary_expectation": 85000,
+    "salary_currency": "USD",
+    "bio": "Senior Software Engineer specializing in resilient, accessible Next.js web applications.",
+    "is_apply_ready": true,
+    "missing_items": [],
+    "apply_ready_progress_pct": 100,
+    "last_updated": "2026-11-12T23:49:40.646Z"
+  },
+  {
+    "id": "candidate-user-ready-1794527692635",
+    "user_id": "user-ready-1794527692635",
+    "full_name": "Babajide Sanwo",
+    "email": "user-ready-1794527692635@sync730.dev",
+    "country": "Nigeria",
+    "role_track": "Software Engineering",
+    "skills": [
+      {
+        "name": "TypeScript",
+        "level": "Expert"
+      },
+      {
+        "name": "React",
+        "level": "Advanced"
+      },
+      {
+        "name": "Node.js",
+        "level": "Advanced"
+      }
+    ],
+    "years_of_experience": 5,
+    "experience_level": "Senior",
+    "work_history": [
+      {
+        "id": "w1",
+        "title": "Senior Engineer",
+        "company": "Fintech Hub",
+        "start_date": "2021-01",
+        "current": true
+      }
+    ],
+    "cv_uploaded": true,
+    "email_verified": true,
+    "work_preferences": [],
+    "min_salary_expectation": null,
+    "salary_currency": "USD",
+    "is_apply_ready": true,
+    "missing_items": [],
+    "apply_ready_progress_pct": 100,
+    "last_updated": "2026-11-12T23:54:53.085Z"
+  },
+  {
+    "id": "candidate-user-heavy-1794527693354",
+    "user_id": "user-heavy-1794527693354",
+    "full_name": "Active Applicant",
+    "email": "user-heavy-1794527693354@sync730.dev",
+    "country": "Nigeria",
+    "role_track": "Software Engineering",
+    "skills": [
+      {
+        "name": "A",
+        "level": "Expert"
+      },
+      {
+        "name": "B",
+        "level": "Advanced"
+      },
+      {
+        "name": "C",
+        "level": "Mid"
+      }
+    ],
+    "years_of_experience": 0,
+    "experience_level": "Mid",
+    "work_history": [],
+    "cv_uploaded": true,
+    "email_verified": true,
+    "work_preferences": [],
+    "min_salary_expectation": null,
+    "salary_currency": "USD",
+    "is_apply_ready": true,
+    "missing_items": [],
+    "apply_ready_progress_pct": 100,
+    "last_updated": "2026-11-12T23:54:53.499Z"
+  },
+  {
+    "id": "candidate-user-heavy-test-123",
+    "user_id": "user-heavy-test-123",
+    "full_name": "Active Applicant",
+    "email": "user-heavy-test-123@sync730.dev",
+    "country": "Nigeria",
+    "role_track": "Software Engineering",
+    "skills": [
+      {
+        "name": "A",
+        "level": "Expert"
+      },
+      {
+        "name": "B",
+        "level": "Advanced"
+      },
+      {
+        "name": "C",
+        "level": "Mid"
+      }
+    ],
+    "years_of_experience": 0,
+    "experience_level": "Mid",
+    "work_history": [],
+    "cv_uploaded": true,
+    "email_verified": true,
+    "work_preferences": [],
+    "min_salary_expectation": null,
+    "salary_currency": "USD",
+    "is_apply_ready": true,
+    "missing_items": [],
+    "apply_ready_progress_pct": 100,
+    "last_updated": "2026-11-12T23:55:40.059Z"
+  },
+  {
+    "id": "candidate-user-heavy-test-21st-1794527757327",
+    "user_id": "user-heavy-test-21st-1794527757327",
+    "full_name": "Active Applicant",
+    "email": "user-heavy-test-21st-1794527757327@sync730.dev",
+    "country": "Nigeria",
+    "role_track": "Software Engineering",
+    "skills": [
+      {
+        "name": "A",
+        "level": "Expert"
+      },
+      {
+        "name": "B",
+        "level": "Advanced"
+      },
+      {
+        "name": "C",
+        "level": "Mid"
+      }
+    ],
+    "years_of_experience": 0,
+    "experience_level": "Mid",
+    "work_history": [],
+    "cv_uploaded": true,
+    "email_verified": true,
+    "work_preferences": [],
+    "min_salary_expectation": null,
+    "salary_currency": "USD",
+    "is_apply_ready": true,
+    "missing_items": [],
+    "apply_ready_progress_pct": 100,
+    "last_updated": "2026-11-12T23:55:57.475Z"
+  },
+  {
+    "id": "candidate-user-heavy-test-real-slugs-1794527781485",
+    "user_id": "user-heavy-test-real-slugs-1794527781485",
+    "full_name": "Active Applicant",
+    "email": "user-heavy-test-real-slugs-1794527781485@sync730.dev",
+    "country": "Nigeria",
+    "role_track": "Software Engineering",
+    "skills": [
+      {
+        "name": "A",
+        "level": "Expert"
+      },
+      {
+        "name": "B",
+        "level": "Advanced"
+      },
+      {
+        "name": "C",
+        "level": "Mid"
+      }
+    ],
+    "years_of_experience": 0,
+    "experience_level": "Mid",
+    "work_history": [],
+    "cv_uploaded": true,
+    "email_verified": true,
+    "work_preferences": [],
+    "min_salary_expectation": null,
+    "salary_currency": "USD",
+    "is_apply_ready": true,
+    "missing_items": [],
+    "apply_ready_progress_pct": 100,
+    "last_updated": "2026-11-12T23:56:21.549Z"
+  },
+  {
+    "id": "candidate-user-ready-1794527813601",
+    "user_id": "user-ready-1794527813601",
+    "full_name": "Babajide Sanwo",
+    "email": "user-ready-1794527813601@sync730.dev",
+    "country": "Nigeria",
+    "role_track": "Software Engineering",
+    "skills": [
+      {
+        "name": "TypeScript",
+        "level": "Expert"
+      },
+      {
+        "name": "React",
+        "level": "Advanced"
+      },
+      {
+        "name": "Node.js",
+        "level": "Advanced"
+      }
+    ],
+    "years_of_experience": 5,
+    "experience_level": "Senior",
+    "work_history": [
+      {
+        "id": "w1",
+        "title": "Senior Engineer",
+        "company": "Fintech Hub",
+        "start_date": "2021-01",
+        "current": true
+      }
+    ],
+    "cv_uploaded": true,
+    "email_verified": true,
+    "work_preferences": [],
+    "min_salary_expectation": null,
+    "salary_currency": "USD",
+    "is_apply_ready": true,
+    "missing_items": [],
+    "apply_ready_progress_pct": 100,
+    "last_updated": "2026-11-12T23:56:53.646Z"
+  },
+  {
+    "id": "candidate-user-heavy-1794527813964",
+    "user_id": "user-heavy-1794527813964",
+    "full_name": "Active Applicant",
+    "email": "user-heavy-1794527813964@sync730.dev",
+    "country": "Nigeria",
+    "role_track": "Software Engineering",
+    "skills": [
+      {
+        "name": "A",
+        "level": "Expert"
+      },
+      {
+        "name": "B",
+        "level": "Advanced"
+      },
+      {
+        "name": "C",
+        "level": "Mid"
+      }
+    ],
+    "years_of_experience": 0,
+    "experience_level": "Mid",
+    "work_history": [],
+    "cv_uploaded": true,
+    "email_verified": true,
+    "work_preferences": [],
+    "min_salary_expectation": null,
+    "salary_currency": "USD",
+    "is_apply_ready": true,
+    "missing_items": [],
+    "apply_ready_progress_pct": 100,
+    "last_updated": "2026-11-12T23:56:54.107Z"
+  }
+]
