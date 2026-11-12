@@ -2,22 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import {
-  CreditCard,
-  Zap,
   Users,
   Plus,
-  ShieldCheck,
-  Building2,
   Mail,
-  CheckCircle2,
-  Shield,
   UserCheck,
-  Lock,
-  ArrowRight,
-  AlertCircle,
-  HelpCircle,
   RefreshCw,
   AlertTriangle,
+  Shield,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,7 +29,6 @@ import {
 } from '@/lib/recruiter/types';
 import {
   getLocalWorkspace,
-  saveLocalWorkspace,
   getLocalMembers,
   saveLocalMember,
 } from '@/lib/recruiter/store';
@@ -47,9 +37,7 @@ import { toast } from 'sonner';
 export default function ConsoleTeamPage() {
   const [workspace, setWorkspace] = useState<CorporateWorkspace>(getLocalWorkspace());
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
-  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [selectedPack, setSelectedPack] = useState<'5' | '15' | '50'>('5');
 
   // Loading & Error states
   const [isLoading, setIsLoading] = useState(true);
@@ -158,22 +146,28 @@ export default function ConsoleTeamPage() {
     }
   };
 
-  const PACKS = {
-    '5': { tokens: 5, price: '₦100,000', perToken: '₦20,000', label: 'Starter Pack', discount: null },
-    '15': { tokens: 15, price: '₦270,000', perToken: '₦18,000', label: 'Growth Pack', discount: '10% Savings' },
-    '50': { tokens: 50, price: '₦800,000', perToken: '₦16,000', label: 'Enterprise Scale', discount: '20% Savings' },
-  };
-
   return (
     <div className="space-y-8">
       {/* Page Header */}
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
-          Token Billing & Team Management
-        </h1>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-          Manage your candidate unlock tokens, view billing history, and coordinate team interview permissions.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
+            Workspace Team & Role Permissions
+          </h1>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+            Manage your company hiring squad, assign roles, and coordinate interviewer access.
+          </p>
+        </div>
+
+        {isOwnerOrAdmin && (
+          <Button
+            onClick={() => setIsInviteModalOpen(true)}
+            className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 text-xs font-semibold h-9 px-3.5 rounded-xl shadow-xs gap-1.5 self-start sm:self-auto"
+          >
+            <Plus className="h-3.5 w-3.5 stroke-[1.5]" />
+            <span>Invite Colleague</span>
+          </Button>
+        )}
       </div>
 
       {/* Error Banner */}
@@ -190,103 +184,50 @@ export default function ConsoleTeamPage() {
         </div>
       )}
 
-      {/* Token Balance & Billing Section (Restricted from Interviewers) */}
-      <div id="tokens" className="p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xs space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-neutral-100 dark:border-neutral-800">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
-              <Zap className="h-4 w-4 text-amber-500 fill-amber-500 stroke-[1.5]" />
-              <span>Available Candidate Unlock Balance</span>
-            </div>
-            {isLoading ? (
-              <div className="mt-2 space-y-1">
-                <Skeleton className="h-9 w-24" />
-                <Skeleton className="h-3 w-48" />
-              </div>
-            ) : (
-              <>
-                <div className="mt-2 text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight flex items-baseline gap-2">
-                  <span>{workspace.token_balance}</span>
-                  <span className="text-sm font-semibold text-neutral-500 dark:text-neutral-400">
-                    Tokens Remaining
-                  </span>
-                </div>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                  Standard pricing: <strong>₦20,000 per token</strong>. Each token unlocks complete verified candidate dossiers.
-                </p>
-              </>
-            )}
+      {/* Team Members Management Section */}
+      <div className="p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xs space-y-5">
+        <div className="flex items-center justify-between pb-4 border-b border-neutral-100 dark:border-neutral-800">
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-neutral-500" />
+            <span className="text-sm font-bold text-neutral-900 dark:text-white">
+              Active Team Members ({members.length})
+            </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            {isOwnerOrAdmin ? (
-              <Button
-                onClick={() => setIsBuyModalOpen(true)}
-                className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 text-xs font-semibold h-9 px-4 rounded-xl shadow-xs gap-1.5"
-              >
-                <CreditCard className="h-3.5 w-3.5 stroke-[1.5]" />
-                <span>Buy Token Pack (₦20,000 / Token)</span>
-              </Button>
-            ) : (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-medium">
-                <Lock className="h-3.5 w-3.5" />
-                <span>Interviewer: Ask an admin to top up</span>
-              </div>
-            )}
+          <div className="text-xs text-neutral-400">
+            {workspace.company_name}
           </div>
         </div>
 
-        {/* Pricing Tier Highlights - Visible to OWNER & ADMIN */}
-        {isOwnerOrAdmin && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/30 space-y-1">
-              <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Starter Pack</div>
-              <div className="text-lg font-bold text-neutral-900 dark:text-white">5 Tokens</div>
-              <div className="text-xs text-neutral-500">₦100,000 (₦20,000 / candidate)</div>
-            </div>
-
-            <div className="p-4 rounded-xl border border-neutral-900 dark:border-white bg-neutral-900/5 dark:bg-white/5 space-y-1 relative">
-              <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
-                10% Off
-              </span>
-              <div className="text-xs font-semibold text-neutral-900 dark:text-white">Growth Pack</div>
-              <div className="text-lg font-bold text-neutral-900 dark:text-white">15 Tokens</div>
-              <div className="text-xs text-neutral-500">₦270,000 (₦18,000 / candidate)</div>
-            </div>
-
-            <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/30 space-y-1 relative">
-              <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold">
-                20% Off
-              </span>
-              <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Enterprise Pack</div>
-              <div className="text-lg font-bold text-neutral-900 dark:text-white">50 Tokens</div>
-              <div className="text-xs text-neutral-500">₦800,000 (₦16,000 / candidate)</div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Team Members Management Section */}
-      <div className="p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-neutral-100 dark:border-neutral-800">
+        {/* Role Permissions Reference Pill */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-200 dark:border-neutral-800 text-xs">
           <div>
-            <h2 className="text-base font-bold text-neutral-900 dark:text-white">
-              Workspace Team & Role Permissions
-            </h2>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-              Control permissions across your hiring squad. Interviewers can watch candidate videos and leave internal notes.
+            <div className="font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-neutral-900 dark:bg-white" />
+              <span>Owner</span>
+            </div>
+            <p className="text-[11px] text-neutral-500 mt-0.5">
+              Full workspace authority, billing, token top-ups, member invites, and candidate unlocking.
             </p>
           </div>
-
-          {isOwnerOrAdmin && (
-            <Button
-              onClick={() => setIsInviteModalOpen(true)}
-              className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 text-xs font-semibold h-9 px-3.5 rounded-xl shadow-xs gap-1.5"
-            >
-              <Plus className="h-3.5 w-3.5 stroke-[1.5]" />
-              <span>Invite Colleague</span>
-            </Button>
-          )}
+          <div>
+            <div className="font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-blue-500" />
+              <span>Admin</span>
+            </div>
+            <p className="text-[11px] text-neutral-500 mt-0.5">
+              Manage open roles, purchase token packs, invite interviewers, and unlock verified dossiers.
+            </p>
+          </div>
+          <div>
+            <div className="font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span>Interviewer</span>
+            </div>
+            <p className="text-[11px] text-neutral-500 mt-0.5">
+              Watch candidate screening videos, view balance, record notes and scores. Cannot spend tokens or view billing.
+            </p>
+          </div>
         </div>
 
         {/* Members List with Loading Skeleton */}
@@ -339,87 +280,6 @@ export default function ConsoleTeamPage() {
         )}
       </div>
 
-      {/* Paystack Checkout / Top Up Dialog - Enforcing Confirmed Payment Lockdown */}
-      <Dialog open={isBuyModalOpen} onOpenChange={setIsBuyModalOpen}>
-        <DialogContent className="max-w-md p-6 rounded-2xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800">
-          <DialogHeader>
-            <div className="h-10 w-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-2">
-              <Zap className="h-5 w-5 fill-amber-500 stroke-[1.5]" />
-            </div>
-            <DialogTitle className="text-lg font-bold text-neutral-900 dark:text-white">
-              Buy Candidate Unlock Tokens
-            </DialogTitle>
-            <DialogDescription className="text-xs text-neutral-500">
-              Each token unlocks 1 full candidate profile with verified contact details, resume, and assessment notes.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 pt-3 text-xs">
-            {/* Packs selector */}
-            <div className="space-y-2">
-              {(Object.keys(PACKS) as ('5' | '15' | '50')[]).map((key) => {
-                const p = PACKS[key];
-                const isSelected = selectedPack === key;
-                return (
-                  <div
-                    key={key}
-                    onClick={() => setSelectedPack(key)}
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
-                      isSelected
-                        ? 'border-neutral-900 dark:border-white bg-neutral-50 dark:bg-neutral-900 ring-1 ring-neutral-900 dark:ring-white'
-                        : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-300'
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-neutral-900 dark:text-white">
-                          {p.label} ({p.tokens} Tokens)
-                        </span>
-                        {p.discount && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                            {p.discount}
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-neutral-500 text-[11px] mt-0.5">
-                        {p.perToken} per candidate unlock
-                      </div>
-                    </div>
-                    <div className="text-right font-extrabold text-neutral-900 dark:text-white">
-                      {p.price}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Mandated Requirement Notice */}
-            <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-1">
-              <div className="flex items-center gap-2 font-bold">
-                <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
-                <span>Top-ups are temporarily unavailable. Contact support.</span>
-              </div>
-              <p className="text-[11px] text-neutral-600 dark:text-neutral-400 pt-0.5 leading-relaxed">
-                Tokens can only be issued after confirmed server-verified payment. Automated B2B payment webhooks are scheduled in Batch R3. To allocate enterprise credits immediately, please contact{' '}
-                <a
-                  href="mailto:support@sync730.com?subject=Recruiter%20Token%20Allocation%20Request"
-                  className="font-semibold underline text-neutral-900 dark:text-white"
-                >
-                  support@sync730.com
-                </a>.
-              </p>
-            </div>
-
-            <Button
-              disabled={true}
-              className="w-full h-10 bg-neutral-300 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 font-semibold text-xs rounded-xl cursor-not-allowed shadow-none"
-            >
-              Top-ups are temporarily unavailable
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       {/* Invite Member Dialog */}
       <Dialog open={isInviteModalOpen} onOpenChange={setIsInviteModalOpen}>
         <DialogContent className="max-w-md p-6 rounded-2xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800">
@@ -452,7 +312,7 @@ export default function ConsoleTeamPage() {
               <Input
                 type="email"
                 required
-                placeholder="sarah@company.com"
+                placeholder="sarah.chen@company.com"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 className="h-9 text-xs"
@@ -461,33 +321,33 @@ export default function ConsoleTeamPage() {
 
             <div className="space-y-1.5">
               <Label className="font-semibold text-neutral-700 dark:text-neutral-300">
-                Role Permission
+                Squad Role *
               </Label>
               <select
                 value={inviteRole}
                 onChange={(e) => setInviteRole(e.target.value as any)}
-                className="w-full h-9 rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 text-xs text-neutral-900 dark:text-neutral-100"
+                className="w-full h-9 rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-3 text-xs"
               >
-                <option value="INTERVIEWER">INTERVIEWER (Watch video assessments & leave notes)</option>
-                <option value="ADMIN">ADMIN (Post jobs, manage team)</option>
+                <option value="INTERVIEWER">INTERVIEWER (Video Review & Scoring)</option>
+                <option value="ADMIN">ADMIN (Job Management & Candidate Unlocks)</option>
               </select>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="pt-2 flex items-center justify-end gap-2">
               <Button
                 type="button"
-                variant="ghost"
+                variant="outline"
                 onClick={() => setIsInviteModalOpen(false)}
-                className="text-xs h-9 px-3"
+                className="h-9 text-xs"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={isInviting}
-                className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 text-xs font-semibold h-9 px-4 rounded-xl shadow-xs"
+                className="h-9 text-xs font-semibold bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
               >
-                {isInviting ? 'Sending Invite...' : 'Send Invitation'}
+                {isInviting ? 'Sending...' : 'Send Invitation'}
               </Button>
             </div>
           </form>

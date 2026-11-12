@@ -1,5 +1,70 @@
 export type RecruiterRole = 'OWNER' | 'ADMIN' | 'INTERVIEWER';
 
+export type TokenPackId = 'starter' | 'growth' | 'enterprise';
+
+export type OrderStatus =
+  | 'PENDING'
+  | 'PENDING_CONFIRMATION'
+  | 'CONFIRMED'
+  | 'FAILED'
+  | 'ABANDONED'
+  | 'FLAGGED_REVIEW';
+
+export type LedgerEntryType = 'CREDIT' | 'DEBIT' | 'REFUND' | 'ADJUSTMENT';
+
+export interface TokenPackConfig {
+  id: TokenPackId;
+  name: string;
+  tokens: number;
+  amount: number; // in NGN
+  amount_kobo: number; // in Kobo (for Paystack)
+  currency: 'NGN';
+  per_token_amount: number;
+  per_token_display: string;
+  price_display: string;
+  discount_label: string | null;
+  description: string;
+}
+
+export interface BillingOrder {
+  id: string; // order_id (e.g. ord_xxx)
+  workspace_id: string;
+  pack_id: TokenPackId;
+  tokens: number;
+  amount: number; // in NGN
+  amount_kobo: number;
+  currency: 'NGN';
+  created_by: string;
+  created_at: string;
+  expires_at: string;
+  payment_reference: string;
+  payment_method: 'card' | 'bank_transfer';
+  status: OrderStatus;
+  paid_at?: string;
+  failure_reason?: string;
+  confirmed_by?: string;
+  bank_details?: {
+    bank_name: string;
+    account_number: string;
+    account_name: string;
+  };
+}
+
+export interface TokenLedgerEntry {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  user_email?: string;
+  order_id?: string;
+  candidate_id?: string;
+  candidate_masked_id?: string;
+  type: LedgerEntryType;
+  amount: number; // +5 for credit, -1 for debit
+  balance_after: number;
+  description: string;
+  created_at: string;
+}
+
 export interface CorporateWorkspace {
   id: string;
   company_name: string;

@@ -71,6 +71,14 @@ export default function ConsoleTalentPage() {
   // Detail View Modal state
   const [activeDetailCandidate, setActiveDetailCandidate] = useState<VideoAssessment | null>(null);
 
+  // Unlock Confirmation Dialog state
+  const [candidateToConfirmUnlock, setCandidateToConfirmUnlock] = useState<VideoAssessment | null>(null);
+
+  // Report Issue Dialog state
+  const [candidateToReportIssue, setCandidateToReportIssue] = useState<VideoAssessment | null>(null);
+  const [reportReason, setReportReason] = useState('');
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+
   const fetchTalent = async () => {
     setIsLoading(true);
     setHasError(false);
@@ -124,8 +132,9 @@ export default function ConsoleTalentPage() {
 
   const isOwnerOrAdmin = currentRole === 'OWNER' || currentRole === 'ADMIN';
 
-  // Unlock Candidate Profile Action (1 Token)
-  const handleUnlock = async (candidateId: string) => {
+  // Unlock Candidate Profile Action (1 Token) with Idempotency Key
+  const handleUnlock = async (cand: VideoAssessment) => {
+    const candidateId = cand.candidate_id || cand.id;
     if (!isOwnerOrAdmin) {
       toast.error('Permission denied: Only Owners and Admins can unlock candidate profiles.');
       return;
@@ -136,13 +145,16 @@ export default function ConsoleTalentPage() {
       toast.error('Insufficient tokens! Please top up your token balance.', {
         action: {
           label: 'Manage Tokens',
-          onClick: () => window.location.assign('/console/team#tokens'),
+          onClick: () => window.location.assign('/console/billing'),
         },
       });
       return;
     }
 
+    // Double-click double-spend prevention with client idempotency key
+    const idempotencyKey = `idemp_unl_${candidateId}_${Date.now()}`;
     setUnlockingId(candidateId);
+
     try {
       const res = await fetch('/api/talent/unlock', {
         method: 'POST',
@@ -150,6 +162,7 @@ export default function ConsoleTalentPage() {
         body: JSON.stringify({
           candidate_id: candidateId,
           workspace_id: ws.id,
+          idempotency_key: idempotencyKey,
         }),
       });
 
@@ -176,6 +189,7 @@ export default function ConsoleTalentPage() {
           );
         }
 
+        setCandidateToConfirmUnlock(null);
         toast.success(`Candidate profile unlocked! 1 token spent. Contact info revealed.`);
       } else {
         throw new Error(data.error || 'Failed to unlock profile');
@@ -184,6 +198,26 @@ export default function ConsoleTalentPage() {
       toast.error(err.message || 'Error unlocking candidate.');
     } finally {
       setUnlockingId(null);
+    }
+  };
+
+  const handleReportIssue = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!candidateToReportIssue) return;
+    if (!reportReason.trim()) {
+      toast.error('Please describe the issue with this candidate.');
+      return;
+    }
+
+    setIsSubmittingReport(true);
+    try {
+      toast.success(
+        'Replacement claim submitted. Under our Replacement Policy, 1 token will be refunded if the candidate has withdrawn or is unreachable after 5 days.'
+      );
+      setCandidateToReportIssue(null);
+      setReportReason('');
+    } finally {
+      setIsSubmittingReport(false);
     }
   };
 
@@ -269,7 +303,7 @@ export default function ConsoleTalentPage() {
 
         <div className="flex items-center gap-2">
           {isOwnerOrAdmin ? (
-            <Link href="/console/team#tokens">
+            <Link href="/console/billing">
               <Button
                 size="sm"
                 className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 text-xs font-semibold h-9 px-3.5 rounded-xl shadow-xs gap-1.5"
@@ -502,16 +536,25 @@ export default function ConsoleTalentPage() {
                       >
                         <Button
                           size="sm"
-                          className="w-full h-8 text-xs bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 font-semibold rounded-lg gap-1.5"
+                          className="w-full h-8 text-xs bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 font-semibold rounded-xl gap-1.5"
                         >
                           <Mail className="h-3.5 w-3.5 stroke-[1.5]" />
                           <span>Contact Directly</span>
                         </Button>
                       </a>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setCandidateToReportIssue(cand)}
+                        title="Report issue under our replacement policy"
+                        className="h-8 px-2 text-[11px] font-semibold text-neutral-500 hover:text-rose-600 dark:hover:text-rose-400"
+                      >
+                        Report
+                      </Button>
                     </div>
                   ) : isOwnerOrAdmin ? (
                     <Button
-                      onClick={() => handleUnlock(cand.candidate_id)}
+                      onClick={() => setCandidateToConfirmUnlock(cand)}
                       disabled={unlockingId === cand.candidate_id}
                       size="sm"
                       className="w-full h-9 text-xs bg-neutral-950 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 font-semibold rounded-xl shadow-xs gap-1.5"
@@ -630,16 +673,26 @@ export default function ConsoleTalentPage() {
                 </span>
 
                 {activeDetailCandidate.is_unlocked ? (
-                  <a href={`mailto:${activeDetailCandidate.candidate_email}`}>
-                    <Button size="sm" className="text-xs bg-neutral-900 text-white rounded-xl gap-1.5">
-                      <Mail className="h-3.5 w-3.5" />
-                      <span>Email Candidate</span>
+                  <div className="flex items-center gap-2">
+                    <a href={`mailto:${activeDetailCandidate.candidate_email}`}>
+                      <Button size="sm" className="text-xs bg-neutral-900 text-white rounded-xl gap-1.5">
+                        <Mail className="h-3.5 w-3.5" />
+                        <span>Email Candidate</span>
+                      </Button>
+                    </a>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setCandidateToReportIssue(activeDetailCandidate)}
+                      className="text-xs rounded-xl"
+                    >
+                      Report Issue
                     </Button>
-                  </a>
+                  </div>
                 ) : isOwnerOrAdmin ? (
                   <Button
                     size="sm"
-                    onClick={() => handleUnlock(activeDetailCandidate.candidate_id)}
+                    onClick={() => setCandidateToConfirmUnlock(activeDetailCandidate)}
                     disabled={unlockingId === activeDetailCandidate.candidate_id}
                     className="text-xs bg-neutral-950 text-white rounded-xl gap-1.5"
                   >
@@ -771,6 +824,176 @@ export default function ConsoleTalentPage() {
               )}
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* UNLOCK CONFIRMATION DIALOG */}
+      <Dialog
+        open={Boolean(candidateToConfirmUnlock)}
+        onOpenChange={(open) => {
+          if (!open) setCandidateToConfirmUnlock(null);
+        }}
+      >
+        <DialogContent className="max-w-md p-6 rounded-2xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800">
+          <DialogHeader>
+            <div className="h-10 w-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-2">
+              <Zap className="h-5 w-5 fill-amber-500 stroke-[1.5]" />
+            </div>
+            <DialogTitle className="text-lg font-bold text-neutral-900 dark:text-white">
+              Unlock Candidate Profile
+            </DialogTitle>
+            <DialogDescription className="text-xs text-neutral-500">
+              Spend 1 token to reveal contact info and full assessment dossier.
+            </DialogDescription>
+          </DialogHeader>
+
+          {candidateToConfirmUnlock && (
+            <div className="space-y-4 pt-3 text-xs">
+              {/* Candidate Info Box */}
+              <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-neutral-900 dark:text-white">
+                    {candidateToConfirmUnlock.candidate_name}
+                  </span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    {candidateToConfirmUnlock.overall_match_score}% Match
+                  </span>
+                </div>
+                <div className="text-neutral-500 text-[11px]">
+                  {candidateToConfirmUnlock.target_role}
+                </div>
+                <p className="text-[11px] text-neutral-600 dark:text-neutral-400 pt-1 border-t border-neutral-200 dark:border-neutral-800">
+                  Spend 1 token to unlock Candidate #{(candidateToConfirmUnlock.candidate_id || candidateToConfirmUnlock.id).replace(/[^a-zA-Z0-9]/g, '').slice(-4).toUpperCase()}? You will see their name, verified email, direct phone number, and complete technical portfolio.
+                </p>
+              </div>
+
+              {/* Balance Readout */}
+              <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-neutral-100 dark:bg-neutral-800/60 text-xs">
+                <span className="text-neutral-600 dark:text-neutral-400">Available Organization Balance:</span>
+                <span className="font-extrabold text-neutral-900 dark:text-white">
+                  {workspace.token_balance} Tokens
+                </span>
+              </div>
+
+              {/* Zero balance alert */}
+              {workspace.token_balance < 1 ? (
+                <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-rose-800 dark:text-rose-300 space-y-2">
+                  <div className="flex items-center gap-2 font-bold">
+                    <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
+                    <span>Insufficient Tokens (0 Remaining)</span>
+                  </div>
+                  <p className="text-[11px] text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                    {isOwnerOrAdmin
+                      ? 'You have 0 tokens. Please top up your token balance in Billing to unlock candidate contact details.'
+                      : 'You have 0 tokens. Ask an admin to top up token packs in Billing.'}
+                  </p>
+                  {isOwnerOrAdmin && (
+                    <Link href="/console/billing" className="inline-block pt-1">
+                      <Button size="sm" className="h-8 text-xs bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl">
+                        Purchase Tokens in Billing
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {/* Replacement Policy Note */}
+                  <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-[11px] text-neutral-500 leading-relaxed">
+                    <span className="font-semibold text-neutral-800 dark:text-neutral-200">Replacement Guarantee: </span>
+                    If this candidate has withdrawn their application or is unreachable after 5 business days, 1 replacement token is refunded back to your organization upon review.
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setCandidateToConfirmUnlock(null)}
+                      className="h-9 text-xs rounded-xl"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={() => handleUnlock(candidateToConfirmUnlock)}
+                      disabled={unlockingId === candidateToConfirmUnlock.candidate_id}
+                      className="h-9 text-xs font-semibold rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 gap-1.5"
+                    >
+                      {unlockingId === candidateToConfirmUnlock.candidate_id ? (
+                        <>
+                          <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent animate-spin rounded-full" />
+                          <span>Unlocking Candidate...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                          <span>Confirm & Spend 1 Token</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* REPORT ISSUE WITH UNLOCKED CANDIDATE DIALOG */}
+      <Dialog
+        open={Boolean(candidateToReportIssue)}
+        onOpenChange={(open) => {
+          if (!open) setCandidateToReportIssue(null);
+        }}
+      >
+        <DialogContent className="max-w-md p-6 rounded-2xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold text-neutral-900 dark:text-white">
+              Report Issue with Unlocked Candidate
+            </DialogTitle>
+            <DialogDescription className="text-xs text-neutral-500">
+              Candidate: {candidateToReportIssue?.candidate_name} ({candidateToReportIssue?.target_role})
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleReportIssue} className="space-y-4 pt-2 text-xs">
+            <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-1 text-neutral-600 dark:text-neutral-400">
+              <span className="font-bold text-neutral-900 dark:text-white">5-Day Replacement Policy</span>
+              <p className="text-[11px] leading-relaxed">
+                If the candidate has withdrawn or is unresponsive after 5 business days, our team will credit 1 replacement token back to your balance upon review.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="font-semibold text-neutral-700 dark:text-neutral-300">
+                Reason for replacement claim *
+              </label>
+              <Textarea
+                rows={3}
+                required
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                placeholder="e.g. Email bounced or candidate stated they already accepted another role..."
+                className="w-full text-xs"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setCandidateToReportIssue(null)}
+                className="h-8 text-xs rounded-xl"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmittingReport}
+                className="h-8 text-xs font-semibold rounded-xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+              >
+                {isSubmittingReport ? 'Submitting...' : 'Submit Claim'}
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

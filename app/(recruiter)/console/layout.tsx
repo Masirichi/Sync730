@@ -8,6 +8,7 @@ import {
   Briefcase,
   Users,
   CreditCard,
+  Receipt,
   UserCheck,
   Zap,
   Bell,
@@ -235,10 +236,10 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
       roles: ['OWNER', 'ADMIN', 'INTERVIEWER'],
     },
     {
-      name: 'Payroll & Tokens',
-      href: '/console/team#tokens',
+      name: 'Billing',
+      href: '/console/billing',
       exact: false,
-      icon: CreditCard,
+      icon: Receipt,
       badge: null,
       roles: ['OWNER', 'ADMIN'], // Restricted from INTERVIEWER
     },
@@ -250,7 +251,8 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
   let pageTitle = 'Dashboard Overview';
   if (pathname.startsWith('/console/jobs')) pageTitle = 'Hire & Job Postings';
   else if (pathname.startsWith('/console/talent')) pageTitle = 'Vetted Talent Pool';
-  else if (pathname.startsWith('/console/team')) pageTitle = 'Team & Token Billing';
+  else if (pathname.startsWith('/console/billing')) pageTitle = 'Billing & Token Ledger';
+  else if (pathname.startsWith('/console/team')) pageTitle = 'Team & Permissions';
 
   const userInitials = (workspace.company_name || 'HR')
     .split(' ')
@@ -348,7 +350,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
             </div>
           ) : (
             <Link
-              href="/console/team#tokens"
+              href="/console/billing"
               className="flex items-center justify-between p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 hover:bg-amber-500/15 transition-all"
             >
               <div className="flex items-center gap-2">

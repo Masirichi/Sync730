@@ -7,58 +7,59 @@ import {
   getLocalUnlocks,
   getLocalMembers,
 } from '@/lib/recruiter/store';
+import {
+  DashboardMetrics,
+  RecruiterTask,
+  EmployerJob,
+  VideoAssessment,
+  TokenUnlockRecord,
+  WorkspaceMember,
+} from '@/lib/recruiter/types';
 import { getRecruiterSession } from '@/lib/recruiter/auth';
-import { DashboardMetrics, RecruiterTask } from '@/lib/recruiter/types';
-
-export const dynamic = 'force-dynamic';
+import { calculateLedgerBalance } from '@/lib/recruiter/billing';
 
 function getRelativeDueLabel(dueDate: Date, now: Date): { label: string; isOverdue: boolean } {
   const diffMs = dueDate.getTime() - now.getTime();
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffMs < 0) {
+  if (diffDays < 0) {
     const overdueDays = Math.abs(diffDays);
     return {
-      label: overdueDays === 0 ? 'Overdue today' : `Overdue (${overdueDays}d ago)`,
+      label: overdueDays === 1 ? 'Overdue (1 day ago)' : `Overdue (${overdueDays} days ago)`,
       isOverdue: true,
     };
   }
 
-  if (diffHours < 24) {
+  if (diffDays === 0) {
     return { label: 'Due today', isOverdue: false };
-  } else if (diffDays === 1) {
-    return { label: 'Due tomorrow', isOverdue: false };
-  } else if (diffDays < 7) {
-    return { label: `Due in ${diffDays} days`, isOverdue: false };
-  } else {
-    return {
-      label: dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      isOverdue: false,
-    };
   }
+
+  if (diffDays === 1) {
+    return { label: 'Due tomorrow', isOverdue: false };
+  }
+
+  return { label: `Due in ${diffDays} days`, isOverdue: false };
 }
 
 export async function GET(req: NextRequest) {
   try {
     const session = await getRecruiterSession(req);
-    const requestedWsId = req.nextUrl.searchParams.get('workspace_id');
+    const { searchParams } = new URL(req.url);
+    const requestedWsId = searchParams.get('workspace_id');
 
-    // Organization scoping: strictly filter by session workspace unless platform admin
-    const wsId = session?.isPlatformAdmin
-      ? requestedWsId || session?.workspaceId || 'ws-sync730-demo'
-      : session?.workspaceId || requestedWsId || 'ws-sync730-demo';
+    // Scoped workspace ID
+    const wsId = requestedWsId || session?.workspaceId || 'ws-sync730-demo';
+
+    // 1. Fetch real workspace state
+    let workspace = getLocalWorkspace();
+    let jobs: EmployerJob[] = getLocalJobs().filter((j) => j.workspace_id === wsId);
+    let assessments: VideoAssessment[] = getLocalAssessments();
+    let unlocks: TokenUnlockRecord[] = getLocalUnlocks(wsId);
+    let members: WorkspaceMember[] = getLocalMembers(wsId);
 
     const now = new Date();
 
-    // 1. Fetch Workspace Data
-    let workspace = getLocalWorkspace();
-    let jobs = getLocalJobs().filter((j) => j.workspace_id === wsId);
-    let assessments = getLocalAssessments();
-    let unlocks = getLocalUnlocks(wsId);
-    let members = getLocalMembers(wsId);
-
-    // Try Supabase if available
+    // Query Supabase if connected
     try {
       const supabase = await createServerClient();
       const { data: wsData } = await supabase
@@ -72,7 +73,13 @@ export async function GET(req: NextRequest) {
         .from('employer_jobs')
         .select('*')
         .eq('workspace_id', wsId);
-      if (jobsData && jobsData.length > 0) jobs = jobsData;
+      if (jobsData) jobs = jobsData;
+
+      const { data: unlocksData } = await supabase
+        .from('token_unlocks')
+        .select('*')
+        .eq('workspace_id', wsId);
+      if (unlocksData) unlocks = unlocksData;
 
       const { data: membersData } = await supabase
         .from('workspace_members')
@@ -83,11 +90,13 @@ export async function GET(req: NextRequest) {
 
     const hasJobs = jobs.length > 0;
 
+    // Authoritative token balance derived from append-only ledger
+    const authoritativeBalance = calculateLedgerBalance(wsId);
+
     // 2. Compute Real Metrics Scoped to Workspace
     const vettedCandidatesCount = assessments.length;
 
     // Funnel calculations derived from real assessment progression
-    // Invited = assessments count + pending jobs buffer
     const invitedCount = Math.max(assessments.length + (hasJobs ? 4 : 0), 0);
     const startedCount = assessments.filter((a) => a.status === 'COMPLETED' || a.status === 'PROCESSING').length;
     const completedCount = assessments.filter((a) => a.status === 'COMPLETED').length;
@@ -113,7 +122,7 @@ export async function GET(req: NextRequest) {
       avg_match_score: avgMatchScore,
       active_roles_count: jobs.length,
       unlocked_candidates_count: unlocks.length,
-      available_tokens: workspace.token_balance,
+      available_tokens: authoritativeBalance,
       has_jobs: hasJobs,
     };
 
@@ -121,12 +130,10 @@ export async function GET(req: NextRequest) {
     const tasks: RecruiterTask[] = [];
 
     // Task Type A: Unreviewed Candidate Videos
-    // Candidates completed within last 7 days that need review
     assessments
       .filter((a) => a.status === 'COMPLETED')
       .slice(0, 3)
-      .forEach((cand, index) => {
-        // Due date: 2 days after candidate creation
+      .forEach((cand) => {
         const candCreated = new Date(cand.created_at || now.toISOString());
         const dueDate = new Date(candCreated.getTime() + 2 * 86400000);
         const { label, isOverdue } = getRelativeDueLabel(dueDate, now);
@@ -141,21 +148,21 @@ export async function GET(req: NextRequest) {
           relative_due_label: label,
           link: '/console/talent',
           badge_label: isOverdue ? 'Overdue' : label,
-          badge_variant: isOverdue ? 'destructive' : 'warning',
+          badge_variant: isOverdue ? 'destructive' : 'default',
         });
       });
 
-    // Task Type B: Pending Colleague Onboarding
+    // Task Type B: Pending Team Invitations
     members
       .filter((m) => m.role === 'INTERVIEWER')
       .slice(0, 1)
       .forEach((m) => {
         const memCreated = new Date(m.created_at || now.toISOString());
-        const dueDate = new Date(memCreated.getTime() + 4 * 86400000);
+        const dueDate = new Date(memCreated.getTime() + 3 * 86400000);
         const { label, isOverdue } = getRelativeDueLabel(dueDate, now);
 
         tasks.push({
-          id: `task-invite-${m.id}`,
+          id: `task-onboard-${m.id}`,
           type: 'PENDING_INVITE',
           title: `Onboard ${m.full_name || m.email}`,
           description: `Confirm interviewer permissions for ${m.email} so they can evaluate Flowmingo video submissions.`,
@@ -189,18 +196,18 @@ export async function GET(req: NextRequest) {
     });
 
     // Task Type D: Low or Zero Token Balance Warning
-    if (workspace.token_balance <= 0) {
+    if (authoritativeBalance <= 2) {
       const pastDue = new Date(now.getTime() - 3600000);
       tasks.unshift({
-        id: 'task-tokens-empty',
+        id: 'task-tokens-low',
         type: 'LOW_TOKENS',
-        title: 'Token balance depleted (0 Tokens)',
-        description: 'Candidate contact unlocking is paused. Please contact support or request admin token allocation.',
+        title: authoritativeBalance === 0 ? 'Token balance depleted (0 Tokens)' : `Low token balance (${authoritativeBalance} Tokens remaining)`,
+        description: 'Purchase token packs to maintain continuous candidate unlocking.',
         due_date: pastDue.toISOString(),
         is_overdue: true,
         relative_due_label: 'Immediate',
-        link: '/console/team#tokens',
-        badge_label: 'Critical',
+        link: '/console/billing',
+        badge_label: 'Action Required',
         badge_variant: 'destructive',
       });
     }

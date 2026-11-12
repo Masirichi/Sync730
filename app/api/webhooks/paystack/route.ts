@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createServerClient } from '@/lib/supabase/server';
+import {
+  findOrderByReference,
+  verifyAndConfirmPayment,
+} from '@/lib/recruiter/billing';
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,6 +19,7 @@ export async function POST(req: NextRequest) {
     if (secretKey && !isPlaceholderKey && signature) {
       const hash = crypto.createHmac('sha512', secretKey).update(rawBody).digest('hex');
       if (hash !== signature) {
+        console.warn('Paystack webhook: invalid HMAC signature rejected.');
         return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 401 });
       }
     }
@@ -24,7 +29,39 @@ export async function POST(req: NextRequest) {
     const data = payload.data;
 
     if (event === 'charge.success' && data?.reference) {
-      const reference = data.reference;
+      const reference = String(data.reference);
+      const paidAmountKobo = Number(data.amount || 0);
+      const paidCurrency = String(data.currency || 'NGN').toUpperCase();
+
+      // Case 1: Recruiter Token Billing Order
+      const billingOrder = findOrderByReference(reference);
+      if (billingOrder || reference.startsWith('SYNC730-ORD-')) {
+        const confirmResult = verifyAndConfirmPayment({
+          reference,
+          paidAmountKobo,
+          currency: paidCurrency,
+          confirmedBy: 'paystack-webhook',
+        });
+
+        if (!confirmResult.success) {
+          console.error(
+            `Paystack webhook order confirmation failed for ${reference}: ${confirmResult.error}`
+          );
+        } else {
+          console.log(
+            `Paystack webhook confirmed order ${reference}: ${confirmResult.tokensIssued} tokens issued (alreadyConfirmed: ${confirmResult.alreadyConfirmed}).`
+          );
+        }
+
+        return NextResponse.json({
+          received: true,
+          type: 'recruiter_token_order',
+          order_id: billingOrder?.id,
+          already_confirmed: confirmResult.alreadyConfirmed,
+        });
+      }
+
+      // Case 2: Candidate Mock Interview Prep Session
       try {
         const supabase = await createServerClient();
         await supabase
@@ -35,13 +72,13 @@ export async function POST(req: NextRequest) {
           })
           .eq('payment_reference', reference);
       } catch (dbErr) {
-        console.warn('Webhook DB update notice:', dbErr);
+        console.warn('Webhook DB update notice for mock prep session:', dbErr);
       }
     }
 
     return NextResponse.json({ received: true });
   } catch (error: any) {
-    console.error('Paystack webhook error:', error);
+    console.error('Paystack webhook processing error:', error);
     return NextResponse.json(
       { error: error.message || 'Webhook processing failed' },
       { status: 400 }

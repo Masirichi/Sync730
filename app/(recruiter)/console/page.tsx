@@ -166,7 +166,7 @@ export default function ConsoleDashboardOverview() {
       toast.error('Insufficient tokens! Please top up your token balance.', {
         action: {
           label: 'Manage Tokens',
-          onClick: () => window.location.assign('/console/team#tokens'),
+          onClick: () => window.location.assign('/console/billing'),
         },
       });
       return;
@@ -430,7 +430,7 @@ export default function ConsoleDashboardOverview() {
                   </span>
                 ) : (
                   <Link
-                    href="/console/team#tokens"
+                    href="/console/billing"
                     className="text-[11px] font-bold text-amber-600 hover:text-amber-700 dark:text-amber-400 underline"
                   >
                     Manage Tokens
