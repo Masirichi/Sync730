@@ -105,6 +105,8 @@ export interface RemoteJob {
   is_active?: boolean;
   is_featured?: boolean;
   source_type?: 'ADMIN_CURATED' | 'CRAWLER' | string;
+  work_mode?: 'REMOTE' | 'HYBRID' | 'ONSITE' | string;
+  city_location?: string | null;
 }
 
 export type TrackerStatus = 'SAVED' | 'APPLIED' | 'INTERVIEWING' | 'OFFERED' | 'REJECTED';

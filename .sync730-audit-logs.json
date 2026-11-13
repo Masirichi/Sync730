@@ -1,5 +1,29 @@
 [
   {
+    "id": "log-1794560728893-p10k",
+    "created_at": "2026-11-13T09:05:28.893Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_POSTED",
+    "target_id": "b3c2d8cf-4b0d-4946-b4c8-6bee655d5b7c",
+    "notes": "Published verified admin role: \"Staff Infrastructure Reliability Engineer\" at Delta Cloud Systems (Africa Only)"
+  },
+  {
+    "id": "log-1794560728499-ikll",
+    "created_at": "2026-11-13T09:05:28.499Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_POSTED",
+    "target_id": "job-admin-abuja-004",
+    "notes": "Published verified admin role: \"Operations & Expansion Lead\" at Sterling Capital Partners (Africa Only)"
+  },
+  {
+    "id": "log-1794560727753-8kz3",
+    "created_at": "2026-11-13T09:05:27.753Z",
+    "admin_id": "usr-admin-001",
+    "action_type": "JOB_POSTED",
+    "target_id": "job-admin-lagos-003",
+    "notes": "Published verified admin role: \"Senior Product Designer (Design Systems)\" at PayRail Technologies (Africa Only)"
+  },
+  {
     "id": "log-1794491496046-cyu5",
     "created_at": "2026-11-12T13:51:36.046Z",
     "admin_id": "usr-admin-001",

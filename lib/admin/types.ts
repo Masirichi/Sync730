@@ -92,6 +92,8 @@ export interface AdminRemoteJob {
   source_type: 'ADMIN_CURATED' | 'CRAWLER';
   is_active: boolean;
   is_featured: boolean;
+  work_mode?: 'REMOTE' | 'HYBRID' | 'ONSITE' | string;
+  city_location?: string | null;
   published_at: string;
   created_at: string;
 }

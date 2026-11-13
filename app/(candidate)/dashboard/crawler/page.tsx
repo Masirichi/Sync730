@@ -379,6 +379,25 @@ function CrawlerJobFeedContent() {
     };
   }, [loadData]);
 
+  // Handle jobId from URL query (e.g. redirected from /find-work)
+  useEffect(() => {
+    const targetJobId = searchParams?.get('jobId');
+    if (targetJobId && jobs.length > 0) {
+      const found = jobs.find((j) => j.id === targetJobId || j.external_id === targetJobId);
+      if (found) {
+        saveJobToTracker(found).then((res) => {
+          if (res.isNew) {
+            toast.success(`Saved "${found.title}" at ${found.company} to your Application Tracker!`);
+          }
+        });
+        const el = document.getElementById(`job-card-${targetJobId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }
+  }, [jobs, searchParams]);
+
   // Extract all distinct clean skills across jobs for searchable multi-select
   const allAvailableSkills = useMemo(() => {
     const skillSet = new Set<string>();
@@ -1311,6 +1330,7 @@ function CrawlerJobFeedContent() {
               return (
                 <Card
                   key={identifier || job.url}
+                  id={`job-card-${identifier}`}
                   onClick={() => handleOpenJobDetail(job.id)}
                   className="group flex flex-col justify-between border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 rounded-xl hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors shadow-none cursor-pointer"
                 >

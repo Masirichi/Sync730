@@ -54,25 +54,31 @@ function writeFileSafe(primaryPath: string, fallbackPath: string, data: string):
 }
 
 export function getServerJobs(): AdminRemoteJob[] {
+  let jobs: AdminRemoteJob[] = [];
   const raw = readFileSafe(PRIMARY_JOBS_FILE, FALLBACK_JOBS_FILE);
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        memoryJobsCache = parsed;
-        return parsed;
+        jobs = parsed;
       }
     } catch {
       // Ignore parse error
     }
   }
 
-  if (memoryJobsCache && memoryJobsCache.length > 0) {
-    return memoryJobsCache;
+  if (jobs.length === 0 && memoryJobsCache && memoryJobsCache.length > 0) {
+    jobs = memoryJobsCache;
   }
 
-  memoryJobsCache = [...SEED_ADMIN_REMOTE_JOBS];
-  return memoryJobsCache;
+  // Ensure baseline SEED_ADMIN_REMOTE_JOBS are present
+  const map = new Map<string, AdminRemoteJob>();
+  SEED_ADMIN_REMOTE_JOBS.forEach((sj) => map.set(sj.id, sj));
+  jobs.forEach((j) => map.set(j.id, j));
+  const combined = Array.from(map.values());
+
+  memoryJobsCache = combined;
+  return combined;
 }
 
 export function saveServerJob(job: AdminRemoteJob): AdminRemoteJob {

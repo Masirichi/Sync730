@@ -21,6 +21,7 @@ import {
   ArrowUpRight,
   Loader2,
   RefreshCw,
+  MapPin,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,6 +53,7 @@ import {
   toggleAdminJobActive,
   toggleAdminJobFeatured,
   SEED_ADMIN_REMOTE_JOBS,
+  SAMPLE_NIGERIA_ROLES,
 } from '@/lib/admin/store';
 
 export default function AdminJobsManagerPage() {
@@ -76,6 +78,10 @@ export default function AdminJobsManagerPage() {
   const [salaryRange, setSalaryRange] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
+  const [workMode, setWorkMode] = useState<'REMOTE' | 'HYBRID' | 'ONSITE'>('REMOTE');
+  const [cityLocation, setCityLocation] = useState<string>('Remote (Worldwide / Africa)');
+  const [customCityLocation, setCustomCityLocation] = useState<string>('');
+  const [isSeedingNigeria, setIsSeedingNigeria] = useState<boolean>(false);
 
   // Live Sync State (Platform Admin Exclusive)
   const [syncingLive, setSyncingLive] = useState(false);
@@ -189,6 +195,35 @@ export default function AdminJobsManagerPage() {
     return { total, active, adminCurated, featured };
   }, [remoteJobs]);
 
+  // Seed Nigerian Hybrid & Onsite Roles Dev Button
+  const handleSeedNigeriaRoles = async () => {
+    setIsSeedingNigeria(true);
+    toast.info('Seeding Nigerian roles (Lekki, Lagos Hybrid and Maitama, Abuja Onsite)...');
+    try {
+      const res = await fetch('/api/admin/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'seed_nigeria' }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        SAMPLE_NIGERIA_ROLES.forEach((r) => saveAdminRemoteJob(r));
+        toast.success('Successfully seeded Lagos and Abuja roles to the board!');
+        await loadJobs();
+      } else {
+        SAMPLE_NIGERIA_ROLES.forEach((r) => saveAdminRemoteJob(r));
+        toast.success('Seeded Lagos and Abuja roles to local store.');
+        await loadJobs();
+      }
+    } catch {
+      SAMPLE_NIGERIA_ROLES.forEach((r) => saveAdminRemoteJob(r));
+      toast.success('Seeded Lagos and Abuja roles to local store.');
+      await loadJobs();
+    } finally {
+      setIsSeedingNigeria(false);
+    }
+  };
+
   // Handle Post New Verified Job
   const handleCreateJob = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -198,6 +233,7 @@ export default function AdminJobsManagerPage() {
     const resolvedUrl = (careerUrl || (formData.get('career_url') as string) || '').trim();
     const resolvedSalary = (salaryRange || (formData.get('salary_range') as string) || '').trim();
     const resolvedDesc = (jobDescription || (formData.get('job_description') as string) || '').trim();
+    const resolvedCity = cityLocation === 'CUSTOM' ? customCityLocation.trim() : cityLocation.trim();
 
     if (!resolvedCompany || !resolvedTitle || !resolvedUrl) {
       toast.error('Please fill in Company Name, Job Title, and Career URL.');
@@ -217,6 +253,8 @@ export default function AdminJobsManagerPage() {
           salary_range: resolvedSalary,
           job_description: resolvedDesc,
           is_featured: isFeatured,
+          work_mode: workMode,
+          city_location: resolvedCity,
         }),
       });
 
@@ -232,6 +270,9 @@ export default function AdminJobsManagerPage() {
         setCareerUrl('');
         setSalaryRange('');
         setJobDescription('');
+        setWorkMode('REMOTE');
+        setCityLocation('Remote (Worldwide / Africa)');
+        setCustomCityLocation('');
         setIsFeatured(false);
         setIsModalOpen(false);
         loadJobs();
@@ -248,12 +289,14 @@ export default function AdminJobsManagerPage() {
         career_url: resolvedUrl,
         url: resolvedUrl,
         location_tier: regionAllowance,
-        candidate_required_location: regionAllowance === 'Africa Only' ? 'Africa' : regionAllowance,
+        candidate_required_location: resolvedCity || (regionAllowance === 'Africa Only' ? 'Africa' : regionAllowance),
+        work_mode: workMode,
+        city_location: resolvedCity,
         salary: resolvedSalary || null,
-        description: resolvedDesc || 'Verified remote role posted directly by Platform Admin.',
+        description: resolvedDesc || 'Verified role posted directly by Platform Admin.',
         category: 'Software & Engineering',
         job_type: 'Full-time',
-        tags: ['Verified Partner', 'Platform Curated', regionAllowance],
+        tags: ['Verified Partner', 'Platform Curated', regionAllowance, workMode],
         source: 'company_direct',
         source_type: 'ADMIN_CURATED',
         is_active: true,
@@ -433,6 +476,22 @@ export default function AdminJobsManagerPage() {
             </Button>
           </Link>
 
+          {/* Dev Seed Button for Nigerian Hybrid & Onsite Roles */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleSeedNigeriaRoles}
+            disabled={isSeedingNigeria}
+            className="h-9 px-3.5 text-xs font-semibold rounded-xl bg-emerald-950/40 border-emerald-500/30 text-emerald-300 hover:bg-emerald-900/50 hover:text-white gap-1.5 shadow-sm"
+          >
+            {isSeedingNigeria ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
+            ) : (
+              <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
+            )}
+            <span>Seed Lagos & Abuja Roles</span>
+          </Button>
+
           {/* Post New Verified Job Trigger */}
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
             <DialogTrigger asChild>
@@ -541,6 +600,63 @@ export default function AdminJobsManagerPage() {
                     />
                   </div>
                 </div>
+
+                {/* Row 3b: Work Mode & City Location */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-neutral-300">
+                      Work Mode *
+                    </Label>
+                    <Select
+                      value={workMode}
+                      onValueChange={(val: any) => setWorkMode(val)}
+                    >
+                      <SelectTrigger className="h-9 text-xs bg-neutral-900/90 border-neutral-800 text-white">
+                        <SelectValue placeholder="Select Work Mode" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
+                        <SelectItem value="REMOTE">Remote (100% Distributed)</SelectItem>
+                        <SelectItem value="HYBRID">Hybrid (Flexible Office / Remote)</SelectItem>
+                        <SelectItem value="ONSITE">Onsite (Full Office Presence)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-neutral-300">
+                      City / Location *
+                    </Label>
+                    <Select
+                      value={cityLocation}
+                      onValueChange={(val: any) => setCityLocation(val)}
+                    >
+                      <SelectTrigger className="h-9 text-xs bg-neutral-900/90 border-neutral-800 text-white">
+                        <SelectValue placeholder="Select Location Preset" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
+                        <SelectItem value="Lagos, Nigeria">Lagos, Nigeria</SelectItem>
+                        <SelectItem value="Abuja, Nigeria">Abuja, Nigeria</SelectItem>
+                        <SelectItem value="Port Harcourt, Nigeria">Port Harcourt, Nigeria</SelectItem>
+                        <SelectItem value="Remote (Worldwide / Africa)">Remote (Worldwide / Africa)</SelectItem>
+                        <SelectItem value="CUSTOM">Custom Specific Locality...</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {cityLocation === 'CUSTOM' && (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-neutral-300">
+                      Specific Locality (e.g. Lekki, Lagos or Maitama, Abuja) *
+                    </Label>
+                    <Input
+                      placeholder="e.g. Lekki Phase 1, Lagos, Nigeria"
+                      value={customCityLocation}
+                      onChange={(e) => setCustomCityLocation(e.target.value)}
+                      className="h-9 text-xs bg-neutral-900/90 border-neutral-800 text-white placeholder:text-neutral-500"
+                    />
+                  </div>
+                )}
 
                 {/* Row 4: Job Description */}
                 <div className="space-y-1.5">
@@ -829,9 +945,33 @@ export default function AdminJobsManagerPage() {
                                 </span>
                               )}
                             </div>
-                            <div className="text-xs text-neutral-400 mt-0.5 flex items-center gap-1.5">
-                              <Building2 className="h-3 w-3 text-neutral-500 stroke-[1.5]" />
-                              <span>{job.company}</span>
+                            <div className="text-xs text-neutral-400 mt-1 flex items-center gap-2 flex-wrap">
+                              <span className="flex items-center gap-1">
+                                <Building2 className="h-3 w-3 text-neutral-500 stroke-[1.5]" />
+                                <span>{job.company}</span>
+                              </span>
+                              {job.city_location && (
+                                <span className="flex items-center gap-1 text-[11px] text-neutral-400">
+                                  <MapPin className="h-2.5 w-2.5 text-neutral-500" />
+                                  <span>{job.city_location}</span>
+                                </span>
+                              )}
+                              {/* Work Mode Badge */}
+                              <span
+                                className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                                  job.work_mode === 'HYBRID' || (job.candidate_required_location && job.candidate_required_location.toLowerCase().includes('hybrid'))
+                                    ? 'bg-amber-500/10 text-amber-300 border-amber-500/20'
+                                    : job.work_mode === 'ONSITE' || (job.candidate_required_location && (job.candidate_required_location.toLowerCase().includes('onsite') || job.candidate_required_location.toLowerCase().includes('on-site')))
+                                    ? 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20'
+                                    : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+                                }`}
+                              >
+                                {job.work_mode === 'HYBRID' || (job.candidate_required_location && job.candidate_required_location.toLowerCase().includes('hybrid'))
+                                  ? 'Hybrid'
+                                  : job.work_mode === 'ONSITE' || (job.candidate_required_location && (job.candidate_required_location.toLowerCase().includes('onsite') || job.candidate_required_location.toLowerCase().includes('on-site')))
+                                  ? 'Onsite'
+                                  : 'Remote'}
+                              </span>
                               {job.employer_type === 'agency' && (
                                 <span
                                   className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30 cursor-help"

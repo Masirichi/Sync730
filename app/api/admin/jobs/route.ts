@@ -4,6 +4,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { getServerJobs, saveServerJob } from '@/lib/admin/server-store';
 import { AdminRemoteJob } from '@/lib/admin/types';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
+import { SAMPLE_NIGERIA_ROLES } from '@/lib/admin/store';
 
 export async function GET(request: NextRequest) {
   try {
@@ -69,6 +70,8 @@ export async function GET(request: NextRequest) {
           apply_url: url,
           location_tier,
           candidate_required_location: rj.candidate_required_location || location_tier,
+          work_mode: rj.work_mode || (rj.candidate_required_location?.toLowerCase().includes('hybrid') ? 'HYBRID' : rj.candidate_required_location?.toLowerCase().includes('onsite') ? 'ONSITE' : 'REMOTE'),
+          city_location: rj.city_location || null,
           salary,
           description,
           category: rj.category || 'Software & Engineering',
@@ -138,6 +141,42 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    // Dev seed action for Nigerian sample roles
+    if (body.action === 'seed_nigeria') {
+      const seeded: AdminRemoteJob[] = [];
+      for (const role of SAMPLE_NIGERIA_ROLES) {
+        const saved = saveServerJob(role);
+        seeded.push(saved);
+        try {
+          const supabase = await createServerClient();
+          await supabase.from('remote_jobs').upsert({
+            id: role.id,
+            job_title: role.title,
+            company_name: role.company,
+            career_url: role.career_url || role.url,
+            region_allowance: role.location_tier,
+            salary_range: role.salary,
+            job_description: role.description,
+            source_type: 'ADMIN_CURATED',
+            work_mode: role.work_mode,
+            city_location: role.city_location,
+            candidate_required_location: role.candidate_required_location,
+            is_active: true,
+            is_featured: role.is_featured,
+            created_at: role.created_at,
+          });
+        } catch {
+          // ignore db fallback
+        }
+      }
+      return NextResponse.json({
+        success: true,
+        seeded,
+        message: 'Successfully seeded Nigerian roles (Lekki, Lagos Hybrid and Maitama, Abuja Onsite).',
+      });
+    }
+
     const {
       company_name,
       job_title,
@@ -146,6 +185,8 @@ export async function POST(request: NextRequest) {
       salary_range,
       job_description,
       is_featured,
+      work_mode,
+      city_location,
     } = body;
 
     if (!company_name || !job_title || !career_url || !region_allowance) {
@@ -165,8 +206,10 @@ export async function POST(request: NextRequest) {
     const cleanTitle = job_title.trim();
     const cleanUrl = career_url.trim();
     const cleanSalary = salary_range?.trim() || null;
-    const cleanDesc = job_description?.trim() || 'Verified remote role posted directly by Platform Admin.';
+    const cleanDesc = job_description?.trim() || 'Verified role posted directly by Platform Admin.';
     const isFeatured = Boolean(is_featured);
+    const cleanWorkMode = (work_mode || 'REMOTE').toUpperCase();
+    const cleanCityLocation = city_location?.trim() || null;
 
     const newJob: AdminRemoteJob = {
       id: jobUuid,
@@ -178,18 +221,21 @@ export async function POST(request: NextRequest) {
       url: cleanUrl,
       apply_url: cleanUrl,
       location_tier: region_allowance as 'Worldwide' | 'EMEA' | 'Africa Only',
-      candidate_required_location:
+      candidate_required_location: cleanCityLocation || (
         region_allowance === 'Africa Only'
           ? 'Africa Only (Remote)'
           : region_allowance === 'EMEA'
           ? 'EMEA Remote'
-          : 'Worldwide Remote',
+          : 'Worldwide Remote'
+      ),
+      work_mode: cleanWorkMode,
+      city_location: cleanCityLocation,
       salary: cleanSalary,
       description: cleanDesc,
       category: 'Software & Engineering',
       job_type: 'Full-time',
-      tags: ['Verified Partner', 'Platform Curated', region_allowance],
-      skills: ['Software Architecture', 'Cloud Infrastructure', 'Remote Work', 'System Design'],
+      tags: ['Verified Partner', 'Platform Curated', region_allowance, cleanWorkMode],
+      skills: ['Software Architecture', 'Cloud Infrastructure', 'Team Leadership', 'System Design'],
       source: 'company_direct',
       source_name: 'Platform Curated',
       source_type: 'ADMIN_CURATED',
@@ -218,6 +264,9 @@ export async function POST(request: NextRequest) {
         salary_range: cleanSalary,
         job_description: cleanDesc,
         source_type: 'ADMIN_CURATED',
+        work_mode: cleanWorkMode,
+        city_location: cleanCityLocation,
+        candidate_required_location: cleanCityLocation || region_allowance,
         is_active: true,
         is_featured: isFeatured,
         created_at: nowIso,

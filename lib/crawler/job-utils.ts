@@ -391,6 +391,8 @@ export function normalizeJobRecord(raw: Partial<RemoteJob>): RemoteJob {
       location_rule === 'africa_only' ? 'Africa Only' : location_rule === 'emea' ? 'EMEA' : 'Worldwide'
     ),
     salary: raw.salary || null,
+    work_mode: raw.work_mode || (raw.candidate_required_location?.toLowerCase().includes('hybrid') ? 'HYBRID' : raw.candidate_required_location?.toLowerCase().includes('onsite') ? 'ONSITE' : 'REMOTE'),
+    city_location: raw.city_location || (raw.candidate_required_location && !['worldwide', 'emea', 'africa', 'remote', 'worldwide remote', 'africa only'].includes(raw.candidate_required_location.toLowerCase().trim()) ? raw.candidate_required_location : null),
     url: apply_url,
     source: raw.source || 'company_direct',
     tags: raw.tags || skills,

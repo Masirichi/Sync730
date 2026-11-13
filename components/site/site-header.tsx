@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const links = [
+    { label: 'Find Work', href: '/find-work' },
     { label: 'How it works', href: '/#features' },
     { label: 'For candidates', href: '/#for-candidates' },
     { label: 'For recruiters', href: '/#for-recruiters' },

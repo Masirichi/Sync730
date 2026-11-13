@@ -17,6 +17,11 @@ export function SiteFooter() {
             <h3 className="text-sm font-semibold">Explore</h3>
             <ul className="mt-5 space-y-3 text-sm">
               <li>
+                <Link href="/find-work" className="text-muted-foreground hover:text-foreground">
+                  Find Work
+                </Link>
+              </li>
+              <li>
                 <Link href="/#features" className="text-muted-foreground hover:text-foreground">
                   How it works
                 </Link>
