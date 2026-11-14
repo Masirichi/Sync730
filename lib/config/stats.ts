@@ -14,9 +14,9 @@ export interface StatsConfig {
 
 export const STATS_CONFIG: StatsConfig = {
   minimums: {
-    rolesLast24h: 10,
-    talents: 100,
-    partners: 3,
+    rolesLast24h: process.env.STATS_MIN_ROLES ? parseInt(process.env.STATS_MIN_ROLES, 10) : 10,
+    talents: process.env.STATS_MIN_TALENTS ? parseInt(process.env.STATS_MIN_TALENTS, 10) : 100,
+    partners: process.env.STATS_MIN_PARTNERS ? parseInt(process.env.STATS_MIN_PARTNERS, 10) : 3,
   },
   refreshIntervalMs: 60000, // 60 seconds background refresh
   cacheTtlSeconds: 60, // 60s cache at edge

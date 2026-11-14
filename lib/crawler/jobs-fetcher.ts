@@ -11,17 +11,22 @@ import { normalizeJobRecord, deduplicateJobs } from '@/lib/crawler/job-utils';
 export async function fetchActiveRemoteJobs(): Promise<RemoteJob[]> {
   let remoteJobs: any[] = [];
 
-  // 1. Fetch from Supabase
+  // 1. Fetch from Supabase with 2s timeout
   try {
     const supabase = await createServerClient();
-    const { data, error } = await supabase
+    const dbPromise = supabase
       .from('remote_jobs')
       .select('*')
       .or('is_active.is.null,is_active.eq.true')
       .order('created_at', { ascending: false });
 
-    if (!error && data && data.length > 0) {
-      remoteJobs = data;
+    const timeoutPromise = new Promise<{ data: null; error: Error }>((resolve) =>
+      setTimeout(() => resolve({ data: null, error: new Error('DB timeout') }), 2000)
+    );
+
+    const res = await Promise.race([dbPromise, timeoutPromise]);
+    if (!res.error && res.data && res.data.length > 0) {
+      remoteJobs = res.data;
     }
   } catch (dbErr) {
     // Fallback to server persistent store & seed jobs

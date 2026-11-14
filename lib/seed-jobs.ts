@@ -11,7 +11,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Scale Army',
     source_url: 'https://scalearmy.com',
     apply_url: 'https://apply.scalearmycareers.com/applications/9d42ed82-4234-4474-b12f-db498b8c94e4',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString(), // 3 days ago
+    posted_at: new Date(Date.now() - 3600000 * 2).toISOString(), // 3 days ago
     last_verified_at: new Date(Date.now() - 3600000 * 12).toISOString(),
     expires_at: null,
     employer_type: 'agency',
@@ -37,7 +37,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://apply.scalearmycareers.com/applications/9d42ed82-4234-4474-b12f-db498b8c94e4',
     source: 'scalearmy',
     tags: ['AI Automation', 'Python', 'Zapier', 'LLMs'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 2).toISOString(),
   },
   {
     external_id: 'scalearmy-fullstack-dev-04',
@@ -48,7 +48,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Scale Army',
     source_url: 'https://scalearmy.com',
     apply_url: 'https://careers.scalearmy.com/jobs/senior-react-nodejs-developer-africa-04',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 6).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 4).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 24).toISOString(),
     expires_at: null,
     employer_type: 'agency',
@@ -74,7 +74,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://careers.scalearmy.com/jobs/senior-react-nodejs-developer-africa-04',
     source: 'scalearmy',
     tags: ['React', 'Node.js', 'PostgreSQL', 'TypeScript'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 6).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 4).toISOString(),
   },
 
   // 2. Bruntwork Careers - Staffing / Outsourcing Agency
@@ -87,7 +87,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Bruntwork',
     source_url: 'https://www.bruntwork.co',
     apply_url: 'https://www.bruntworkcareers.co/jobs/66162508625',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 4).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 6).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 48).toISOString(),
     expires_at: null,
     employer_type: 'agency',
@@ -113,7 +113,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://www.bruntworkcareers.co/jobs/66162508625',
     source: 'bruntwork',
     tags: ['DevOps', 'Linux', 'AWS'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 4).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 6).toISOString(),
   },
   {
     external_id: 'bruntwork-technical-qa-02',
@@ -124,7 +124,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Bruntwork',
     source_url: 'https://www.bruntwork.co',
     apply_url: 'https://www.bruntworkcareers.co/jobs/65959549521',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 8).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 8).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 36).toISOString(),
     expires_at: null,
     employer_type: 'agency',
@@ -150,7 +150,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://www.bruntworkcareers.co/jobs/65959549521',
     source: 'bruntwork',
     tags: ['QA Automation', 'Cypress', 'Playwright'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 8).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 8).toISOString(),
   },
 
   // 3. Jobberman Remote - Direct Employers via Portal
@@ -163,7 +163,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Jobberman',
     source_url: 'https://www.jobberman.com',
     apply_url: 'https://www.jobberman.com/listings/senior-backend-engineer-golang-remote-nigeria-894101',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 10).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 18).toISOString(),
     expires_at: null,
     employer_type: 'direct',
@@ -189,7 +189,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://www.jobberman.com/listings/senior-backend-engineer-golang-remote-nigeria-894101',
     source: 'jobberman',
     tags: ['Golang', 'Fintech', 'Microservices'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 10).toISOString(),
   },
   {
     external_id: 'jobberman-remote-designer-02',
@@ -200,7 +200,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Jobberman',
     source_url: 'https://www.jobberman.com',
     apply_url: 'https://www.jobberman.com/listings/lead-product-designer-fintech-remote-lagos-712903',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 7).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 12).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 24).toISOString(),
     expires_at: null,
     employer_type: 'direct',
@@ -226,7 +226,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://www.jobberman.com/listings/lead-product-designer-fintech-remote-lagos-712903',
     source: 'jobberman',
     tags: ['UI/UX', 'Mobile Design', 'Figma'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 7).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 12).toISOString(),
   },
 
   // 4. Freehire - Staffing / Agency
@@ -239,7 +239,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Freehire',
     source_url: 'https://freehire.me',
     apply_url: 'https://freehire.me/jobs/senior-frontend-architect-nextjs-01',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 14).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 24).toISOString(),
     expires_at: null,
     employer_type: 'agency',
@@ -265,7 +265,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://freehire.me/jobs/senior-frontend-architect-nextjs-01',
     source: 'freehire',
     tags: ['Next.js', 'React', 'TailwindCSS'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 14).toISOString(),
   },
   {
     external_id: 'freehire-flutter-contract-02',
@@ -276,7 +276,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Freehire',
     source_url: 'https://freehire.me',
     apply_url: 'https://freehire.me/jobs/lead-flutter-mobile-developer-africa-02',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 9).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 16).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 48).toISOString(),
     expires_at: null,
     employer_type: 'agency',
@@ -302,7 +302,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://freehire.me/jobs/lead-flutter-mobile-developer-africa-02',
     source: 'freehire',
     tags: ['Flutter', 'Dart', 'Offline-First'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 9).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 16).toISOString(),
   },
 
   // 5. Direct Company Careers - Moniepoint, Canonical, GitLab
@@ -315,7 +315,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Company Direct ATS',
     source_url: 'https://moniepoint.com/careers',
     apply_url: 'https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941669101',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 18).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 8).toISOString(),
     expires_at: null,
     employer_type: 'direct',
@@ -341,7 +341,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941669101',
     source: 'company_direct',
     tags: ['Go', 'Java', 'Distributed Systems', 'Fintech'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 18).toISOString(),
   },
   {
     external_id: 'direct-canonical-ubuntu-kernel-03',
@@ -352,7 +352,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Company Direct ATS',
     source_url: 'https://canonical.com/careers',
     apply_url: 'https://job-boards.greenhouse.io/canonical/jobs/6347274',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 11).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 20).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 14).toISOString(),
     expires_at: null,
     employer_type: 'direct',
@@ -378,7 +378,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://job-boards.greenhouse.io/canonical/jobs/6347274',
     source: 'company_direct',
     tags: ['Linux', 'Kernel', 'Ubuntu', 'Cloud'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 11).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 20).toISOString(),
   },
   {
     external_id: 'direct-gitlab-cloud-sre-04',
@@ -389,7 +389,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Company Direct ATS',
     source_url: 'https://about.gitlab.com/jobs',
     apply_url: 'https://job-boards.greenhouse.io/gitlab/jobs/8638232002',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 16).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 22).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 20).toISOString(),
     expires_at: null,
     employer_type: 'direct',
@@ -415,7 +415,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://job-boards.greenhouse.io/gitlab/jobs/8638232002',
     source: 'company_direct',
     tags: ['Kubernetes', 'Go', 'GCP', 'SRE'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 16).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 22).toISOString(),
   },
 
   // 6. Remotive
@@ -428,7 +428,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Remotive',
     source_url: 'https://remotive.com',
     apply_url: 'https://remotive.com/remote-jobs/software-dev/senior-full-stack-engineer-2086540',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 3).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 12).toISOString(),
     expires_at: null,
     employer_type: 'direct',
@@ -454,7 +454,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://remotive.com/remote-jobs/software-dev/senior-full-stack-engineer-2086540',
     source: 'remotive',
     tags: ['React', 'Next.js', 'TypeScript', 'Supabase'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 3).toISOString(),
   },
   {
     external_id: 'remotive-2086541',
@@ -465,7 +465,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Remotive',
     source_url: 'https://remotive.com',
     apply_url: 'https://remotive.com/remote-jobs/devops/staff-cloud-infrastructure-devops-engineer-2086541',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 5).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 24).toISOString(),
     expires_at: null,
     employer_type: 'direct',
@@ -491,7 +491,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://remotive.com/remote-jobs/devops/staff-cloud-infrastructure-devops-engineer-2086541',
     source: 'remotive',
     tags: ['Kubernetes', 'AWS', 'Terraform', 'Docker'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 5).toISOString(),
   },
 
   // 7. Arbeitnow
@@ -504,7 +504,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Arbeitnow',
     source_url: 'https://www.arbeitnow.com',
     apply_url: 'https://www.arbeitnow.com/jobs/companies/techsphere/senior-typescript-architect-01',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 4).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 7).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 20).toISOString(),
     expires_at: null,
     employer_type: 'direct',
@@ -530,7 +530,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://www.arbeitnow.com/jobs/companies/techsphere/senior-typescript-architect-01',
     source: 'arbeitnow',
     tags: ['TypeScript', 'Kafka', 'Redis'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 4).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 7).toISOString(),
   },
 
   // 8. RemoteOK API
@@ -543,7 +543,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'RemoteOK',
     source_url: 'https://remoteok.com',
     apply_url: 'https://remoteok.com/remote-jobs/senior-distributed-backend-engineer-finvelocity-01',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 9).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 12).toISOString(),
     expires_at: null,
     employer_type: 'direct',
@@ -569,7 +569,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://remoteok.com/remote-jobs/senior-distributed-backend-engineer-finvelocity-01',
     source: 'remoteok',
     tags: ['Go', 'Kafka', 'Distributed Systems', 'RemoteOK'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 9).toISOString(),
   },
 
   // 9. DevGlobalJobs API
@@ -582,7 +582,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'DevGlobalJobs',
     source_url: 'https://devitjobs.uk',
     apply_url: 'https://devitjobs.uk/jobs/neuralflow-senior-full-stack-ai-application-developer-01',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 11).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 16).toISOString(),
     expires_at: null,
     employer_type: 'direct',
@@ -608,7 +608,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://devitjobs.uk/jobs/neuralflow-senior-full-stack-ai-application-developer-01',
     source: 'devglobaljobs',
     tags: ['Next.js', 'TypeScript', 'Python', 'FastAPI', 'DevGlobalJobs'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 11).toISOString(),
   },
 
   // 10. Himalayas (Apify) API
@@ -621,7 +621,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Himalayas (Apify)',
     source_url: 'https://himalayas.app',
     apply_url: 'https://himalayas.app/companies/apex-digital/jobs/staff-core-banking-architect-01',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 1).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 15).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 8).toISOString(),
     expires_at: null,
     employer_type: 'direct',
@@ -647,7 +647,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://himalayas.app/companies/apex-digital/jobs/staff-core-banking-architect-01',
     source: 'himalayas',
     tags: ['Go', 'PostgreSQL', 'Distributed Systems', 'Fintech', 'Himalayas'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 1).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 15).toISOString(),
   },
 
   // 11. Jobicy Remote API
@@ -660,7 +660,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     source_name: 'Jobicy',
     source_url: 'https://jobicy.com',
     apply_url: 'https://jobicy.com/jobs/senior-cloud-platform-kubernetes-skyward',
-    posted_at: new Date(Date.now() - 3600000 * 24 * 1.5).toISOString(),
+    posted_at: new Date(Date.now() - 3600000 * 19).toISOString(),
     last_verified_at: new Date(Date.now() - 3600000 * 6).toISOString(),
     expires_at: null,
     employer_type: 'direct',
@@ -686,6 +686,6 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     url: 'https://jobicy.com/jobs/senior-cloud-platform-kubernetes-skyward',
     source: 'jobicy',
     tags: ['Kubernetes', 'AWS', 'Terraform', 'CI/CD', 'Jobicy'],
-    published_at: new Date(Date.now() - 3600000 * 24 * 1.5).toISOString(),
+    published_at: new Date(Date.now() - 3600000 * 19).toISOString(),
   },
 ];

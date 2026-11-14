@@ -249,3 +249,21 @@ export function saveCandidateProfileServer(
     apply_ready_result: evaluation,
   };
 }
+
+/**
+ * Returns all saved candidate profiles from the server store.
+ */
+export function getAllCandidateProfilesServer(): ExtendedCandidateProfile[] {
+  const map = getProfilesMap();
+  const values = Array.from(map.values());
+  const seenIds = new Set<string>();
+  const list: ExtendedCandidateProfile[] = [];
+  for (let i = 0; i < values.length; i++) {
+    const profile = values[i];
+    if (!seenIds.has(profile.id)) {
+      seenIds.add(profile.id);
+      list.push(profile);
+    }
+  }
+  return list;
+}

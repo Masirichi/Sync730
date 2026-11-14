@@ -79,5 +79,2146 @@
     "consent_at": "2026-11-12T23:15:44.153Z",
     "consent_text_version": "v1",
     "source": "waitlist_page"
+  },
+  {
+    "id": "4ba259e6-b4f1-4d32-8690-06cc25b07e19",
+    "created_at": "2026-11-14T18:54:02.869Z",
+    "full_name": "Adaeze Ndlovu",
+    "email": "adaeze.ndlovu@gmail.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T18:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "42265b9b-e549-4342-a2de-58518100e1c9",
+    "created_at": "2026-11-14T16:54:02.870Z",
+    "full_name": "Chinedu Nwosu",
+    "email": "chinedu.nwosu@yahoo.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T16:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "3e5e4c42-c67d-4e12-bd61-44fbf6e25fb0",
+    "created_at": "2026-11-14T14:54:02.870Z",
+    "full_name": "Olumide Osei",
+    "email": "olumide.osei@outlook.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T14:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "88a1f7e7-22b7-4ce3-8481-7e9574b87f6b",
+    "created_at": "2026-11-14T12:54:02.870Z",
+    "full_name": "Folake Moyo",
+    "email": "folake.moyo@icloud.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T12:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "bacd962b-3f55-43d4-94b2-2c7304abd10c",
+    "created_at": "2026-11-14T10:54:02.870Z",
+    "full_name": "Tariq Diop",
+    "email": "tariq.diop@proton.me",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T10:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "2f75e288-0ebb-4e89-bfa5-29985ddf90ea",
+    "created_at": "2026-11-14T08:54:02.870Z",
+    "full_name": "Kemi Balogun",
+    "email": "kemi.balogun@gmail.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T08:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "e5a55407-1041-470d-9ccc-8d9ac3dce3be",
+    "created_at": "2026-11-14T06:54:02.870Z",
+    "full_name": "Kwame Mensah",
+    "email": "kwame.mensah@yahoo.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T06:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "296d97a6-8072-4758-95e7-860ad698f528",
+    "created_at": "2026-11-14T04:54:02.870Z",
+    "full_name": "Ngozi Sowore",
+    "email": "ngozi.sowore@outlook.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T04:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "10903a53-bd37-405c-9903-df92f8d91649",
+    "created_at": "2026-11-14T02:54:02.870Z",
+    "full_name": "Babajide Diallo",
+    "email": "babajide.diallo@icloud.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T02:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "376cca1a-5516-4c3c-a6e3-cb1cfb0915fa",
+    "created_at": "2026-11-14T00:54:02.870Z",
+    "full_name": "Amara Alabi",
+    "email": "amara.alabi@proton.me",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T00:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "d46aec1b-bd92-4a23-b61e-fc4830645029",
+    "created_at": "2026-11-13T22:54:02.870Z",
+    "full_name": "Emeka Gueye",
+    "email": "emeka.gueye@gmail.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T22:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "c1a86c53-8d83-4862-ac7c-8e42bc733c33",
+    "created_at": "2026-11-13T20:54:02.870Z",
+    "full_name": "Zainab Okonkwo",
+    "email": "zainab.okonkwo@yahoo.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T20:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "db62ec27-38c3-49de-a129-d60126585880",
+    "created_at": "2026-11-13T18:54:02.870Z",
+    "full_name": "Thabo Adebayo",
+    "email": "thabo.adebayo@outlook.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T18:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "b6b9ce24-5b1b-477c-bbd9-470264608481",
+    "created_at": "2026-11-13T16:54:02.870Z",
+    "full_name": "Sipho Adeyemi",
+    "email": "sipho.adeyemi@icloud.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T16:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "bce74c2f-bebb-49ff-b438-3a9c3604389f",
+    "created_at": "2026-11-13T14:54:02.870Z",
+    "full_name": "Kofi Appiah",
+    "email": "kofi.appiah@proton.me",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T14:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "815b8c54-1662-459d-9fb8-ad0b672693b9",
+    "created_at": "2026-11-13T12:54:02.870Z",
+    "full_name": "Amina Kamau",
+    "email": "amina.kamau@gmail.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T12:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "a479b53b-4353-4166-9837-d91b7c40d8a1",
+    "created_at": "2026-11-13T10:54:02.870Z",
+    "full_name": "Damilola Abubakar",
+    "email": "damilola.abubakar@yahoo.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T10:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "bcd01ad0-6ec8-4c88-a620-6338a66ca3ef",
+    "created_at": "2026-11-13T08:54:02.870Z",
+    "full_name": "Yusuf Banda",
+    "email": "yusuf.banda@outlook.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T08:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "2856fd34-a6c7-4dfb-a8c9-402071e79d6d",
+    "created_at": "2026-11-13T06:54:02.870Z",
+    "full_name": "Eshe Eze",
+    "email": "eshe.eze@icloud.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T06:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "1e8fa32c-1219-4397-bfed-dcdd838e3621",
+    "created_at": "2026-11-13T04:54:02.870Z",
+    "full_name": "Farai Mansoor",
+    "email": "farai.mansoor@proton.me",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T04:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "8d86e926-631b-4996-a86c-37f85c854e91",
+    "created_at": "2026-11-12T04:54:02.870Z",
+    "full_name": "Zainab Okonkwo",
+    "email": "zainab.okonkwo12@yahoo.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T04:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "33509084-5927-4c83-97bf-028f06d1a769",
+    "created_at": "2026-11-12T02:54:02.870Z",
+    "full_name": "Thabo Adebayo",
+    "email": "thabo.adebayo13@outlook.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T02:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "1da396db-c8a3-4c46-953c-31c9a27f7084",
+    "created_at": "2026-11-12T00:54:02.870Z",
+    "full_name": "Sipho Adeyemi",
+    "email": "sipho.adeyemi14@icloud.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T00:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "f8734734-8d15-4506-8fd1-35ff233e75ad",
+    "created_at": "2026-11-11T22:54:02.870Z",
+    "full_name": "Kofi Appiah",
+    "email": "kofi.appiah15@proton.me",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T22:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "cf25335d-faf5-44b0-a776-2d9ea4b43b4a",
+    "created_at": "2026-11-11T20:54:02.870Z",
+    "full_name": "Amina Kamau",
+    "email": "amina.kamau16@gmail.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T20:54:02.870Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "d86b5d6a-d1c8-42f2-9c44-0eec2382f1e7",
+    "created_at": "2026-11-11T18:54:02.870Z",
+    "full_name": "Damilola Abubakar",
+    "email": "damilola.abubakar17@yahoo.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T18:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "4ded0891-ae4e-49fa-aafa-bc0a6c23979f",
+    "created_at": "2026-11-11T16:54:02.871Z",
+    "full_name": "Yusuf Banda",
+    "email": "yusuf.banda18@outlook.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T16:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "52ff9817-ac84-441c-90c7-be86247f51f3",
+    "created_at": "2026-11-11T14:54:02.871Z",
+    "full_name": "Eshe Eze",
+    "email": "eshe.eze19@icloud.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T14:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "aa7e6781-1614-4cc4-9817-558aaab451ca",
+    "created_at": "2026-11-11T12:54:02.871Z",
+    "full_name": "Farai Mansoor",
+    "email": "farai.mansoor20@proton.me",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T12:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "af214eb6-28af-4f4e-9e94-dbf879d82930",
+    "created_at": "2026-11-11T10:54:02.871Z",
+    "full_name": "Adaeze Ndlovu",
+    "email": "adaeze.ndlovu1@gmail.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T10:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "26f3ca32-934b-41ce-ac8f-2beae63b01ad",
+    "created_at": "2026-11-11T08:54:02.871Z",
+    "full_name": "Chinedu Nwosu",
+    "email": "chinedu.nwosu2@yahoo.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T08:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "3069ceb3-197f-4938-83c1-b4d8b488f5c2",
+    "created_at": "2026-11-11T06:54:02.871Z",
+    "full_name": "Olumide Osei",
+    "email": "olumide.osei3@outlook.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T06:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "abcbc704-7077-49a2-ada4-faa699eebd27",
+    "created_at": "2026-11-11T04:54:02.871Z",
+    "full_name": "Folake Moyo",
+    "email": "folake.moyo4@icloud.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T04:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "7c48001f-6a0d-4225-8b2e-4dcd49c39209",
+    "created_at": "2026-11-11T02:54:02.871Z",
+    "full_name": "Tariq Diop",
+    "email": "tariq.diop5@proton.me",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T02:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "3b4ceb05-035d-4352-abac-51217ca94f0d",
+    "created_at": "2026-11-11T00:54:02.871Z",
+    "full_name": "Kemi Balogun",
+    "email": "kemi.balogun6@gmail.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T00:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "f488d1b5-b6a8-4383-ab33-53c98fd0166b",
+    "created_at": "2026-11-10T22:54:02.871Z",
+    "full_name": "Kwame Mensah",
+    "email": "kwame.mensah7@yahoo.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T22:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "156cfe84-7993-403d-a4df-151cc5e78635",
+    "created_at": "2026-11-10T20:54:02.871Z",
+    "full_name": "Ngozi Sowore",
+    "email": "ngozi.sowore8@outlook.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T20:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "69f03721-e156-43c8-849b-83056d2efa0e",
+    "created_at": "2026-11-10T18:54:02.871Z",
+    "full_name": "Babajide Diallo",
+    "email": "babajide.diallo9@icloud.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T18:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "6ae9063c-c709-42e2-b1d0-98f6ca5b50d9",
+    "created_at": "2026-11-10T16:54:02.871Z",
+    "full_name": "Amara Alabi",
+    "email": "amara.alabi10@proton.me",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T16:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "6f481971-acd5-4804-9dfd-61a8a44865cb",
+    "created_at": "2026-11-10T14:54:02.871Z",
+    "full_name": "Emeka Gueye",
+    "email": "emeka.gueye11@gmail.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T14:54:02.871Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "f5eb0d3f-cb58-42cd-904f-24c8d4286f3e",
+    "created_at": "2026-11-14T16:54:18.227Z",
+    "full_name": "Chinedu Nwosu",
+    "email": "chinedu.nwosu1@yahoo.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T16:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "256e8033-826f-4d73-867d-8fe72f45ac43",
+    "created_at": "2026-11-14T14:54:18.228Z",
+    "full_name": "Olumide Osei",
+    "email": "olumide.osei2@outlook.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T14:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "053dfe10-7db4-44bf-9e15-52471581ee8b",
+    "created_at": "2026-11-14T12:54:18.228Z",
+    "full_name": "Folake Moyo",
+    "email": "folake.moyo3@icloud.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T12:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "821e56dc-8bca-475c-bad8-910367fe83dc",
+    "created_at": "2026-11-14T10:54:18.228Z",
+    "full_name": "Tariq Diop",
+    "email": "tariq.diop4@proton.me",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T10:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "dccd854b-5033-4272-8331-0a363193ed63",
+    "created_at": "2026-11-14T08:54:18.228Z",
+    "full_name": "Kemi Balogun",
+    "email": "kemi.balogun5@gmail.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T08:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "b8d044d7-ecf4-440c-bddf-5fd9eaea0743",
+    "created_at": "2026-11-14T06:54:18.228Z",
+    "full_name": "Kwame Mensah",
+    "email": "kwame.mensah6@yahoo.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T06:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "6a394ddc-6aa7-474c-846f-e9ec912ae9e7",
+    "created_at": "2026-11-14T04:54:18.228Z",
+    "full_name": "Ngozi Sowore",
+    "email": "ngozi.sowore7@outlook.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T04:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "260ed070-b66b-48ab-a00b-c2d4ef589602",
+    "created_at": "2026-11-14T02:54:18.228Z",
+    "full_name": "Babajide Diallo",
+    "email": "babajide.diallo8@icloud.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T02:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "ec40ad3c-f8ac-44bc-8437-1b0f17ae3eec",
+    "created_at": "2026-11-14T00:54:18.228Z",
+    "full_name": "Amara Alabi",
+    "email": "amara.alabi9@proton.me",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-14T00:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "f04d3a05-1109-48c2-a180-15bbfd98c133",
+    "created_at": "2026-11-13T22:54:18.228Z",
+    "full_name": "Emeka Gueye",
+    "email": "emeka.gueye10@gmail.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T22:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "03b89c9e-c152-44aa-a5c5-ef837a8d6bf1",
+    "created_at": "2026-11-13T20:54:18.228Z",
+    "full_name": "Zainab Okonkwo",
+    "email": "zainab.okonkwo11@yahoo.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T20:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "f6afbd22-c21a-467a-94be-5f40453fa6cb",
+    "created_at": "2026-11-13T18:54:18.228Z",
+    "full_name": "Thabo Adebayo",
+    "email": "thabo.adebayo12@outlook.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T18:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "6460ae68-97fd-4094-9024-0bff666b526c",
+    "created_at": "2026-11-13T16:54:18.228Z",
+    "full_name": "Sipho Adeyemi",
+    "email": "sipho.adeyemi13@icloud.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T16:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "b91759d1-6e60-43e0-a622-312bf49c6784",
+    "created_at": "2026-11-13T14:54:18.228Z",
+    "full_name": "Kofi Appiah",
+    "email": "kofi.appiah14@proton.me",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T14:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "2ff5cadc-a016-4479-8344-b3a95c6d1f3d",
+    "created_at": "2026-11-13T12:54:18.228Z",
+    "full_name": "Amina Kamau",
+    "email": "amina.kamau15@gmail.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T12:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "0d74ef01-b14c-46f5-951c-f5d3814652a0",
+    "created_at": "2026-11-13T10:54:18.228Z",
+    "full_name": "Damilola Abubakar",
+    "email": "damilola.abubakar16@yahoo.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T10:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "9a5c34d0-74ef-4074-9d17-830fc93be681",
+    "created_at": "2026-11-13T08:54:18.228Z",
+    "full_name": "Yusuf Banda",
+    "email": "yusuf.banda17@outlook.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T08:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "74fe5c8a-8dc4-4327-bcda-c4657f3b313b",
+    "created_at": "2026-11-13T06:54:18.228Z",
+    "full_name": "Eshe Eze",
+    "email": "eshe.eze18@icloud.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T06:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "69775d3c-213b-4df7-83fc-fde62745b34d",
+    "created_at": "2026-11-13T04:54:18.228Z",
+    "full_name": "Farai Mansoor",
+    "email": "farai.mansoor19@proton.me",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T04:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "3ad07675-c32a-4c57-9d7c-cc2bf0c28a76",
+    "created_at": "2026-11-13T02:54:18.228Z",
+    "full_name": "Adaeze Ndlovu",
+    "email": "adaeze.ndlovu20@gmail.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T02:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "87183109-3829-4b97-992f-c366e141b53b",
+    "created_at": "2026-11-13T00:54:18.228Z",
+    "full_name": "Chinedu Nwosu",
+    "email": "chinedu.nwosu21@yahoo.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-13T00:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "c25ba337-4608-461a-8863-8c78db7ecb6e",
+    "created_at": "2026-11-12T22:54:18.228Z",
+    "full_name": "Olumide Osei",
+    "email": "olumide.osei22@outlook.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T22:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "f60bad60-1a4c-40d5-90f4-89669f49954a",
+    "created_at": "2026-11-12T20:54:18.228Z",
+    "full_name": "Folake Moyo",
+    "email": "folake.moyo23@icloud.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T20:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "26cd5b35-0b0f-4385-b7f9-94b8221bccf9",
+    "created_at": "2026-11-12T18:54:18.228Z",
+    "full_name": "Tariq Diop",
+    "email": "tariq.diop24@proton.me",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T18:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "98b059e3-1e9a-4d6c-8b28-bb5d7c8470b4",
+    "created_at": "2026-11-12T16:54:18.228Z",
+    "full_name": "Kemi Balogun",
+    "email": "kemi.balogun25@gmail.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T16:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "6b5e70fe-7b24-48b6-923a-47fcfa52a985",
+    "created_at": "2026-11-12T14:54:18.228Z",
+    "full_name": "Kwame Mensah",
+    "email": "kwame.mensah26@yahoo.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T14:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "941cabbb-bcfd-4a5c-9e63-868cd5fbb077",
+    "created_at": "2026-11-12T12:54:18.228Z",
+    "full_name": "Ngozi Sowore",
+    "email": "ngozi.sowore27@outlook.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T12:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "f6a8f783-0169-4e23-af33-a4838314171c",
+    "created_at": "2026-11-12T10:54:18.228Z",
+    "full_name": "Babajide Diallo",
+    "email": "babajide.diallo28@icloud.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T10:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "b72439e3-eb77-41d1-a6ee-11491f18da83",
+    "created_at": "2026-11-12T08:54:18.228Z",
+    "full_name": "Amara Alabi",
+    "email": "amara.alabi29@proton.me",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T08:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "1c306bd9-c76a-4e1b-a931-49b53daed573",
+    "created_at": "2026-11-12T06:54:18.228Z",
+    "full_name": "Emeka Gueye",
+    "email": "emeka.gueye30@gmail.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T06:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "b1e5dff1-1d90-4d63-a6fe-da472af22f91",
+    "created_at": "2026-11-12T04:54:18.228Z",
+    "full_name": "Zainab Okonkwo",
+    "email": "zainab.okonkwo31@yahoo.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T04:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "551fd9a3-a85b-4425-a5b7-d9f91faacfbc",
+    "created_at": "2026-11-12T02:54:18.228Z",
+    "full_name": "Thabo Adebayo",
+    "email": "thabo.adebayo32@outlook.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T02:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "fc46ec13-8d4b-4009-9347-bca0c4baf6ad",
+    "created_at": "2026-11-12T00:54:18.228Z",
+    "full_name": "Sipho Adeyemi",
+    "email": "sipho.adeyemi33@icloud.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-12T00:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "5f448c76-617a-426a-b236-569d88fdd772",
+    "created_at": "2026-11-11T22:54:18.228Z",
+    "full_name": "Kofi Appiah",
+    "email": "kofi.appiah34@proton.me",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T22:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "f311e3a4-4bd7-4886-9a13-da4ac7423ccc",
+    "created_at": "2026-11-11T20:54:18.228Z",
+    "full_name": "Amina Kamau",
+    "email": "amina.kamau35@gmail.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T20:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "0eccb955-be95-4f20-92e1-10d8ce1ce346",
+    "created_at": "2026-11-11T18:54:18.228Z",
+    "full_name": "Damilola Abubakar",
+    "email": "damilola.abubakar36@yahoo.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T18:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "228b92ef-fcf7-4542-b628-87a52c74022e",
+    "created_at": "2026-11-11T16:54:18.228Z",
+    "full_name": "Yusuf Banda",
+    "email": "yusuf.banda37@outlook.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T16:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "dee91d0c-486a-4087-b7b0-f267541ad380",
+    "created_at": "2026-11-11T14:54:18.228Z",
+    "full_name": "Eshe Eze",
+    "email": "eshe.eze38@icloud.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T14:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "09a1a3d3-a9e0-4d9e-9fbd-9fb2dbdb843f",
+    "created_at": "2026-11-11T12:54:18.228Z",
+    "full_name": "Farai Mansoor",
+    "email": "farai.mansoor39@proton.me",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T12:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "01de11ec-61da-4587-bb1b-b1ddb28b5afd",
+    "created_at": "2026-11-11T10:54:18.228Z",
+    "full_name": "Adaeze Ndlovu",
+    "email": "adaeze.ndlovu40@gmail.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T10:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "ea001bac-c9c5-432d-b9e6-c3e80137ac77",
+    "created_at": "2026-11-11T08:54:18.228Z",
+    "full_name": "Chinedu Nwosu",
+    "email": "chinedu.nwosu41@yahoo.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T08:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "d50ace08-aa17-4215-99c6-ecc3fd21556c",
+    "created_at": "2026-11-11T06:54:18.228Z",
+    "full_name": "Olumide Osei",
+    "email": "olumide.osei42@outlook.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T06:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "114c6c35-e018-434c-afb3-c2197ffde941",
+    "created_at": "2026-11-11T04:54:18.228Z",
+    "full_name": "Folake Moyo",
+    "email": "folake.moyo43@icloud.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T04:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "d88e4155-3bf3-4d43-97ff-746586b29308",
+    "created_at": "2026-11-11T02:54:18.228Z",
+    "full_name": "Tariq Diop",
+    "email": "tariq.diop44@proton.me",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T02:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "6ee7171c-f7e0-4d66-8bfc-4364e5f5108b",
+    "created_at": "2026-11-11T00:54:18.228Z",
+    "full_name": "Kemi Balogun",
+    "email": "kemi.balogun45@gmail.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-11T00:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "3da791e3-7d04-4859-9718-aae6c78fb5ea",
+    "created_at": "2026-11-10T22:54:18.228Z",
+    "full_name": "Kwame Mensah",
+    "email": "kwame.mensah46@yahoo.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T22:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "a1db51b6-ec97-4503-98c7-ee3cad134950",
+    "created_at": "2026-11-10T20:54:18.228Z",
+    "full_name": "Ngozi Sowore",
+    "email": "ngozi.sowore47@outlook.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T20:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "db04ec0b-d698-46c4-93eb-6c1db67efae7",
+    "created_at": "2026-11-10T18:54:18.228Z",
+    "full_name": "Babajide Diallo",
+    "email": "babajide.diallo48@icloud.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T18:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "00a88d04-fd60-4ea4-8d74-1992d029b928",
+    "created_at": "2026-11-10T16:54:18.228Z",
+    "full_name": "Amara Alabi",
+    "email": "amara.alabi49@proton.me",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T16:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "32f2df08-f616-4175-944e-562476720638",
+    "created_at": "2026-11-10T14:54:18.228Z",
+    "full_name": "Emeka Gueye",
+    "email": "emeka.gueye50@gmail.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T14:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "e610dde8-6482-4ee5-b512-4211cbd8d223",
+    "created_at": "2026-11-10T12:54:18.228Z",
+    "full_name": "Zainab Okonkwo",
+    "email": "zainab.okonkwo51@yahoo.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T12:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "b2318529-6b87-4e7c-b007-f53846f34223",
+    "created_at": "2026-11-10T10:54:18.228Z",
+    "full_name": "Thabo Adebayo",
+    "email": "thabo.adebayo52@outlook.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T10:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "8e663f35-51a6-4f5c-9145-c6e920cf61f1",
+    "created_at": "2026-11-10T08:54:18.228Z",
+    "full_name": "Sipho Adeyemi",
+    "email": "sipho.adeyemi53@icloud.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T08:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "6d91f5a7-637d-4538-8633-aae3e8b5b056",
+    "created_at": "2026-11-10T06:54:18.228Z",
+    "full_name": "Kofi Appiah",
+    "email": "kofi.appiah54@proton.me",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T06:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "ff7ce185-db50-414d-8685-e23cad496a69",
+    "created_at": "2026-11-10T04:54:18.228Z",
+    "full_name": "Amina Kamau",
+    "email": "amina.kamau55@gmail.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T04:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "13098e1a-f4b6-4646-95fc-b229dbddacf5",
+    "created_at": "2026-11-10T02:54:18.228Z",
+    "full_name": "Damilola Abubakar",
+    "email": "damilola.abubakar56@yahoo.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T02:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "669433e3-62c0-4803-9f0b-7c5b7ce08311",
+    "created_at": "2026-11-10T00:54:18.228Z",
+    "full_name": "Yusuf Banda",
+    "email": "yusuf.banda57@outlook.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-10T00:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "de956f49-0b12-49dd-a132-27fb38dafd7d",
+    "created_at": "2026-11-09T22:54:18.228Z",
+    "full_name": "Eshe Eze",
+    "email": "eshe.eze58@icloud.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-09T22:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "1ac6bfe1-73df-43df-9eda-83304454c00a",
+    "created_at": "2026-11-09T20:54:18.228Z",
+    "full_name": "Farai Mansoor",
+    "email": "farai.mansoor59@proton.me",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-09T20:54:18.228Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "5de9908a-3521-4173-9201-133aca78ad2c",
+    "created_at": "2026-11-09T18:54:18.229Z",
+    "full_name": "Adaeze Ndlovu",
+    "email": "adaeze.ndlovu60@gmail.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-09T18:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "c3ac309c-0987-448e-8e87-b89a61738f13",
+    "created_at": "2026-11-09T16:54:18.229Z",
+    "full_name": "Chinedu Nwosu",
+    "email": "chinedu.nwosu61@yahoo.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-09T16:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "da85edd2-68a1-417f-bcfa-a0546433ccfd",
+    "created_at": "2026-11-09T14:54:18.229Z",
+    "full_name": "Olumide Osei",
+    "email": "olumide.osei62@outlook.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-09T14:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "6bec3964-4303-499d-8fe1-3ac88187dc66",
+    "created_at": "2026-11-09T12:54:18.229Z",
+    "full_name": "Folake Moyo",
+    "email": "folake.moyo63@icloud.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-09T12:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "5dc85098-afc7-4ecf-a99a-bd1e251ab0d9",
+    "created_at": "2026-11-09T10:54:18.229Z",
+    "full_name": "Tariq Diop",
+    "email": "tariq.diop64@proton.me",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-09T10:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "739c9034-9800-4bb5-bed9-10712206e66a",
+    "created_at": "2026-11-09T08:54:18.229Z",
+    "full_name": "Kemi Balogun",
+    "email": "kemi.balogun65@gmail.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-09T08:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "14b1fdbc-c5ad-4805-ad40-4ea4435acb5d",
+    "created_at": "2026-11-09T06:54:18.229Z",
+    "full_name": "Kwame Mensah",
+    "email": "kwame.mensah66@yahoo.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-09T06:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "9040e47e-7061-4a1c-9d30-4df6668a38cd",
+    "created_at": "2026-11-09T04:54:18.229Z",
+    "full_name": "Ngozi Sowore",
+    "email": "ngozi.sowore67@outlook.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-09T04:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "0ec2cd59-6fb7-4105-8233-217ef3feeaba",
+    "created_at": "2026-11-09T02:54:18.229Z",
+    "full_name": "Babajide Diallo",
+    "email": "babajide.diallo68@icloud.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-09T02:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "eadaafde-b89d-4bfe-b72c-593e3d53a266",
+    "created_at": "2026-11-09T00:54:18.229Z",
+    "full_name": "Amara Alabi",
+    "email": "amara.alabi69@proton.me",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-09T00:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "c1bbbd5b-9819-4207-bf53-76b91d750411",
+    "created_at": "2026-11-08T22:54:18.229Z",
+    "full_name": "Emeka Gueye",
+    "email": "emeka.gueye70@gmail.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-08T22:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "c5044f89-dbe6-4a60-9925-cb05a847514e",
+    "created_at": "2026-11-08T20:54:18.229Z",
+    "full_name": "Zainab Okonkwo",
+    "email": "zainab.okonkwo71@yahoo.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-08T20:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "3593a9f9-112d-4a43-8fab-0533afb3431f",
+    "created_at": "2026-11-08T18:54:18.229Z",
+    "full_name": "Thabo Adebayo",
+    "email": "thabo.adebayo72@outlook.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-08T18:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "68866ded-d0b0-436e-b271-cecdbc244bea",
+    "created_at": "2026-11-08T16:54:18.229Z",
+    "full_name": "Sipho Adeyemi",
+    "email": "sipho.adeyemi73@icloud.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-08T16:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "4d782725-27af-4bcc-b767-93c7d36e089d",
+    "created_at": "2026-11-08T14:54:18.229Z",
+    "full_name": "Kofi Appiah",
+    "email": "kofi.appiah74@proton.me",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-08T14:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "a1bbf24f-7926-4aab-bd66-ce54778d4fb9",
+    "created_at": "2026-11-08T12:54:18.229Z",
+    "full_name": "Amina Kamau",
+    "email": "amina.kamau75@gmail.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-08T12:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "70af5346-51e4-4135-bd21-e301520cefea",
+    "created_at": "2026-11-08T10:54:18.229Z",
+    "full_name": "Damilola Abubakar",
+    "email": "damilola.abubakar76@yahoo.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-08T10:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "2d884d37-e3ff-4cab-9bab-f852314f84a8",
+    "created_at": "2026-11-08T08:54:18.229Z",
+    "full_name": "Yusuf Banda",
+    "email": "yusuf.banda77@outlook.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-08T08:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "e905ffe7-1419-4ce1-8d0a-beb6188c2e8b",
+    "created_at": "2026-11-08T06:54:18.229Z",
+    "full_name": "Eshe Eze",
+    "email": "eshe.eze78@icloud.com",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-08T06:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "0cd2423c-d34f-4a22-9f6a-b49db061c2a0",
+    "created_at": "2026-11-08T04:54:18.229Z",
+    "full_name": "Farai Mansoor",
+    "email": "farai.mansoor79@proton.me",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-08T04:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "c52c7423-b83a-462f-973c-88df39c31fef",
+    "created_at": "2026-11-08T02:54:18.229Z",
+    "full_name": "Adaeze Ndlovu",
+    "email": "adaeze.ndlovu80@gmail.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-08T02:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "a35e2ae7-9fca-46d8-a81f-bf40f9ab1357",
+    "created_at": "2026-11-08T00:54:18.229Z",
+    "full_name": "Chinedu Nwosu",
+    "email": "chinedu.nwosu81@yahoo.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-08T00:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "ee58cd7e-741c-420e-9bd9-dc9d70d30d31",
+    "created_at": "2026-11-07T22:54:18.229Z",
+    "full_name": "Olumide Osei",
+    "email": "olumide.osei82@outlook.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-07T22:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "0d891d1a-16b9-4ee1-84ea-0cc5d7510691",
+    "created_at": "2026-11-07T20:54:18.229Z",
+    "full_name": "Folake Moyo",
+    "email": "folake.moyo83@icloud.com",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-07T20:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "553db7fc-b339-4d74-8321-d9767ad7bca7",
+    "created_at": "2026-11-07T18:54:18.229Z",
+    "full_name": "Tariq Diop",
+    "email": "tariq.diop84@proton.me",
+    "country": "Nigeria",
+    "track": "software_engineering",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-07T18:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "4bb07de7-bfc8-4be5-b9b2-0c42782d7d35",
+    "created_at": "2026-11-07T16:54:18.229Z",
+    "full_name": "Kemi Balogun",
+    "email": "kemi.balogun85@gmail.com",
+    "country": "Kenya",
+    "track": "product_management",
+    "priorities": [
+      "Remote work",
+      "Fair pay",
+      "Growth"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-07T16:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "244b5775-6f73-4604-be64-71f82e64ce0a",
+    "created_at": "2026-11-07T14:54:18.229Z",
+    "full_name": "Kwame Mensah",
+    "email": "kwame.mensah86@yahoo.com",
+    "country": "Ghana",
+    "track": "data_ai",
+    "priorities": [
+      "Fair pay",
+      "Purpose",
+      "Stable team"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-07T14:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "e9639bb7-cda2-464b-bb99-b604c2494692",
+    "created_at": "2026-11-07T12:54:18.229Z",
+    "full_name": "Ngozi Sowore",
+    "email": "ngozi.sowore87@outlook.com",
+    "country": "South Africa",
+    "track": "product_design",
+    "priorities": [
+      "Remote work",
+      "Flexible hours"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-07T12:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "6f46895f-3009-42da-819b-45b2a6a1f53c",
+    "created_at": "2026-11-07T10:54:18.229Z",
+    "full_name": "Babajide Diallo",
+    "email": "babajide.diallo88@icloud.com",
+    "country": "Rwanda",
+    "track": "devops_cloud",
+    "priorities": [
+      "Growth",
+      "Stable team",
+      "Purpose"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-07T10:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
+  },
+  {
+    "id": "582c89b3-156a-4dd0-ba7e-cae47494c916",
+    "created_at": "2026-11-07T08:54:18.229Z",
+    "full_name": "Amara Alabi",
+    "email": "amara.alabi89@proton.me",
+    "country": "Egypt",
+    "track": "sales_growth",
+    "priorities": [
+      "Fair pay",
+      "Remote work"
+    ],
+    "consent": true,
+    "consent_at": "2026-11-07T08:54:18.229Z",
+    "consent_text_version": "v1",
+    "source": "waitlist_page"
   }
 ]
