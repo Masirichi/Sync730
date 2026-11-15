@@ -292,7 +292,7 @@ export default function WaitlistPage() {
             </h1>
 
             <p className="font-body text-base sm:text-lg text-[#6a6a64] leading-relaxed">
-              A fairer, signal-driven recruitment platform connecting verified African talent with top companies locally and globally.
+              A transparent recruitment platform connecting African talent with real, open roles locally and worldwide.
             </p>
 
             {/* What we're building */}

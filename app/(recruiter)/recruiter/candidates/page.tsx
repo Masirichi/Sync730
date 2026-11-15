@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Shield, Unlock, Lock, Mail, Phone, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Shield, Unlock, Lock, Mail, Phone, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CandidateProfile {
@@ -124,7 +124,6 @@ export default function CandidatesPage() {
 
         {/* Token Balance Pill */}
         <div className="flex items-center gap-2 self-start rounded-full border bg-card px-4 py-1.5 shadow-sm">
-          <Sparkles className="h-4 w-4 text-amber-500" />
           <span className="text-xs font-medium text-muted-foreground">Available Tokens:</span>
           <span className="text-sm font-bold text-foreground">{tokenBalance}</span>
         </div>

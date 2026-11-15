@@ -24,7 +24,6 @@ import {
   Globe2,
   Calendar,
   Clock,
-  Sparkles,
   ShieldCheck,
   CheckCircle2,
   AlertCircle,
@@ -333,7 +332,7 @@ function JobDetailContent() {
           <div className="flex items-center gap-1.5 flex-wrap">
             {job.is_featured && (
               <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                ★ Featured Partner
+                Featured Partner
               </span>
             )}
             <Badge variant="outline" className="text-xs font-medium">
@@ -406,7 +405,7 @@ function JobDetailContent() {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2.5">
                       <div className="flex items-center gap-1.5 font-bold text-sm text-neutral-900 dark:text-neutral-100">
-                        <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                         <span>{matchScore.score}% match</span>
                       </div>
                       <div className="w-24 h-2 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
@@ -424,7 +423,7 @@ function JobDetailContent() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
-                    <Sparkles className="h-4 w-4 text-blue-500 shrink-0" />
+                    <Check className="h-4 w-4 text-blue-500 shrink-0" aria-hidden="true" />
                     <span>Complete your profile to see match scores and detailed breakdown</span>
                   </div>
                 )}
@@ -592,7 +591,7 @@ function JobDetailContent() {
             <CardContent className="p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
-                  <Sparkles className="h-4 w-4 text-blue-500" />
+                  <Check className="h-4 w-4 text-blue-500" aria-hidden="true" />
                   <span>Skills to Strengthen</span>
                 </h3>
                 {matchScore?.isProfileComplete && matchScore.breakdown && (
@@ -656,7 +655,7 @@ function JobDetailContent() {
           <Card className="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-none rounded-xl">
             <CardContent className="p-5 space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
-                <Sparkles className="h-4 w-4 text-neutral-400" />
+                <Briefcase className="h-4 w-4 text-neutral-400" aria-hidden="true" />
                 <span>Required Skills</span>
               </h3>
 
@@ -745,7 +744,6 @@ function JobDetailContent() {
               aria-label={`Tailor resume for ${job.title} at ${job.company_name || job.company}`}
               className="gap-1.5 text-xs min-h-[44px] h-11 px-4 font-semibold border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800"
             >
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
               <span>Tailor Resume</span>
             </Button>
 

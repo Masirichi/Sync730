@@ -5,20 +5,20 @@ import { Toaster } from '@/components/ui/sonner';
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://sync730.com'),
   title: {
-    default: 'Sync730: Empowering recruitment in the Age of AI',
+    default: 'Sync730 | Real jobs. Open to Africa.',
     template: '%s | Sync730',
   },
   description:
-    'Smart, AI-powered recruitment solutions for organizations: interview every applicant, review only the best.',
+    'Real, open roles eligible for people living in Africa. Where you live shouldn’t decide what you can become.',
   icons: {
     icon: '/assets/logo/sync730_icon_black.png',
     shortcut: '/assets/logo/sync730_icon_black.png',
     apple: '/assets/logo/sync730_icon_black.png',
   },
   openGraph: {
-    title: 'Sync730: Empowering recruitment in the Age of AI',
+    title: 'Sync730 | Real jobs. Open to Africa.',
     description:
-      'Smart, AI-powered recruitment solutions for organizations: interview every applicant, review only the best.',
+      'Real, open roles eligible for people living in Africa. Where you live shouldn’t decide what you can become.',
     url: 'https://sync730.com',
     siteName: 'Sync730',
     images: [
@@ -26,15 +26,15 @@ export const metadata: Metadata = {
         url: '/og-sync730.png',
         width: 1200,
         height: 630,
-        alt: 'Sync730 - Empowering recruitment in the Age of AI',
+        alt: 'Sync730 - Real jobs. Open to Africa.',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Sync730: Empowering recruitment in the Age of AI',
+    title: 'Sync730 | Real jobs. Open to Africa.',
     description:
-      'Smart, AI-powered recruitment solutions for organizations: interview every applicant, review only the best.',
+      'Real, open roles eligible for people living in Africa. Where you live shouldn’t decide what you can become.',
     images: ['/og-sync730.png'],
   },
 };

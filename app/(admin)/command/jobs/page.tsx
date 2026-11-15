@@ -13,7 +13,6 @@ import {
   ShieldCheck,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   Building2,
   Globe,
   DollarSign,
@@ -487,7 +486,7 @@ export default function AdminJobsManagerPage() {
             {isSeedingNigeria ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
             ) : (
-              <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
+              <Building2 className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />
             )}
             <span>Seed Lagos & Abuja Roles</span>
           </Button>

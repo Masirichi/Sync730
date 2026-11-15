@@ -13,7 +13,6 @@ import {
   ShieldCheck,
   CheckCircle2,
   Mail,
-  Sparkles,
   MessageSquare,
   Star,
   Plus,
@@ -1062,8 +1061,9 @@ function VettedTalentContent() {
                               <span className="text-neutral-400 font-medium block mb-1">Matched Skills:</span>
                               <div className="flex flex-wrap gap-1">
                                 {matchAnalysis.breakdown.matchedSkills.map((s) => (
-                                  <span key={s} className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold text-[10px]">
-                                    ✓ {s}
+                                  <span key={s} className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold text-[10px] inline-flex items-center gap-0.5">
+                                    <Check className="h-2.5 w-2.5" aria-hidden="true" />
+                                    <span>{s}</span>
                                   </span>
                                 ))}
                               </div>
@@ -1133,9 +1133,8 @@ function VettedTalentContent() {
 
                     {/* AI Assessment Summary */}
                     <div className="space-y-1">
-                      <div className="text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 flex items-center gap-1">
-                        <Sparkles className="h-3 w-3 stroke-[1.5]" />
-                        <span>Flowmingo AI Assessment Summary</span>
+                      <div className="text-[11px] font-semibold text-neutral-500 dark:text-neutral-400">
+                        <span>Assessment Summary</span>
                       </div>
                       <p className="text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed line-clamp-3">
                         {cand.ai_summary}
@@ -1325,8 +1324,8 @@ function VettedTalentContent() {
                 {activeDetailCandidate.key_moments && activeDetailCandidate.key_moments.length > 0 && (
                   <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-2.5 text-xs">
                     <div className="flex items-center gap-1.5 font-bold text-neutral-900 dark:text-white">
-                      <Sparkles className="h-4 w-4 text-purple-500" />
-                      <span>Flowmingo AI Key Moments (Click timestamp to jump)</span>
+                      <Video className="h-4 w-4 text-purple-500" aria-hidden="true" />
+                      <span>Key Interview Moments (Click timestamp to jump)</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">

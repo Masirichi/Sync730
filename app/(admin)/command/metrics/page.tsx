@@ -13,7 +13,7 @@ import {
   ArrowUpRight,
   ShieldAlert,
   Clock,
-  Sparkles,
+  Briefcase,
   ExternalLink,
   Radar,
   Calendar,
@@ -248,7 +248,7 @@ export default function CommandMetricsPage() {
           <Card className="rounded-3xl border border-neutral-800 bg-neutral-900/90 p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
               <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-amber-400 stroke-[1.5]" />
+                <Briefcase className="h-4 w-4 text-neutral-300 stroke-[1.5]" aria-hidden="true" />
                 <span>Command Operations Modules</span>
               </h3>
             </div>

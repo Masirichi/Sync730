@@ -31,7 +31,6 @@ import {
   Search,
   Compass,
   Video,
-  Sparkles,
   Calendar,
 } from 'lucide-react';
 import { ResumeGeneratorModal, TargetJobContext } from '@/components/resume/resume-generator-modal';
@@ -51,7 +50,6 @@ const COLUMNS: { id: TrackerStatus; label: string; color: string; badgeColor: st
   { id: 'APPLIED', label: 'Applied', color: 'border-t-neutral-600', badgeColor: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200' },
   { id: 'INTERVIEWING', label: 'Interviewing', color: 'border-t-neutral-800 dark:border-t-neutral-400', badgeColor: 'bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100' },
   { id: 'OFFERED', label: 'Offer', color: 'border-t-emerald-500', badgeColor: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' },
-  { id: 'REJECTED', label: 'Rejected', color: 'border-t-neutral-300 dark:border-t-neutral-700', badgeColor: 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400' },
 ];
 
 export default function SyncFlowTrackerPage() {

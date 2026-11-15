@@ -5,7 +5,6 @@
 import { useState, useEffect } from 'react';
 import {
   X,
-  Sparkles,
   Download,
   Copy,
   Check,
@@ -189,8 +188,8 @@ ${gaps.length > 0 ? gaps.map((g) => `- ${g.requirement}: ${g.note}`).join('\n') 
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 text-xs font-bold uppercase tracking-wider">
-                  <Sparkles className="h-3 w-3" />
-                  <span>AI suggestions, review before sending</span>
+                  <FileText className="h-3 w-3" aria-hidden="true" />
+                  <span>Suggestions, review before sending</span>
                 </div>
                 <h2 id="tailor-panel-title" className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
                   Tailor Resume for {job.company}

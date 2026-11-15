@@ -4,6 +4,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { trackEvent } from '@/lib/analytics';
+import { HOME_CONTENT } from '@/src/content/home';
 
 interface HeroSectionProps {
   onOpenDemo: () => void;
@@ -27,44 +28,46 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
           {/* Eyebrow with leading rule line */}
           <div className="mb-8 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
             <span className="h-px w-8 bg-foreground" aria-hidden="true" />
-            <span>EMPOWERING RECRUITMENT IN THE AGE OF AI</span>
+            <span>{HOME_CONTENT.hero.eyebrow}</span>
           </div>
 
-          {/* H1 with exactly one italic word on "best" */}
+          {/* H1 with exactly one italic word */}
           <h1 className="text-5xl font-semibold leading-[1.02] tracking-[-0.055em] sm:text-7xl lg:text-[84px] text-foreground">
-            Interview every applicant. Review only the <em className="italic font-serif">best</em>.
+            Where you live shouldn’t decide what you can <em className="italic font-serif">become</em>.
           </h1>
 
           {/* Subhead */}
           <p className="mt-8 max-w-xl text-lg leading-8 text-muted-foreground">
-            Smart, AI-powered recruitment for organizations: you post a role, everyone who applies takes an AI-moderated video interview within 48 hours, and you review a ranked, evidence-backed shortlist.
+            {HOME_CONTENT.hero.subtitle}
           </p>
 
           {/* Action Buttons */}
           <div className="mt-10 flex flex-col gap-3.5 sm:flex-row sm:items-center">
-            <button
-              type="button"
-              onClick={handleDemoClick}
-              className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-7 text-sm font-semibold text-background hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
-            >
-              Book a demo
-            </button>
             <Link
               href="/find-work"
               onClick={handleJobsClick}
+              className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-7 text-sm font-semibold text-background hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
+            >
+              {HOME_CONTENT.hero.ctaPrimary}
+            </Link>
+            <Link
+              href="/signup/company"
               className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-background px-7 text-sm font-semibold text-foreground hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
             >
-              Find your next move
+              {HOME_CONTENT.hero.ctaSecondary}
             </Link>
           </div>
 
           {/* Plain text items separated by thin vertical dividers (No checkmark icons) */}
           <div className="mt-12 flex flex-wrap items-center gap-y-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            <span>Free for candidates</span>
-            <span className="mx-3.5 h-3.5 w-px bg-border/80" aria-hidden="true" />
-            <span>AI scores, humans decide</span>
-            <span className="mx-3.5 h-3.5 w-px bg-border/80" aria-hidden="true" />
-            <span>Built for how Africa hires</span>
+            {HOME_CONTENT.hero.reassuranceItems.map((item, idx) => (
+              <React.Fragment key={item}>
+                {idx > 0 && (
+                  <span className="mx-3.5 h-3.5 w-px bg-border/80" aria-hidden="true" />
+                )}
+                <span>{item}</span>
+              </React.Fragment>
+            ))}
           </div>
         </div>
 

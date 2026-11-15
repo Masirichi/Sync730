@@ -14,7 +14,6 @@ import {
   Mic,
   MicOff,
   VideoOff,
-  Sparkles,
   CheckCircle2,
   AlertCircle,
   ArrowRight,
@@ -314,7 +313,7 @@ function SandboxContent() {
       return;
     }
 
-    toast.info('⚡ Dev Bypass activated: Instant Sandbox Access granted.');
+    toast.info('Dev Bypass activated: Instant Sandbox Access granted.');
     const newSess = await createMockSession({
       target_role: targetRole,
       company_name: companyName,
@@ -430,7 +429,7 @@ function SandboxContent() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm">
             <div className="space-y-1.5">
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-medium text-neutral-800 dark:text-neutral-200">
-                <Sparkles className="h-3.5 w-3.5 stroke-[1.5]" />
+                <Video className="h-3.5 w-3.5 stroke-[1.5]" aria-hidden="true" />
                 Sprint 2 Candidate Feature · B2C Mock Interview Sandbox
               </div>
               <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">

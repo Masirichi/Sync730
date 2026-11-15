@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ExtendedCandidateProfile } from '@/lib/candidate/profile-store';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Check } from 'lucide-react';
 import { saveJobToTracker } from '@/lib/tracker';
 import { fireJobAnalytics } from '@/lib/analytics/client';
 import { INTERVIEW_EXPECTATION_COPY } from '@/lib/jobs/trust-copy';
@@ -102,8 +102,8 @@ export function ApplyFlowModal({
       <DialogContent className="max-w-lg w-[calc(100vw-2rem)] p-6 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-2xl">
         {submitted ? (
           <div className="space-y-5 py-4 text-center">
-            <div className="w-12 h-12 bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-bold rounded-full flex items-center justify-center mx-auto text-lg">
-              ✓
+            <div className="w-12 h-12 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto">
+              <Check className="w-5 h-5 text-neutral-900 dark:text-white" aria-hidden="true" />
             </div>
             <div className="space-y-1.5">
               <h2 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-white">

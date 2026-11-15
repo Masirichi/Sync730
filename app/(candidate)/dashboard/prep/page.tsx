@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   HelpCircle,
-  Sparkles,
+  Video,
   BookOpen,
   ArrowRight,
   CheckCircle2,
@@ -17,7 +17,6 @@ import {
   Layers,
   ChevronRight,
   ShieldCheck,
-  Zap,
   Lightbulb,
   FileCheck2,
 } from 'lucide-react';
@@ -225,7 +224,7 @@ function InterviewPrepContent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-neutral-200 dark:border-neutral-800 pb-5">
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-300 text-xs font-semibold uppercase tracking-wider mb-2">
-            <Sparkles className="h-3.5 w-3.5" />
+            <Video className="h-3.5 w-3.5" aria-hidden="true" />
             <span>AI Technical Interview Prep</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
@@ -365,9 +364,8 @@ function InterviewPrepContent() {
                 size="sm"
                 onClick={handleEvaluate}
                 disabled={isEvaluating}
-                className="text-xs h-9 gap-1.5 bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 font-semibold"
+                className="text-xs h-9 px-4 bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 font-semibold"
               >
-                <Sparkles className="h-3.5 w-3.5" />
                 <span>{isEvaluating ? 'Evaluating Structure...' : 'Analyze Answer'}</span>
               </Button>
             </div>

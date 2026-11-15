@@ -1,6 +1,6 @@
 // scripts/test-banned-phrases.js
-// Automated test suite asserting that NONE of the banned phrases appear
-// in rendered output or source code of /jobs and /jobs/[slug].
+// Automated test suite asserting that NONE of the banned phrases or voice terms appear
+// in rendered output or source code of public pages.
 
 const fs = require('fs');
 const path = require('path');
@@ -20,6 +20,15 @@ const BANNED_PATTERNS = [
   { phrase: 'confirmed hiring budgets', regex: /\bconfirmed\s+hiring\s+budgets\b/i },
   { phrase: 'audited, vetted Pan-African engineers', regex: /\baudited,?\s*vetted\s+pan-african\s+engineers\b/i },
   { phrase: 'Every employer verified', regex: /\bevery\s+employer\s+verified\b/i },
+];
+
+const BANNED_VOICE_TERMS = [
+  { term: 'empowering', regex: /\bempowering\b/i },
+  { term: 'age of ai', regex: /\bage\s+of\s+ai\b/i },
+  { term: 'seamless', regex: /\bseamless(?:ly)?\b/i },
+  { term: 'cutting-edge', regex: /\bcutting-edge\b/i },
+  { term: 'glyph ✦', regex: /✦/ },
+  { term: 'glyph ✨', regex: /✨/ },
 ];
 
 function fetchUrl(url) {
@@ -51,12 +60,42 @@ async function runAudit() {
   console.log('--- SYNC730 BANNED PHRASES AUDIT ---');
   let totalViolations = 0;
 
-  // 1. Scan source files in app/jobs, app/find-work and components/jobs (excluding trust-copy.ts definition and test scripts)
+  // 1. Scan source files in app/jobs, app/find-work and components/jobs
   const dirsToScan = [
     path.join(__dirname, '..', 'app', 'jobs'),
     path.join(__dirname, '..', 'app', 'find-work'),
     path.join(__dirname, '..', 'components', 'jobs'),
   ];
+
+  // 1b. Scan public marketing files for banned voice words
+  const voiceFiles = [
+    path.join(__dirname, '..', 'app', 'layout.tsx'),
+    path.join(__dirname, '..', 'app', 'page.tsx'),
+    path.join(__dirname, '..', 'app', 'about', 'page.tsx'),
+    path.join(__dirname, '..', 'components', 'home', 'hero-section.tsx'),
+    path.join(__dirname, '..', 'components', 'home', 'the-difference-section.tsx'),
+    path.join(__dirname, '..', 'components', 'home', 'for-candidates-section.tsx'),
+    path.join(__dirname, '..', 'src', 'content', 'home.ts'),
+    path.join(__dirname, '..', 'src', 'content', 'positioning.ts'),
+  ];
+
+  for (const vFile of voiceFiles) {
+    if (fs.existsSync(vFile)) {
+      let content = fs.readFileSync(vFile, 'utf8');
+      // Strip comments
+      content = content.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+      // If positioning.ts, ignore the BANNED_VOICE_WORDS declaration
+      if (vFile.endsWith('positioning.ts')) {
+        content = content.replace(/BANNED_VOICE_WORDS[\s\S]*?\]/g, '');
+      }
+      for (const item of BANNED_VOICE_TERMS) {
+        if (item.regex.test(content)) {
+          console.error(`[FAIL] Voice violation in ${path.relative(path.join(__dirname, '..'), vFile)}: Contains banned voice term "${item.term}"`);
+          totalViolations++;
+        }
+      }
+    }
+  }
 
   function getFiles(dir) {
     let files = [];

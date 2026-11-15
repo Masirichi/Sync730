@@ -5,7 +5,6 @@ import Link from 'next/link';
 import {
   Briefcase,
   Plus,
-  Sparkles,
   MapPin,
   DollarSign,
   Clock,
@@ -14,7 +13,7 @@ import {
   Users,
   Search,
   ShieldAlert,
-  Bot,
+  Video,
   ChevronDown,
   ChevronUp,
   SlidersHorizontal,
@@ -540,10 +539,10 @@ export default function ConsoleJobsPage() {
           <div className="p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xs">
             <div className="flex items-center justify-between text-neutral-500 text-xs">
               <span>Automated Rubrics Mode</span>
-              <Bot className="h-4 w-4 stroke-[1.5]" />
+              <Video className="h-4 w-4 stroke-[1.5]" aria-hidden="true" />
             </div>
             <div className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
-              Flowmingo AI
+              Video Interview Rubrics
             </div>
             <div className="mt-1 text-[11px] text-neutral-500">
               Technical screening with 15-minute expiring URLs
@@ -896,8 +895,7 @@ export default function ConsoleJobsPage() {
             <DialogHeader>
               <div className="flex items-center justify-between">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-[11px] font-semibold">
-                  <Sparkles className="h-3 w-3 stroke-[1.5]" />
-                  <span>Flowmingo AI Screening Enabled</span>
+                  <span>Structured Video Screening Enabled</span>
                 </div>
 
                 {/* Preview Toggle Button */}
@@ -1145,7 +1143,7 @@ export default function ConsoleJobsPage() {
                               : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700'
                           }`}
                         >
-                          {reg} {isChecked ? '✓' : '+'}
+                          {reg} {isChecked ? <Check className="inline h-3 w-3 ml-1" aria-hidden="true" /> : '+'}
                         </button>
                       );
                     })}
@@ -1206,11 +1204,11 @@ export default function ConsoleJobsPage() {
                   />
                 </div>
 
-                {/* Flowmingo Assessment Template Selector */}
+                {/* Assessment Template Selector */}
                 <div className="space-y-1.5">
                   <Label className="font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5">
-                    <Bot className="h-4 w-4 text-emerald-600" />
-                    <span>Flowmingo AI Assessment Template</span>
+                    <Video className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                    <span>Video Assessment Template</span>
                   </Label>
                   <select
                     value={formTemplate}
@@ -1286,7 +1284,7 @@ export default function ConsoleJobsPage() {
                     onClick={() => handleSubmitJob('active')}
                     className="text-xs bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 font-semibold gap-1.5"
                   >
-                    {isSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                    {isSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                     <span>Publish Role</span>
                   </Button>
                 </div>

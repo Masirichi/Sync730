@@ -3,6 +3,10 @@
 // Every claim is strictly tagged with the data flag that makes it true.
 // A claim renders ONLY if its corresponding flag is true for that record.
 
+import { POSITIONING_CONFIG } from '@/src/content/positioning';
+
+export const showUnconfirmedClaims = POSITIONING_CONFIG.showUnconfirmedClaims;
+
 export interface TrustClaim {
   id: string;
   flag: string;
@@ -12,26 +16,26 @@ export interface TrustClaim {
 }
 
 export const VERIFICATION_CLAIMS = {
-  // Employer verified: Only rendered if employer was reviewed and approved by an admin
+  // Employer verified: Unconfirmed claim - only rendered if showUnconfirmedClaims is true
   employer_verified: {
     id: 'employer_verified',
     flag: 'employer_verified',
     label: 'Employer verified',
-    getTooltip: (verifiedDate?: string) =>
-      `Corporate entity and hiring contact verified by Sync730 team${
-        verifiedDate ? ` on ${new Date(verifiedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''
-      }.`,
+    getTooltip: (verifiedAt?: string | null) =>
+      verifiedAt
+        ? `Company identity reviewed by Sync730 review desk on ${new Date(verifiedAt).toLocaleDateString()}.`
+        : 'Company identity reviewed by Sync730 review desk.',
   },
 
-  // Role verified: Only rendered if role passed all listing checks (section 0)
+  // Role verified: Sync730 core verification (Source of truth)
   role_verified: {
     id: 'role_verified',
     flag: 'role_verified',
     label: 'Role verified',
-    getTooltip: (verifiedDate?: string) =>
-      `Role passed 4-point review: employer identified, working apply link, pay range provided, and active listing status${
-        verifiedDate ? ` as of ${new Date(verifiedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''
-      }.`,
+    getTooltip: (verifiedAt?: string | null) =>
+      verifiedAt
+        ? `Verified as a real, open role eligible for people living in Africa on ${new Date(verifiedAt).toLocaleDateString()}.`
+        : 'Verified as a real, open role eligible for people living in Africa.',
   },
 
   // Agency or staffing tag (never carries "direct" wording)
@@ -39,7 +43,7 @@ export const VERIFICATION_CLAIMS = {
     id: 'agency_listing',
     flag: 'is_agency',
     label: 'Agency listing',
-    tooltip: 'Posted by a vetted recruitment agency or staffing partner on behalf of the client company.',
+    tooltip: 'Posted by a recruitment agency on behalf of the client company.',
   },
 
   // Sponsored tag for paid placements

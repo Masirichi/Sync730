@@ -10,7 +10,6 @@ import {
   AlertTriangle,
   Play,
   RefreshCw,
-  Sparkles,
   Search,
   Filter,
 } from 'lucide-react';

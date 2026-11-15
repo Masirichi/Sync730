@@ -66,7 +66,7 @@ export function ForCandidatesSection({ latestRoles = [] }: ForCandidatesSectionP
             </div>
 
             <h2 className="mt-6 max-w-xl text-4xl font-semibold leading-[1.08] tracking-[-0.04em] sm:text-5xl lg:text-6xl text-foreground">
-              Your next move starts with a better signal.
+              Find roles open to you. Apply with confidence.
             </h2>
 
             <p className="mt-6 max-w-lg text-lg leading-8 text-muted-foreground">

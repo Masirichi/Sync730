@@ -6,7 +6,7 @@ import { BrandLogo } from '@/components/site/brand-logo';
 
 export const metadata: Metadata = {
   title: 'About | Sync730',
-  description: 'Learn about Sync730: Empowering recruitment in the Age of AI.',
+  description: 'Learn about Sync730: Real jobs, open to Africa. Where you live shouldn’t decide what you can become.',
 };
 
 export default function AboutPage() {
@@ -33,28 +33,28 @@ export default function AboutPage() {
           About Sync730
         </h1>
         <p className="text-sm text-[#6a6a64] mb-8">
-          Empowering recruitment in the Age of AI.
+          Real jobs. Open to Africa.
         </p>
 
         <div className="space-y-8 text-base text-[#111] leading-relaxed">
           <section className="space-y-3">
-            <h2 className="text-xl font-bold">Our Mission</h2>
+            <h2 className="text-xl font-bold">Our Belief</h2>
             <p className="text-[#333]">
-              Sync730 is built to empower organizations to hire with clarity, speed, and fairness. By interviewing every applicant through structured, AI-moderated video interviews and generating ranked, evidence-backed reports, we eliminate the noise of résumé volume while ensuring every candidate gets a real, unbiased opportunity to speak for themselves.
+              Where you live shouldn’t decide what you can become. Talent is everywhere. Real opportunity should be too.
             </p>
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-xl font-bold">The Core Philosophy: AI Scores, Humans Decide</h2>
+            <h2 className="text-xl font-bold">What We Do</h2>
             <p className="text-[#333]">
-              We believe artificial intelligence should never be the final judge of human potential. On Sync730, AI serves as an objective analyst—highlighting technical depth, communication clarity, and specific interview timestamps. Hiring teams always review the evidence, make the decisions, and lead the conversations.
+              Sync730 verifies that every role listed on our platform is real, open, and eligible for people living in Africa. We remove ghost jobs and worldwide remote postings that actually exclude African talent.
             </p>
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-xl font-bold">Built for Africa, Open to the World</h2>
+            <h2 className="text-xl font-bold">Built for How Africa Hires</h2>
             <p className="text-[#333]">
-              Headquartered in Nigeria and connecting talent across Africa with forward-thinking local and global employers, Sync730 is building the foundational hiring infrastructure for high-growth economies.
+              We connect African professionals with forward-thinking employers who hire on ability, not address. Whether remote, hybrid, or onsite in Lagos, Abuja, and beyond, we focus on genuine opportunities.
             </p>
           </section>
         </div>

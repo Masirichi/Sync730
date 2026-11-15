@@ -6,8 +6,8 @@ import {
   Users,
   Briefcase,
   ShieldCheck,
-  Zap,
-  Sparkles,
+  Check,
+  BadgeCheck,
   TrendingUp,
   Search,
   SlidersHorizontal,
@@ -356,7 +356,7 @@ export default function ConsoleDashboardOverview() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
                   <div className="h-8 w-8 rounded-xl bg-purple-50 text-purple-600 border border-purple-200/50 flex items-center justify-center shrink-0">
-                    <Sparkles className="h-4 w-4 stroke-[1.5]" />
+                    <Check className="h-4 w-4 stroke-[1.5]" aria-hidden="true" />
                   </div>
                   <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
                     Avg Match Score
@@ -405,7 +405,7 @@ export default function ConsoleDashboardOverview() {
             <Card className="rounded-3xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-2xs h-auto flex items-center justify-between">
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
-                  <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-500 stroke-[1.5]" />
+                  <BadgeCheck className="h-3.5 w-3.5 text-emerald-500 stroke-[1.5]" aria-hidden="true" />
                   <span>Available Tokens</span>
                 </div>
                 {isLoadingMetrics ? (
@@ -542,7 +542,7 @@ export default function ConsoleDashboardOverview() {
                       ) : task.type === 'PENDING_INVITE' ? (
                         <UserPlus className="h-5 w-5 stroke-[1.5] text-indigo-600" />
                       ) : task.type === 'LOW_TOKENS' ? (
-                        <Zap className="h-5 w-5 stroke-[1.5] text-amber-600" />
+                        <BadgeCheck className="h-5 w-5 stroke-[1.5] text-amber-600" aria-hidden="true" />
                       ) : (
                         <Briefcase className="h-5 w-5 stroke-[1.5] text-emerald-600" />
                       )}
@@ -768,8 +768,7 @@ export default function ConsoleDashboardOverview() {
                                   size="sm"
                                   className="h-7 px-3 text-[11px] rounded-full font-semibold bg-neutral-900 text-white hover:bg-neutral-800 gap-1 shadow-2xs"
                                 >
-                                  <Zap className="h-3 w-3 text-amber-400 fill-amber-400 stroke-[1.5]" />
-                                  <span>Unlock (1 Token)</span>
+                                  <span>View Contact (1 Token)</span>
                                 </Button>
                               ) : (
                                 <Link href="/console/talent">

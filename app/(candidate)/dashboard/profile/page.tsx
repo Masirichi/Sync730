@@ -13,7 +13,6 @@ import {
   AlertCircle,
   Plus,
   Trash2,
-  Sparkles,
   ShieldCheck,
   RotateCcw,
   Save,
@@ -981,7 +980,7 @@ function ProfileContent() {
                           : 'border-neutral-200 text-neutral-600 hover:bg-neutral-50'
                       }`}
                     >
-                      {active && '✓ '}
+                      {active && <Check className="inline h-3 w-3 mr-1" aria-hidden="true" />}
                       {pref}
                     </button>
                   );

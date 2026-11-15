@@ -30,7 +30,7 @@ import {
   Info,
   DollarSign,
   MapPin,
-  Sparkles,
+  Check,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -406,7 +406,7 @@ export default function JobPipelinePage() {
       {recentNotification && (
         <div className="p-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-xl text-xs flex items-center justify-between shadow-md animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+            <Check className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
             <span className="font-medium">{recentNotification}</span>
           </div>
           <button

@@ -36,14 +36,13 @@ import {
   ArrowUpRight,
   Bookmark,
   Check,
-  Sparkles,
+  Briefcase,
   SlidersHorizontal,
   ArrowUpDown,
   X,
   AlertCircle,
   Globe2,
   DollarSign,
-  Briefcase,
   GraduationCap,
   ChevronDown,
   RotateCcw,
@@ -1111,7 +1110,7 @@ function CrawlerJobFeedContent() {
             <div className="pt-3 border-t border-neutral-200/80 dark:border-neutral-800 space-y-2.5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 stroke-[1.5] text-neutral-400" />
+                  <Briefcase className="h-3.5 w-3.5 stroke-[1.5] text-neutral-400" aria-hidden="true" />
                   <span>Skills & Tech Stack ({selectedSkills.length} selected)</span>
                 </label>
 
@@ -1217,7 +1216,7 @@ function CrawlerJobFeedContent() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                     <h2 className="text-sm font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
                       Recommended for You
                     </h2>
@@ -1283,7 +1282,7 @@ function CrawlerJobFeedContent() {
             <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
               <div className="space-y-0.5">
                 <span className="font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+                  <Check className="h-3.5 w-3.5 text-blue-500" aria-hidden="true" />
                   Want tailored recommendations?
                 </span>
                 <p className="text-neutral-500">
@@ -1358,7 +1357,7 @@ function CrawlerJobFeedContent() {
                         {/* Featured Partner Pill */}
                         {job.is_featured && (
                           <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                            ★ Featured
+                            Featured
                           </span>
                         )}
                         <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-900">
@@ -1434,7 +1433,6 @@ function CrawlerJobFeedContent() {
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2">
                                 <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1">
-                                  <Sparkles className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                   {match.score}% match
                                 </span>
                                 <div className="w-20 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
@@ -1470,8 +1468,7 @@ function CrawlerJobFeedContent() {
                       } else {
                         return (
                           <div className="px-2.5 py-1.5 rounded-lg bg-neutral-50/50 dark:bg-neutral-900/30 border border-neutral-200/50 dark:border-neutral-800/50 flex items-center justify-between text-xs text-neutral-400">
-                            <span className="flex items-center gap-1">
-                              <Sparkles className="h-3 w-3 text-neutral-400" />
+                            <span>
                               Complete your profile to see match scores
                             </span>
                             <Link
@@ -1554,7 +1551,6 @@ function CrawlerJobFeedContent() {
                           aria-label={`Tailor resume for ${job.title} at ${job.company_name || job.company}`}
                           className="text-xs min-h-[44px] h-11 px-3.5 rounded-lg border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 font-medium inline-flex items-center gap-1.5"
                         >
-                          <Sparkles className="h-3.5 w-3.5 stroke-[1.5] text-amber-500" />
                           Tailor Resume
                         </Button>
 

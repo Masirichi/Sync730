@@ -139,13 +139,28 @@ export function formatSalary(
   // If no numerical salary could be extracted and no raw salary exists
   if (min === undefined && !source.salary) {
     return {
-      formatted: 'Salary not listed',
+      formatted: 'Salary not disclosed',
       isConverted: false,
     };
   }
 
-  // If raw string exists but no numbers (e.g. "Competitive"), return as is
+  // If salary is 0 or unstated
+  if (min === 0 && (!max || max === 0)) {
+    return {
+      formatted: 'Salary not disclosed',
+      isConverted: false,
+    };
+  }
+
+  // If raw string exists but no numbers (e.g. "Competitive"), return clean disclosed state
   if (min === undefined && source.salary) {
+    const sLower = source.salary.trim().toLowerCase();
+    if (!sLower || sLower === 'competitive' || sLower === '$0' || sLower === '0' || sLower.includes('not listed') || sLower.includes('not disclosed')) {
+      return {
+        formatted: 'Salary not disclosed',
+        isConverted: false,
+      };
+    }
     return {
       formatted: source.salary,
       isConverted: false,
@@ -219,6 +234,5 @@ export function formatSalary(
   return {
     formatted,
     isConverted,
-    rateNote: isConverted ? `Exchange rates updated ${EXCHANGE_RATES.lastUpdatedDate}` : undefined,
   };
 }

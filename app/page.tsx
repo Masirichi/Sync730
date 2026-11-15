@@ -8,16 +8,16 @@ import { LatestJobItem } from '@/components/home/for-candidates-section';
 export const revalidate = 60; // ISR cache revalidation at edge
 
 export const metadata: Metadata = {
-  title: 'Sync730: Empowering recruitment in the Age of AI',
+  title: 'Sync730 | Real jobs. Open to Africa.',
   description:
-    'Smart, AI-powered recruitment solutions for organizations in Africa and worldwide. Interview every applicant, review only the best.',
+    'Real, open roles eligible for people living in Africa. Where you live shouldn’t decide what you can become.',
   alternates: {
     canonical: 'https://sync730.com/',
   },
   openGraph: {
-    title: 'Sync730: Empowering recruitment in the Age of AI',
+    title: 'Sync730 | Real jobs. Open to Africa.',
     description:
-      'Smart, AI-powered recruitment solutions for organizations: interview every applicant, review only the best.',
+      'Real, open roles eligible for people living in Africa. Where you live shouldn’t decide what you can become.',
     url: 'https://sync730.com',
     siteName: 'Sync730',
     type: 'website',
@@ -26,15 +26,15 @@ export const metadata: Metadata = {
         url: '/og-sync730.png',
         width: 1200,
         height: 630,
-        alt: 'Sync730 - Empowering recruitment in the Age of AI',
+        alt: 'Sync730 - Real jobs. Open to Africa.',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Sync730: Empowering recruitment in the Age of AI',
+    title: 'Sync730 | Real jobs. Open to Africa.',
     description:
-      'Smart, AI-powered recruitment solutions for organizations: interview every applicant, review only the best.',
+      'Real, open roles eligible for people living in Africa. Where you live shouldn’t decide what you can become.',
     images: ['/og-sync730.png'],
   },
 };
@@ -107,7 +107,7 @@ export default async function HomePage() {
         url: 'https://sync730.com',
         logo: 'https://sync730.com/assets/logo/sync730_icon_black.png',
         description:
-          'Smart, AI-powered recruitment solutions empowering organizations to interview every applicant and review only the best.',
+          'Sync730 verifies that roles are real, open, and eligible for people living in Africa.',
         sameAs: [
           'https://x.com/sync730',
           'https://linkedin.com/company/sync730',
@@ -118,13 +118,13 @@ export default async function HomePage() {
         '@id': 'https://sync730.com/#website',
         url: 'https://sync730.com',
         name: 'Sync730',
-        description: 'Empowering recruitment in the Age of AI.',
+        description: 'Real jobs. Open to Africa.',
         publisher: {
           '@id': 'https://sync730.com/#organization',
         },
         potentialAction: {
           '@type': 'SearchAction',
-          target: 'https://sync730.com/jobs?q={search_term_string}',
+          target: 'https://sync730.com/find-work?q={search_term_string}',
           'query-input': 'required name=search_term_string',
         },
       },

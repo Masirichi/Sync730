@@ -21,7 +21,7 @@ import {
   ChevronRight,
   FileText,
   Lock,
-  Zap,
+  Check,
   Info,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -616,72 +616,72 @@ export default function ConsoleTeamPage() {
                 <td className="py-3 px-4 text-neutral-800 dark:text-neutral-200 font-medium">
                   Workspace Settings & Company Profile
                 </td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Full Access</td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Full Access</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Full Access</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Full Access</td>
                 <td className="py-3 px-4 text-center text-neutral-400">— Restricted</td>
               </tr>
               <tr>
                 <td className="py-3 px-4 text-neutral-800 dark:text-neutral-200 font-medium">
                   Token Purchases & Billing Invoices
                 </td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Buy & View Orders</td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Buy & View Orders</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Buy & View Orders</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Buy & View Orders</td>
                 <td className="py-3 px-4 text-center text-neutral-400">— View Balance Only</td>
               </tr>
               <tr>
                 <td className="py-3 px-4 text-neutral-800 dark:text-neutral-200 font-medium">
                   Invite & Manage Team Squad
                 </td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ All Roles (Owners & Admins)</td>
-                <td className="py-3 px-4 text-center font-bold text-blue-600">✓ Interviewers Only</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />All Roles (Owners & Admins)</td>
+                <td className="py-3 px-4 text-center font-bold text-blue-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Interviewers Only</td>
                 <td className="py-3 px-4 text-center text-neutral-400">— Restricted</td>
               </tr>
               <tr>
                 <td className="py-3 px-4 text-neutral-800 dark:text-neutral-200 font-medium">
                   Post, Edit, Pause & Close Job Openings
                 </td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Full Management</td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Full Management</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Full Management</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Full Management</td>
                 <td className="py-3 px-4 text-center text-neutral-400">— View Only</td>
               </tr>
               <tr>
                 <td className="py-3 px-4 text-neutral-800 dark:text-neutral-200 font-medium">
                   Review Candidate Videos & Scorecards
                 </td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Yes</td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Yes</td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Yes</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Yes</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Yes</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Yes</td>
               </tr>
               <tr>
                 <td className="py-3 px-4 text-neutral-800 dark:text-neutral-200 font-medium">
-                  Unlock Candidate Profiles (Spend Tokens)
+                  Candidate Dossier Access (Spend Tokens)
                 </td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Yes (1 Token)</td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Yes (1 Token)</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Yes (1 Token)</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Yes (1 Token)</td>
                 <td className="py-3 px-4 text-center text-neutral-400">— Restricted</td>
               </tr>
               <tr>
                 <td className="py-3 px-4 text-neutral-800 dark:text-neutral-200 font-medium">
                   Candidate Pipeline SyncFlow & Scheduling
                 </td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Full Access</td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Full Access</td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Move & Schedule</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Full Access</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Full Access</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Move & Schedule</td>
               </tr>
               <tr>
                 <td className="py-3 px-4 text-neutral-800 dark:text-neutral-200 font-medium">
                   Export Pipeline Data (CSV)
                 </td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Allowed</td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Allowed</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Allowed</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Allowed</td>
                 <td className="py-3 px-4 text-center text-neutral-400">— Restricted</td>
               </tr>
               <tr>
                 <td className="py-3 px-4 text-neutral-800 dark:text-neutral-200 font-medium">
                   View Immutable Workspace Audit Logs
                 </td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Full History</td>
-                <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Full History</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Full History</td>
+                <td className="py-3 px-4 text-center font-bold text-emerald-600"><Check className="inline h-3.5 w-3.5 mr-1" aria-hidden="true" />Full History</td>
                 <td className="py-3 px-4 text-center text-neutral-400">— Restricted</td>
               </tr>
             </tbody>

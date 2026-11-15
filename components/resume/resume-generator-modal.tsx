@@ -14,7 +14,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
-  Sparkles,
   Copy,
   Check,
   Download,
@@ -22,7 +21,7 @@ import {
   ShieldCheck,
   FileText,
   RotateCcw,
-  Zap,
+  CheckCircle2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -130,8 +129,8 @@ export function ResumeGeneratorModal({ isOpen, onClose, job }: ResumeGeneratorMo
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 text-xs font-medium mb-1.5">
-                <Sparkles className="h-3 w-3 stroke-[1.5]" />
-                <span>AI Resume & ATS Studio</span>
+                <FileText className="h-3 w-3" aria-hidden="true" />
+                <span>Resume & ATS Studio</span>
               </div>
               <DialogTitle className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
                 Tailor Resume for {job.title}
@@ -182,9 +181,8 @@ export function ResumeGeneratorModal({ isOpen, onClose, job }: ResumeGeneratorMo
 
               <Button
                 onClick={handleGenerate}
-                className="bg-neutral-950 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 text-xs font-semibold px-5 h-9 rounded-lg gap-1.5 shadow-sm"
+                className="bg-neutral-950 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 text-xs font-semibold px-5 h-9 rounded-lg shadow-sm"
               >
-                <Zap className="h-3.5 w-3.5 stroke-[1.5]" />
                 Generate Tailored ATS Resume
               </Button>
             </div>

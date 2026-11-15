@@ -35,6 +35,7 @@ import {
   HIRING_LINE_COPY,
   formatH1Subline,
 } from '@/lib/jobs/trust-copy';
+import { showUnconfirmedClaims } from '@/src/content/positioning';
 import {
   Popover,
   PopoverContent,
@@ -821,7 +822,7 @@ export function JobsClientView({
                                 {job.title}
                               </Link>
                             </h3>
-                            <p className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 mt-1">
+                            <p className={`text-xs mt-1 ${salaryFormatted === 'Salary not disclosed' ? 'font-normal text-muted-foreground' : 'font-semibold text-neutral-900 dark:text-neutral-100'}`}>
                               {salaryFormatted}
                             </p>
                           </div>
@@ -931,8 +932,8 @@ export function JobsClientView({
                                     {job.company}
                                   </span>
 
-                                  {/* Employer Verified Plain Text Chip */}
-                                  {job.employer_verified && (
+                                  {/* Employer Verified Plain Text Chip (Rendered only if showUnconfirmedClaims is enabled) */}
+                                  {showUnconfirmedClaims && job.employer_verified && (
                                     <Tooltip>
                                       <TooltipTrigger asChild>
                                         <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 cursor-help">
@@ -987,7 +988,7 @@ export function JobsClientView({
                                 {job.title}
                               </Link>
                             </h3>
-                            <p className="text-sm font-bold text-neutral-950 dark:text-white mt-1">
+                            <p className={`text-sm mt-1 ${salaryFormatted === 'Salary not disclosed' ? 'font-normal text-muted-foreground' : 'font-bold text-neutral-950 dark:text-white'}`}>
                               {salaryFormatted}
                             </p>
                           </div>

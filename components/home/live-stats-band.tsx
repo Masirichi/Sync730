@@ -185,7 +185,7 @@ function formatSalaryBadge(job: Partial<RemoteJob>): string {
     const curr = job.salary_currency === 'NGN' ? '₦' : '$';
     return `${curr}${job.salary_min.toLocaleString()}/mo`;
   }
-  return 'Competitive';
+  return 'Salary not disclosed';
 }
 
 function formatLocationPill(job: Partial<RemoteJob>): { text: string; mode: 'REMOTE' | 'HYBRID' | 'ONSITE' } {
