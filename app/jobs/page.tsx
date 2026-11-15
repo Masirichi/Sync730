@@ -19,9 +19,9 @@ export async function generateMetadata({ searchParams }: JobsPageProps): Promise
   );
 
   return {
-    title: 'Verified Tech Jobs in Nigeria, Africa & Remote | Sync730',
+    title: 'Find Verified Jobs | Sync730',
     description:
-      'Browse vetted tech jobs open to candidates in Nigeria, Africa, and global remote teams. Software engineering, design, and data.',
+      'Browse active roles posted by employers, with pay ranges shown up front and clear interview expectations. Open to Nigeria, Africa, and global remote talent.',
     alternates: {
       canonical: 'https://sync730.com/jobs',
     },
@@ -30,9 +30,9 @@ export async function generateMetadata({ searchParams }: JobsPageProps): Promise
       follow: true,
     },
     openGraph: {
-      title: 'Verified Tech Jobs in Nigeria, Africa & Remote | Sync730',
+      title: 'Find Verified Jobs | Sync730',
       description:
-        'Browse vetted tech jobs open to candidates in Nigeria, Africa, and global remote teams. Software engineering, design, and data.',
+        'Browse active roles posted by employers, with pay ranges shown up front and clear interview expectations. Open to Nigeria, Africa, and global remote talent.',
       url: 'https://sync730.com/jobs',
       siteName: 'Sync730',
       type: 'website',

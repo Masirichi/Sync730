@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `${job.title} at ${job.company} | Sync730`;
   const description = `${job.title} at ${job.company}. Location: ${job.location_rule}. ${
     job.salary ? `Compensation: ${job.salary}.` : ''
-  } Verified tech opportunity on Sync730.`;
+  } Active tech role on Sync730.`;
 
   return {
     title,

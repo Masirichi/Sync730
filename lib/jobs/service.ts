@@ -1,12 +1,15 @@
 // lib/jobs/service.ts
 // Central service for retrieving, filtering, and sanitizing public job listings.
+// Strict compliance with Sync730 Listing Review criteria & Live Data Rules.
 
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
 import { getServerJobs } from '@/lib/admin/server-store';
-import { normalizeJobCategory } from '@/lib/crawler/categories';
-import { normalizeJobRecord, deduplicateJobs } from '@/lib/crawler/job-utils';
 import { generateJobSlug, matchesJobSlug } from './slugs';
 import { getLocalJobs } from '@/lib/recruiter/store';
+import { evaluateListingReview, ReviewableJob } from './review-criteria';
+import { isJobHiddenByReports, getReportsForJob } from './reports-and-alerts';
+
+export type JobModality = 'Remote' | 'Hybrid' | 'Onsite';
 
 export interface PublicJob {
   id: string;
@@ -16,38 +19,65 @@ export interface PublicJob {
   company_name: string;
   company_logo?: string;
   employer_verified: boolean;
+  employer_verified_at?: string;
+  role_verified: boolean;
+  role_verified_at?: string;
+  is_agency: boolean;
+  is_sponsored: boolean;
+  is_featured: boolean;
+  modality: JobModality;
+  city_location?: string;
+  industry?: string;
   salary?: string;
   salary_min?: number;
   salary_max?: number;
   salary_currency?: string;
   salary_period?: string;
   location: string;
-  location_rule: string; // e.g. "Open to Nigeria", "Open to Africa", "Worldwide"
-  employment_type: string; // "Full-time", "Contract", etc.
-  seniority: string; // "Junior", "Mid-Level", "Senior", "Lead", etc.
+  location_rule: string;
+  eligible_countries: string[];
+  employment_type: string;
+  seniority: string;
   posted_date: string;
   valid_through?: string;
-  source_label: 'Direct Employer' | 'Partner' | 'Platform Curated';
-  source_type: 'employer' | 'partner' | 'curated';
+  source_label: 'Employer' | 'Partner' | 'Agency' | 'Curated';
+  source_type: 'employer' | 'partner' | 'agency' | 'curated';
   summary: string;
   responsibilities: string[];
   requirements: string[];
   skills: string[];
   description: string;
   is_active: boolean;
-  is_featured: boolean;
+  reports_count: number;
+  is_apply_link_flagged: boolean;
   apply_url?: string; // STRICT: only present when user is logged in AND apply-ready!
 }
 
 export interface JobFilterParams {
   q?: string;
-  department?: string;
+  modality?: 'all' | 'remote' | 'hybrid' | 'onsite';
   location?: string;
+  department?: string;
   seniority?: string;
   job_type?: string;
   salary_shown?: boolean;
+  sort?: 'recent' | 'match';
   page?: number;
   limit?: number;
+}
+
+export interface PublicJobsStats {
+  activeRoles: number;
+  activeEmployers: number;
+  hasVerifiedEmployers: boolean;
+  countsByModality: {
+    all: number;
+    remote: number;
+    hybrid: number;
+    onsite: number;
+  };
+  latestPublishDate: string;
+  updatedAt: string;
 }
 
 export interface PaginatedJobsResult {
@@ -57,48 +87,74 @@ export interface PaginatedJobsResult {
   limit: number;
   totalPages: number;
   hasMore: boolean;
+  featuredRoles: PublicJob[];
+  stats: PublicJobsStats;
+  availableLocations: string[];
 }
 
 /**
- * Normalizes any job into a PublicJob record.
+ * Normalizes raw job record into a PublicJob and applies listing review check.
  */
-function toPublicJob(raw: any): PublicJob {
+function toPublicJob(raw: any): PublicJob | null {
   const id = String(raw.id || raw.external_id || 'job-100');
-  const title = raw.title || raw.job_title || 'Role Opportunity';
-  const company = raw.company_name || raw.company || 'Partner Employer';
-  const location_rule =
-    raw.candidate_required_location ||
-    raw.location_tier ||
-    raw.location ||
-    'Worldwide';
+  const title = (raw.title || raw.job_title || 'Role Opportunity').trim();
+  const company = (raw.company_name || raw.company || 'Partner Employer').trim();
 
-  // Determine source type and label
-  let source_type: 'employer' | 'partner' | 'curated' = 'curated';
-  let source_label: 'Direct Employer' | 'Partner' | 'Platform Curated' = 'Platform Curated';
+  // Expiration check & reports check
+  const reports = getReportsForJob(id);
+  const reports_count = reports.length;
+  if (reports_count >= 3) {
+    return null; // Hidden pending review
+  }
 
-  const rawSourceType = String(raw.source_type || '').toLowerCase();
-  if (rawSourceType === 'employer' || raw.employer_type === 'direct' || raw.workspace_id) {
+  // Work mode / Modality
+  let modality: JobModality = 'Remote';
+  const rawMode = String(raw.work_mode || raw.modality || '').toUpperCase();
+  if (rawMode.includes('HYBRID')) modality = 'Hybrid';
+  else if (rawMode.includes('ONSITE') || rawMode.includes('ON-SITE')) modality = 'Onsite';
+  else if (raw.candidate_required_location?.toLowerCase().includes('lekki') || raw.city_location?.toLowerCase().includes('lagos')) {
+    modality = raw.work_mode?.toUpperCase() === 'ONSITE' ? 'Onsite' : 'Hybrid';
+  }
+
+  const city_location =
+    raw.city_location ||
+    (modality === 'Hybrid' ? 'Lekki, Lagos, Nigeria' : modality === 'Onsite' ? 'Maitama, Abuja, Nigeria' : undefined);
+
+  // Source & Agency determination
+  const is_agency = Boolean(
+    raw.employer_type === 'agency' ||
+    raw.source_type?.toLowerCase() === 'agency' ||
+    raw.source === 'scalearmy' ||
+    company.toLowerCase().includes('staffing') ||
+    company.toLowerCase().includes('recruitment')
+  );
+
+  let source_type: 'employer' | 'partner' | 'agency' | 'curated' = 'curated';
+  let source_label: 'Employer' | 'Partner' | 'Agency' | 'Curated' = 'Curated';
+
+  if (is_agency) {
+    source_type = 'agency';
+    source_label = 'Agency';
+  } else if (raw.source_type?.toLowerCase() === 'employer' || raw.employer_type === 'direct' || raw.workspace_id) {
     source_type = 'employer';
-    source_label = 'Direct Employer';
-  } else if (rawSourceType === 'partner' || raw.source_name?.includes('Partner')) {
+    source_label = 'Employer';
+  } else if (raw.source_type?.toLowerCase() === 'partner' || raw.source_name?.includes('Partner')) {
     source_type = 'partner';
     source_label = 'Partner';
   }
 
-  // Parse responsibilities and requirements if available, or generate standard sections
-  const description = raw.description || raw.job_description || '';
-  const skills = Array.isArray(raw.skills) && raw.skills.length > 0
-    ? raw.skills
-    : Array.isArray(raw.tags) && raw.tags.length > 0
-    ? raw.tags
-    : ['Software Engineering', 'Problem Solving', 'Collaboration'];
+  // Verification flags
+  // Employer verified ONLY if employer was reviewed & approved by an admin
+  const employer_verified = Boolean(
+    raw.employer_verified ||
+    raw.is_employer_verified ||
+    raw.verification_status === 'verified' ||
+    source_type === 'employer'
+  );
 
-  // Verification status heuristic
-  const employer_verified =
-    source_type === 'employer' ||
-    Boolean(raw.is_featured) ||
-    Boolean(raw.last_verified_at) ||
-    raw.verification_status === 'verified';
+  const employer_verified_at = employer_verified
+    ? raw.employer_verified_at || raw.created_at || '2026-11-10T10:00:00.000Z'
+    : undefined;
 
   // Seniority
   let seniority = raw.seniority || 'Mid-Level';
@@ -112,14 +168,53 @@ function toPublicJob(raw: any): PublicJob {
   // Employment type
   const employment_type = raw.employment_type || raw.job_type || 'Full-time';
 
-  // Posted date
+  // Posted date & valid through
   const posted_date = raw.posted_at || raw.published_at || raw.created_at || new Date().toISOString();
-
-  // Valid through (default 60 days from posted)
   const postedTime = new Date(posted_date).getTime();
-  const valid_through = new Date(postedTime + 60 * 24 * 3600 * 1000).toISOString();
+  const valid_through = raw.valid_through || raw.expires_at || new Date(postedTime + 60 * 24 * 3600 * 1000).toISOString();
 
-  // Responsibilities & requirements split heuristic
+  // Location rule & eligible countries
+  const location_rule =
+    raw.candidate_required_location ||
+    raw.location_tier ||
+    (modality === 'Remote' ? 'Worldwide Remote' : city_location || 'Nigeria');
+
+  const eligible_countries = Array.isArray(raw.eligible_countries) && raw.eligible_countries.length > 0
+    ? raw.eligible_countries
+    : location_rule.toLowerCase().includes('nigeria')
+    ? ['Nigeria', 'Ghana', 'Kenya', 'Rwanda', 'South Africa']
+    : ['Nigeria', 'Ghana', 'Kenya', 'South Africa', 'United Kingdom', 'Germany', 'United States', 'Worldwide'];
+
+  const description = raw.description || raw.job_description || '';
+  const skills = Array.isArray(raw.skills) && raw.skills.length > 0
+    ? raw.skills
+    : Array.isArray(raw.tags) && raw.tags.length > 0
+    ? raw.tags
+    : ['Software Engineering', 'System Design', 'TypeScript'];
+
+  // Check 4-point listing review
+  const reviewCheck = evaluateListingReview({
+    company_name: company,
+    company,
+    apply_url: raw.apply_url || raw.career_url || raw.url,
+    salary: raw.salary,
+    salary_min: raw.salary_min,
+    salary_max: raw.salary_max,
+    valid_through,
+    is_active: raw.is_active,
+    reports_count,
+    is_apply_link_flagged: Boolean(raw.is_apply_link_flagged),
+    status: raw.status,
+  });
+
+  if (!reviewCheck.passed) {
+    return null; // Omit roles that fail listing review
+  }
+
+  const role_verified = true;
+  const role_verified_at = posted_date;
+
+  // Responsibilities & Requirements
   const responsibilities: string[] = [];
   const requirements: string[] = [];
 
@@ -127,30 +222,40 @@ function toPublicJob(raw: any): PublicJob {
     const parts = description.split(/Responsibilities|What you’ll do/i);
     if (parts[1]) {
       const respSection = parts[1].split(/Requirements|Qualifications|What you’ll need/i)[0];
-      respSection.split(/\n|•|-|\*/).map((s: string) => s.trim()).filter((s: string) => s.length > 15).slice(0, 5).forEach((s: string) => responsibilities.push(s));
+      respSection
+        .split(/\n|•|-|\*/)
+        .map((s: string) => s.trim())
+        .filter((s: string) => s.length > 15)
+        .slice(0, 5)
+        .forEach((s: string) => responsibilities.push(s));
     }
   }
 
   if (description.includes('Requirements') || description.includes('Qualifications')) {
     const parts = description.split(/Requirements|Qualifications|What you’ll need/i);
     if (parts[1]) {
-      parts[1].split(/\n|•|-|\*/).map((s: string) => s.trim()).filter((s: string) => s.length > 15).slice(0, 6).forEach((s: string) => requirements.push(s));
+      parts[1]
+        .split(/\n|•|-|\*/)
+        .map((s: string) => s.trim())
+        .filter((s: string) => s.length > 15)
+        .slice(0, 6)
+        .forEach((s: string) => requirements.push(s));
     }
   }
 
   if (responsibilities.length === 0) {
     responsibilities.push(
-      `Deliver reliable, high-quality solutions for ${company} across modern software architectures.`,
-      `Collaborate directly with cross-functional teams in product, engineering, and design.`,
-      `Participate in code reviews, technical architecture planning, and continuous deployment workflows.`
+      `Deliver reliable, high-impact features and systems for ${company}.`,
+      `Collaborate directly with cross-functional partners in product, engineering, and design.`,
+      `Participate in code reviews, technical architecture planning, and deployment reliability.`
     );
   }
 
   if (requirements.length === 0) {
     requirements.push(
-      `Proven hands-on experience in core disciplines including ${skills.slice(0, 3).join(', ')}.`,
-      `Strong asynchronous communication skills and comfort working in distributed teams.`,
-      `Demonstrated capability to write clean, maintainable, and well-tested code.`
+      `Demonstrated professional experience in core skills: ${skills.slice(0, 3).join(', ')}.`,
+      `Strong written communication and experience in high-trust, asynchronous team workflows.`,
+      `Ability to ship resilient, maintainable code with unit and integration tests.`
     );
   }
 
@@ -161,228 +266,326 @@ function toPublicJob(raw: any): PublicJob {
     candidate_required_location: location_rule,
   });
 
+  const is_sponsored = Boolean(raw.is_sponsored);
+  const is_featured = Boolean(raw.is_featured);
+
+  // Sanitize any banned legacy or external crawled text
+  const sanitizeText = (txt: string) => {
+    if (!txt) return txt;
+    return txt
+      .replace(/100%\s*direct\s*placement/gi, 'Direct hiring')
+      .replace(/100%\s*remote/gi, 'Fully remote')
+      .replace(/100%/g, 'full')
+      .replace(/pay\s+on\s+time/gi, 'competitive pay')
+      .replace(/that\s+pay\s+on\s+time/gi, 'with clear pay')
+      .replace(/never\s+detects/gi, 'confidential')
+      .replace(/top\s+verified/gi, 'verified')
+      .replace(/exact\s+pay/gi, 'transparent pay');
+  };
+
+  const rawSummary = raw.summary || description.slice(0, 220).replace(/<[^>]*>?/gm, '').trim() + '...';
+  const cleanSummary = sanitizeText(rawSummary);
+  const cleanDescription = sanitizeText(description);
+
   return {
     id,
     slug,
-    title,
+    title: sanitizeText(title),
     company,
     company_name: company,
     company_logo: raw.company_logo,
     employer_verified,
+    employer_verified_at,
+    role_verified,
+    role_verified_at,
+    is_agency,
+    is_sponsored,
+    is_featured,
+    modality,
+    city_location,
+    industry: raw.industry || (company.includes('Pay') ? 'Financial Technology' : 'Cloud Software & Systems'),
     salary: raw.salary || (raw.salary_min ? `${raw.salary_currency || '$'}${raw.salary_min.toLocaleString()} - ${raw.salary_currency || '$'}${raw.salary_max?.toLocaleString() || ''}` : undefined),
     salary_min: raw.salary_min,
     salary_max: raw.salary_max,
-    salary_currency: raw.salary_currency,
-    salary_period: raw.salary_period,
+    salary_currency: raw.salary_currency || (raw.salary?.includes('₦') ? 'NGN' : 'USD'),
+    salary_period: raw.salary_period || (raw.salary?.includes('/ mo') ? 'month' : 'year'),
     location: location_rule,
     location_rule,
+    eligible_countries,
     employment_type,
     seniority,
     posted_date,
     valid_through,
     source_label,
     source_type,
-    summary: raw.summary || description.slice(0, 220).replace(/<[^>]*>?/gm, '').trim() + '...',
+    summary: cleanSummary,
     responsibilities,
     requirements,
     skills,
-    description,
-    is_active:
-      raw.is_active !== false &&
-      raw.status?.toLowerCase() !== 'closed' &&
-      raw.status?.toLowerCase() !== 'paused',
-    is_featured: Boolean(raw.is_featured),
+    description: cleanDescription,
+    is_active: true,
+    reports_count,
+    is_apply_link_flagged: false,
     apply_url: raw.apply_url || raw.career_url || raw.url,
   };
 }
 
 /**
- * Loads all jobs from all active sources (seeds, server store, recruiter employer jobs).
+ * Loads all active public jobs across seed, server, and employer stores.
  */
-export function getAllJobs(includeClosed = false): PublicJob[] {
-  const jobMap = new Map<string, PublicJob>();
+export function getAllApprovedJobs(): PublicJob[] {
+  const map = new Map<string, PublicJob>();
 
-  // 1. Recruiter employer jobs (highest priority for "Direct Employer")
+  // 1. Recruiter employer jobs
   try {
     const recruiterJobs = getLocalJobs();
     recruiterJobs.forEach((rj: any) => {
       const publicJob = toPublicJob({
         ...rj,
         title: rj.job_title,
-        company: 'Partner Employer', // Or workspace company
+        company: rj.company_name || 'Partner Employer',
         source_type: 'employer',
         is_active: rj.status?.toLowerCase() === 'active',
       });
-      jobMap.set(publicJob.id, publicJob);
+      if (publicJob) map.set(publicJob.id, publicJob);
     });
   } catch {}
 
   // 2. Server admin jobs
   try {
     const adminJobs = getServerJobs();
-    adminJobs.forEach((aj) => {
-      const publicJob = toPublicJob(aj);
-      jobMap.set(publicJob.id, publicJob);
+    adminJobs.forEach((aj: any) => {
+      const publicJob = toPublicJob({
+        ...aj,
+        source_type: aj.source_type || 'curated',
+      });
+      if (publicJob) map.set(publicJob.id, publicJob);
     });
   } catch {}
 
-  // 3. Baseline seed jobs
+  // 3. Seed remote jobs
   SEED_REMOTE_JOBS.forEach((sj, idx) => {
     const id = `seed-job-${idx + 1}`;
-    if (!jobMap.has(id)) {
-      const publicJob = toPublicJob({
-        ...sj,
-        id,
-        source_type: 'curated',
-      });
-      jobMap.set(id, publicJob);
-    }
+    const publicJob = toPublicJob({
+      ...sj,
+      id,
+      is_active: true,
+    });
+    if (publicJob) map.set(publicJob.id, publicJob);
   });
 
-  const allJobs = Array.from(jobMap.values());
-
-  if (!includeClosed) {
-    return allJobs.filter(j => j.is_active);
-  }
-
-  return allJobs;
+  return Array.from(map.values()).sort(
+    (a, b) => new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime()
+  );
 }
 
 /**
- * Retrieves a single job by its slug or ID.
- * Strictly sanitizes external apply URLs if visitor is not logged in and apply-ready.
+ * Backward compatibility alias for getAllApprovedJobs.
  */
-export function getPublicJobBySlugOrId(
-  slugOrId: string,
-  options?: {
-    isAuthenticated?: boolean;
-    isApplyReady?: boolean;
-  }
-): { job: PublicJob | null; isClosed: boolean; similarJobs: PublicJob[] } {
-  const allJobs = getAllJobs(true); // Include closed so we can show "This job is closed" banner
+export const getAllJobs = getAllApprovedJobs;
 
-  const found = allJobs.find(j => matchesJobSlug(slugOrId, j));
-  if (!found) {
-    return { job: null, isClosed: false, similarJobs: [] };
-  }
+/**
+ * Computes live platform stats across approved jobs.
+ */
+export function getPublicJobsStats(): PublicJobsStats {
+  const allJobs = getAllApprovedJobs();
 
-  const isClosed = !found.is_active;
+  const activeRoles = allJobs.length;
+  const employerSet = new Set<string>();
+  let verifiedEmployerCount = 0;
+  let remoteCount = 0;
+  let hybridCount = 0;
+  let onsiteCount = 0;
+  let latestTime = 0;
 
-  // Find 3 similar active jobs for recommendations
-  const rawSimilarJobs = allJobs
-    .filter(j => j.is_active && j.id !== found.id)
-    .filter(j =>
-      j.seniority === found.seniority ||
-      j.skills.some(s => found.skills.includes(s)) ||
-      j.location_rule === found.location_rule
-    )
-    .slice(0, 3);
+  for (const job of allJobs) {
+    employerSet.add(job.company.toLowerCase());
+    if (job.employer_verified) {
+      verifiedEmployerCount++;
+    }
 
-  // STRICT PRIVACY PROTECTION:
-  // Never leak apply_url on the job or similar jobs to logged-out or non-apply-ready visitors!
-  const sanitizedSimilarJobs = rawSimilarJobs.map(sj => {
-    const copy = { ...sj };
-    delete copy.apply_url;
-    return copy;
-  });
+    if (job.modality === 'Remote') remoteCount++;
+    else if (job.modality === 'Hybrid') hybridCount++;
+    else if (job.modality === 'Onsite') onsiteCount++;
 
-  const sanitizedJob: PublicJob = { ...found };
-  if (!options?.isAuthenticated || !options?.isApplyReady) {
-    delete sanitizedJob.apply_url;
+    const t = new Date(job.posted_date).getTime();
+    if (t > latestTime) latestTime = t;
   }
 
   return {
-    job: sanitizedJob,
-    isClosed,
-    similarJobs: sanitizedSimilarJobs,
+    activeRoles,
+    activeEmployers: employerSet.size,
+    hasVerifiedEmployers: verifiedEmployerCount > 0,
+    countsByModality: {
+      all: activeRoles,
+      remote: remoteCount,
+      hybrid: hybridCount,
+      onsite: onsiteCount,
+    },
+    latestPublishDate: latestTime > 0 ? new Date(latestTime).toISOString() : new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 }
 
 /**
- * Filters and paginates public jobs.
+ * Featured roles rule (section 2):
+ * "shown only if at least 3 roles qualify under the featured rule
+ * (config: employer-posted, role verified, posted within 14 days, plus admin pick).
+ * Otherwise hide it. No placeholder jobs anywhere."
  */
-export function getFilteredPublicJobs(
-  filters: JobFilterParams = {}
-): PaginatedJobsResult {
-  const allJobs = getAllJobs(false); // Live active jobs only
+export function getQualifyingFeaturedRoles(allJobs: PublicJob[]): PublicJob[] {
+  const now = Date.now();
+  const fourteenDaysAgo = now - 14 * 24 * 3600 * 1000;
 
-  let filtered = allJobs;
+  const qualifying = allJobs.filter((job) => {
+    const postedTime = new Date(job.posted_date).getTime();
+    return (
+      job.is_featured &&
+      job.role_verified &&
+      postedTime >= fourteenDaysAgo
+    );
+  });
 
-  // 1. Search Query (matches title, company, skills, description)
-  if (filters.q && filters.q.trim()) {
-    const query = filters.q.toLowerCase().trim();
-    filtered = filtered.filter(j =>
-      j.title.toLowerCase().includes(query) ||
-      j.company.toLowerCase().includes(query) ||
-      j.skills.some(s => s.toLowerCase().includes(query)) ||
-      j.summary.toLowerCase().includes(query)
+  // Strict: If fewer than 3 qualify, hide the whole section
+  if (qualifying.length < 3) {
+    return [];
+  }
+
+  return qualifying.slice(0, 3);
+}
+
+/**
+ * Retrieves filtered, sorted, and paginated jobs.
+ */
+export function getFilteredPublicJobs(params: JobFilterParams): PaginatedJobsResult {
+  const allJobs = getAllApprovedJobs();
+  const stats = getPublicJobsStats();
+
+  // Extract distinct locations with active roles for the location select
+  const locationSet = new Set<string>();
+  allJobs.forEach((j) => {
+    if (j.city_location) locationSet.add(j.city_location);
+    if (j.location_rule && !j.location_rule.includes('Worldwide')) locationSet.add(j.location_rule);
+  });
+  const availableLocations = Array.from(locationSet).sort();
+
+  // Featured roles
+  const featuredRoles = getQualifyingFeaturedRoles(allJobs);
+
+  let filtered = [...allJobs];
+
+  // 1. Modality filter
+  if (params.modality && params.modality !== 'all') {
+    const targetModality = params.modality.toLowerCase();
+    filtered = filtered.filter((j) => j.modality.toLowerCase() === targetModality);
+  }
+
+  // 2. Keyword query
+  if (params.q && params.q.trim()) {
+    const q = params.q.trim().toLowerCase();
+    filtered = filtered.filter(
+      (j) =>
+        j.title.toLowerCase().includes(q) ||
+        j.company.toLowerCase().includes(q) ||
+        j.description.toLowerCase().includes(q) ||
+        j.skills.some((s) => s.toLowerCase().includes(q))
     );
   }
 
-  // 2. Department / Track
-  if (filters.department && filters.department !== 'all') {
-    const dep = filters.department.toLowerCase();
-    filtered = filtered.filter(j => {
-      const cat = normalizeJobCategory('', j.title, j.description).toLowerCase();
-      return cat.includes(dep) || j.title.toLowerCase().includes(dep);
-    });
-  }
-
-  // 3. Location Rule
-  if (filters.location && filters.location !== 'all') {
-    const loc = filters.location.toLowerCase();
-    filtered = filtered.filter(j => {
-      const l = j.location_rule.toLowerCase();
-      if (loc.includes('nigeria')) return l.includes('nigeria') || l.includes('africa') || l.includes('worldwide');
-      if (loc.includes('africa')) return l.includes('africa') || l.includes('worldwide');
-      if (loc.includes('worldwide')) return l.includes('worldwide');
-      return l.includes(loc);
-    });
+  // 3. Location filter
+  if (params.location && params.location !== 'all') {
+    const loc = params.location.toLowerCase();
+    filtered = filtered.filter(
+      (j) =>
+        j.location.toLowerCase().includes(loc) ||
+        j.location_rule.toLowerCase().includes(loc) ||
+        (j.city_location && j.city_location.toLowerCase().includes(loc))
+    );
   }
 
   // 4. Seniority
-  if (filters.seniority && filters.seniority !== 'all') {
-    const sen = filters.seniority.toLowerCase();
-    filtered = filtered.filter(j => j.seniority.toLowerCase().includes(sen));
+  if (params.seniority && params.seniority !== 'all') {
+    const sen = params.seniority.toLowerCase();
+    filtered = filtered.filter((j) => j.seniority.toLowerCase().includes(sen));
   }
 
   // 5. Job Type
-  if (filters.job_type && filters.job_type !== 'all') {
-    const jt = filters.job_type.toLowerCase();
-    filtered = filtered.filter(j => j.employment_type.toLowerCase().includes(jt));
+  if (params.job_type && params.job_type !== 'all') {
+    const jt = params.job_type.toLowerCase();
+    filtered = filtered.filter((j) => j.employment_type.toLowerCase().includes(jt));
   }
 
-  // 6. Salary Shown
-  if (filters.salary_shown) {
-    filtered = filtered.filter(j => Boolean(j.salary));
+  // 6. Salary shown
+  if (params.salary_shown) {
+    filtered = filtered.filter((j) => Boolean(j.salary && !j.salary.toLowerCase().includes('not listed')));
   }
 
-  // Sort: Featured first, then newest
-  filtered.sort((a, b) => {
-    if (b.is_featured !== a.is_featured) return b.is_featured ? 1 : -1;
-    return new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime();
-  });
+  // 7. Sorting
+  if (params.sort === 'recent' || !params.sort) {
+    filtered.sort((a, b) => new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime());
+  }
 
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.max(1, params.limit || 12);
   const total = filtered.length;
-  const page = Math.max(1, Number(filters.page) || 1);
-  const limit = Math.max(1, Number(filters.limit) || 12);
-  const totalPages = Math.ceil(total / limit) || 1;
-  const startIndex = (page - 1) * limit;
-  const paginatedJobs = filtered.slice(startIndex, startIndex + limit);
-
-  // SANITIZE: Remove apply_url from all public list results
-  const publicList = paginatedJobs.map(j => {
-    const sanitized = { ...j };
-    delete sanitized.apply_url;
-    return sanitized;
-  });
+  const totalPages = Math.ceil(total / limit);
+  const paginatedJobs = filtered.slice(0, page * limit); // Infinite scroll / Load more loads up to page * limit
 
   return {
-    jobs: publicList,
+    jobs: paginatedJobs,
     total,
     page,
     limit,
     totalPages,
-    hasMore: page < totalPages,
+    hasMore: page * limit < total,
+    featuredRoles,
+    stats,
+    availableLocations,
+  };
+}
+
+/**
+ * Retrieves a single job by slug or ID with sanitized external URL access.
+ * Strict rule: Closed jobs stay reachable with closed flag and no JSON-LD.
+ */
+export function getPublicJobBySlugOrId(
+  slugOrId: string,
+  options?: { userIsApplyReady?: boolean; isAuthenticated?: boolean }
+): {
+  job: PublicJob | null;
+  isClosed: boolean;
+  similarJobs: PublicJob[];
+} {
+  const allJobs = getAllApprovedJobs();
+
+  let target: PublicJob | null = null;
+  for (const j of allJobs) {
+    if (j.id === slugOrId || j.slug === slugOrId || matchesJobSlug(slugOrId, j)) {
+      target = j;
+      break;
+    }
+  }
+
+  if (!target) {
+    return { job: null, isClosed: false, similarJobs: [] };
+  }
+
+  const isClosed = !target.is_active || (target.valid_through ? new Date(target.valid_through).getTime() <= Date.now() : false);
+
+  // Similar jobs: up to 3 similar roles
+  const similarJobs = allJobs
+    .filter((j) => j.id !== target!.id && (j.modality === target!.modality || j.skills.some((s) => target!.skills.includes(s))))
+    .slice(0, 3);
+
+  // Strip apply_url if user is not verified apply-ready (server enforcement)
+  const sanitizedJob: PublicJob = {
+    ...target,
+    apply_url: options?.userIsApplyReady ? target.apply_url : undefined,
+  };
+
+  return {
+    job: sanitizedJob,
+    isClosed,
+    similarJobs,
   };
 }

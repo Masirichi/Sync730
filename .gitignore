@@ -19,10 +19,9 @@
 .DS_Store
 *.pem
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# local logs & databases
+*.log
+.sync730-*.json
 
 # local env files
 .env

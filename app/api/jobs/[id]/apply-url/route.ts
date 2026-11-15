@@ -59,7 +59,7 @@ export async function GET(
     // 4. Retrieve job
     const { job, isClosed } = getPublicJobBySlugOrId(jobId, {
       isAuthenticated: true,
-      isApplyReady: true,
+      userIsApplyReady: true,
     });
 
     if (!job) {

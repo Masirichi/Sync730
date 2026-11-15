@@ -9,6 +9,9 @@ import os from 'os';
 
 export type AnalyticsEventType =
   | 'jobs_list_view'
+  | 'job_search'
+  | 'filter_applied'
+  | 'job_card_click'
   | 'job_view'
   | 'apply_click_logged_out'
   | 'signup_started_from_job'
@@ -16,7 +19,10 @@ export type AnalyticsEventType =
   | 'profile_step_completed'
   | 'apply_ready_reached'
   | 'application_submitted'
-  | 'external_click';
+  | 'external_click'
+  | 'job_saved'
+  | 'alert_subscribed'
+  | 'report_job';
 
 export interface AnalyticsEventRecord {
   id: string;

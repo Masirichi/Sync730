@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getAllJobs } from '@/lib/jobs/service';
+import { getAllApprovedJobs } from '@/lib/jobs/service';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://sync730.com';
@@ -16,6 +16,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'hourly',
       priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/employer-guide`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/find-work`,
@@ -73,9 +79,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // Dynamically add all live jobs to the sitemap
+  // Dynamically add all live approved jobs to the sitemap
   try {
-    const liveJobs = getAllJobs(false);
+    const liveJobs = getAllApprovedJobs();
     const jobRoutes: MetadataRoute.Sitemap = liveJobs.map((j) => ({
       url: `${baseUrl}/jobs/${j.slug}`,
       lastModified: new Date(j.posted_date || Date.now()),

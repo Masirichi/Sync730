@@ -11,9 +11,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ExtendedCandidateProfile } from '@/lib/candidate/profile-store';
-import { CheckCircle2, ShieldCheck, User, Briefcase, FileText, Loader2, Sparkles } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { saveJobToTracker } from '@/lib/tracker';
 import { fireJobAnalytics } from '@/lib/analytics/client';
+import { INTERVIEW_EXPECTATION_COPY } from '@/lib/jobs/trust-copy';
 
 interface ApplyFlowModalProps {
   isOpen: boolean;
@@ -101,20 +102,23 @@ export function ApplyFlowModal({
       <DialogContent className="max-w-lg w-[calc(100vw-2rem)] p-6 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-2xl">
         {submitted ? (
           <div className="space-y-5 py-4 text-center">
-            <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-6 h-6" />
+            <div className="w-12 h-12 bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-bold rounded-full flex items-center justify-center mx-auto text-lg">
+              ✓
             </div>
             <div className="space-y-1.5">
               <h2 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
-                Application Submitted!
+                Application Submitted
               </h2>
               <p className="text-xs text-neutral-600 dark:text-neutral-400 max-w-sm mx-auto">
                 Your profile has been delivered directly to <strong className="text-neutral-900 dark:text-white">{job.company}</strong> for <strong className="text-neutral-900 dark:text-white">{job.title}</strong>.
               </p>
             </div>
             <div className="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg text-xs text-neutral-600 dark:text-neutral-400">
-              This job has been added to your <strong className="text-neutral-900 dark:text-white">Job Tracker</strong> as <span className="font-semibold text-emerald-600 dark:text-emerald-400">Applied</span>.
+              This job has been added to your <strong className="text-neutral-900 dark:text-white">Job Tracker</strong> as <span className="font-semibold text-neutral-900 dark:text-white">Applied</span>.
             </div>
+            <p className="text-xs text-neutral-500 pt-1">
+              {INTERVIEW_EXPECTATION_COPY}
+            </p>
             <Button
               type="button"
               onClick={onClose}
@@ -126,9 +130,8 @@ export function ApplyFlowModal({
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             <DialogHeader className="space-y-1.5 text-left">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-semibold rounded-md w-fit">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Apply with Sync730</span>
+              <div className="inline-flex items-center px-2.5 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-semibold rounded-md w-fit">
+                Apply with Sync730
               </div>
               <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
                 Apply to {job.title}
@@ -147,9 +150,8 @@ export function ApplyFlowModal({
             {/* Profile Summary Card */}
             <div className="p-3.5 bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-200 dark:border-neutral-800 rounded-lg space-y-2">
               <div className="flex items-center justify-between text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                <span>Your Verified Candidate Profile</span>
-                <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Your Profile</span>
+                <span className="text-neutral-900 dark:text-white font-medium">
                   Apply-Ready
                 </span>
               </div>
@@ -175,11 +177,15 @@ export function ApplyFlowModal({
                 )}
               </div>
               {candidateProfile.cv_file_name && (
-                <div className="text-xs text-neutral-500 dark:text-neutral-400 flex items-center gap-1 pt-1">
-                  <FileText className="w-3.5 h-3.5 text-neutral-400" />
-                  <span className="truncate">{candidateProfile.cv_file_name}</span>
+                <div className="text-xs text-neutral-500 dark:text-neutral-400 pt-1">
+                  CV: <span className="truncate text-neutral-700 dark:text-neutral-300">{candidateProfile.cv_file_name}</span>
                 </div>
               )}
+            </div>
+
+            {/* Interview expectation */}
+            <div className="p-3 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg text-xs text-neutral-600 dark:text-neutral-400">
+              <strong className="text-neutral-900 dark:text-white">Interview expectation:</strong> {INTERVIEW_EXPECTATION_COPY}
             </div>
 
             {/* Optional Cover Note */}
