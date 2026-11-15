@@ -9,49 +9,14 @@ import { getLocalJobs } from '@/lib/recruiter/store';
 import { evaluateListingReview, ReviewableJob } from './review-criteria';
 import { isJobHiddenByReports, getReportsForJob } from './reports-and-alerts';
 
-export type JobModality = 'Remote' | 'Hybrid' | 'Onsite';
+import { PublicJob, JobModality, JobCategory, JobEligibility } from './types';
+import {
+  normalizeToCanonicalCategory,
+  normalizeToCanonicalEligibility,
+  isRoleStale,
+} from './helpers';
 
-export interface PublicJob {
-  id: string;
-  slug: string;
-  title: string;
-  company: string;
-  company_name: string;
-  company_logo?: string;
-  employer_verified: boolean;
-  employer_verified_at?: string;
-  role_verified: boolean;
-  role_verified_at?: string;
-  is_agency: boolean;
-  is_sponsored: boolean;
-  is_featured: boolean;
-  modality: JobModality;
-  city_location?: string;
-  industry?: string;
-  salary?: string;
-  salary_min?: number;
-  salary_max?: number;
-  salary_currency?: string;
-  salary_period?: string;
-  location: string;
-  location_rule: string;
-  eligible_countries: string[];
-  employment_type: string;
-  seniority: string;
-  posted_date: string;
-  valid_through?: string;
-  source_label: 'Employer' | 'Partner' | 'Agency' | 'Curated';
-  source_type: 'employer' | 'partner' | 'agency' | 'curated';
-  summary: string;
-  responsibilities: string[];
-  requirements: string[];
-  skills: string[];
-  description: string;
-  is_active: boolean;
-  reports_count: number;
-  is_apply_link_flagged: boolean;
-  apply_url?: string; // STRICT: only present when user is logged in AND apply-ready!
-}
+export type { PublicJob, JobModality, JobCategory, JobEligibility };
 
 export interface JobFilterParams {
   q?: string;
@@ -192,7 +157,10 @@ function toPublicJob(raw: any): PublicJob | null {
     ? raw.tags
     : ['Software Engineering', 'System Design', 'TypeScript'];
 
-  // Check 4-point listing review
+  // roleVerifiedAt timestamp (internal only; never rendered in the UI)
+  const roleVerifiedAt = raw.roleVerifiedAt || raw.role_verified_at || raw.last_verified_at || posted_date;
+
+  // Check 4-point listing review + stale check + test company filter
   const reviewCheck = evaluateListingReview({
     company_name: company,
     company,
@@ -205,14 +173,16 @@ function toPublicJob(raw: any): PublicJob | null {
     reports_count,
     is_apply_link_flagged: Boolean(raw.is_apply_link_flagged),
     status: raw.status,
+    review_status: raw.review_status,
+    roleVerifiedAt,
   });
 
   if (!reviewCheck.passed) {
-    return null; // Omit roles that fail listing review
+    return null; // Omit roles that fail listing review, are stale, or flagged
   }
 
   const role_verified = true;
-  const role_verified_at = posted_date;
+  const role_verified_at = roleVerifiedAt;
 
   // Responsibilities & Requirements
   const responsibilities: string[] = [];
@@ -298,6 +268,9 @@ function toPublicJob(raw: any): PublicJob | null {
     employer_verified_at,
     role_verified,
     role_verified_at,
+    roleVerifiedAt, // internal only; never rendered in the UI
+    eligibility: normalizeToCanonicalEligibility(raw),
+    category: normalizeToCanonicalCategory(raw.category, title, description),
     is_agency,
     is_sponsored,
     is_featured,

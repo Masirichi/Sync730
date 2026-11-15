@@ -5,6 +5,7 @@ import { getServerJobs, saveServerJob } from '@/lib/admin/server-store';
 import { AdminRemoteJob } from '@/lib/admin/types';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
 import { SAMPLE_NIGERIA_ROLES } from '@/lib/admin/store';
+import { validateJobPublishing } from '@/lib/jobs/validation';
 
 export async function GET(request: NextRequest) {
   try {
@@ -192,6 +193,21 @@ export async function POST(request: NextRequest) {
     if (!company_name || !job_title || !career_url || !region_allowance) {
       return NextResponse.json(
         { success: false, error: 'Missing mandatory job fields.' },
+        { status: 400 }
+      );
+    }
+
+    // Strict validation for job publishing
+    const validation = validateJobPublishing({
+      company: company_name,
+      title: job_title,
+      description: job_description,
+      salary: salary_range,
+    });
+
+    if (!validation.valid) {
+      return NextResponse.json(
+        { success: false, error: validation.errors.join(' ') },
         { status: 400 }
       );
     }

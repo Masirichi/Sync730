@@ -1,3 +1,5 @@
+import { JobEligibility, ReviewStatus } from '@/lib/jobs/types';
+
 export type UserRole = 'candidate' | 'recruiter' | 'admin';
 
 export interface Profile {
@@ -107,6 +109,11 @@ export interface RemoteJob {
   source_type?: 'ADMIN_CURATED' | 'CRAWLER' | string;
   work_mode?: 'REMOTE' | 'HYBRID' | 'ONSITE' | string;
   city_location?: string | null;
+  eligibility?: JobEligibility;
+  role_verified_at?: string | null;
+  roleVerifiedAt?: string | null;
+  review_status?: ReviewStatus;
+  review_notes?: string | null;
 }
 
 export type TrackerStatus = 'SAVED' | 'APPLIED' | 'INTERVIEWING' | 'OFFER' | 'OFFERED' | 'REJECTED';

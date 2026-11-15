@@ -27,29 +27,24 @@ interface ReportJobDialogProps {
 
 const REPORT_REASONS: { value: ReportReason; label: string; description: string }[] = [
   {
-    value: 'asks_for_payment',
-    label: 'Asks for payment',
-    description: 'Employer asks candidates for fees, training costs, or equipment purchase.',
-  },
-  {
-    value: 'fake_company',
-    label: 'Fake company or impersonation',
-    description: 'Company does not exist, or recruiter is impersonating a legitimate brand.',
-  },
-  {
-    value: 'misleading_pay',
-    label: 'Misleading pay range',
-    description: 'Compensation differs substantially from the listed range or is deceptive.',
-  },
-  {
-    value: 'job_is_closed',
-    label: 'Job is closed or expired',
+    value: 'Role is closed',
+    label: 'Role is closed or expired',
     description: 'External application page is 404, or the employer has closed hiring.',
   },
   {
-    value: 'other',
+    value: 'Not open to Africa as stated',
+    label: 'Not open to Africa as stated',
+    description: 'Application rejects African applicants or requires work authorization in US/EU.',
+  },
+  {
+    value: 'Looks like a scam',
+    label: 'Looks like a scam',
+    description: 'Asks for payment, fees, equipment purchase, or impersonates another company.',
+  },
+  {
+    value: 'Other',
     label: 'Other policy issue',
-    description: 'Spam, inappropriate content, or breach of listing standards.',
+    description: 'Spam, misleading compensation, or breach of listing standards.',
   },
 ];
 
@@ -61,7 +56,7 @@ export function ReportJobDialog({
   company,
   onReportSuccess,
 }: ReportJobDialogProps) {
-  const [reason, setReason] = useState<ReportReason>('asks_for_payment');
+  const [reason, setReason] = useState<ReportReason>('Role is closed');
   const [details, setDetails] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);

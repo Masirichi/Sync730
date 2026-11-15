@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test:banned-phrases": "node scripts/test-banned-phrases.js"
+    "test:banned-phrases": "node scripts/test-banned-phrases.js",
+    "test:backend": "npx tsx --test scripts/tests/job-model-and-helpers.test.mjs",
+    "test": "npx tsx --test scripts/tests/job-model-and-helpers.test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

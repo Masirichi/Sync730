@@ -1,27 +1,18 @@
 // lib/jobs/reports-and-alerts.ts
 // Handlers and stores for Job Reports and Job Alerts subscriptions.
-// Strict business rule: >= 3 reports automatically hides the job pending review.
+// Strict business rules:
+// - Reasons: "Role is closed", "Not open to Africa as stated", "Looks like a scam", "Other"
+// - Rate limiting: max 1 report per IP/user per job per 24 hours.
+// - >= 3 reports automatically hides the role pending review.
 
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import crypto from 'crypto';
+import { CanonicalReportReason, JobReport } from './types';
+import { MAX_REPORTS_BEFORE_HIDE } from './config';
 
-export type ReportReason =
-  | 'asks_for_payment'
-  | 'fake_company'
-  | 'misleading_pay'
-  | 'job_is_closed'
-  | 'other';
-
-export interface JobReport {
-  id: string;
-  job_id: string;
-  reason: ReportReason;
-  details?: string;
-  created_at: string;
-  reporter_ip?: string;
-}
+export type { CanonicalReportReason };
+export type ReportReason = CanonicalReportReason;
 
 export interface JobAlertSubscription {
   id: string;
@@ -46,6 +37,9 @@ const FALLBACK_ALERTS_FILE = path.join(os.tmpdir(), '.sync730-job-alerts.json');
 
 let memoryReports: JobReport[] | null = null;
 let memoryAlerts: JobAlertSubscription[] | null = null;
+
+// In-memory rate limiting map: `${reporterId}:::${jobId}` -> lastReportedTimestamp
+const reportRateLimitMap = new Map<string, number>();
 
 function readFileSafe(primary: string, fallback: string): string | null {
   try {
@@ -83,38 +77,95 @@ export function getAllReports(): JobReport[] {
 }
 
 export function getReportsForJob(jobId: string): JobReport[] {
-  return getAllReports().filter((r) => r.job_id === jobId);
+  return getAllReports().filter((r) => r.jobId === jobId || (r as any).job_id === jobId);
 }
 
 export function isJobHiddenByReports(jobId: string): boolean {
-  return getReportsForJob(jobId).length >= 3;
+  return getReportsForJob(jobId).length >= MAX_REPORTS_BEFORE_HIDE;
 }
 
+/**
+ * Checks if a specific reporter (IP or user ID) has already reported this job within the rolling 24h window.
+ */
+export function hasUserReportedJobToday(reporterKey: string, jobId: string): boolean {
+  const key = `${reporterKey}:::${jobId}`;
+  const lastTime = reportRateLimitMap.get(key);
+  const oneDayMs = 24 * 60 * 60 * 1000;
+
+  if (lastTime && Date.now() - lastTime < oneDayMs) {
+    return true;
+  }
+
+  // Also check existing persisted reports
+  const allReports = getAllReports();
+  const existing = allReports.find(
+    (r) =>
+      (r.jobId === jobId || (r as any).job_id === jobId) &&
+      r.reporter_ip === reporterKey &&
+      Date.now() - new Date(r.createdAt || (r as any).created_at).getTime() < oneDayMs
+  );
+
+  return Boolean(existing);
+}
+
+export function normalizeReportReason(rawReason: string): CanonicalReportReason {
+  const lower = (rawReason || '').trim().toLowerCase();
+  if (lower.includes('closed') || lower === 'job_is_closed') return 'Role is closed';
+  if (lower.includes('not open') || lower.includes('ineligible') || lower.includes('africa')) {
+    return 'Not open to Africa as stated';
+  }
+  if (lower.includes('scam') || lower.includes('payment') || lower.includes('fake')) {
+    return 'Looks like a scam';
+  }
+  return 'Other';
+}
+
+/**
+ * Submits a community job report with daily per-reporter rate limiting.
+ */
 export function submitJobReport(params: {
-  job_id: string;
-  reason: ReportReason;
-  details?: string;
-  reporter_ip?: string;
-}): { success: boolean; totalReports: number; isHidden: boolean } {
+  jobId: string;
+  reason: string;
+  note?: string;
+  reporterIp?: string;
+}): { success: boolean; error?: string; totalReports: number; isHidden: boolean } {
+  const reporterKey = params.reporterIp || '127.0.0.1';
+
+  // 1. Rate limiting check
+  if (hasUserReportedJobToday(reporterKey, params.jobId)) {
+    const existingReports = getReportsForJob(params.jobId);
+    return {
+      success: false,
+      error: 'You have already reported this role today. Our verification team is reviewing it.',
+      totalReports: existingReports.length,
+      isHidden: existingReports.length >= MAX_REPORTS_BEFORE_HIDE,
+    };
+  }
+
   const reports = getAllReports();
+  const canonicalReason = normalizeReportReason(params.reason);
+
   const newReport: JobReport = {
     id: `rep-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-    job_id: params.job_id,
-    reason: params.reason,
-    details: params.details?.slice(0, 1000),
-    created_at: new Date().toISOString(),
-    reporter_ip: params.reporter_ip,
+    jobId: params.jobId,
+    reason: canonicalReason,
+    note: params.note?.slice(0, 1000),
+    reporter_ip: reporterKey,
+    createdAt: new Date().toISOString(),
   };
 
   reports.push(newReport);
   memoryReports = reports;
   writeFileSafe(PRIMARY_REPORTS_FILE, FALLBACK_REPORTS_FILE, JSON.stringify(reports, null, 2));
 
-  const total = reports.filter((r) => r.job_id === params.job_id).length;
+  // Update in-memory rate limiter
+  reportRateLimitMap.set(`${reporterKey}:::${params.jobId}`, Date.now());
+
+  const total = reports.filter((r) => r.jobId === params.jobId || (r as any).job_id === params.jobId).length;
   return {
     success: true,
     totalReports: total,
-    isHidden: total >= 3,
+    isHidden: total >= MAX_REPORTS_BEFORE_HIDE,
   };
 }
 
@@ -148,11 +199,6 @@ export function createAlertSubscription(params: {
 
   const existing = alerts.find((a) => a.email === normalizedEmail && !a.unsubscribed);
   if (existing) {
-    existing.modalities = params.modalities;
-    existing.locations = params.locations;
-    existing.role_types = params.role_types;
-    existing.consent_timestamp = new Date().toISOString();
-    writeFileSafe(PRIMARY_ALERTS_FILE, FALLBACK_ALERTS_FILE, JSON.stringify(alerts, null, 2));
     return { success: true, subscription: existing };
   }
 
@@ -164,10 +210,10 @@ export function createAlertSubscription(params: {
     role_types: params.role_types,
     consent: params.consent,
     consent_timestamp: new Date().toISOString(),
-    double_opt_in_token: crypto.randomBytes(16).toString('hex'),
-    is_verified: true, // Auto-verified in staging; double opt-in link sent
+    double_opt_in_token: `opt_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`,
+    is_verified: false,
     unsubscribed: false,
-    unsubscribe_token: crypto.randomBytes(16).toString('hex'),
+    unsubscribe_token: `unsub_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`,
     created_at: new Date().toISOString(),
   };
 

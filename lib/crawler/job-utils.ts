@@ -4,6 +4,7 @@
 import { RemoteJob, EmployerType, LocationRule, SalaryPeriod } from '@/lib/supabase/types';
 import { parseSalary, detectSeniority } from './job-filters';
 import { normalizeJobCategory } from './categories';
+import { normalizeToCanonicalEligibility } from '@/lib/jobs/helpers';
 
 // Known staffing and outsourcing agency keywords & sources
 const KNOWN_AGENCIES = [
@@ -399,5 +400,9 @@ export function normalizeJobRecord(raw: Partial<RemoteJob>): RemoteJob {
     is_active: raw.is_active !== false,
     is_featured: Boolean(raw.is_featured),
     source_type: raw.source_type || 'CRAWLER',
+    eligibility: normalizeToCanonicalEligibility(raw),
+    roleVerifiedAt: last_verified_at || posted_at || new Date().toISOString(),
+    role_verified_at: last_verified_at || posted_at || new Date().toISOString(),
+    review_status: 'approved',
   };
 }

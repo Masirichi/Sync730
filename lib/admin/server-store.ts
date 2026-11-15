@@ -3,6 +3,7 @@ import path from 'path';
 import os from 'os';
 import { AdminRemoteJob, AdminAuditLog } from './types';
 import { SEED_ADMIN_REMOTE_JOBS, SEED_ADMIN_AUDIT_LOGS } from './store';
+import { validateJobPublishing } from '@/lib/jobs/validation';
 
 const PRIMARY_JOBS_FILE = path.join(process.cwd(), '.sync730-admin-jobs.json');
 const FALLBACK_JOBS_FILE = path.join(os.tmpdir(), '.sync730-admin-jobs.json');
@@ -82,6 +83,21 @@ export function getServerJobs(): AdminRemoteJob[] {
 }
 
 export function saveServerJob(job: AdminRemoteJob): AdminRemoteJob {
+  // Validate job before saving/publishing
+  const validation = validateJobPublishing({
+    company: job.company || job.company_name,
+    title: job.title,
+    description: job.description,
+    salary: job.salary,
+    salary_min: (job as any).salary_min,
+    salary_max: (job as any).salary_max,
+    salary_currency: (job as any).salary_currency,
+  });
+
+  if (!validation.valid) {
+    throw new Error(`Cannot publish job: ${validation.errors.join(' ')}`);
+  }
+
   const existing = getServerJobs();
   const updated = [job, ...existing.filter((j) => j.id !== job.id && j.external_id !== job.external_id)];
   memoryJobsCache = updated;
