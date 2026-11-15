@@ -1,41 +1,103 @@
-import { Suspense } from 'react';
+// app/find-work/page.tsx
 import { Metadata } from 'next';
-import { SiteHeader } from '@/components/site/site-header';
-import { SiteFooter } from '@/components/site/site-footer';
-import { FindWorkClient } from './find-work-client';
+import { Suspense } from 'react';
+import { getFilteredPublicJobs, JobFilterParams } from '@/lib/jobs/service';
 import { fetchActiveRemoteJobs } from '@/lib/crawler/jobs-fetcher';
+import { JobsClientView } from '@/components/jobs/jobs-client-view';
+
+interface FindWorkPageProps {
+  searchParams: { [key: string]: string | string[] | undefined };
+}
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Find Tech & Professional Jobs in Nigeria, Africa & Remote | Sync730',
-  description:
-    'Discover verified Remote, Hybrid, and Onsite roles in Lagos, Abuja, Port Harcourt, and global remote teams. Synced live with verified employers and competitive compensation.',
-  alternates: {
-    canonical: 'https://sync730.com/find-work',
-  },
-  openGraph: {
-    title: 'Find Tech & Professional Jobs in Nigeria, Africa & Remote | Sync730',
-    description:
-      'Discover verified Remote, Hybrid, and Onsite roles in Lagos, Abuja, Port Harcourt, and global remote teams.',
-    url: 'https://sync730.com/find-work',
-    siteName: 'Sync730',
-    type: 'website',
-  },
-};
+export async function generateMetadata({ searchParams }: FindWorkPageProps): Promise<Metadata> {
+  const hasFiltersOrPagination = Boolean(
+    searchParams.q ||
+      (searchParams.modality && searchParams.modality !== 'all') ||
+      (searchParams.department && searchParams.department !== 'all') ||
+      (searchParams.location && searchParams.location !== 'all') ||
+      (searchParams.seniority && searchParams.seniority !== 'all') ||
+      (searchParams.job_type && searchParams.job_type !== 'all') ||
+      searchParams.salary_shown === 'true' ||
+      (searchParams.page && searchParams.page !== '1')
+  );
 
-export default async function FindWorkPage() {
-  const jobs = await fetchActiveRemoteJobs();
+  return {
+    title: 'Find Tech & Remote Jobs in Nigeria, Africa & Worldwide | Sync730',
+    description:
+      'Discover active verified Remote, Hybrid, and Onsite roles in Lagos, Abuja, Port Harcourt, and worldwide. Clear interview expectations and verified compensation.',
+    alternates: {
+      canonical: 'https://sync730.com/find-work',
+    },
+    robots: {
+      index: !hasFiltersOrPagination,
+      follow: true,
+    },
+    openGraph: {
+      title: 'Find Tech & Remote Jobs in Nigeria, Africa & Worldwide | Sync730',
+      description:
+        'Discover active verified Remote, Hybrid, and Onsite roles in Lagos, Abuja, Port Harcourt, and worldwide.',
+      url: 'https://sync730.com/find-work',
+      siteName: 'Sync730',
+      type: 'website',
+    },
+  };
+}
+
+export default async function FindWorkPage({ searchParams }: FindWorkPageProps) {
+  const q = typeof searchParams.q === 'string' ? searchParams.q : undefined;
+  const modality =
+    typeof searchParams.modality === 'string'
+      ? (searchParams.modality.toLowerCase() as any)
+      : undefined;
+  const department =
+    typeof searchParams.department === 'string' ? searchParams.department : undefined;
+  const location =
+    typeof searchParams.location === 'string' ? searchParams.location : undefined;
+  const seniority =
+    typeof searchParams.seniority === 'string' ? searchParams.seniority : undefined;
+  const job_type =
+    typeof searchParams.job_type === 'string' ? searchParams.job_type : undefined;
+  const salary_shown = searchParams.salary_shown === 'true';
+  const rawPage = typeof searchParams.page === 'string' ? parseInt(searchParams.page, 10) : 1;
+  const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+
+  // Query all active jobs directly from crawler/database to ensure real-time sync
+  let activeRemoteJobs: any[] = [];
+  try {
+    activeRemoteJobs = await fetchActiveRemoteJobs();
+  } catch (err) {
+    console.warn('Failed to fetch active remote jobs in find-work:', err);
+  }
+
+  const filterParams: JobFilterParams = {
+    q,
+    modality: modality !== 'all' ? modality : undefined,
+    department: department !== 'all' ? department : undefined,
+    location: location !== 'all' ? location : undefined,
+    seniority: seniority !== 'all' ? seniority : undefined,
+    job_type: job_type !== 'all' ? job_type : undefined,
+    salary_shown: salary_shown ? true : undefined,
+    page,
+    limit: 12,
+  };
+
+  const results = getFilteredPublicJobs(filterParams, activeRemoteJobs);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-      <div className="flex-1">
-        <Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center text-xs text-muted-foreground">Loading verified jobs...</div>}>
-          <FindWorkClient initialJobs={jobs} />
-        </Suspense>
-      </div>
-      <SiteFooter />
-    </div>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#fcfcf9] dark:bg-neutral-950 p-8 text-center text-xs text-neutral-500">
+          Loading verified jobs...
+        </div>
+      }
+    >
+      <JobsClientView
+        initialResults={results}
+        filterParams={filterParams}
+        basePath="/find-work"
+      />
+    </Suspense>
   );
 }

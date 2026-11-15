@@ -332,8 +332,9 @@ function toPublicJob(raw: any): PublicJob | null {
 
 /**
  * Loads all active public jobs across seed, server, and employer stores.
+ * Optionally incorporates dynamic live jobs (e.g. from fetchActiveRemoteJobs).
  */
-export function getAllApprovedJobs(): PublicJob[] {
+export function getAllApprovedJobs(extraJobs?: any[]): PublicJob[] {
   const map = new Map<string, PublicJob>();
 
   // 1. Recruiter employer jobs
@@ -363,7 +364,18 @@ export function getAllApprovedJobs(): PublicJob[] {
     });
   } catch {}
 
-  // 3. Seed remote jobs
+  // 3. Extra live jobs from database or crawler
+  if (Array.isArray(extraJobs) && extraJobs.length > 0) {
+    extraJobs.forEach((ej: any) => {
+      const publicJob = toPublicJob({
+        ...ej,
+        source_type: ej.source_type || 'curated',
+      });
+      if (publicJob) map.set(publicJob.id, publicJob);
+    });
+  }
+
+  // 4. Seed remote jobs
   SEED_REMOTE_JOBS.forEach((sj, idx) => {
     const id = `seed-job-${idx + 1}`;
     const publicJob = toPublicJob({
@@ -387,8 +399,8 @@ export const getAllJobs = getAllApprovedJobs;
 /**
  * Computes live platform stats across approved jobs.
  */
-export function getPublicJobsStats(): PublicJobsStats {
-  const allJobs = getAllApprovedJobs();
+export function getPublicJobsStats(allJobsInput?: PublicJob[]): PublicJobsStats {
+  const allJobs = allJobsInput || getAllApprovedJobs();
 
   const activeRoles = allJobs.length;
   const employerSet = new Set<string>();
@@ -457,9 +469,9 @@ export function getQualifyingFeaturedRoles(allJobs: PublicJob[]): PublicJob[] {
 /**
  * Retrieves filtered, sorted, and paginated jobs.
  */
-export function getFilteredPublicJobs(params: JobFilterParams): PaginatedJobsResult {
-  const allJobs = getAllApprovedJobs();
-  const stats = getPublicJobsStats();
+export function getFilteredPublicJobs(params: JobFilterParams, extraJobs?: any[]): PaginatedJobsResult {
+  const allJobs = getAllApprovedJobs(extraJobs);
+  const stats = getPublicJobsStats(allJobs);
 
   // Extract distinct locations with active roles for the location select
   const locationSet = new Set<string>();

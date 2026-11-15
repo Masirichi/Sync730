@@ -51,9 +51,10 @@ async function runAudit() {
   console.log('--- SYNC730 BANNED PHRASES AUDIT ---');
   let totalViolations = 0;
 
-  // 1. Scan source files in app/jobs and components/jobs (excluding trust-copy.ts definition and test scripts)
+  // 1. Scan source files in app/jobs, app/find-work and components/jobs (excluding trust-copy.ts definition and test scripts)
   const dirsToScan = [
     path.join(__dirname, '..', 'app', 'jobs'),
+    path.join(__dirname, '..', 'app', 'find-work'),
     path.join(__dirname, '..', 'components', 'jobs'),
   ];
 
@@ -97,6 +98,20 @@ async function runAudit() {
         }
       } else {
         console.log('[PASS] Rendered /jobs is 100% clean of banned phrases.');
+      }
+
+      // Check /find-work
+      const findWorkRes = await fetchUrl('http://localhost:3000/find-work');
+      if (findWorkRes.statusCode === 200) {
+        const findWorkViolations = scanText('Rendered /find-work', findWorkRes.body);
+        if (findWorkViolations.length > 0) {
+          for (const v of findWorkViolations) {
+            console.error(`[FAIL] Rendered /find-work violation: Contains banned phrase "${v.phrase}"`);
+            totalViolations++;
+          }
+        } else {
+          console.log('[PASS] Rendered /find-work is clean of banned phrases.');
+        }
       }
 
       // Check sample slugs

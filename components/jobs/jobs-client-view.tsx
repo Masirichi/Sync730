@@ -60,6 +60,7 @@ export interface JobsClientViewProps {
     availableLocations: string[];
   };
   filterParams: JobFilterParams;
+  basePath?: string;
 }
 
 const DEPARTMENTS = [
@@ -116,9 +117,14 @@ function getInitials(name: string): string {
   return name.slice(0, 2).toUpperCase();
 }
 
-export function JobsClientView({ initialResults, filterParams }: JobsClientViewProps) {
+export function JobsClientView({
+  initialResults,
+  filterParams,
+  basePath = '/find-work',
+}: JobsClientViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const targetJobId = searchParams ? searchParams.get('jobId') : null;
   const [isPending, startTransition] = useTransition();
 
   // Active filter states from URL
@@ -197,6 +203,19 @@ export function JobsClientView({ initialResults, filterParams }: JobsClientViewP
   useEffect(() => {
     setAnnouncement(`${initialResults.total} roles found`);
   }, [initialResults.total]);
+
+  // Auto-scroll to highlighted job if jobId query parameter is present
+  useEffect(() => {
+    if (targetJobId) {
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`job-card-${targetJobId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [targetJobId, initialResults.jobs]);
 
   // Auth & profile check
   useEffect(() => {
@@ -283,7 +302,7 @@ export function JobsClientView({ initialResults, filterParams }: JobsClientViewP
     }
 
     startTransition(() => {
-      router.push(`/jobs?${params.toString()}`, { scroll: false });
+      router.push(`${basePath}?${params.toString()}`, { scroll: false });
     });
   };
 
@@ -311,7 +330,7 @@ export function JobsClientView({ initialResults, filterParams }: JobsClientViewP
     setSelectedLocation('all');
     setSelectedModality('all');
     startTransition(() => {
-      router.push('/jobs', { scroll: false });
+      router.push(basePath, { scroll: false });
     });
   };
 
@@ -750,7 +769,12 @@ export function JobsClientView({ initialResults, filterParams }: JobsClientViewP
                     return (
                       <article
                         key={job.id}
-                        className="relative group p-5 rounded-2xl border border-border/80 bg-white dark:bg-neutral-900 hover:border-neutral-950 dark:hover:border-white transition-all flex flex-col justify-between"
+                        id={`job-card-${job.id}`}
+                        className={`relative group p-5 rounded-2xl border transition-all flex flex-col justify-between ${
+                          targetJobId === job.id
+                            ? 'border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 ring-2 ring-emerald-500 shadow-md'
+                            : 'border-border/80 bg-white dark:bg-neutral-900 hover:border-neutral-950 dark:hover:border-white'
+                        }`}
                       >
                         <div className="space-y-3">
                           {/* Top row: Employer initials/logo + label + bookmark */}
@@ -878,7 +902,12 @@ export function JobsClientView({ initialResults, filterParams }: JobsClientViewP
                     return (
                       <article
                         key={job.id}
-                        className="relative group p-6 rounded-2xl border border-border/80 bg-white dark:bg-neutral-900 hover:border-neutral-950 dark:hover:border-white transition-all flex flex-col justify-between"
+                        id={`job-card-${job.id}`}
+                        className={`relative group p-6 rounded-2xl border transition-all flex flex-col justify-between ${
+                          targetJobId === job.id
+                            ? 'border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 ring-2 ring-emerald-500 shadow-md'
+                            : 'border-border/80 bg-white dark:bg-neutral-900 hover:border-neutral-950 dark:hover:border-white'
+                        }`}
                       >
                         <div className="space-y-3.5">
                           {/* Row 1: Employer avatar/initials, Name, Verified Chip, Agency tag, Bookmark */}
