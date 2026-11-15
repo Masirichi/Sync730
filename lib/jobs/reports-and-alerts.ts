@@ -128,7 +128,7 @@ export function submitJobReport(params: {
   reason: string;
   note?: string;
   reporterIp?: string;
-}): { success: boolean; error?: string; totalReports: number; isHidden: boolean } {
+}): { success: boolean; error?: string; totalReports: number; isHidden: boolean; reportId?: string; report?: JobReport } {
   const reporterKey = params.reporterIp || '127.0.0.1';
 
   // 1. Rate limiting check
@@ -164,6 +164,8 @@ export function submitJobReport(params: {
   const total = reports.filter((r) => r.jobId === params.jobId || (r as any).job_id === params.jobId).length;
   return {
     success: true,
+    reportId: newReport.id,
+    report: newReport,
     totalReports: total,
     isHidden: total >= MAX_REPORTS_BEFORE_HIDE,
   };

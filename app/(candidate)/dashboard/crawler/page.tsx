@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
+import { JobCard } from '@/components/jobs/job-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -1320,279 +1321,95 @@ function CrawlerJobFeedContent() {
                 savedJobIds.has(job.id) ||
                 savedJobIds.has(job.external_id) ||
                 savedJobIds.has(`remotive-${job.id}`);
-              const categoryMeta = getCategoryMeta(job.category || '');
-              const seniority = job.seniority || detectSeniority(job);
 
-              const isClosedWarning = isOlderThan30Days(job.posted_at || job.published_at);
-              const cleanSkills = extractCleanSkills(job.tags || job.skills, job.company_name || job.company, job.source_name || job.source);
-
-              return (
-                <Card
-                  key={identifier || job.url}
-                  id={`job-card-${identifier}`}
-                  onClick={() => handleOpenJobDetail(job.id)}
-                  className="group flex flex-col justify-between border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 rounded-xl hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors shadow-none cursor-pointer"
-                >
-                  <CardContent className="p-6 space-y-4">
-                    {/* Top Bar: Company / Agency Line & Badges */}
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
-                          {job.company_name || job.company}
-                        </span>
-
-                        {/* Agency Listing Badge with Tooltip */}
-                        {job.employer_type === 'agency' && (
-                          <span
-                            className="text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 cursor-help"
-                            title="This role is posted by a staffing/outsourcing company on behalf of a client."
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            Agency listing
+              const match = computeJobMatchScore(job, profile);
+              const matchBlock = (
+                <div className="space-y-2.5">
+                  {match.isProfileComplete && match.score !== null ? (
+                    <div className="p-2.5 rounded-xl bg-neutral-50/70 dark:bg-neutral-900/40 border border-neutral-200/70 dark:border-neutral-800/80 space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1">
+                            {match.score}% match
                           </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                        {/* Featured Partner Pill */}
-                        {job.is_featured && (
-                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                            Featured
-                          </span>
-                        )}
-                        <span className="text-xs font-medium px-2.5 py-0.5 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-900">
-                          {job.location_tier}
-                        </span>
-                        <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
-                          {categoryMeta.shortLabel}
-                        </span>
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 font-semibold">
-                          {seniority}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Job Title */}
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-700 dark:group-hover:text-neutral-300 transition-colors leading-snug">
-                        <Link
-                          href={`/dashboard/jobs/${job.id}?${searchParams.toString()}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className="hover:underline"
-                        >
-                          {job.title}
-                        </Link>
-                      </h3>
-
-                      {/* Metadata Line */}
-                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 font-medium">
-                        <span>{job.candidate_required_location || 'Remote'}</span>
-                        <span className="mx-1.5">·</span>
-                        <span>{job.job_type || 'Full-time'}</span>
-                        <span className="mx-1.5">·</span>
-                        <SalaryDisplay
-                          job={job}
-                          period={displayPeriod}
-                          className="text-neutral-900 dark:text-neutral-200 font-semibold"
-                        />
-                      </p>
-
-                      {/* Freshness & Source under the meta line */}
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-neutral-700 dark:text-neutral-300 font-medium">
-                        <span>
-                          Posted {formatPostedAgo(job.posted_at || job.published_at)} · via {job.source_name || job.source || 'Direct'}
-                        </span>
-
-                        {isClosedWarning && (
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700">
-                            May be closed
-                          </span>
-                        )}
-
-                        {/* Eligibility Badge */}
-                        <span className="ml-auto">
-                          {job.open_to_nigeria ? (
-                            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
-                              Status: Open to Nigeria
-                            </span>
-                          ) : (
-                            <span className="text-xs font-medium text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2.5 py-0.5 rounded-full border border-neutral-200 dark:border-neutral-700">
-                              Status: Not open to Nigeria
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Honest AI Match Score Bar & One-line Reason (Requirement 2) */}
-                    {(() => {
-                      const match = computeJobMatchScore(job, profile);
-                      if (match.isProfileComplete && match.score !== null) {
-                        return (
-                          <div className="p-2.5 rounded-lg bg-neutral-50/70 dark:bg-neutral-900/40 border border-neutral-200/70 dark:border-neutral-800/80 space-y-1.5">
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1">
-                                  {match.score}% match
-                                </span>
-                                <div className="w-20 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
-                                  <div
-                                    className={`h-full rounded-full ${
-                                      match.score >= 80 ? 'bg-emerald-500' : match.score >= 65 ? 'bg-blue-500' : 'bg-amber-500'
-                                    }`}
-                                    style={{ width: `${match.score}%` }}
-                                  />
-                                </div>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setReportDialogJob({
-                                    id: job.id,
-                                    title: job.title,
-                                    company: job.company_name || job.company,
-                                    score: match.score,
-                                  });
-                                }}
-                                className="text-xs text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white underline font-medium cursor-pointer"
-                              >
-                                Report a bad match
-                              </button>
-                            </div>
-                            <p className="text-xs text-neutral-600 dark:text-neutral-400 line-clamp-1">
-                              {match.reason}
-                            </p>
+                          <div className="w-20 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${
+                                match.score >= 80 ? 'bg-emerald-500' : match.score >= 65 ? 'bg-blue-500' : 'bg-amber-500'
+                              }`}
+                              style={{ width: `${match.score}%` }}
+                            />
                           </div>
-                        );
-                      } else {
-                        return (
-                          <div className="px-2.5 py-1.5 rounded-lg bg-neutral-50/50 dark:bg-neutral-900/30 border border-neutral-200/50 dark:border-neutral-800/50 flex items-center justify-between text-xs text-neutral-400">
-                            <span>
-                              Complete your profile to see match scores
-                            </span>
-                            <Link
-                              href="/dashboard/profile"
-                              onClick={(e) => e.stopPropagation()}
-                              className="text-neutral-700 dark:text-neutral-300 font-semibold hover:underline text-xs"
-                            >
-                              Set up →
-                            </Link>
-                          </div>
-                        );
-                      }
-                    })()}
-
-                    {/* Role Description Preview */}
-                    <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed line-clamp-3">
-                      {job.description}
-                    </p>
-
-                    {/* Skills / Tech Tags (Capped at 4, with +N more opening detail view) */}
-                    {cleanSkills.length > 0 && (
-                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                        {cleanSkills.slice(0, 4).map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-xs font-normal px-2.5 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 border border-neutral-200/60 dark:border-neutral-800"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        {cleanSkills.length > 4 && (
-                          <span
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenJobDetail(job.id);
-                            }}
-                            className="text-xs font-medium px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-900 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 border border-neutral-200/60 dark:border-neutral-800 cursor-pointer"
-                          >
-                            +{cleanSkills.length - 4} more
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Card Footer: Verification Label & Action Buttons */}
-                    <div className="pt-4 border-t border-neutral-100 dark:border-neutral-900 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                      <div>
-                        {job.last_verified_at ? (
-                          <span
-                            className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 dark:text-emerald-400 cursor-help"
-                            title="The application link and role status were checked and verified active by Sync730."
-                          >
-                            <ShieldCheck className="h-3.5 w-3.5" />
-                            <span>Link checked {formatStandardDate(job.last_verified_at)}</span>
-                          </span>
-                        ) : (
-                          <span className="text-xs text-neutral-400 dark:text-neutral-500">
-                            Verified remote feed
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        {/* Tailor ATS Resume */}
-                        <Button
-                          size="sm"
-                          variant="outline"
+                        </div>
+                        <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setTailorTargetJob({
+                            setReportDialogJob({
+                              id: job.id,
                               title: job.title,
                               company: job.company_name || job.company,
-                              location: job.candidate_required_location || job.location_tier,
-                              description: job.description || '',
-                              salary: job.salary || undefined,
-                              category: job.category || 'Software & Engineering',
+                              score: match.score,
                             });
-                            setIsTailorPanelOpen(true);
                           }}
-                          aria-label={`Tailor resume for ${job.title} at ${job.company_name || job.company}`}
-                          className="text-xs min-h-[44px] h-11 px-3.5 rounded-lg border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 font-medium inline-flex items-center gap-1.5"
+                          className="text-xs text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white underline font-medium cursor-pointer"
                         >
-                          Tailor Resume
-                        </Button>
-
-                        {/* Save Button (Fixed Width w-[90px] so layout does not shift on toggle) */}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={(e) => handleToggleSaveJob(e, job)}
-                          aria-label={isSaved ? `Remove ${job.title} from saved jobs` : `Save ${job.title} to saved jobs`}
-                          className={`min-h-[44px] h-11 px-3 w-[100px] text-xs rounded-lg font-medium transition-colors inline-flex items-center justify-center gap-1 ${
-                            isSaved
-                              ? 'border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 bg-neutral-100/60 dark:bg-neutral-900'
-                              : 'border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 hover:text-neutral-900'
-                          }`}
-                        >
-                          {isSaved ? (
-                            <>
-                              <Check className="h-3.5 w-3.5 text-emerald-600 stroke-[2.5]" />
-                              <span>Saved</span>
-                            </>
-                          ) : (
-                            <>
-                              <Bookmark className="h-3.5 w-3.5 stroke-[1.5]" />
-                              <span>Save</span>
-                            </>
-                          )}
-                        </Button>
-
-                        {/* Apply Directly Button */}
-                        <Button
-                          size="sm"
-                          onClick={(e) => handleApplyClick(e, job)}
-                          aria-label={`Apply directly for ${job.title} at ${job.company_name || job.company}`}
-                          className="text-xs min-h-[44px] h-11 px-4 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 font-semibold inline-flex items-center gap-1"
-                        >
-                          <span>Apply Directly</span>
-                          <ArrowUpRight className="h-3.5 w-3.5 stroke-[1.5]" />
-                        </Button>
+                          Report a bad match
+                        </button>
                       </div>
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400 line-clamp-1">
+                        {match.reason}
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
+                  ) : (
+                    <div className="px-2.5 py-1.5 rounded-lg bg-neutral-50/50 dark:bg-neutral-900/30 border border-neutral-200/50 dark:border-neutral-800/50 flex items-center justify-between text-xs text-neutral-400">
+                      <span>Complete your profile to see match scores</span>
+                      <Link
+                        href="/dashboard/profile"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-neutral-700 dark:text-neutral-300 font-semibold hover:underline text-xs"
+                      >
+                        Set up →
+                      </Link>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-end">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setTailorTargetJob({
+                          title: job.title,
+                          company: job.company_name || job.company,
+                          location: job.candidate_required_location || job.location_tier,
+                          description: job.description || '',
+                          salary: job.salary || undefined,
+                          category: job.category || 'Software & Engineering',
+                        });
+                        setIsTailorPanelOpen(true);
+                      }}
+                      aria-label={`Tailor resume for ${job.title} at ${job.company_name || job.company}`}
+                      className="text-xs h-9 px-3 rounded-lg border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 font-medium inline-flex items-center gap-1.5"
+                    >
+                      Tailor Resume
+                    </Button>
+                  </div>
+                </div>
+              );
+
+              return (
+                <JobCard
+                  key={identifier || job.url}
+                  job={job}
+                  isSaved={isSaved}
+                  variant={job.is_featured ? 'featured' : 'standard'}
+                  onBookmarkToggle={(e) => handleToggleSaveJob(e, job)}
+                  onApplyClick={(e) => handleApplyClick(e, job)}
+                  onSelect={() => handleOpenJobDetail(job.id)}
+                  extraFooter={matchBlock}
+                />
               );
             })}
           </div>

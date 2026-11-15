@@ -27,6 +27,8 @@ import { ApplyFlowModal } from '@/components/jobs/apply-flow-modal';
 import { DidYouApplyModal } from '@/components/jobs/did-you-apply-modal';
 import { JobAlertsModal } from '@/components/jobs/job-alerts-modal';
 import { FiltersDrawer } from '@/components/jobs/filters-drawer';
+import { JobCard } from '@/components/jobs/job-card';
+import { JobDetailDialog } from '@/components/jobs/job-detail-dialog';
 import {
   formatSalary,
   CurrencyChoice,
@@ -146,6 +148,7 @@ export function JobsClientView({
   const [applyModalOpen, setApplyModalOpen] = useState(false);
   const [didYouApplyOpen, setDidYouApplyOpen] = useState(false);
   const [selectedJobForModal, setSelectedJobForModal] = useState<PublicJob | null>(null);
+  const [selectedJobForDetail, setSelectedJobForDetail] = useState<PublicJob | null>(null);
 
   // User & Candidate auth state
   const [user, setUser] = useState<any>(null);
@@ -787,93 +790,19 @@ export function JobsClientView({
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {initialResults.featuredRoles.slice(0, 3).map((job) => {
-                  const isSaved = savedJobIds.has(job.id);
-                  const salaryFormatted = formatSalary(job, currency, period).formatted;
-
-                  return (
-                    <article
-                      key={job.id}
-                      id={`job-card-${job.id}`}
-                      className={`relative group p-5 rounded-2xl border transition-all flex flex-col justify-between ${
-                        targetJobId === job.id
-                          ? 'border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 ring-2 ring-emerald-500 shadow-md'
-                          : 'border-border/80 bg-white dark:bg-neutral-900 hover:border-neutral-950 dark:hover:border-white'
-                      }`}
-                    >
-                      <div className="space-y-3">
-                        {/* Top row */}
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="w-9 h-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-border/60 flex items-center justify-center font-bold text-xs text-foreground flex-shrink-0">
-                              {job.company_logo ? (
-                                <img
-                                  src={job.company_logo}
-                                  alt={`${job.company} logo`}
-                                  className="w-full h-full object-cover rounded-xl"
-                                  loading="lazy"
-                                />
-                              ) : (
-                                getInitials(job.company)
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">
-                                {job.company}
-                              </p>
-                              <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
-                                Featured
-                              </span>
-                            </div>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={(e) => handleBookmarkToggle(e, job)}
-                            aria-label={isSaved ? `Remove ${job.title} from saved jobs` : `Save ${job.title}`}
-                            className="relative z-10 p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            <Bookmark
-                              className={`w-4 h-4 ${isSaved ? 'fill-neutral-900 dark:fill-white text-neutral-900 dark:text-white' : ''}`}
-                            />
-                          </button>
-                        </div>
-
-                        {/* Title & Salary */}
-                        <div>
-                          <h4 className="text-base font-bold text-neutral-950 dark:text-white group-hover:underline">
-                            <Link href={`/jobs/${job.slug}`} className="after:absolute after:inset-0">
-                              {job.title}
-                            </Link>
-                          </h4>
-                          <p className={`text-xs mt-1 ${salaryFormatted === 'Salary not disclosed' ? 'font-normal text-muted-foreground' : 'font-semibold text-neutral-900 dark:text-neutral-100'}`}>
-                            {salaryFormatted}
-                          </p>
-                        </div>
-
-                        {/* Modality & Location */}
-                        <p className="text-xs text-muted-foreground font-medium">
-                          {job.modality} · {job.city_location || job.location_rule}
-                        </p>
-                      </div>
-
-                      {/* Footer */}
-                      <div className="pt-4 mt-4 border-t border-border/50 flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">
-                          Posted {getRelativeTimeString(job.posted_date)}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={(e) => handleCardApplyClick(e, job)}
-                          className="relative z-10 px-3.5 py-1.5 rounded-lg bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors"
-                        >
-                          {!user ? 'Sign up to apply' : !applyReadyResult?.is_apply_ready ? 'Finish profile' : 'Apply'}
-                        </button>
-                      </div>
-                    </article>
-                  );
-                })}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
+                {initialResults.featuredRoles.slice(0, 3).map((job) => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    variant="featured"
+                    isSaved={savedJobIds.has(job.id)}
+                    onBookmarkToggle={handleBookmarkToggle}
+                    onApplyClick={handleCardApplyClick}
+                    onSelect={(j) => setSelectedJobForDetail(j)}
+                    isTarget={targetJobId === job.id}
+                  />
+                ))}
               </div>
             </section>
           )}
@@ -912,168 +841,18 @@ export function JobsClientView({
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
-                {initialResults.jobs.map((job) => {
-                  const isSaved = savedJobIds.has(job.id);
-                  const salaryFormatted = formatSalary(job, currency, period).formatted;
-
-                  return (
-                    <article
-                      key={job.id}
-                      id={`job-card-${job.id}`}
-                      className={`relative group p-6 rounded-2xl border transition-all flex flex-col justify-between h-full ${
-                        targetJobId === job.id
-                          ? 'border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 ring-2 ring-emerald-500 shadow-md'
-                          : 'border-border/80 bg-white dark:bg-neutral-900 hover:border-neutral-950 dark:hover:border-white'
-                      }`}
-                    >
-                      <div className="space-y-3.5">
-                        {/* Row 1: Employer avatar/initials, Name, Agency tag, Bookmark */}
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-border/60 flex items-center justify-center font-bold text-xs text-foreground flex-shrink-0">
-                              {job.company_logo ? (
-                                <img
-                                  src={job.company_logo}
-                                  alt={`${job.company} logo`}
-                                  className="w-full h-full object-cover rounded-xl"
-                                  loading="lazy"
-                                />
-                              ) : (
-                                getInitials(job.company)
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 truncate">
-                                  {job.company}
-                                </span>
-                                {job.is_agency && (
-                                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-muted-foreground">
-                                    Agency
-                                  </span>
-                                )}
-                              </div>
-                              {job.industry && (
-                                <p className="text-[11px] text-muted-foreground truncate">
-                                  {job.industry}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={(e) => handleBookmarkToggle(e, job)}
-                            aria-label={isSaved ? `Remove ${job.title} from saved jobs` : `Save ${job.title}`}
-                            className="relative z-10 p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            <Bookmark
-                              className={`w-4 h-4 ${isSaved ? 'fill-neutral-900 dark:fill-white text-neutral-900 dark:text-white' : ''}`}
-                            />
-                          </button>
-                        </div>
-
-                        {/* Row 2: Title & Salary */}
-                        <div>
-                          <h4 className="text-lg font-bold text-neutral-950 dark:text-white group-hover:underline">
-                            <Link href={`/jobs/${job.slug}`} className="after:absolute after:inset-0">
-                              {job.title}
-                            </Link>
-                          </h4>
-                          <p className={`text-sm mt-1 ${salaryFormatted === 'Salary not disclosed' ? 'font-normal text-muted-foreground' : 'font-bold text-neutral-950 dark:text-white'}`}>
-                            {salaryFormatted}
-                          </p>
-                        </div>
-
-                        {/* Row 3: Modality, Location & Employment Type */}
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground font-medium">
-                          <span>
-                            {job.modality} · {job.city_location || job.location_rule}
-                          </span>
-                          <span>·</span>
-                          <span>{job.employment_type}</span>
-                        </div>
-
-                        {/* Row 4: Eligibility Line with Popover */}
-                        <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                          <span>
-                            Open to {job.eligible_countries.slice(0, 3).join(', ')}
-                          </span>
-                          {job.eligible_countries.length > 3 && (
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <button
-                                  type="button"
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="relative z-10 underline font-semibold text-neutral-900 dark:text-neutral-100 hover:no-underline"
-                                  aria-label={`View all ${job.eligible_countries.length} eligible countries`}
-                                >
-                                  +{job.eligible_countries.length - 3}
-                                </button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-64 p-3 text-xs bg-white dark:bg-neutral-900 border border-border shadow-md rounded-xl">
-                                <p className="font-semibold text-foreground mb-1.5">
-                                  Eligible Locations ({job.eligible_countries.length})
-                                </p>
-                                <div className="flex flex-wrap gap-1">
-                                  {job.eligible_countries.map((c) => (
-                                    <span
-                                      key={c}
-                                      className="px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-[11px]"
-                                    >
-                                      {c}
-                                    </span>
-                                  ))}
-                                </div>
-                              </PopoverContent>
-                            </Popover>
-                          )}
-                        </div>
-
-                        {/* Row 5: Two-line summary */}
-                        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                          {job.summary}
-                        </p>
-
-                        {/* Row 6: Skill chips */}
-                        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                          {job.skills.slice(0, 4).map((skill) => (
-                            <span
-                              key={skill}
-                              className="px-2.5 py-1 rounded-md text-[11px] font-medium border border-border/70 bg-white dark:bg-neutral-950 text-foreground"
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                          {job.skills.length > 4 && (
-                            <span className="text-[11px] font-medium text-muted-foreground px-1">
-                              +{job.skills.length - 4}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Card Footer: Posted date & Apply Button */}
-                      <div className="pt-4 mt-4 border-t border-border/50 flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground font-medium">
-                          Posted {getRelativeTimeString(job.posted_date)}
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={(e) => handleCardApplyClick(e, job)}
-                          className="relative z-10 px-4 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors"
-                        >
-                          {!user
-                            ? 'Sign up to apply'
-                            : !applyReadyResult?.is_apply_ready
-                            ? 'Finish profile to apply'
-                            : 'Apply'}
-                        </button>
-                      </div>
-                    </article>
-                  );
-                })}
+                {initialResults.jobs.map((job) => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    variant="standard"
+                    isSaved={savedJobIds.has(job.id)}
+                    onBookmarkToggle={handleBookmarkToggle}
+                    onApplyClick={handleCardApplyClick}
+                    onSelect={(j) => setSelectedJobForDetail(j)}
+                    isTarget={targetJobId === job.id}
+                  />
+                ))}
               </div>
             )}
 
@@ -1222,6 +1001,20 @@ export function JobsClientView({
       <JobAlertsModal
         isOpen={alertsModalOpen}
         onClose={() => setAlertsModalOpen(false)}
+      />
+
+      {/* Unified Job Detail Dialog (modal on desktop, full-screen on mobile) */}
+      <JobDetailDialog
+        job={selectedJobForDetail}
+        isOpen={Boolean(selectedJobForDetail)}
+        onClose={() => setSelectedJobForDetail(null)}
+        isSaved={selectedJobForDetail ? savedJobIds.has(selectedJobForDetail.id) : false}
+        onBookmarkToggle={(j) => {
+          handleBookmarkToggle({ preventDefault: () => {}, stopPropagation: () => {} } as any, j);
+        }}
+        onApplyClick={(j) => {
+          handleCardApplyClick({ preventDefault: () => {}, stopPropagation: () => {} } as any, j);
+        }}
       />
     </div>
   );

@@ -24,7 +24,7 @@ const DEFAULT_STREAM_ROLES: Partial<RemoteJob>[] = [
   {
     id: 'seed-live-1',
     title: 'Senior Full-Stack Engineer',
-    company: 'Sync730 Partner Labs',
+    company: 'Sync730 Labs',
     salary: '$4,500/mo',
     work_mode: 'REMOTE',
     city_location: 'Remote (Worldwide)',
@@ -126,7 +126,7 @@ const DEFAULT_PLATFORM_EVENTS: LiveActivityEvent[] = [
     id: 'ev-2',
     category: 'INTERVIEW',
     title: 'Interview Scheduled',
-    detail: 'Cloud Platform Architect with European Tech Partner',
+    detail: 'Cloud Platform Architect with European Tech Team',
     location: 'Remote (Global)',
     timeAgo: '4m ago',
   },
@@ -498,7 +498,7 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
             {duplicatedRoles.map((role, idx) => {
               const loc = formatLocationPill(role);
               const salary = formatSalaryBadge(role);
-              const companyName = (role.company_name || role.company || 'Verified Employer').trim();
+              const companyName = (role.company_name || role.company || 'Hiring Company').trim();
 
               return (
                 <Link
