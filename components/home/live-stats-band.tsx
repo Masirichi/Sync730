@@ -7,6 +7,7 @@ import { STATS_CONFIG } from '@/lib/config/stats';
 import { trackEvent } from '@/lib/analytics';
 import { RemoteJob } from '@/lib/supabase/types';
 import { createBrowserClient } from '@/lib/supabase/client';
+import { HOME_CONTENT } from '@/src/content/home';
 
 interface StatsData {
   rolesLast24h: number;
@@ -413,19 +414,19 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
       id: 'roles',
       show: meetsMinRoles,
       value: displayValues.rolesLast24h,
-      label: 'roles posted in the last 24 hours',
+      label: HOME_CONTENT.liveStats.rolesSuffix,
     },
     {
       id: 'talents',
       show: meetsMinTalents,
       value: displayValues.talents,
-      label: 'talents on the platform',
+      label: HOME_CONTENT.liveStats.talentsSuffix,
     },
     {
       id: 'partners',
       show: meetsMinPartners,
       value: displayValues.partners,
-      label: 'partners',
+      label: HOME_CONTENT.liveStats.partnersSuffix,
     },
   ].filter((c) => c.show);
 
@@ -446,10 +447,10 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 motion-reduce:hidden" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          <span>Live platform activity</span>
+          <span>{HOME_CONTENT.liveStats.label}</span>
           <span className="hidden md:inline-block text-background/30">•</span>
           <span className="hidden md:inline-block text-[11px] font-normal tracking-normal text-background/50">
-            Real-time hiring & vetting stream
+            Real-time hiring & review stream
           </span>
         </div>
 
@@ -473,7 +474,7 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
             <p className="text-4xl font-semibold tracking-tight text-background tabular-nums min-w-[3ch] sm:text-5xl">
               {cell.value.toLocaleString()}
             </p>
-            <p className="mt-2 text-sm text-background/65">
+            <p className="mt-2 text-sm text-background/65 leading-relaxed">
               {cell.label}
             </p>
           </div>

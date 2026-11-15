@@ -231,6 +231,62 @@ export function ForRecruitersSection({ onOpenDemo }: ForRecruitersSectionProps) 
             </div>
           </div>
         </div>
+
+        {/* Moved from Hero: Sample Interview Report Card */}
+        <div className="mt-10 max-w-xl mx-auto">
+          <div className="relative border border-foreground bg-foreground p-6 sm:p-7 text-background shadow-[12px_12px_0_hsl(var(--secondary))]">
+            <div className="flex items-center justify-between border-b border-background/20 pb-4">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-background/60">
+                SAMPLE INTERVIEW REPORT
+              </span>
+              <span className="rounded border border-background/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-background/80">
+                Sample
+              </span>
+            </div>
+
+            <div className="pt-5 pb-4">
+              <p className="text-xl font-bold tracking-tight text-background">
+                Senior Backend Engineer
+              </p>
+              <p className="text-xs text-background/70 mt-0.5">
+                Candidate #A7F2
+              </p>
+            </div>
+
+            <div className="space-y-4 py-2">
+              <div>
+                <div className="flex justify-between text-xs text-background/80 mb-1.5 font-medium">
+                  <span>Technical depth</span>
+                  <span className="tabular-nums font-semibold">91 / 100</span>
+                </div>
+                <div className="h-1.5 w-full bg-background/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-background rounded-full" style={{ width: '91%' }} />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-xs text-background/80 mb-1.5 font-medium">
+                  <span>Communication</span>
+                  <span className="tabular-nums font-semibold">88 / 100</span>
+                </div>
+                <div className="h-1.5 w-full bg-background/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-background rounded-full" style={{ width: '88%' }} />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 border-t border-background/20 pt-4">
+              <p className="text-xs leading-5 text-background/75">
+                Strong on retries and reconciliation. Gap: distributed tracing.
+              </p>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between border-t border-background/20 pt-3 text-[11px] text-background/80">
+              <span>Identity verified, 0 integrity flags</span>
+              <span className="text-[10px] uppercase tracking-wider text-background/75">Evaluation advisory</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

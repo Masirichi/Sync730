@@ -5,62 +5,97 @@ import React from 'react';
 import Link from 'next/link';
 import { trackEvent } from '@/lib/analytics';
 import { HOME_CONTENT } from '@/src/content/home';
+import { JobCard } from '@/components/jobs/job-card';
 
 interface HeroSectionProps {
-  onOpenDemo: () => void;
+  onOpenDemo?: () => void;
 }
 
+const SAMPLE_HERO_JOB: any = {
+  id: 'sample-hero-role',
+  slug: 'senior-full-stack-engineer-stripe',
+  title: 'Senior Full-Stack Engineer',
+  company: 'Stripe International',
+  company_name: 'Stripe International',
+  company_logo: undefined,
+  salary: '$4,500 – $6,200 / mo',
+  salary_min: 4500,
+  salary_max: 6200,
+  salary_currency: 'USD',
+  salary_period: 'mo',
+  modality: 'Remote',
+  location: 'Worldwide Remote',
+  location_rule: 'Worldwide Remote',
+  employment_type: 'Full-time',
+  is_featured: false,
+  role_verified: true,
+  roleVerifiedAt: new Date().toISOString(),
+  eligibility: {
+    scope: 'countries',
+    countries: ['Nigeria', 'Ghana', 'Kenya', 'Rwanda', 'South Africa', 'Uganda', 'Egypt'],
+  },
+  eligible_countries: ['Nigeria', 'Ghana', 'Kenya', 'Rwanda', 'South Africa', 'Uganda', 'Egypt'],
+  skills: ['React', 'TypeScript', 'Next.js', 'Node.js'],
+  summary:
+    'Build responsive web applications and resilient payment integrations with our distributed team.',
+  posted_date: new Date(Date.now() - 3600000 * 2).toISOString(),
+  apply_url: '/find-work',
+};
+
 export function HeroSection({ onOpenDemo }: HeroSectionProps) {
-  const handleDemoClick = () => {
-    trackEvent({ name: 'cta_book_demo_click', location: 'hero' });
-    onOpenDemo();
-  };
+  const { hero } = HOME_CONTENT;
 
   const handleJobsClick = () => {
     trackEvent({ name: 'cta_find_work_click' });
   };
 
+  const handleHiringClick = () => {
+    trackEvent({ name: 'cta_book_demo_click', location: 'hero' });
+    if (onOpenDemo) onOpenDemo();
+  };
+
   return (
     <section className="relative overflow-hidden border-b border-border/70 bg-background text-foreground">
-      <div className="mx-auto grid max-w-7xl gap-14 px-5 py-20 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:px-10 lg:py-28 items-center">
+      <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14 lg:px-10 lg:py-24 items-center">
         {/* Left Column: Headlines & Positioning */}
-        <div className="max-w-3xl">
+        <div className="max-w-2xl">
           {/* Eyebrow with leading rule line */}
-          <div className="mb-8 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+          <div className="mb-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground sm:mb-8">
             <span className="h-px w-8 bg-foreground" aria-hidden="true" />
-            <span>{HOME_CONTENT.hero.eyebrow}</span>
+            <span>{hero.eyebrow}</span>
           </div>
 
-          {/* H1 with exactly one italic word */}
-          <h1 className="text-5xl font-semibold leading-[1.02] tracking-[-0.055em] sm:text-7xl lg:text-[84px] text-foreground">
-            Where you live shouldn’t decide what you can <em className="italic font-serif">become</em>.
+          {/* H1: Exactly one h1 on the entire page */}
+          <h1 className="text-4xl font-semibold leading-[1.05] tracking-[-0.05em] sm:text-6xl sm:leading-[1.02] lg:text-[76px] lg:leading-[1.01] text-foreground">
+            {hero.h1}
           </h1>
 
           {/* Subhead */}
-          <p className="mt-8 max-w-xl text-lg leading-8 text-muted-foreground">
-            {HOME_CONTENT.hero.subtitle}
+          <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground sm:mt-8 sm:text-lg sm:leading-8">
+            {hero.sub}
           </p>
 
           {/* Action Buttons */}
-          <div className="mt-10 flex flex-col gap-3.5 sm:flex-row sm:items-center">
+          <div className="mt-8 flex flex-col gap-3.5 sm:mt-10 sm:flex-row sm:items-center">
             <Link
-              href="/find-work"
+              href={hero.ctaPrimaryHref}
               onClick={handleJobsClick}
               className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-7 text-sm font-semibold text-background hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
             >
-              {HOME_CONTENT.hero.ctaPrimary}
+              {hero.ctaPrimary}
             </Link>
             <Link
-              href="/signup/company"
+              href={hero.ctaSecondaryHref}
+              onClick={handleHiringClick}
               className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-background px-7 text-sm font-semibold text-foreground hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
             >
-              {HOME_CONTENT.hero.ctaSecondary}
+              {hero.ctaSecondary}
             </Link>
           </div>
 
-          {/* Plain text items separated by thin vertical dividers (No checkmark icons) */}
-          <div className="mt-12 flex flex-wrap items-center gap-y-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {HOME_CONTENT.hero.reassuranceItems.map((item, idx) => (
+          {/* Proof line: Plain text items separated by thin vertical dividers (No checkmark icons/emojis) */}
+          <div className="mt-10 flex flex-wrap items-center gap-y-2 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:mt-12">
+            {hero.proofItems.map((item, idx) => (
               <React.Fragment key={item}>
                 {idx > 0 && (
                   <span className="mx-3.5 h-3.5 w-px bg-border/80" aria-hidden="true" />
@@ -71,68 +106,35 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
           </div>
         </div>
 
-        {/* Right Column: Hero Graphic with Light-Gray Circles, Offset Block, and Sample Interview Report */}
-        <div className="relative flex min-h-[440px] items-center justify-center lg:min-h-[540px] lg:justify-end">
-          {/* Light-gray circles behind card */}
-          <div className="absolute left-4 top-6 h-60 w-60 rounded-full border border-border/80 sm:h-72 sm:w-72" aria-hidden="true" />
-          <div className="absolute left-16 top-16 h-60 w-60 rounded-full bg-secondary sm:h-72 sm:w-72" aria-hidden="true" />
+        {/* Right Column: Hero Visual with Light-Gray Circles & Static Sample Job Card */}
+        <div className="relative flex min-h-[400px] items-center justify-center sm:min-h-[460px] lg:min-h-[500px] lg:justify-end">
+          {/* Subtle light-gray decorative framing circles behind the card */}
+          <div
+            className="absolute left-2 top-4 h-60 w-60 rounded-full border border-border/80 sm:left-6 sm:top-6 sm:h-72 sm:w-72"
+            aria-hidden="true"
+          />
+          <div
+            className="absolute left-10 top-12 h-60 w-60 rounded-full bg-secondary/80 sm:left-16 sm:top-16 sm:h-72 sm:w-72"
+            aria-hidden="true"
+          />
 
-          {/* Black Card in existing style with offset shadow */}
-          <div className="relative z-10 w-full max-w-sm border border-foreground bg-foreground p-6 sm:p-7 text-background shadow-[16px_16px_0_hsl(var(--secondary))]">
-            {/* Card Header: Eyebrow + Sample tag (No sparkle icon) */}
-            <div className="flex items-center justify-between border-b border-background/20 pb-4">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-background/60">
-                SAMPLE INTERVIEW REPORT
+          {/* Static Sample Job Card Container */}
+          <div className="relative z-10 w-full max-w-md">
+            {/* Header pill labelling it as "Sample" */}
+            <div className="mb-2 flex items-center justify-end">
+              <span className="rounded-full border border-border/80 bg-background/90 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground shadow-xs backdrop-blur-xs">
+                {hero.sampleBadge}
               </span>
-              <span className="rounded border border-background/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-background/80">
-                Sample
-              </span>
             </div>
 
-            {/* Role & Candidate Code */}
-            <div className="pt-5 pb-4">
-              <p className="text-xl font-bold tracking-tight text-background">
-                Senior Backend Engineer
-              </p>
-              <p className="text-xs text-background/70 mt-0.5">
-                Candidate #A7F2
-              </p>
-            </div>
-
-            {/* Scored Metric Rows with thin bars */}
-            <div className="space-y-4 py-2">
-              <div>
-                <div className="flex justify-between text-xs text-background/80 mb-1.5 font-medium">
-                  <span>Technical depth</span>
-                  <span className="tabular-nums font-semibold">91 / 100</span>
-                </div>
-                <div className="h-1.5 w-full bg-background/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-background rounded-full" style={{ width: '91%' }} />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs text-background/80 mb-1.5 font-medium">
-                  <span>Communication</span>
-                  <span className="tabular-nums font-semibold">88 / 100</span>
-                </div>
-                <div className="h-1.5 w-full bg-background/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-background rounded-full" style={{ width: '88%' }} />
-                </div>
-              </div>
-            </div>
-
-            {/* Evidence & Assessment Note */}
-            <div className="mt-4 border-t border-background/20 pt-4">
-              <p className="text-xs leading-5 text-background/75">
-                Strong on retries and reconciliation. Gap: distributed tracing.
-              </p>
-            </div>
-
-            {/* Card Footer */}
-            <div className="mt-4 flex items-center justify-between border-t border-background/20 pt-3 text-[11px] text-background/80">
-              <span>Identity verified, 0 integrity flags</span>
-              <span className="text-[10px] uppercase tracking-wider text-background/75">Evaluation advisory</span>
+            {/* Reusable JobCard displaying verified eligibility */}
+            <div className="pointer-events-auto shadow-[12px_12px_0_hsl(var(--secondary))] transition-shadow sm:shadow-[16px_16px_0_hsl(var(--secondary))]">
+              <JobCard
+                job={SAMPLE_HERO_JOB}
+                variant="standard"
+                isSaved={false}
+                isApplied={false}
+              />
             </div>
           </div>
         </div>

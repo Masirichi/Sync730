@@ -4,20 +4,19 @@ import { HomeView } from '@/components/home/home-view';
 import { getLivePublicStats } from '@/lib/stats/service';
 import { fetchActiveRemoteJobs } from '@/lib/crawler/jobs-fetcher';
 import { LatestJobItem } from '@/components/home/for-candidates-section';
+import { HOME_CONTENT } from '@/src/content/home';
 
 export const revalidate = 60; // ISR cache revalidation at edge
 
 export const metadata: Metadata = {
-  title: 'Sync730 | Real jobs. Open to Africa.',
-  description:
-    'Real, open roles eligible for people living in Africa. Where you live shouldn’t decide what you can become.',
+  title: HOME_CONTENT.meta.title,
+  description: HOME_CONTENT.meta.description,
   alternates: {
     canonical: 'https://sync730.com/',
   },
   openGraph: {
-    title: 'Sync730 | Real jobs. Open to Africa.',
-    description:
-      'Real, open roles eligible for people living in Africa. Where you live shouldn’t decide what you can become.',
+    title: HOME_CONTENT.meta.title,
+    description: HOME_CONTENT.meta.description,
     url: 'https://sync730.com',
     siteName: 'Sync730',
     type: 'website',
@@ -26,15 +25,14 @@ export const metadata: Metadata = {
         url: '/og-sync730.png',
         width: 1200,
         height: 630,
-        alt: 'Sync730 - Real jobs. Open to Africa.',
+        alt: HOME_CONTENT.meta.title,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Sync730 | Real jobs. Open to Africa.',
-    description:
-      'Real, open roles eligible for people living in Africa. Where you live shouldn’t decide what you can become.',
+    title: HOME_CONTENT.meta.title,
+    description: HOME_CONTENT.meta.description,
     images: ['/og-sync730.png'],
   },
 };
