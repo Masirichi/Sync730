@@ -10,7 +10,7 @@ const faqs = [
     id: 'free_for_candidates',
     question: 'Is it free for candidates?',
     answer:
-      'Yes. Sync730 is completely free for candidates. Talents can create a profile, take mock and real video interviews, access the application tracker, and receive curated role matches without any application or subscription fees.',
+      'Yes. Sync730 is completely free for candidates. Talents can create a profile, take mock and real video interviews, access the SyncFlow application tracker, and receive curated role matches without any application or subscription fees.',
   },
   {
     id: 'ai_interviewing_work',

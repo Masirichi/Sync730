@@ -77,10 +77,10 @@ export default function EmployerGuidePage() {
                 Post a role
               </Link>
               <Link
-                href="/jobs"
+                href="/find-work"
                 className="inline-flex h-11 items-center justify-center rounded-full border border-border bg-background px-6 text-sm font-medium text-foreground hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
               >
-                Browse public jobs
+                Browse jobs
               </Link>
             </div>
           </div>

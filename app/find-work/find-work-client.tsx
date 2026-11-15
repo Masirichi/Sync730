@@ -217,9 +217,9 @@ export function FindWorkClient({ initialJobs }: FindWorkClientProps) {
       });
 
       if (res.isNew) {
-        toast.success(`Saved "${job.title}" at ${job.company} to your Application Tracker!`);
+        toast.success(`Saved "${job.title}" at ${job.company} to SyncFlow!`);
       } else {
-        toast.info(`"${job.title}" is already in your Application Tracker.`);
+        toast.info(`"${job.title}" is already in SyncFlow.`);
       }
 
       // Navigate to candidate crawler workspace with active target job
@@ -608,17 +608,17 @@ export function FindWorkClient({ initialJobs }: FindWorkClientProps) {
               <span>Remote, Hybrid &amp; Onsite</span>
             </div>
             <p className="leading-relaxed">
-              Whether you prefer 100% remote asynchronous flexibility or physical innovation hubs in Lekki, Lagos and Maitama, Abuja, roles are explicitly labeled with work mode and location.
+              Whether you prefer fully remote asynchronous flexibility or physical innovation hubs in Lekki, Lagos and Maitama, Abuja, roles are explicitly labeled with work mode and location.
             </p>
           </div>
 
           <div className="space-y-1.5 bg-white p-5 rounded-2xl border border-[#e6e6e1]">
             <div className="flex items-center gap-2 font-bold text-neutral-900 text-sm">
               <Sparkles className="w-4 h-4 text-indigo-600 stroke-[2]" />
-              <span>One-Click Kanban Tracker</span>
+              <span>One-Click SyncFlow Tracker</span>
             </div>
             <p className="leading-relaxed">
-              Save any position into your private Kanban application tracker with status stages (Saved, Applied, Interviewing, Offered) and tailored CV hints.
+              Save any position into your private SyncFlow application tracker with status stages (Saved, Applied, Interviewing, Offered) and tailored CV hints.
             </p>
           </div>
         </section>

@@ -17,7 +17,6 @@ import { FinalCtaSection } from '@/components/home/final-cta-section';
 import { BookDemoModal } from '@/components/modals/book-demo-modal';
 import { EnterpriseModal } from '@/components/modals/enterprise-modal';
 import { ApprovedProof } from '@/components/proof/approved-proof';
-import { LatestRolesTicker } from '@/components/home/LatestRolesTicker';
 import { PublicStats } from '@/lib/stats/service';
 import { RemoteJob } from '@/lib/supabase/types';
 import { trackEvent } from '@/lib/analytics';
@@ -46,14 +45,11 @@ export function HomeView({ initialStats, latestRoles, tickerJobs = [] }: HomeVie
         {/* 6. Hero */}
         <HeroSection onOpenDemo={() => setDemoOpen(true)} />
 
-        {/* 7. Live Stats Band (Black, 3 cells) */}
-        <LiveStatsBand initialStats={initialStats} />
+        {/* 7. Live Stats Band with Mercor-Style Live Platform Activity Stream (Black band) */}
+        <LiveStatsBand initialStats={initialStats} initialJobs={tickerJobs} />
 
         {/* Optional Verified Proof Component (renders only if verified data exists) */}
         <ApprovedProof />
-
-        {/* Mercor-Inspired Live Animated Job Ticker */}
-        <LatestRolesTicker initialJobs={tickerJobs} />
 
         {/* 8. How It Works (#how-it-works) */}
         <HowItWorksSection />

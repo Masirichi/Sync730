@@ -20,7 +20,10 @@ export async function middleware(request: NextRequest) {
     pathname === '/signup/company' ||
     pathname === '/register/recruiter';
 
-  // 1. Strict Security Requirement for Platform Admin Command Center (/command/* and /api/admin/*)
+  // 1. Platform Admin Command Center (/command/* and /api/admin/*)
+  // [DEV ACCESS]: Unauthenticated access temporarily enabled for development per user instructions.
+  // Will be reactivated upon user authentication command prompt.
+  /*
   if (isAdminApiRoute) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized: Authentication required' }, { status: 401 });
@@ -43,6 +46,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/403', request.url));
     }
   }
+  */
 
   // 2. Candidate routes isolation
   if (isCandidateRoute) {
@@ -59,7 +63,10 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 3. Recruiter routes isolation
+  // 3. Recruiter routes isolation (/console/* and /recruiter/*)
+  // [DEV ACCESS]: Unauthenticated access temporarily enabled for development per user instructions.
+  // Will be reactivated upon user authentication command prompt.
+  /*
   if (isRecruiterRoute) {
     if (!user) {
       const loginUrl = new URL('/signup/company', request.url);
@@ -72,6 +79,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/candidate', request.url));
     }
   }
+  */
 
   // 4. Authenticated users visiting login/register: redirect to their respective role portal
   if (isAuthRoute && user) {

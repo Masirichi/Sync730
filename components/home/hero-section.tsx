@@ -50,7 +50,7 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
               Book a demo
             </button>
             <Link
-              href="/jobs"
+              href="/find-work"
               onClick={handleJobsClick}
               className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-background px-7 text-sm font-semibold text-foreground hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
             >

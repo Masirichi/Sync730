@@ -595,7 +595,7 @@ function SandboxContent() {
               {/* Quick Link back to tracker */}
               <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 bg-white dark:bg-neutral-900 text-xs flex items-center justify-between">
                 <div>
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-100 block">From Kanban Tracker?</span>
+                  <span className="font-semibold text-neutral-900 dark:text-neutral-100 block">From SyncFlow?</span>
                   <span className="text-neutral-500">Practice cards currently in Interviewing</span>
                 </div>
                 <Link

@@ -25,9 +25,9 @@ const jobHuntFeatures = [
   },
   {
     number: '02',
-    title: 'Job application tracker',
+    title: 'SyncFlow application tracker',
     description:
-      'Keep every application, status and next step in one place.',
+      'Keep every application, status and next step organized in one place with SyncFlow.',
   },
   {
     number: '03',
@@ -81,7 +81,7 @@ export function ForCandidatesSection({ latestRoles = [] }: ForCandidatesSectionP
                 Create your free profile
               </Link>
               <Link
-                href="/jobs"
+                href="/find-work"
                 className="inline-flex h-12 items-center text-sm font-semibold text-foreground hover:underline px-3"
               >
                 See open roles →
@@ -211,7 +211,7 @@ export function ForCandidatesSection({ latestRoles = [] }: ForCandidatesSectionP
                 </h4>
               </div>
               <Link
-                href="/jobs"
+                href="/find-work"
                 className="text-sm font-semibold text-foreground hover:underline hidden sm:inline-flex"
               >
                 View all roles →
@@ -248,7 +248,7 @@ export function ForCandidatesSection({ latestRoles = [] }: ForCandidatesSectionP
             </div>
 
             <div className="mt-6 sm:hidden">
-              <Link href="/jobs" className="text-sm font-semibold text-foreground hover:underline">
+              <Link href="/find-work" className="text-sm font-semibold text-foreground hover:underline">
                 View all roles →
               </Link>
             </div>

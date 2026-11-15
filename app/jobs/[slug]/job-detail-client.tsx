@@ -614,7 +614,7 @@ export function JobDetailClient({ job, isClosed, similarJobs }: JobDetailClientP
                   Similar Roles
                 </h2>
                 <Link
-                  href="/jobs"
+                  href="/find-work"
                   className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
                 >
                   View all roles →

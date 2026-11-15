@@ -209,7 +209,7 @@ function JobDetailContent() {
       } else {
         await saveJobToTracker(job);
         setIsSaved(true);
-        toast.success(`Saved "${job.title}" to your Application Tracker.`);
+        toast.success(`Saved "${job.title}" to SyncFlow.`);
       }
     } catch {
       toast.error('Failed to update tracker.');
@@ -238,7 +238,7 @@ function JobDetailContent() {
     if (applied) {
       markJobAsApplied(job);
       setIsSaved(true);
-      toast.success(`Marked "${job.title}" as Applied in your Application Tracker!`);
+      toast.success(`Marked "${job.title}" as Applied in SyncFlow!`);
     } else {
       toast.info('Application status kept unchanged.');
     }

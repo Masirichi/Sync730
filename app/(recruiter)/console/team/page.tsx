@@ -662,7 +662,7 @@ export default function ConsoleTeamPage() {
               </tr>
               <tr>
                 <td className="py-3 px-4 text-neutral-800 dark:text-neutral-200 font-medium">
-                  Candidate Pipeline Kanban & Scheduling
+                  Candidate Pipeline SyncFlow & Scheduling
                 </td>
                 <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Full Access</td>
                 <td className="py-3 px-4 text-center font-bold text-emerald-600">✓ Full Access</td>

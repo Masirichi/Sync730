@@ -81,7 +81,7 @@ export function SiteHeader({ ctaMode = 'profile' }: SiteHeaderProps) {
   }, [avatarMenuOpen]);
 
   const links = [
-    { label: 'Find Work', href: '/jobs' },
+    { label: 'Find Work', href: '/find-work' },
     { label: 'How it works', href: '/#how-it-works' },
     { label: 'For recruiters', href: '/#for-recruiters' },
     { label: 'For candidates', href: '/#for-candidates' },

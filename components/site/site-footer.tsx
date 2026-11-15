@@ -24,7 +24,7 @@ export function SiteFooter() {
             </h3>
             <ul className="mt-5 space-y-3 text-sm">
               <li>
-                <Link href="/jobs" className="text-muted-foreground transition-colors hover:text-foreground">
+                <Link href="/find-work" className="text-muted-foreground transition-colors hover:text-foreground">
                   Find Work
                 </Link>
               </li>

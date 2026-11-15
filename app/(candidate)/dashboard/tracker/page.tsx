@@ -54,7 +54,7 @@ const COLUMNS: { id: TrackerStatus; label: string; color: string; badgeColor: st
   { id: 'REJECTED', label: 'Rejected', color: 'border-t-neutral-300 dark:border-t-neutral-700', badgeColor: 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400' },
 ];
 
-export default function KanbanTrackerPage() {
+export default function SyncFlowTrackerPage() {
   const [items, setItems] = useState<CandidateTrackerItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -163,7 +163,7 @@ export default function KanbanTrackerPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-neutral-200 dark:border-neutral-800 pb-5">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
-            <span>Tracker ({items.length})</span>
+            <span>SyncFlow ({items.length})</span>
           </h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             Track and advance jobs across Saved, Applied, Interviewing, Offer, and Rejected.
@@ -223,8 +223,8 @@ export default function KanbanTrackerPage() {
         </div>
       </div>
 
-      {/* 5-Column Kanban Board */}
-      <div tabIndex={0} role="region" aria-label="Application tracker columns" className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-4 items-start overflow-x-auto pb-4 focus:outline-none focus:ring-2 focus:ring-neutral-400 rounded-xl">
+      {/* 5-Column SyncFlow Board */}
+      <div tabIndex={0} role="region" aria-label="SyncFlow application tracker columns" className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-4 items-start overflow-x-auto pb-4 focus:outline-none focus:ring-2 focus:ring-neutral-400 rounded-xl">
         {COLUMNS.map((col) => {
           const colItems = filteredItems.filter((i) => i.status === col.id);
 

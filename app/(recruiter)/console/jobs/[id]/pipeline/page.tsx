@@ -488,7 +488,7 @@ export default function JobPipelinePage() {
                 }`}
               >
                 <LayoutGrid className="h-3.5 w-3.5" />
-                <span>Kanban</span>
+                <span>SyncFlow</span>
               </button>
               <button
                 type="button"

@@ -387,7 +387,7 @@ function CrawlerJobFeedContent() {
       if (found) {
         saveJobToTracker(found).then((res) => {
           if (res.isNew) {
-            toast.success(`Saved "${found.title}" at ${found.company} to your Application Tracker!`);
+            toast.success(`Saved "${found.title}" at ${found.company} to SyncFlow!`);
           }
         });
         const el = document.getElementById(`job-card-${targetJobId}`);
@@ -625,7 +625,7 @@ function CrawlerJobFeedContent() {
       setSavedJobIds((prev) => new Set([...Array.from(prev), identifier, job.external_id]));
       toast.success(
         <div className="flex items-center justify-between w-full gap-2">
-          <span>Saved to your application tracker.</span>
+          <span>Saved to SyncFlow.</span>
           <Link
             href="/dashboard/tracker"
             className="text-xs font-semibold underline text-neutral-900 dark:text-neutral-100 shrink-0"
