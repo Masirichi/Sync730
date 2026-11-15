@@ -55,8 +55,9 @@ export default async function HomePage() {
   // 1. Fetch live platform stats for server-side initial render
   const initialStats = await getLivePublicStats();
 
-  // 2. Fetch active jobs to compute the 3 newest roles (No pay information)
+  // 2. Fetch active jobs to compute the newest roles and live ticker jobs
   let latestRoles: LatestJobItem[] = [];
+  let tickerJobs: any[] = [];
   try {
     const allJobs = await fetchActiveRemoteJobs();
     const sorted = allJobs
@@ -80,6 +81,17 @@ export default async function HomePage() {
           : 'Africa Only'),
       posted_relative: formatRelativeTime(job.published_at || job.created_at),
     }));
+
+    tickerJobs = allJobs
+      .filter((j) => j.is_active !== false)
+      .sort((a, b) => {
+        if (a.is_featured && !b.is_featured) return -1;
+        if (!a.is_featured && b.is_featured) return 1;
+        const timeA = new Date(a.published_at || a.created_at || 0).getTime();
+        const timeB = new Date(b.published_at || b.created_at || 0).getTime();
+        return timeB - timeA;
+      })
+      .slice(0, 16);
   } catch (error) {
     console.error('Error fetching latest roles for homepage:', error);
   }
@@ -128,7 +140,11 @@ export default async function HomePage() {
       />
 
       {/* Main Server-Rendered Homepage View */}
-      <HomeView initialStats={initialStats} latestRoles={latestRoles} />
+      <HomeView
+        initialStats={initialStats}
+        latestRoles={latestRoles}
+        tickerJobs={tickerJobs}
+      />
     </>
   );
 }

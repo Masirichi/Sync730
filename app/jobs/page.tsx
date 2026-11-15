@@ -21,7 +21,7 @@ export async function generateMetadata({ searchParams }: JobsPageProps): Promise
   return {
     title: 'Find Verified Jobs | Sync730',
     description:
-      'Browse active roles posted by employers, with pay ranges shown up front and clear interview expectations. Open to Nigeria, Africa, and global remote talent.',
+      'Browse active roles posted by employers with clear interview expectations. Open to Nigeria, Africa, and global remote talent.',
     alternates: {
       canonical: 'https://sync730.com/jobs',
     },
@@ -32,7 +32,7 @@ export async function generateMetadata({ searchParams }: JobsPageProps): Promise
     openGraph: {
       title: 'Find Verified Jobs | Sync730',
       description:
-        'Browse active roles posted by employers, with pay ranges shown up front and clear interview expectations. Open to Nigeria, Africa, and global remote talent.',
+        'Browse active roles posted by employers with clear interview expectations. Open to Nigeria, Africa, and global remote talent.',
       url: 'https://sync730.com/jobs',
       siteName: 'Sync730',
       type: 'website',

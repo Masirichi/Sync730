@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useTransition } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Search,
   MapPin,
@@ -36,10 +36,25 @@ type LocationFilter = 'ALL' | 'LAGOS' | 'ABUJA' | 'PORT_HARCOURT' | 'REMOTE_GLOB
 
 export function FindWorkClient({ initialJobs }: FindWorkClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const targetJobId = searchParams ? searchParams.get('jobId') : null;
   const [jobs, setJobs] = useState<RemoteJob[]>(initialJobs);
   const [user, setUser] = useState<any>(null);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [savingJobId, setSavingJobId] = useState<string | null>(null);
+
+  // Auto-scroll to highlighted job if jobId query parameter is present
+  useEffect(() => {
+    if (targetJobId) {
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`job-card-${targetJobId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [targetJobId, jobs]);
 
   // Filters State
   const [searchQuery, setSearchQuery] = useState('');
@@ -429,12 +444,16 @@ export function FindWorkClient({ initialJobs }: FindWorkClientProps) {
               const isSaved = savedJobIds.has(jobId);
               const isSaving = savingJobId === jobId;
               const isFeatured = Boolean(job.is_featured);
+              const isTargetJob = targetJobId === jobId;
 
               return (
                 <div
                   key={jobId}
-                  className={`bg-white border rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-md hover:border-neutral-400/80 group ${
-                    isFeatured
+                  id={`job-card-${jobId}`}
+                  className={`bg-white border rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:border-neutral-400/80 group ${
+                    isTargetJob
+                      ? 'ring-2 ring-neutral-950 dark:ring-white ring-offset-2 border-neutral-900 shadow-md'
+                      : isFeatured
                       ? 'border-amber-400/80 bg-gradient-to-b from-amber-50/20 to-white shadow-xs'
                       : 'border-[#e6e6e1]'
                   }`}

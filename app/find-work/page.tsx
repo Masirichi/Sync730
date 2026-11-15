@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { SiteHeader } from '@/components/site/site-header';
 import { SiteFooter } from '@/components/site/site-footer';
@@ -30,7 +31,9 @@ export default async function FindWorkPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <div className="flex-1">
-        <FindWorkClient initialJobs={jobs} />
+        <Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center text-xs text-muted-foreground">Loading verified jobs...</div>}>
+          <FindWorkClient initialJobs={jobs} />
+        </Suspense>
       </div>
       <SiteFooter />
     </div>

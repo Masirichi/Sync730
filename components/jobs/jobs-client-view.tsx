@@ -421,13 +421,6 @@ export function JobsClientView({ initialResults, filterParams }: JobsClientViewP
                   <span>·</span>
                   <span>{HIRING_LINE_COPY.formatUpdated(getRelativeTimeString(stats.latestPublishDate))}</span>
                 </div>
-                <div className="flex items-center gap-4 text-[11px] font-medium">
-                  {stats.hasVerifiedEmployers && (
-                    <span>{HIRING_LINE_COPY.rightEmployers}</span>
-                  )}
-                  {stats.hasVerifiedEmployers && <span>·</span>}
-                  <span>{HIRING_LINE_COPY.rightPay}</span>
-                </div>
               </div>
 
               {/* H1 & Subline */}
@@ -845,7 +838,7 @@ export function JobsClientView({ initialResults, filterParams }: JobsClientViewP
                   Open roles
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Roles posted by employers, with pay ranges shown up front.
+                  Active roles posted by employers and verified organizations.
                 </p>
               </div>
 
@@ -1106,7 +1099,7 @@ export function JobsClientView({ initialResults, filterParams }: JobsClientViewP
                 </p>
                 <div className="pt-3 flex flex-wrap gap-3">
                   <Link
-                    href="/recruiter/register"
+                    href="/signup/company"
                     className="h-11 px-6 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors flex items-center justify-center"
                   >
                     Post a role
