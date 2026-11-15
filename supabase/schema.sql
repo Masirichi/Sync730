@@ -760,3 +760,56 @@ CREATE POLICY "Admins can view and manage transactions"
   ON public.platform_transactions FOR ALL
   USING (true)
   WITH CHECK (true);
+
+-- ==============================================================================
+-- Cron Integration: Scheduled Job Ingestion & Verification Maintenance
+-- ==============================================================================
+CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA extensions;
+CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
+
+GRANT USAGE ON SCHEMA cron TO postgres;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA cron TO postgres;
+
+CREATE OR REPLACE FUNCTION public.invoke_crawl_jobs(
+  p_secret TEXT DEFAULT NULL,
+  p_base_url TEXT DEFAULT 'https://sync730.vercel.app'
+)
+RETURNS BIGINT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = extensions, public
+AS $$
+DECLARE
+  v_secret TEXT;
+  v_url TEXT;
+  v_request_id BIGINT;
+BEGIN
+  v_secret := COALESCE(
+    p_secret,
+    NULLIF(current_setting('app.settings.cron_secret', true), ''),
+    ''
+  );
+
+  IF v_secret <> '' THEN
+    v_url := rtrim(p_base_url, '/') || '/api/cron/crawl-jobs?secret=' || v_secret;
+  ELSE
+    v_url := rtrim(p_base_url, '/') || '/api/cron/crawl-jobs';
+  END IF;
+
+  SELECT net.http_post(
+    url := v_url,
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'User-Agent', 'Supabase-pg_cron/Sync730-Ingestion',
+      'Authorization', CASE WHEN v_secret <> '' THEN 'Bearer ' || v_secret ELSE '' END
+    ),
+    body := jsonb_build_object(
+      'triggered_by', 'supabase_pg_cron',
+      'timestamp', timezone('utc'::text, now())
+    )
+  ) INTO v_request_id;
+
+  RETURN v_request_id;
+END;
+$$;
+

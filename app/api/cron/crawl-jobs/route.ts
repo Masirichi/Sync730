@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerSupabaseClient } from '@/lib/supabase/server';
 import { createBrowserClient } from '@/lib/supabase/client';
+import { getServiceRoleClient } from '@/lib/supabase/service-role';
 import { JobSource } from '@/lib/supabase/types';
 import { crawlSources, CRAWLER_ADAPTERS, JobCategory, JOB_CATEGORIES } from '@/lib/crawler';
 
@@ -69,18 +70,28 @@ async function handleJobCrawl(request: NextRequest) {
   let dbError: string | null = null;
 
   try {
-    const supabase = createBrowserClient();
+    const supabase = getServiceRoleClient() || createBrowserClient();
     const supabasePayload = jobs.map((j: any) => ({
       external_id: j.external_id,
-      job_title: j.title,
-      company_name: j.company || j.company_name,
-      career_url: j.apply_url || j.url || j.source_url || '#',
-      region_allowance: j.location_tier || 'Worldwide',
-      salary_range: j.salary || null,
-      job_description: j.description || '',
+      title: j.title,
+      company: j.company || j.company_name,
+      company_logo: j.company_logo || null,
+      description: j.description || '',
+      category: j.category || 'Other',
+      job_type: j.job_type || 'full-time',
+      candidate_required_location: j.candidate_required_location || 'Worldwide',
+      location_tier: j.location_tier || 'Worldwide',
+      salary: j.salary || null,
+      url: j.apply_url || j.url || j.source_url || '#',
+      source: j.source || 'crawler',
+      tags: j.tags || [],
+      eligibility: j.eligibility || { scope: 'africa_wide', countries: [] },
+      role_verified_at: j.role_verified_at || new Date().toISOString(),
+      review_status: j.review_status || 'approved',
       source_type: 'CRAWLER',
-      is_active: true,
-      is_featured: false,
+      is_active: j.is_active ?? true,
+      is_featured: j.is_featured ?? false,
+      updated_at: new Date().toISOString(),
     }));
 
     const { data, error } = await supabase
