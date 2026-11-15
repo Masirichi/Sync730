@@ -7,7 +7,7 @@ import { STATS_CONFIG } from '@/lib/config/stats';
 import { trackEvent } from '@/lib/analytics';
 import { RemoteJob } from '@/lib/supabase/types';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { HOME_CONTENT } from '@/src/content/home';
+import { homeCopy } from '@/content/home';
 
 interface StatsData {
   rolesLast24h: number;
@@ -414,19 +414,19 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
       id: 'roles',
       show: meetsMinRoles,
       value: displayValues.rolesLast24h,
-      label: HOME_CONTENT.liveStats.rolesSuffix,
+      label: homeCopy.stats.rolesSuffix,
     },
     {
       id: 'talents',
       show: meetsMinTalents,
       value: displayValues.talents,
-      label: HOME_CONTENT.liveStats.talentsSuffix,
+      label: homeCopy.stats.talentsSuffix,
     },
     {
       id: 'partners',
       show: meetsMinPartners,
       value: displayValues.partners,
-      label: HOME_CONTENT.liveStats.partnersSuffix,
+      label: homeCopy.stats.partnersSuffix,
     },
   ].filter((c) => c.show);
 
@@ -437,7 +437,7 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
   return (
     <section
       ref={bandRef}
-      aria-label="Live platform activity"
+      aria-label={homeCopy.band.ariaLabel}
       className="border-b border-border/70 bg-foreground text-background overflow-hidden relative"
     >
       {/* 1. Header Bar: Pulsing indicator & Quick Link to Find Work */}
@@ -447,18 +447,18 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 motion-reduce:hidden" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          <span>{HOME_CONTENT.liveStats.label}</span>
+          <span>{homeCopy.band.label}</span>
           <span className="hidden md:inline-block text-background/30">•</span>
           <span className="hidden md:inline-block text-[11px] font-normal tracking-normal text-background/50">
-            Real-time hiring & review stream
+            {homeCopy.band.sublabel}
           </span>
         </div>
 
         <Link
-          href="/find-work"
+          href={homeCopy.band.linkHref}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-background/80 hover:text-background transition-colors self-start sm:self-auto"
         >
-          <span>Find Work & Active Roles</span>
+          <span>{homeCopy.band.linkText}</span>
           <span aria-hidden="true">→</span>
         </Link>
       </div>

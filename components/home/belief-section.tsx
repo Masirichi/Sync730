@@ -4,10 +4,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { HOME_CONTENT } from '@/src/content/home';
+import { homeCopy } from '@/content/home';
 
 export function BeliefSection() {
-  const { belief } = HOME_CONTENT;
+  const { belief } = homeCopy;
 
   return (
     <section

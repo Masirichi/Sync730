@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { HOME_CONTENT } from '@/src/content/home';
+import { homeCopy } from '@/content/home';
 
 export interface Testimonial {
   id: string;
@@ -48,11 +48,11 @@ export function SocialProofSection({
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
         <div className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
           <span className="h-1.5 w-1.5 rounded-full bg-foreground" aria-hidden="true" />
-          <span>{HOME_CONTENT.socialProof.label}</span>
+          <span>{homeCopy.socialProof.label}</span>
         </div>
 
         <h2 className="mt-5 max-w-xl text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-4xl lg:text-5xl text-foreground">
-          {HOME_CONTENT.socialProof.h2}
+          {homeCopy.socialProof.h2}
         </h2>
 
         {hasRealTestimonials ? (
@@ -77,7 +77,7 @@ export function SocialProofSection({
         ) : (
           <div className="mt-12 pt-8 border-t border-border/70">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-6">
-              Verified Hiring Partners
+              {homeCopy.socialProof.partnersLabel}
             </p>
             <div className="flex flex-wrap items-center gap-8 sm:gap-12 opacity-80">
               {verifiedPartners.map((partner) => (

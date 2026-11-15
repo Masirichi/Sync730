@@ -1,12 +1,13 @@
 // src/content/positioning.ts
 // Master source of truth for Sync730 positioning, belief, audience, voice, and claim flags.
+import { showUnconfirmedClaims } from '@/lib/flags';
+
+export { showUnconfirmedClaims };
 
 export const POSITIONING_CONFIG = {
   // Unconfirmed claims flag: lines marked [CONFIRM] render only if true (default false)
-  showUnconfirmedClaims: false,
+  showUnconfirmedClaims,
 } as const;
-
-export const showUnconfirmedClaims = POSITIONING_CONFIG.showUnconfirmedClaims;
 
 export const SYNC730_BELIEF = {
   core: "Where you live shouldn't decide what you can become. Talent is everywhere. Real opportunity should be too.",

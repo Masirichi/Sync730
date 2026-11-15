@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { JobCard } from '@/components/jobs/job-card';
 import { JobDetailDialog } from '@/components/jobs/job-detail-dialog';
-import { HOME_CONTENT } from '@/src/content/home';
+import { homeCopy } from '@/content/home';
 import { PublicJob } from '@/lib/jobs/service';
 import {
   getLocalTrackerItems,
@@ -109,29 +109,29 @@ export function LatestRolesSection({ jobs = [], rolesLive }: LatestRolesSectionP
           <div className="max-w-2xl">
             <div className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-              <span>{HOME_CONTENT.latestRoles.eyebrow}</span>
+              <span>{homeCopy.latestRoles.eyebrow}</span>
             </div>
 
             <h2 className="mt-4 text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-4xl lg:text-5xl text-foreground">
-              {HOME_CONTENT.latestRoles.h2}
+              {homeCopy.latestRoles.h2}
             </h2>
 
             <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-              {HOME_CONTENT.latestRoles.body}
+              {homeCopy.latestRoles.body}
             </p>
           </div>
 
           <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
             <Link
-              href={HOME_CONTENT.latestRoles.buttonHref}
+              href={homeCopy.latestRoles.buttonHref}
               className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-6 text-sm font-semibold text-background hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
             >
-              <span>{HOME_CONTENT.latestRoles.buttonText}</span>
+              <span>{homeCopy.latestRoles.buttonText}</span>
               <ArrowRight className="ml-2 h-4 w-4 stroke-[1.5]" aria-hidden="true" />
             </Link>
 
             <p className="text-xs text-muted-foreground">
-              {liveCount} {HOME_CONTENT.latestRoles.metaSuffix}
+              {liveCount} {homeCopy.latestRoles.metaSuffix}
             </p>
           </div>
         </div>
@@ -154,13 +154,13 @@ export function LatestRolesSection({ jobs = [], rolesLive }: LatestRolesSectionP
         {/* Bottom Bar Mobile CTA */}
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border/70 md:hidden">
           <p className="text-xs text-muted-foreground">
-            {liveCount} {HOME_CONTENT.latestRoles.metaSuffix}
+            {liveCount} {homeCopy.latestRoles.metaSuffix}
           </p>
           <Link
-            href={HOME_CONTENT.latestRoles.buttonHref}
+            href={homeCopy.latestRoles.buttonHref}
             className="w-full sm:w-auto inline-flex h-11 items-center justify-center rounded-full bg-foreground px-6 text-sm font-semibold text-background hover:opacity-90 transition-opacity"
           >
-            <span>{HOME_CONTENT.latestRoles.buttonText}</span>
+            <span>{homeCopy.latestRoles.buttonText}</span>
             <ArrowRight className="ml-2 h-4 w-4 stroke-[1.5]" aria-hidden="true" />
           </Link>
         </div>

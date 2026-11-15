@@ -3,14 +3,14 @@
 
 import React from 'react';
 import { trackEvent } from '@/lib/analytics';
-import { HOME_CONTENT } from '@/src/content/home';
+import { homeCopy } from '@/content/home';
 
 interface ForRecruitersSectionProps {
   onOpenDemo: () => void;
 }
 
 export function ForRecruitersSection({ onOpenDemo }: ForRecruitersSectionProps) {
-  const content = HOME_CONTENT.forRecruiters;
+  const content = homeCopy.employers;
 
   const handleDemoClick = () => {
     trackEvent({ name: 'cta_book_demo_click', location: 'recruiters' });
@@ -91,7 +91,8 @@ export function ForRecruitersSection({ onOpenDemo }: ForRecruitersSectionProps) 
           <div className="relative border border-foreground bg-foreground p-6 sm:p-8 text-background shadow-[12px_12px_0_hsl(var(--secondary))]">
             <div className="flex items-center justify-between border-b border-background/20 pb-4">
               <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-background/60">
-                SAMPLE INTERVIEW REPORT
+                {/* SAMPLE INTERVIEW REPORT */}
+                {content.sampleReport.header}
               </span>
               <span className="rounded border border-background/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-background/80">
                 {content.sampleReport.badge}
@@ -110,8 +111,8 @@ export function ForRecruitersSection({ onOpenDemo }: ForRecruitersSectionProps) 
             <div className="space-y-4 py-2">
               <div>
                 <div className="flex justify-between text-xs text-background/80 mb-1.5 font-medium">
-                  <span>Technical depth</span>
-                  <span className="tabular-nums font-semibold">91 / 100</span>
+                  <span>{content.sampleReport.techDepth}</span>
+                  <span className="tabular-nums font-semibold">{content.sampleReport.techDepthScore}</span>
                 </div>
                 <div className="h-1.5 w-full bg-background/20 rounded-full overflow-hidden">
                   <div
@@ -123,8 +124,8 @@ export function ForRecruitersSection({ onOpenDemo }: ForRecruitersSectionProps) 
 
               <div>
                 <div className="flex justify-between text-xs text-background/80 mb-1.5 font-medium">
-                  <span>Communication</span>
-                  <span className="tabular-nums font-semibold">88 / 100</span>
+                  <span>{content.sampleReport.communication}</span>
+                  <span className="tabular-nums font-semibold">{content.sampleReport.communicationScore}</span>
                 </div>
                 <div className="h-1.5 w-full bg-background/20 rounded-full overflow-hidden">
                   <div

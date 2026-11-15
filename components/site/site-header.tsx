@@ -11,6 +11,7 @@ import { SyncFlowDrawer } from '@/components/syncflow/syncflow-drawer';
 import { trackEvent } from '@/lib/analytics';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { getLocalTrackerItems } from '@/lib/tracker';
+import { homeCopy } from '@/content/home';
 import { cn } from '@/lib/utils';
 
 export interface SiteHeaderProps {
@@ -109,12 +110,8 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
   }, [avatarMenuOpen]);
 
   // Order: Find Work · How it works · For candidates · For recruiters
-  const links = [
-    { label: 'Find Work', href: '/find-work' },
-    { label: 'How it works', href: '/#how-it-works' },
-    { label: 'For candidates', href: '/#for-candidates' },
-    { label: 'For recruiters', href: '/#for-recruiters' },
-  ];
+  // Nav paths: href: '/find-work' -> href: '/#how-it-works' -> href: '/#for-candidates' -> href: '/#for-recruiters'
+  const links = homeCopy.nav.links;
 
   const isLinkActive = (href: string) => {
     if (href === '/find-work') {
@@ -195,7 +192,7 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
               className="relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
             >
               <Columns3 className="h-4 w-4 stroke-[1.5]" />
-              <span>SyncFlow</span>
+              <span>{homeCopy.nav.syncFlowLabel}</span>
               {totalSyncFlowCount > 0 && (
                 <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-foreground px-1 text-[10px] font-semibold text-background tabular-nums">
                   {totalSyncFlowCount}
@@ -277,17 +274,17 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
               // LOGGED OUT STATE
               <div className="flex items-center gap-4">
                 <Link
-                  href="/login"
+                  href={homeCopy.nav.signInHref}
                   className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 rounded px-2 py-1"
                 >
-                  Sign in
+                  {homeCopy.nav.signInLabel}
                 </Link>
 
                 <Link
-                  href="/dashboard/profile"
+                  href={homeCopy.nav.createProfileHref}
                   className="inline-flex h-10 items-center justify-center rounded-full bg-foreground px-5 text-sm font-semibold text-background hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 shadow-xs"
                 >
-                  Create your free profile
+                  {homeCopy.nav.createProfileLabel}
                 </Link>
               </div>
             )}
@@ -339,7 +336,7 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
             >
               <div className="flex items-center gap-2">
                 <Columns3 className="h-4 w-4 stroke-[1.5]" />
-                <span>SyncFlow</span>
+                <span>{homeCopy.nav.syncFlowLabel}</span>
               </div>
               {totalSyncFlowCount > 0 && (
                 <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-foreground px-1.5 text-xs font-semibold text-background tabular-nums">
@@ -372,18 +369,18 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
               ) : (
                 <>
                   <Link
-                    href="/login"
+                    href={homeCopy.nav.signInHref}
                     onClick={() => setOpen(false)}
                     className="inline-flex h-11 items-center justify-center rounded-full border border-border bg-background px-4 text-sm font-medium text-foreground hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
                   >
-                    Sign in
+                    {homeCopy.nav.signInLabel}
                   </Link>
                   <Link
-                    href="/dashboard/profile"
+                    href={homeCopy.nav.createProfileHref}
                     onClick={() => setOpen(false)}
                     className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
                   >
-                    Create your free profile
+                    {homeCopy.nav.createProfileLabel}
                   </Link>
                 </>
               )}

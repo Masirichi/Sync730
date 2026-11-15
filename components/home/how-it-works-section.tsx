@@ -2,10 +2,10 @@
 'use client';
 
 import React from 'react';
-import { HOME_CONTENT } from '@/src/content/home';
+import { homeCopy } from '@/content/home';
 
 export function HowItWorksSection() {
-  const { howItWorks } = HOME_CONTENT;
+  const { howItWorks } = homeCopy;
 
   return (
     <section

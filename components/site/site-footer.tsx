@@ -3,10 +3,10 @@ import React from 'react';
 import Link from 'next/link';
 import { Linkedin, Twitter } from 'lucide-react';
 import { BrandLogo } from '@/components/site/brand-logo';
-import { HOME_CONTENT } from '@/src/content/home';
+import { homeCopy } from '@/content/home';
 
 export function SiteFooter() {
-  const content = HOME_CONTENT.footer;
+  const content = homeCopy.footer;
   const currentYear = new Date().getFullYear();
 
   return (

@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
-import { HOME_CONTENT } from '@/src/content/home';
+import { homeCopy } from '@/content/home';
 import { cn } from '@/lib/utils';
 
 export function FaqSection() {
@@ -28,7 +28,7 @@ export function FaqSection() {
   const faqJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: HOME_CONTENT.faq.items.map((item) => ({
+    mainEntity: homeCopy.faq.items.map((item) => ({
       '@type': 'Question',
       name: item.question,
       acceptedAnswer: {
@@ -54,12 +54,12 @@ export function FaqSection() {
         {/* Eyebrow with leading dot */}
         <div className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
           <span className="h-1.5 w-1.5 rounded-full bg-foreground" aria-hidden="true" />
-          <span>{HOME_CONTENT.faq.label}</span>
+          <span>{homeCopy.faq.label}</span>
         </div>
 
         {/* H2 */}
         <h2 className="mt-5 text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-4xl lg:text-5xl text-foreground">
-          Questions
+          {homeCopy.faq.h2}
         </h2>
 
         {/* Accessible Accordion (Button Headers, aria-expanded, keyboard operable) */}
@@ -68,7 +68,7 @@ export function FaqSection() {
           aria-label="FAQ Accordion"
           className="mt-14 divide-y divide-border/70 border-y border-border/70"
         >
-          {HOME_CONTENT.faq.items.map((item, idx) => {
+          {homeCopy.faq.items.map((item, idx) => {
             const isOpen = openIndices.has(idx);
             const headerId = `faq-header-${idx}`;
             const panelId = `faq-panel-${idx}`;
@@ -108,11 +108,12 @@ export function FaqSection() {
                   <p>{item.answer}</p>
                   {item.question.includes('Role verified') && (
                     <p className="pt-1">
+                      {/* href="/how-we-verify" */}
                       <Link
-                        href="/how-we-verify"
+                        href={homeCopy.faq.linkHref}
                         className="inline-flex items-center text-xs font-semibold text-foreground underline underline-offset-4 hover:opacity-80"
                       >
-                        Read how we verify roles →
+                        {homeCopy.faq.linkText}
                       </Link>
                     </p>
                   )}

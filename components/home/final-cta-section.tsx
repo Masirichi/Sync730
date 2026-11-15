@@ -4,7 +4,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { trackEvent } from '@/lib/analytics';
-import { HOME_CONTENT } from '@/src/content/home';
+import { homeCopy } from '@/content/home';
 
 interface FinalCtaSectionProps {
   onOpenDemo: () => void;
@@ -12,7 +12,7 @@ interface FinalCtaSectionProps {
 }
 
 export function FinalCtaSection({ onOpenDemo, talents = 137 }: FinalCtaSectionProps) {
-  const content = HOME_CONTENT.closingCta;
+  const content = homeCopy.closing;
 
   const handleRecruiterClick = () => {
     trackEvent({ name: 'cta_book_demo_click', location: 'final' });

@@ -5,36 +5,36 @@ import { getLivePublicStats } from '@/lib/stats/service';
 import { fetchActiveRemoteJobs } from '@/lib/crawler/jobs-fetcher';
 import { getAllApprovedJobs, PublicJob } from '@/lib/jobs/service';
 import { LatestJobItem } from '@/components/home/for-candidates-section';
-import { HOME_CONTENT } from '@/src/content/home';
+import { homeCopy } from '@/content/home';
 
 export const revalidate = 60; // ISR cache revalidation at edge
 
 export const metadata: Metadata = {
-  title: HOME_CONTENT.meta.title,
-  description: HOME_CONTENT.meta.description,
+  title: homeCopy.meta.title,
+  description: homeCopy.meta.description,
   alternates: {
-    canonical: 'https://sync730.com/',
+    canonical: homeCopy.meta.canonical || 'https://sync730.com/',
   },
   openGraph: {
-    title: HOME_CONTENT.meta.title,
-    description: HOME_CONTENT.meta.description,
+    title: homeCopy.meta.title,
+    description: homeCopy.meta.description,
     url: 'https://sync730.com',
-    siteName: 'Sync730',
+    siteName: homeCopy.meta.siteName || 'Sync730',
     type: 'website',
     images: [
       {
-        url: '/og-sync730.png',
+        url: homeCopy.meta.ogImage || '/og-sync730.png',
         width: 1200,
         height: 630,
-        alt: HOME_CONTENT.meta.title,
+        alt: homeCopy.meta.title,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: HOME_CONTENT.meta.title,
-    description: HOME_CONTENT.meta.description,
-    images: ['/og-sync730.png'],
+    title: homeCopy.meta.title,
+    description: homeCopy.meta.description,
+    images: [homeCopy.meta.ogImage || '/og-sync730.png'],
   },
 };
 

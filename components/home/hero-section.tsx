@@ -4,7 +4,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { trackEvent } from '@/lib/analytics';
-import { HOME_CONTENT } from '@/src/content/home';
+import { homeCopy } from '@/content/home';
 import { JobCard } from '@/components/jobs/job-card';
 
 interface HeroSectionProps {
@@ -43,7 +43,7 @@ const SAMPLE_HERO_JOB: any = {
 };
 
 export function HeroSection({ onOpenDemo }: HeroSectionProps) {
-  const { hero } = HOME_CONTENT;
+  const { hero } = homeCopy;
 
   const handleJobsClick = () => {
     trackEvent({ name: 'cta_find_work_click' });

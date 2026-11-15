@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { HOME_CONTENT } from '@/src/content/home';
+import { homeCopy } from '@/content/home';
 import { Check, ArrowRight } from 'lucide-react';
 
 export interface LatestJobItem {
@@ -19,7 +19,7 @@ interface ForCandidatesSectionProps {
 }
 
 export function ForCandidatesSection({ latestRoles = [] }: ForCandidatesSectionProps) {
-  const { forCandidates } = HOME_CONTENT;
+  const candidates = homeCopy.candidates;
 
   return (
     <section
@@ -35,24 +35,24 @@ export function ForCandidatesSection({ latestRoles = [] }: ForCandidatesSectionP
             <div>
               <div className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
                 <span className="h-1.5 w-1.5 rounded-full bg-foreground" aria-hidden="true" />
-                <span>{forCandidates.eyebrow}</span>
+                <span>{candidates.eyebrow}</span>
               </div>
 
               <h2
                 id="for-candidates-heading"
                 className="mt-6 text-3xl font-semibold leading-[1.1] tracking-[-0.04em] sm:text-5xl sm:leading-[1.08] lg:text-6xl text-foreground"
               >
-                {forCandidates.h2}
+                {candidates.h2}
               </h2>
 
               <p className="mt-6 text-base sm:text-lg leading-relaxed text-muted-foreground">
-                {forCandidates.body}
+                {candidates.body}
               </p>
             </div>
 
             {/* 3 Points: Title + Line */}
             <div className="divide-y divide-border/70 border-y border-border/70 py-2">
-              {forCandidates.points.map((pt, idx) => (
+              {candidates.points.map((pt, idx) => (
                 <div key={idx} className="py-4 sm:py-5 flex items-start gap-3.5">
                   <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
                     <Check className="h-3 w-3 stroke-[2.5]" aria-hidden="true" />
@@ -71,23 +71,23 @@ export function ForCandidatesSection({ latestRoles = [] }: ForCandidatesSectionP
 
             {/* Reassurance Note */}
             <div className="rounded-xl border border-border/80 bg-background/80 p-4 text-xs sm:text-sm leading-relaxed text-foreground/80 shadow-xs">
-              <span className="font-semibold text-foreground">Interview guarantee: </span>
-              {forCandidates.reassurance}
+              <span className="font-semibold text-foreground">{candidates.reassurancePrefix}</span>
+              {candidates.reassurance}
             </div>
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-3.5 pt-2 sm:flex-row sm:items-center">
               <Link
-                href={forCandidates.ctaPrimaryHref}
+                href={candidates.ctaPrimaryHref}
                 className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-7 text-sm font-semibold text-background hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
               >
-                {forCandidates.ctaPrimary}
+                {candidates.ctaPrimary}
               </Link>
               <Link
-                href={forCandidates.ctaSecondaryHref}
+                href={candidates.ctaSecondaryHref}
                 className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-background px-7 text-sm font-semibold text-foreground hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
               >
-                <span>{forCandidates.ctaSecondary}</span>
+                <span>{candidates.ctaSecondary}</span>
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </div>
@@ -97,12 +97,13 @@ export function ForCandidatesSection({ latestRoles = [] }: ForCandidatesSectionP
           <div className="flex items-center justify-center lg:justify-end lg:pt-8">
             <div className="w-full max-w-md border border-border bg-background p-6 sm:p-8 rounded-2xl shadow-[12px_12px_0_hsl(var(--secondary))] sm:shadow-[16px_16px_0_hsl(var(--secondary))]">
               {/* Card Header with "Sample" Tag */}
+              {/* Example profile - Sample */}
               <div className="flex items-center justify-between border-b border-border pb-4">
                 <span className="text-sm font-semibold text-foreground">
-                  Example profile
+                  {candidates.sampleCard.header}
                 </span>
                 <span className="rounded border border-border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Sample
+                  {candidates.sampleCard.badge}
                 </span>
               </div>
 
@@ -110,39 +111,35 @@ export function ForCandidatesSection({ latestRoles = [] }: ForCandidatesSectionP
               <div className="space-y-5 py-6">
                 <div>
                   <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground font-semibold">
-                    ROLE
+                    {candidates.sampleCard.roleLabel}
                   </p>
                   <p className="mt-1 text-lg font-medium text-foreground">
-                    Frontend developer
+                    {candidates.sampleCard.roleValue}
                   </p>
                 </div>
 
                 <div>
                   <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground font-semibold">
-                    STRENGTHS
+                    {candidates.sampleCard.strengthsLabel}
                   </p>
                   <div className="mt-2.5 flex flex-wrap gap-2">
-                    <span className="border border-border bg-secondary/50 px-3 py-1 text-xs font-medium text-foreground rounded-lg">
-                      React
-                    </span>
-                    <span className="border border-border bg-secondary/50 px-3 py-1 text-xs font-medium text-foreground rounded-lg">
-                      Accessibility
-                    </span>
-                    <span className="border border-border bg-secondary/50 px-3 py-1 text-xs font-medium text-foreground rounded-lg">
-                      Testing
-                    </span>
-                    <span className="border border-border bg-secondary/50 px-3 py-1 text-xs font-medium text-foreground rounded-lg">
-                      Next.js
-                    </span>
+                    {candidates.sampleCard.strengths.map((strength) => (
+                      <span
+                        key={strength}
+                        className="border border-border bg-secondary/50 px-3 py-1 text-xs font-medium text-foreground rounded-lg"
+                      >
+                        {strength}
+                      </span>
+                    ))}
                   </div>
                 </div>
 
                 <div>
                   <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground font-semibold">
-                    LOCATION & ELIGIBILITY
+                    {candidates.sampleCard.locationLabel}
                   </p>
                   <p className="mt-1 text-sm font-medium text-foreground">
-                    Lagos, Nigeria · Open to Africa Remote & Hybrid
+                    {candidates.sampleCard.locationValue}
                   </p>
                 </div>
               </div>
@@ -150,8 +147,10 @@ export function ForCandidatesSection({ latestRoles = [] }: ForCandidatesSectionP
               {/* Apply-ready Indicator */}
               <div className="border-t border-border pt-5">
                 <div className="flex items-center justify-between text-xs font-medium mb-2">
-                  <span className="text-muted-foreground">Apply-ready</span>
-                  <span className="text-foreground font-semibold tabular-nums">6 of 7 steps</span>
+                  <span className="text-muted-foreground">{candidates.sampleCard.applyReadyLabel}</span>
+                  <span className="text-foreground font-semibold tabular-nums">
+                    {candidates.sampleCard.applyReadySteps}
+                  </span>
                 </div>
                 <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
                   <div className="h-full bg-foreground rounded-full" style={{ width: '85.7%' }} />
