@@ -109,7 +109,7 @@ export interface RemoteJob {
   city_location?: string | null;
 }
 
-export type TrackerStatus = 'SAVED' | 'APPLIED' | 'INTERVIEWING' | 'OFFERED' | 'REJECTED';
+export type TrackerStatus = 'SAVED' | 'APPLIED' | 'INTERVIEWING' | 'OFFER' | 'OFFERED' | 'REJECTED';
 
 export interface CandidateTrackerItem {
   id: string;

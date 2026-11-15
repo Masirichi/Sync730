@@ -722,7 +722,7 @@ export default function WaitlistPage() {
                 <span className="text-xl text-[#6a6a64] group-open:rotate-45 transition-transform select-none" aria-hidden="true">+</span>
               </summary>
               <div className="px-4 pb-4 sm:px-5 sm:pb-5 font-body text-sm text-[#6a6a64] leading-relaxed border-t border-[#e6e6e1] pt-3">
-                Sync730 matches your skills, seniority, and work preferences directly with verified employers across Nigeria and international teams hiring in Africa.
+                Sync730 matches your skills, seniority, and work preferences directly with hiring teams across Nigeria and international teams hiring in Africa. Each one is confirmed real, and open to Africa, before it reaches you.
               </div>
             </details>
 

@@ -626,10 +626,10 @@ function CrawlerJobFeedContent() {
         <div className="flex items-center justify-between w-full gap-2">
           <span>Saved to SyncFlow.</span>
           <Link
-            href="/dashboard/tracker"
+            href="/dashboard/syncflow"
             className="text-xs font-semibold underline text-neutral-900 dark:text-neutral-100 shrink-0"
           >
-            View Tracker →
+            View SyncFlow →
           </Link>
         </div>
       );
@@ -657,7 +657,7 @@ function CrawlerJobFeedContent() {
       markJobAsApplied(pendingApplyJob);
       const identifier = pendingApplyJob.id || pendingApplyJob.external_id;
       setSavedJobIds((prev) => new Set([...Array.from(prev), identifier, pendingApplyJob.external_id]));
-      toast.success(`Marked "${pendingApplyJob.title}" as Applied in Tracker!`);
+      toast.success(`Marked "${pendingApplyJob.title}" as Applied in SyncFlow!`);
     } else {
       toast.info('Application status kept unchanged.');
     }
@@ -803,13 +803,13 @@ function CrawlerJobFeedContent() {
             Catalog updated: {timeAgoText}
           </span>
 
-          <Link href="/dashboard/tracker">
+          <Link href="/dashboard/syncflow">
             <Button
               variant="outline"
               size="sm"
               className="text-xs h-9 px-3.5 rounded-lg border-neutral-200 dark:border-neutral-800 font-medium text-neutral-700 dark:text-neutral-300"
             >
-              Tracker ({savedJobIds.size})
+              SyncFlow ({savedJobIds.size})
             </Button>
           </Link>
         </div>
@@ -1054,7 +1054,7 @@ function CrawlerJobFeedContent() {
                     <span className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 block">
                       Saved Only
                     </span>
-                    <span className="text-xs text-neutral-500 block">Bookmarked in your tracker</span>
+                    <span className="text-xs text-neutral-500 block">Saved in SyncFlow</span>
                   </div>
                   <Switch
                     checked={savedOnly}
@@ -1623,7 +1623,7 @@ function CrawlerJobFeedContent() {
               Did you apply to {pendingApplyJob?.title}?
             </DialogTitle>
             <DialogDescription className="text-xs text-neutral-500">
-              We noticed you opened the application page in another tab. If you completed your application, we can move it to Applied in your Tracker.
+              We noticed you opened the application page in another tab. If you completed your application, we can move it to Applied in SyncFlow.
             </DialogDescription>
           </DialogHeader>
 

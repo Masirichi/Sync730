@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import {
   CreditCard,
   Search,
-  Zap,
   Building2,
   Plus,
   Minus,
@@ -212,7 +211,7 @@ export default function CommandFinancePage() {
                       data-token-balance-ws={ws.id}
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20"
                     >
-                      <Zap className="h-3 w-3 fill-amber-400 stroke-[1.5]" />
+                      <Coins className="h-3 w-3 stroke-[1.5]" />
                       <span>{ws.token_balance} Tokens</span>
                     </span>
                   </td>

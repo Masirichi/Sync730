@@ -18,7 +18,7 @@ import {
 export const candidateNavItems = [
   { label: 'Remote Job Feed', href: '/dashboard/crawler', icon: Compass },
   { label: 'Candidate Profile', href: '/dashboard/profile', icon: User },
-  { label: 'SyncFlow', href: '/dashboard/tracker', icon: Columns3 },
+  { label: 'SyncFlow', href: '/dashboard/syncflow', icon: Columns3 },
   { label: 'Interview Prep', href: '/dashboard/prep', icon: Video },
   { label: 'AI Mock Sandbox', href: '/dashboard/sandbox', icon: Video },
   { label: 'Dashboard', href: '/candidate', icon: LayoutGrid },

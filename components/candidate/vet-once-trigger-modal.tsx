@@ -62,7 +62,7 @@ export function VetOnceTriggerModal({ isOpen, onClose, defaultRole = 'Senior Ful
       const data = await res.json();
       if (data.success) {
         setIsCompleted(true);
-        toast.success('Vet-Once Video Profile verified and published to Employer Talent Pool!');
+        toast.success('Video Profile verified and published to Employer Talent Pool!');
       } else {
         throw new Error(data.error || 'Failed to submit assessment');
       }
@@ -79,13 +79,13 @@ export function VetOnceTriggerModal({ isOpen, onClose, defaultRole = 'Senior Ful
         <DialogHeader>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-semibold mb-2 w-fit">
             <Video className="h-3 w-3 stroke-[1.5]" />
-            <span>Flowmingo AI Vet-Once Assessment</span>
+            <span>One profile, every application</span>
           </div>
           <DialogTitle className="text-lg font-bold text-neutral-900 dark:text-white">
-            Complete Vet-Once Video Profile
+            Complete Video Profile
           </DialogTitle>
           <DialogDescription className="text-xs text-neutral-500">
-            Submit your standardized 3-question video screening. Once indexed, verified employers can review your rubric scores and unlock your dossier.
+            Submit your standardized 3-question video screening. Once indexed, hiring teams can review your rubric scores and unlock your dossier. Each one is confirmed real, and open to Africa, before it reaches you.
           </DialogDescription>
         </DialogHeader>
 
@@ -96,7 +96,7 @@ export function VetOnceTriggerModal({ isOpen, onClose, defaultRole = 'Senior Ful
             </div>
             <div className="space-y-1">
               <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
-                Vet-Once Profile Verified & Live!
+                Video Profile Verified & Live!
               </h3>
               <p className="text-xs text-neutral-500 max-w-sm mx-auto">
                 Your profile has been indexed in the Sync730 Employer Talent Pool with a 95% Overall Technical Match score.
@@ -164,7 +164,7 @@ export function VetOnceTriggerModal({ isOpen, onClose, defaultRole = 'Senior Ful
             <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-2">
               <div className="flex items-center gap-1.5 font-semibold text-neutral-900 dark:text-white">
                 <ShieldCheck className="h-4 w-4 text-emerald-600 stroke-[1.5]" />
-                <span>Standardized Flowmingo Assessment Rubrics</span>
+                <span>Standardized Assessment Rubrics</span>
               </div>
               <p className="text-xs text-neutral-500 leading-relaxed">
                 Includes 3 timed spoken answers evaluating Next.js architecture, system design concurrency, and STAR communication clarity.
@@ -188,7 +188,7 @@ export function VetOnceTriggerModal({ isOpen, onClose, defaultRole = 'Senior Ful
                 ) : (
                   <>
                     <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                    <span>Publish Vet-Once Video Profile</span>
+                    <span>Publish Video Profile</span>
                   </>
                 )}
               </Button>

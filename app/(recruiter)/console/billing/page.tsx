@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import {
   CreditCard,
-  Zap,
+  Coins,
   Building2,
   Mail,
   CheckCircle2,
@@ -330,7 +330,7 @@ export default function ConsoleBillingPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
-              <Zap className="h-4 w-4 text-amber-500 fill-amber-500 stroke-[1.5]" />
+              <Coins className="h-4 w-4 text-amber-500 stroke-[1.5]" />
               <span>Available Candidate Unlock Balance</span>
             </div>
 
@@ -423,7 +423,7 @@ export default function ConsoleBillingPage() {
                     </div>
 
                     <div className="mt-1 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-                      <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+                      <Coins className="h-3.5 w-3.5 text-amber-500 stroke-[1.5]" />
                       <span className="font-semibold">{pack.tokens} Tokens</span>
                       <span>·</span>
                       <span>{pack.per_token_display} / candidate unlock</span>
@@ -469,13 +469,13 @@ export default function ConsoleBillingPage() {
                 <span>Orders & Invoices ({orders.length})</span>
               </TabsTrigger>
               <TabsTrigger value="usage" className="text-xs font-semibold rounded-lg">
-                <Zap className="h-3.5 w-3.5 mr-1.5 text-amber-500 fill-amber-500" />
+                <Coins className="h-3.5 w-3.5 mr-1.5 text-amber-500 stroke-[1.5]" />
                 <span>Token Usage Ledger ({tokenUsage.length})</span>
               </TabsTrigger>
             </TabsList>
 
             <div className="text-xs text-neutral-500">
-              {workspace.company_name} · TIN: 24918290-0001
+              {workspace.company_name}
             </div>
           </div>
 
@@ -580,7 +580,7 @@ export default function ConsoleBillingPage() {
               </div>
             ) : tokenUsage.length === 0 ? (
               <div className="py-12 text-center text-xs text-neutral-400">
-                <Zap className="h-8 w-8 text-neutral-400 mx-auto mb-2 opacity-50" />
+                <Coins className="h-8 w-8 text-neutral-400 mx-auto mb-2 opacity-50 stroke-[1.5]" />
                 <p className="font-semibold text-neutral-600 dark:text-neutral-300">
                   No candidate unlocks yet.
                 </p>
@@ -840,7 +840,7 @@ export default function ConsoleBillingPage() {
                     {workspace.company_name}
                   </div>
                   <div className="text-neutral-500 text-[11px]">{activeInvoiceOrder.created_by}</div>
-                  <div className="text-neutral-400 text-[11px]">TIN: 24918290-0001 / VAT Reg #</div>
+                  <div className="text-neutral-400 text-[11px]">Account Reference: 24918290-0001</div>
                 </div>
 
                 <div className="text-right">

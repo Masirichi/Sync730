@@ -111,7 +111,7 @@ export function DashboardHeader({ navItems, userName, userInitials }: DashboardH
                 <Link href="/dashboard/crawler" className="cursor-pointer">Remote Job Feed</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/tracker" className="cursor-pointer">SyncFlow</Link>
+                <Link href="/dashboard/syncflow" className="cursor-pointer">SyncFlow</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive cursor-pointer">

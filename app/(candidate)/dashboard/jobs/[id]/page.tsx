@@ -211,7 +211,7 @@ function JobDetailContent() {
         toast.success(`Saved "${job.title}" to SyncFlow.`);
       }
     } catch {
-      toast.error('Failed to update tracker.');
+      toast.error('Failed to update SyncFlow.');
     } finally {
       setIsSaving(false);
     }
@@ -769,7 +769,7 @@ function JobDetailContent() {
               Did you apply to {job.title}?
             </DialogTitle>
             <DialogDescription className="text-xs text-neutral-500">
-              We opened the application page in another tab for you. If you completed your submission, we can move this to your Applied pipeline in Tracker.
+              We opened the application page in another tab for you. If you completed your submission, we can move this to your Applied pipeline in SyncFlow.
             </DialogDescription>
           </DialogHeader>
 

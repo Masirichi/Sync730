@@ -9,7 +9,7 @@ import {
   Users,
   Receipt,
   UserCheck,
-  Zap,
+  Coins,
   Bell,
   Settings,
   LogOut,
@@ -503,7 +503,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
           {activeRole === 'INTERVIEWER' ? (
             <div className="flex items-center justify-between p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300">
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-amber-400 fill-amber-400 stroke-[1.5]" />
+                <Coins className="h-4 w-4 text-amber-400 stroke-[1.5]" />
                 <span className="text-xs font-bold">{workspace.token_balance} Tokens</span>
               </div>
               <span className="text-[10px] font-medium text-amber-400/80">
@@ -516,7 +516,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
               className="flex items-center justify-between p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 hover:bg-amber-500/15 transition-all focus-visible:ring-2 focus-visible:ring-amber-400"
             >
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-amber-400 fill-amber-400 stroke-[1.5]" />
+                <Coins className="h-4 w-4 text-amber-400 stroke-[1.5]" />
                 <span className="text-xs font-bold">{workspace.token_balance} Tokens</span>
               </div>
               <span className="text-[10px] uppercase font-semibold text-amber-400/90 underline">
@@ -780,7 +780,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
                               <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                             )}
                             {n.type === 'LOW_TOKENS' && (
-                              <Zap className="h-4 w-4 text-amber-500 fill-amber-500" />
+                              <Coins className="h-4 w-4 text-amber-500 stroke-[1.5]" />
                             )}
                             {n.type === 'TEAMMATE_COMMENT' && (
                               <Check className="h-4 w-4 text-purple-600" />
@@ -1164,7 +1164,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
             </div>
 
             <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800/80 flex items-center gap-2.5 text-xs text-neutral-600 dark:text-neutral-300">
-              <Zap className="h-4 w-4 text-amber-500 fill-amber-500 shrink-0" />
+              <Coins className="h-4 w-4 text-amber-500 stroke-[1.5] shrink-0" />
               <span>
                 You will immediately receive <strong>2 free trial tokens</strong> to unlock candidate profiles.
               </span>

@@ -10,7 +10,7 @@ import {
   Download,
   Calendar,
   Clock,
-  Star,
+  BadgeCheck,
   CheckCircle2,
   XCircle,
   MessageSquare,
@@ -544,7 +544,7 @@ export default function JobPipelinePage() {
         </div>
       </div>
 
-      {/* KANBAN BOARD VIEW */}
+      {/* PIPELINE BOARD VIEW */}
       {viewMode === 'kanban' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5 items-start">
           {PIPELINE_STAGES.map((stage) => {
@@ -638,7 +638,7 @@ export default function JobPipelinePage() {
 
                             {avgRating ? (
                               <span className="flex items-center gap-0.5 text-amber-500 font-bold">
-                                <Star className="h-3 w-3 fill-amber-500" />
+                                <BadgeCheck className="h-3 w-3 text-amber-500" />
                                 <span>{avgRating}</span>
                               </span>
                             ) : (
@@ -769,7 +769,7 @@ export default function JobPipelinePage() {
                       <td className="py-3.5 px-4">
                         {avgRating ? (
                           <span className="flex items-center gap-1 font-bold text-amber-500">
-                            <Star className="h-3.5 w-3.5 fill-amber-500" />
+                            <BadgeCheck className="h-3.5 w-3.5 text-amber-500" />
                             <span>{avgRating} ({c.scorecards.length})</span>
                           </span>
                         ) : (
@@ -1068,7 +1068,7 @@ export default function JobPipelinePage() {
                     <div>
                       <p className="text-xs font-semibold text-neutral-500">Average Team Score</p>
                       <div className="flex items-center gap-1.5 mt-1">
-                        <Star className="h-5 w-5 fill-amber-500 text-amber-500" />
+                        <BadgeCheck className="h-5 w-5 text-amber-500" />
                         <span className="text-2xl font-bold text-neutral-900 dark:text-white">
                           {selectedCandidate.scorecards?.length
                             ? (
@@ -1106,7 +1106,7 @@ export default function JobPipelinePage() {
                               </Badge>
                             </div>
                             <div className="flex items-center gap-1 text-amber-500 font-bold">
-                              <Star className="h-3.5 w-3.5 fill-amber-500" />
+                              <BadgeCheck className="h-3.5 w-3.5 text-amber-500" />
                               <span>{sc.overall_rating} / 5</span>
                             </div>
                           </div>
@@ -1139,7 +1139,7 @@ export default function JobPipelinePage() {
                     className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/80 border border-neutral-200 dark:border-neutral-700 space-y-3"
                   >
                     <h4 className="text-xs font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
-                      <Star className="h-4 w-4 text-amber-500" />
+                      <BadgeCheck className="h-4 w-4 text-amber-500" />
                       <span>Submit Your Scorecard ({currentUserName})</span>
                     </h4>
 

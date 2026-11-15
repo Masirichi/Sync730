@@ -6,7 +6,6 @@ import {
   Users,
   Building2,
   Video,
-  Zap,
   Coins,
   RefreshCw,
   TrendingUp,
@@ -207,7 +206,7 @@ export default function CommandMetricsPage() {
               Tokens Unlocked
             </span>
             <div className="h-8 w-8 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
-              <Zap className="h-4 w-4 stroke-[1.5]" />
+              <Coins className="h-4 w-4 stroke-[1.5]" />
             </div>
           </div>
           <div className="mt-4">

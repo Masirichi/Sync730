@@ -40,7 +40,7 @@ const NOISE_TAG_WORDS = new Set([
   'kenya',
   'ghana',
   'south africa',
-  'verified partner',
+  'role verified',
   'platform curated',
   'full-time',
   'part-time',

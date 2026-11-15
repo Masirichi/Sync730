@@ -407,7 +407,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     responsibilities: '• Manage large-scale Kubernetes clusters running on GCP with Terraform automation.\n• Build observability pipelines with Prometheus, Thanos, and Grafana.\n• Participate in blameless postmortems and improve incident response playbooks.',
     requirements: '• 5+ years experience running mission-critical cloud infrastructure in production.\n• Advanced proficiency with Kubernetes architecture, network overlays, and Go.\n• Self-directed problem solver passionate about fully asynchronous collaboration.',
     timezone_overlap: 'Asynchronous work culture across all global time zones',
-    payment_method: 'GitLab Local Entity / Remote.com global payroll',
+    payment_method: 'GitLab Local Entity / Direct wire transfer',
     category: 'DevOps & Cloud',
     candidate_required_location: 'Worldwide (Remote)',
     location_tier: 'Worldwide',

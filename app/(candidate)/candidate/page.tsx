@@ -230,12 +230,12 @@ export default function CandidateDashboard() {
                 Remote Feed
               </Button>
             </Link>
-            <Link href="/dashboard/tracker">
+            <Link href="/dashboard/syncflow">
               <Button
                 size="sm"
                 className="text-xs h-9 px-3.5 rounded-lg bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 font-semibold"
               >
-                Tracker
+                SyncFlow
               </Button>
             </Link>
           </div>
@@ -322,7 +322,7 @@ export default function CandidateDashboard() {
           </Card>
         ))}
 
-        {/* Card 4: Previous Payroll equivalent -> FastTrack Vetting */}
+        {/* Card 4: FastTrack Vetting */}
         <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-sm transition-all hover:border-neutral-300 dark:hover:border-neutral-700 flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
             <span className="font-semibold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
@@ -346,7 +346,7 @@ export default function CandidateDashboard() {
         </Card>
       </div>
 
-      {/* Row 2: Middle Section (Things to do on Left, Upcoming Payroll on Right) */}
+      {/* Row 2: Middle Section (Things to do on Left, Upcoming Interviews on Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Left Column (8 cols): Things to do (6) equivalent -> Recommended for you */}
         <div className="lg:col-span-8">
@@ -426,7 +426,7 @@ export default function CandidateDashboard() {
           </Card>
         </div>
 
-        {/* Right Column (4 cols): Upcoming Payroll equivalent -> Upcoming Interviews */}
+        {/* Right Column (4 cols): Upcoming Interviews */}
         <div className="lg:col-span-4">
           <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 sm:p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
@@ -480,9 +480,9 @@ export default function CandidateDashboard() {
         </div>
       </div>
 
-      {/* Row 3: Bottom Section (Recent Payroll Table on Left, Total Employee on Right) */}
+      {/* Row 3: Bottom Section (Recent Applications Table on Left, Total Applications on Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        {/* Left Column (8 cols): Recent Payroll equivalent -> Recent Applications */}
+        {/* Left Column (8 cols): Recent Applications */}
         <div className="lg:col-span-8">
           <Card className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 sm:p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between">

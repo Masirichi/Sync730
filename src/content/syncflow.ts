@@ -1,5 +1,5 @@
 // src/content/syncflow.ts
-// Structured content and stages definition for SyncFlow (formerly Kanban Tracker)
+// Structured content and stages definition for SyncFlow
 
 export type SyncFlowStageId = 'SAVED' | 'APPLIED' | 'INTERVIEWING' | 'OFFER';
 

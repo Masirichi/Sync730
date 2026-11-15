@@ -10,7 +10,6 @@ import {
   Download,
   Calendar,
   User,
-  Zap,
   Lock,
   FileText,
   Key,

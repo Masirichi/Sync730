@@ -8,13 +8,13 @@ import {
   Search,
   Lock,
   Unlock,
-  Zap,
+  Coins,
   Video,
   ShieldCheck,
   CheckCircle2,
   Mail,
   MessageSquare,
-  Star,
+  BadgeCheck,
   Plus,
   RefreshCw,
   AlertTriangle,
@@ -640,13 +640,13 @@ function VettedTalentContent() {
                   size="sm"
                   className="bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 text-xs font-semibold h-9 px-3.5 rounded-xl shadow-xs gap-1.5"
                 >
-                  <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-500 stroke-[1.5]" />
+                  <Coins className="h-3.5 w-3.5 text-amber-500 stroke-[1.5]" />
                   <span>{workspace.token_balance} Tokens Available</span>
                 </Button>
               </Link>
             ) : (
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-semibold">
-                <Zap className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                <Coins className="h-3.5 w-3.5 text-amber-500 stroke-[1.5]" />
                 <span>{workspace.token_balance} Tokens (Ask admin to unlock)</span>
               </div>
             )}
@@ -1213,7 +1213,7 @@ function VettedTalentContent() {
                           </>
                         ) : (
                           <>
-                            <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-500 stroke-[1.5]" />
+                            <Coins className="h-3.5 w-3.5 text-amber-500 stroke-[1.5]" />
                             <span>Unlock Candidate Profile (1 Token)</span>
                           </>
                         )}
@@ -1461,7 +1461,7 @@ function VettedTalentContent() {
                       disabled={unlockingId === activeDetailCandidate.candidate_id}
                       className="text-xs bg-neutral-950 text-white rounded-xl gap-1.5"
                     >
-                      <Zap className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
+                      <Coins className="h-3.5 w-3.5 text-amber-400 stroke-[1.5]" />
                       <span>Unlock Full Dossier (1 Token)</span>
                     </Button>
                   ) : (
@@ -1581,7 +1581,7 @@ function VettedTalentContent() {
           <DialogContent className="max-w-md p-6 rounded-2xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800">
             <DialogHeader>
               <div className="h-10 w-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-2">
-                <Zap className="h-5 w-5 fill-amber-500 stroke-[1.5]" />
+                <Coins className="h-5 w-5 text-amber-500 stroke-[1.5]" />
               </div>
               <DialogTitle className="text-lg font-bold text-neutral-900 dark:text-white">
                 Unlock Candidate Profile
@@ -1676,7 +1676,7 @@ function VettedTalentContent() {
                           </>
                         ) : (
                           <>
-                            <Zap className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                            <Coins className="h-3.5 w-3.5 text-amber-400 stroke-[1.5]" />
                             <span>Confirm & Spend 1 Token</span>
                           </>
                         )}
@@ -1895,7 +1895,7 @@ function VettedTalentContent() {
                     Add Your Assessment Note
                   </span>
                   <div className="flex items-center gap-1.5">
-                    <Star className="h-3.5 w-3.5 text-amber-500" />
+                    <BadgeCheck className="h-3.5 w-3.5 text-amber-500" />
                     <span className="text-[11px] text-neutral-500">Score (0-100):</span>
                     <Input
                       type="number"

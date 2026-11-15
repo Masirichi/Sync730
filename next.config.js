@@ -13,8 +13,18 @@ const nextConfig = {
       },
       {
         source: '/candidate/tracker',
-        destination: '/dashboard/tracker',
-        permanent: false,
+        destination: '/dashboard/syncflow',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/tracker',
+        destination: '/dashboard/syncflow',
+        permanent: true,
+      },
+      {
+        source: '/tracker',
+        destination: '/dashboard/syncflow',
+        permanent: true,
       },
     ];
   },

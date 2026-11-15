@@ -20,7 +20,7 @@ import {
   Lock,
   Mail,
   User,
-  Zap,
+  BadgeCheck,
   ArrowRight,
   Loader2,
   Users,
@@ -160,7 +160,7 @@ export default function CompanySignupPage() {
         <CardContent className="p-6 sm:p-7 space-y-5">
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-[11px] font-semibold mb-2">
-              <Zap className="h-3 w-3 stroke-[2]" />
+              <BadgeCheck className="h-3 w-3 stroke-[2]" />
               <span>2 Free Trial Tokens Included</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
@@ -291,7 +291,7 @@ export default function CompanySignupPage() {
 
             {/* Trial Perks Box */}
             <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-200/80 dark:border-neutral-800 text-[11px] text-neutral-600 dark:text-neutral-400 flex items-center gap-2">
-              <Zap className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 stroke-[1.5]" />
+              <BadgeCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 stroke-[1.5]" />
               <span>
                 Includes <strong>2 Free Candidate Unlocks</strong> and instant workspace access.
               </span>

@@ -317,7 +317,7 @@ export default function ConsoleDashboardOverview() {
                   <TooltipContent side="top" className="max-w-xs text-xs p-2.5">
                     <p className="font-semibold mb-0.5">How this is calculated:</p>
                     <p className="text-neutral-300">
-                      Progression of candidate screenings across your workspace: Invited → Started → Completed → Passed Flowmingo AI video review.
+                      Progression of candidate screenings across your workspace: Invited → Started → Completed → Passed rubric video review.
                     </p>
                   </TooltipContent>
                 </Tooltip>

@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS public.employer_jobs (
 CREATE INDEX IF NOT EXISTS idx_employer_jobs_workspace_id ON public.employer_jobs(workspace_id);
 CREATE INDEX IF NOT EXISTS idx_employer_jobs_status ON public.employer_jobs(status);
 
--- 4. VIDEO ASSESSMENTS TABLE (Flowmingo Webhook & Candidate Vet-Once)
+-- 4. VIDEO ASSESSMENTS TABLE (Candidate Video Assessment)
 CREATE TABLE IF NOT EXISTS public.video_assessments (
   id TEXT PRIMARY KEY DEFAULT ('va-' || substr(md5(random()::text), 1, 10)),
   candidate_id TEXT NOT NULL,

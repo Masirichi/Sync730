@@ -95,14 +95,13 @@ export const HIRING_LINE_COPY = {
 } as const;
 
 /**
- * Subline under H1: "[activeRoles] active roles · [activeEmployers] verified employers"
- * Show the verified wording only for employers that are actually verified; otherwise say "employers".
+ * Subline under H1: "[activeRoles] active roles · [activeEmployers] employers hiring now"
  * Hide a figure if its value is 0.
  */
 export function formatH1Subline(params: {
   activeRoles: number;
   activeEmployers: number;
-  hasVerifiedEmployers: boolean;
+  hasVerifiedEmployers?: boolean;
 }): string {
   const parts: string[] = [];
 
@@ -111,7 +110,7 @@ export function formatH1Subline(params: {
   }
 
   if (params.activeEmployers > 0) {
-    const employerLabel = params.hasVerifiedEmployers ? 'verified employers' : 'employers';
+    const employerLabel = 'employers hiring now';
     parts.push(`${params.activeEmployers.toLocaleString()} ${employerLabel}`);
   }
 

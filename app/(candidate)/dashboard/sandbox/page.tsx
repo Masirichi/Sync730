@@ -29,7 +29,7 @@ import {
   TrendingUp,
   FileText,
   Compass,
-  Zap,
+  BadgeCheck,
 } from 'lucide-react';
 import {
   InterviewQuestion,
@@ -447,7 +447,7 @@ function SandboxContent() {
                 onClick={handleDevBypass}
                 className="text-xs border-dashed border-amber-300 dark:border-amber-700 bg-amber-500/5 hover:bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium"
               >
-                <Zap className="h-3.5 w-3.5 stroke-[1.5] mr-1.5" />
+                <BadgeCheck className="h-3.5 w-3.5 stroke-[1.5] mr-1.5" />
                 Dev Test Bypass (Free)
               </Button>
             </div>
@@ -558,7 +558,7 @@ function SandboxContent() {
                     onClick={handleDevBypass}
                     className="w-full sm:w-auto text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
                   >
-                    <Zap className="h-3.5 w-3.5 stroke-[1.5] mr-1 text-amber-500" />
+                    <BadgeCheck className="h-3.5 w-3.5 stroke-[1.5] mr-1 text-amber-500" />
                     Local Dev Bypass
                   </Button>
                 </div>
@@ -582,10 +582,10 @@ function SandboxContent() {
                   <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800 space-y-2">
                     <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
                       <Award className="h-4 w-4 stroke-[1.5] text-neutral-900 dark:text-neutral-100" />
-                      <span className="font-medium">Vet-Once Profile Boost</span>
+                      <span className="font-medium">One profile, every application</span>
                     </div>
                     <p className="text-[11px] text-neutral-500">
-                      Top scores are automatically linked to your candidate profile, signaling verified readiness to recruiter search filters.
+                      Top scores are automatically linked to your candidate profile, showing verified readiness to recruiter search filters.
                     </p>
                   </div>
                 </CardContent>
@@ -598,10 +598,10 @@ function SandboxContent() {
                   <span className="text-neutral-500">Practice cards currently in Interviewing</span>
                 </div>
                 <Link
-                  href="/dashboard/tracker"
+                  href="/dashboard/syncflow"
                   className="text-xs font-medium text-neutral-900 dark:text-neutral-100 hover:underline flex items-center gap-1"
                 >
-                  View Tracker <ChevronRight className="h-3 w-3 stroke-[1.5]" />
+                  View SyncFlow <ChevronRight className="h-3 w-3 stroke-[1.5]" />
                 </Link>
               </div>
             </div>
@@ -892,9 +892,9 @@ function SandboxContent() {
                 Practice Again
               </Button>
 
-              <Link href="/dashboard/tracker">
+              <Link href="/dashboard/syncflow">
                 <Button size="sm" className="text-xs bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900">
-                  Return to Tracker
+                  Return to SyncFlow
                   <ArrowRight className="h-3.5 w-3.5 stroke-[1.5] ml-1.5" />
                 </Button>
               </Link>

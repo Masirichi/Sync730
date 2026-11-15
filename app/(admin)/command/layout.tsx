@@ -17,7 +17,6 @@ import {
   X,
   ExternalLink,
   Bell,
-  Cpu,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -111,7 +110,7 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
                 <p className="text-[10px] text-neutral-400">Global Cluster: Lagos & US-East</p>
               </div>
             </div>
-            <Cpu className="h-4 w-4 text-neutral-500 stroke-[1.5]" />
+            <Activity className="h-4 w-4 text-neutral-500 stroke-[1.5]" />
           </div>
 
           {/* Navigation Links */}

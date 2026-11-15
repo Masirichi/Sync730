@@ -6,7 +6,7 @@ import {
   Briefcase,
   Plus,
   Search,
-  Star,
+  BadgeCheck,
   Eye,
   EyeOff,
   ExternalLink,
@@ -295,7 +295,7 @@ export default function AdminJobsManagerPage() {
         description: resolvedDesc || 'Verified role posted directly by Platform Admin.',
         category: 'Software & Engineering',
         job_type: 'Full-time',
-        tags: ['Verified Partner', 'Platform Curated', regionAllowance, workMode],
+        tags: ['Role verified', 'Platform Curated', regionAllowance, workMode],
         source: 'company_direct',
         source_type: 'ADMIN_CURATED',
         is_active: true,
@@ -445,7 +445,7 @@ export default function AdminJobsManagerPage() {
             </h2>
           </div>
           <p className="text-xs text-neutral-400 mt-1">
-            Curate verified partner listings, feature high-impact roles, and moderate live postings.
+            Curate verified role listings, feature high-impact roles, and moderate live postings.
           </p>
         </div>
 
@@ -513,7 +513,7 @@ export default function AdminJobsManagerPage() {
                   Publish Verified Remote Role
                 </DialogTitle>
                 <DialogDescription className="text-xs text-neutral-400 leading-relaxed">
-                  Directly post a vetted technical role to the candidate job board. This will be marked as a verified partner listing.
+                  Directly post a vetted technical role to the candidate job board. This will be marked as a role verified listing.
                 </DialogDescription>
               </DialogHeader>
 
@@ -677,9 +677,9 @@ export default function AdminJobsManagerPage() {
                 <div className="p-3.5 rounded-xl bg-neutral-900/60 border border-neutral-800 flex items-center justify-between">
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <Star className="h-3.5 w-3.5 text-amber-400 stroke-[2] fill-amber-400/20" />
+                      <BadgeCheck className="h-3.5 w-3.5 text-amber-400 stroke-[2]" />
                       <span className="text-xs font-bold text-white">
-                        Pin as Featured Partner Role
+                        Pin as Featured Role
                       </span>
                     </div>
                     <p className="text-[11px] text-neutral-400">
@@ -767,7 +767,7 @@ export default function AdminJobsManagerPage() {
             <div className="mt-2 text-2xl font-bold tracking-tight text-rose-400">
               {stats.adminCurated}
             </div>
-            <p className="text-[11px] text-neutral-500 mt-1">Direct verified partner posts</p>
+            <p className="text-[11px] text-neutral-500 mt-1">Direct role verified posts</p>
           </CardContent>
         </Card>
 
@@ -775,7 +775,7 @@ export default function AdminJobsManagerPage() {
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-center justify-between text-neutral-400 text-xs">
               <span>Featured Roles (Pinned)</span>
-              <Star className="h-4 w-4 stroke-[1.5] text-amber-400 fill-amber-400/20" />
+              <BadgeCheck className="h-4 w-4 stroke-[1.5] text-amber-400" />
             </div>
             <div className="mt-2 text-2xl font-bold tracking-tight text-amber-400">
               {stats.featured}
@@ -919,17 +919,15 @@ export default function AdminJobsManagerPage() {
                           <td className="py-4 px-4 text-center">
                             <button
                               onClick={() => handleToggleFeatured(job)}
-                              title={job.is_featured ? 'Unfeature role' : 'Pin as Featured Partner'}
+                              title={job.is_featured ? 'Unfeature role' : 'Pin as Featured'}
                               className={`p-1.5 rounded-lg transition-all ${
                                 job.is_featured
                                   ? 'text-amber-400 bg-amber-400/10 hover:bg-amber-400/20'
                                   : 'text-neutral-600 hover:text-neutral-400 hover:bg-neutral-800'
                               }`}
                             >
-                              <Star
-                                className={`h-4 w-4 stroke-[1.5] ${
-                                  job.is_featured ? 'fill-amber-400' : ''
-                                }`}
+                              <BadgeCheck
+                                className="h-4 w-4 stroke-[1.5]"
                               />
                             </button>
                           </td>

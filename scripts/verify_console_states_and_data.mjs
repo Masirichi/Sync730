@@ -53,7 +53,7 @@ async function runTests() {
       typeof m.funnel.started === 'number' &&
       typeof m.funnel.completed === 'number' &&
       typeof m.funnel.passed === 'number',
-    `Vet-Once pass rate replaced with full funnel: Invited (${m?.funnel.invited}) → Started (${m?.funnel.started}) → Completed (${m?.funnel.completed}) → Passed (${m?.funnel.passed})`
+    `Video assessment pass rate replaced with full funnel: Invited (${m?.funnel.invited}) → Started (${m?.funnel.started}) → Completed (${m?.funnel.completed}) → Passed (${m?.funnel.passed})`
   );
 
   assert(

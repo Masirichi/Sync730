@@ -73,7 +73,7 @@ export const JOB_CATEGORIES_META: Record<JobCategory, CategoryMetadata> = {
     label: 'Finance & Accounting',
     shortLabel: 'Finance & Ops',
     badgeClass: 'bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400',
-    description: 'Financial Analysis, Accounting, Payroll, Audit & Compliance',
+    description: 'Financial Analysis, Accounting, Compensation, Audit & Compliance',
   },
 };
 
@@ -132,7 +132,7 @@ export function normalizeJobCategory(
     t.includes('accountant') ||
     t.includes('reconciliation') ||
     t.includes('bookkeeper') ||
-    t.includes('payroll') ||
+    t.includes('compensation') ||
     c.includes('finance')
   ) {
     return 'Finance & Accounting';

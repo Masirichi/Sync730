@@ -28,7 +28,7 @@ const faqs = [
     id: 'data_handled',
     question: 'How is candidate data handled?',
     answer:
-      'Candidate recordings, résumés, and personal data are encrypted in transit and at rest in full compliance with the Nigeria Data Protection Act 2023 (NDPA). Information is only shared with verified employers for the specific roles a candidate applies to. Candidates maintain complete visibility over their profile and can request data deletion at any time.',
+      'Candidate recordings, résumés, and personal data are encrypted in transit and at rest in full compliance with the Nigeria Data Protection Act 2023 (NDPA). Information is only shared with employers for the specific roles a candidate applies to. Candidates maintain complete visibility over their profile and can request data deletion at any time.',
   },
   {
     id: 'countries_covered',

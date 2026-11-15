@@ -142,7 +142,7 @@ export async function GET(req: NextRequest) {
           id: `task-review-${cand.candidate_id || cand.id}`,
           type: 'REVIEW_VIDEO',
           title: `Assess and score ${cand.target_role} video submission`,
-          description: `Candidate completed Vet-Once interview with ${cand.overall_match_score}% match score. Review video rubric answers and record team score.`,
+          description: `Candidate completed video assessment with ${cand.overall_match_score}% match score. Review video rubric answers and record team score.`,
           due_date: dueDate.toISOString(),
           is_overdue: isOverdue,
           relative_due_label: label,

@@ -121,7 +121,7 @@ export default function CommandVettingPage() {
             Video Vetting Moderation Queue
           </h2>
           <p className="text-xs text-neutral-400">
-            Audit AI-proctored recordings, inspect behavioral signals, and approve or reject submissions from the talent pool.
+            Audit AI-proctored recordings, inspect behavioral criteria, and approve or reject submissions from the talent pool.
           </p>
         </div>
 

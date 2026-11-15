@@ -2,7 +2,7 @@ import Link from 'next/link';
 import {
   ShieldCheck,
   Scale,
-  BrainCircuit,
+  SlidersHorizontal,
   UserCheck,
   Mail,
   ArrowLeft,
@@ -57,14 +57,14 @@ export default function ScoringMethodologyPage() {
         <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-6">
           <div className="flex items-center gap-3 pb-4 border-b border-neutral-100 dark:border-neutral-800">
             <div className="h-9 w-9 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 flex items-center justify-center font-bold">
-              <BrainCircuit className="h-5 w-5" />
+              <SlidersHorizontal className="h-5 w-5" />
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white">
-                1. Objective Evaluation Signals
+                1. Objective Evaluation Factors
               </h2>
               <p className="text-xs text-neutral-500">
-                What Flowmingo AI and Sync730 examine during candidate video screening
+                What rubric models and Sync730 examine during candidate video screening
               </p>
             </div>
           </div>
@@ -112,7 +112,7 @@ export default function ScoringMethodologyPage() {
           </div>
         </div>
 
-        {/* Section 2: Prohibited Signals (Algorithmic Fairness) */}
+        {/* Section 2: Prohibited Factors (Algorithmic Fairness) */}
         <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-5">
           <div className="flex items-center gap-3 pb-4 border-b border-neutral-100 dark:border-neutral-800">
             <div className="h-9 w-9 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 flex items-center justify-center font-bold">
@@ -120,7 +120,7 @@ export default function ScoringMethodologyPage() {
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white">
-                2. Strictly Prohibited Signals (Code-Level Guarantee)
+                2. Strictly Prohibited Factors (Code-Level Guarantee)
               </h2>
               <p className="text-xs text-neutral-500">
                 Non-discrimination commitments hardcoded in our matching algorithms

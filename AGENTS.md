@@ -7,7 +7,7 @@ Sync730, a job platform live at sync730.vercel.app (Vercel). Work inside the exi
 
 ## POSITIONING (Source of Truth)
 - **Role Verification:** Sync730 verifies that a **ROLE IS REAL, OPEN, and ELIGIBLE FOR PEOPLE LIVING IN AFRICA**. Roles span customer support, software engineering and other tech roles, plus non-tech roles listed by recruiters and companies.
-- **No Company/Outcome Guarantees:** Sync730 does **NOT** verify companies (no CAC/TIN) and does **NOT** guarantee payment, contracts, pay levels or hiring outcomes. Never imply otherwise.
+- **No Company/Outcome Guarantees:** Sync730 does **NOT** verify companies and does **NOT** guarantee payment, contracts, pay levels or hiring outcomes. Never imply otherwise.
 - **Belief:** Where you live shouldn't decide what you can become. Talent is everywhere. Real opportunity should be too.
 - **Audience:** African professionals tired of ghost jobs and "worldwide remote" that means "US only". Enemy: false hope, not any company. Secondary audience: recruiters and companies who hire on ability, not address.
 - **Voice:** Direct, warm, short sentences. Never use `"empowering"`, `"age of AI"`, `"signal"`, `"seamless"`, `"cutting-edge"`, `"unlock"`.
@@ -32,7 +32,7 @@ Sync730, a job platform live at sync730.vercel.app (Vercel). Work inside the exi
 ## COPY & DATA RULES
 - **Visual Language:** Cream background, white cards, black pill buttons, rounded corners.
 - **Dates & Recency:** Keep `"Posted N days ago"` as is. Do NOT add `"Verified N days ago"`. Do NOT add any footnote about pay or salary sourcing.
-- **Banned Claims:** Never mention CAC, TIN, payroll, contracts, or `"pays on time"`.
+- **Banned Claims:** Never mention company registration, tax numbers, compensation processing, payment guarantees, or payment timeliness claims.
 - **Missing Salary:** Shows muted `"Salary not disclosed"`. Never `"$0"`, blank, or a number without a currency.
 - **No Inventions:** Do not invent testimonials, partner names, statistics, founder stories, or process claims.
 - **Unconfirmed Claims:** Lines marked `[CONFIRM]` are unverified claims. Render them only behind a flag `showUnconfirmedClaims` (default `false`).

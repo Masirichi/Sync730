@@ -21,7 +21,7 @@ async function verify() {
   console.log('   - Has "Hiring Now • Live Feed":', homeHtml.includes('Hiring Now • Live Feed'));
   console.log('   - Has "/find-work":', homeHtml.includes('/find-work'));
   console.log('   - Has "Remote, Hybrid &amp; Onsite" or similar:', /Remote,\s*Hybrid/i.test(homeHtml));
-  console.log('   - Has "Vet-Once Profile":', homeHtml.includes('Vet-Once Profile'));
+  console.log('   - Has "One profile, every application":', homeHtml.includes('One profile, every application'));
 
   const jobsHtml = await fetch('http://localhost:3000/jobs');
   console.log('\n2. /jobs Page Checks:');

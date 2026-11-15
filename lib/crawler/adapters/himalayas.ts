@@ -114,8 +114,8 @@ export const himalayasAdapter: CrawlerAdapter = {
           fetchedJobs.push({
             external_id: `himalayas-${j.id || Math.random().toString(36).substring(7)}`,
             title: j.title || 'Remote Technical Professional',
-            company: j.companyName || 'Himalayas Verified Partner',
-            company_name: j.companyName || 'Himalayas Verified Partner',
+            company: j.companyName || 'Himalayas Hiring Partner',
+            company_name: j.companyName || 'Himalayas Hiring Partner',
             company_logo: j.companyLogo || null,
             description: cleanDesc ? cleanDesc + '...' : 'Global remote opportunity tracked via Himalayas.',
             category,

@@ -45,7 +45,7 @@ export function DidYouApplyModal({
             Did you apply to {jobTitle}?
           </DialogTitle>
           <DialogDescription className="text-xs text-neutral-600 dark:text-neutral-400">
-            Let us know if you submitted your application on {companyName}’s website so we can update your Job Tracker.
+            Let us know if you submitted your application on {companyName}’s website so we can update your SyncFlow board.
           </DialogDescription>
         </DialogHeader>
 

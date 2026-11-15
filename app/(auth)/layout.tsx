@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BrandLogo } from '@/components/site/brand-logo';
-import { Building2, ShieldCheck, Users, Zap } from 'lucide-react';
+import { Building2, ShieldCheck, Users, BadgeCheck } from 'lucide-react';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -45,7 +45,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <div className="space-y-3 pt-2">
               <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
                 <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 shrink-0">
-                  <Zap className="h-4 w-4 stroke-[1.5]" />
+                  <BadgeCheck className="h-4 w-4 stroke-[1.5]" />
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-white">
@@ -63,7 +63,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-white">
-                    Flowmingo-Powered Video Rubrics
+                    Standardized Video Rubrics
                   </h4>
                   <p className="text-xs text-white/60 mt-0.5 leading-relaxed">
                     Standardized AI evaluation across technical depth, system design, and communication.

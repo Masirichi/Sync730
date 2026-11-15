@@ -6,7 +6,7 @@ Built with **Next.js 14 (App Router)**, **TypeScript**, **Tailwind CSS**, and **
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 - **Public Showcase & Job Board**: High-impact landing page, searchable job listings, category filters, and detailed company profiles.
 - **Candidate Portal**: Dashboard, application tracker, resume profile, skills inventory, interview schedules, and saved jobs.
@@ -16,7 +16,7 @@ Built with **Next.js 14 (App Router)**, **TypeScript**, **Tailwind CSS**, and **
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -57,7 +57,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ---
 
-## 📦 Production Build
+## Production Build
 
 ```bash
 npm run build

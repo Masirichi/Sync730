@@ -114,7 +114,7 @@ export function ApplyFlowModal({
               </p>
             </div>
             <div className="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg text-xs text-neutral-600 dark:text-neutral-400">
-              This job has been added to your <strong className="text-neutral-900 dark:text-white">Job Tracker</strong> as <span className="font-semibold text-neutral-900 dark:text-white">Applied</span>.
+              This job has been added to your <strong className="text-neutral-900 dark:text-white">SyncFlow</strong> as <span className="font-semibold text-neutral-900 dark:text-white">Applied</span>.
             </div>
             <p className="text-xs text-neutral-500 pt-1">
               {INTERVIEW_EXPECTATION_COPY}

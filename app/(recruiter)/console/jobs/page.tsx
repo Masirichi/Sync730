@@ -27,7 +27,7 @@ import {
   XCircle,
   Edit,
   Eye,
-  Kanban,
+  Columns3,
   CheckCircle2,
   HelpCircle,
 } from 'lucide-react';
@@ -740,7 +740,7 @@ export default function ConsoleJobsPage() {
                           variant="outline"
                           className="text-xs h-8 px-3 rounded-lg border-purple-500/30 text-purple-700 dark:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 font-semibold gap-1.5"
                         >
-                          <Kanban className="h-3.5 w-3.5" />
+                          <Columns3 className="h-3.5 w-3.5" />
                           <span>Pipeline</span>
                         </Button>
                       </Link>
