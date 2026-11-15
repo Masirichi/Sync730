@@ -104,21 +104,159 @@ export const HOME_CONTENT = {
     ],
   },
   // Part B sections
+  latestRoles: {
+    eyebrow: 'HIRING NOW · LIVE FEED',
+    h2: 'Roles you can actually apply for.',
+    body: 'Curated remote, hybrid and onsite roles in Lagos, Abuja and across Africa, from customer support and engineering to sales, operations and more. Each one is confirmed real, and open to Africa, before it reaches you.',
+    metaSuffix: 'live roles · Remote, hybrid & onsite · One profile, every application',
+    buttonText: 'Find Work',
+    buttonHref: '/find-work',
+  },
+  differentiators: {
+    label: 'THE SYNC730 DIFFERENCE',
+    h2: 'No false hope. Just real roles.',
+    items: [
+      {
+        number: '01',
+        title: 'Real, not ghost',
+        body: "We confirm a role exists and is open before you see it. Roles that can't be confirmed don't make it onto the page.",
+      },
+      {
+        number: '02',
+        title: 'Open to you, upfront',
+        body: '"Remote" isn\'t enough. We show the exact countries that can apply.',
+      },
+      {
+        number: '03',
+        title: 'Seen for who you are',
+        body: 'A video interview shows your ability, not just your CV.',
+      },
+      {
+        number: '04',
+        title: 'Humans decide',
+        body: 'AI scores the interview. People make the hiring call. Always.',
+      },
+    ],
+    mutedLine:
+      'Sync730 verifies that roles are real and open to Africa. Hiring decisions are made by the employer.',
+  },
   forRecruiters: {
-    eyebrow: 'FOR RECRUITERS',
+    id: 'for-recruiters',
+    eyebrow: 'WE BELIEVE IN HIRING THE PERSON, NOT THE ADDRESS',
     h2: 'Meet the person behind the résumé.',
-    subtitle:
-      'Sync730 interviews every candidate on video and gives your team scored, evidence-backed reports, so you see more than a CV.',
-    ctaText: 'Book a demo',
+    body: "Africa has the talent. A CV can't always show it. Every applicant takes the same AI-moderated video interview within 48 hours, so you compare like with like. You review a ranked, evidence-backed shortlist, and your team makes the call.",
+    points: [
+      {
+        number: '01',
+        title: 'Everyone gets a fair shot.',
+        body: 'Each applicant takes the same interview within 48 hours, so you compare like with like.',
+      },
+      {
+        number: '02',
+        title: 'Evidence, not guesswork.',
+        body: 'Every score points to what the candidate actually said.',
+      },
+      {
+        number: '03',
+        title: 'You decide. Together.',
+        body: 'Reviewers watch interviews and leave notes in one place, from screen to signed.',
+      },
+    ],
+    sampleReport: {
+      badge: 'Sample',
+      role: 'Senior Backend Engineer',
+      candidateId: 'Candidate #A7F2',
+      techDepth: 'Technical depth 91/100',
+      techDepthValue: 91,
+      communication: 'Communication 88/100',
+      communicationValue: 88,
+      quote: 'Strong on retries and reconciliation. Gap: distributed tracing.',
+      integrity: 'Identity verified, 0 integrity flags',
+      advisory: 'Evaluation advisory: humans decide.',
+    },
+    ctaPrimary: 'Book a demo',
+    ctaSecondary: 'See a sample report',
+    ctaSecondaryHref: '#sample-report',
+  },
+  socialProof: {
+    label: 'FROM THE PEOPLE USING IT',
+    h2: 'Real roles. Real people.',
   },
   faq: {
-    eyebrow: 'Common questions',
-    title: 'Questions & Answers',
+    label: 'QUESTIONS WE HEAR OFTEN',
+    items: [
+      {
+        question: 'Is Sync730 free?',
+        answer:
+          'Yes, for candidates. Creating a profile, browsing roles and using SyncFlow cost nothing.',
+      },
+      {
+        question: 'What does "Role verified" mean?',
+        answer:
+          "We've confirmed the role exists, is open, and accepts applicants from the countries shown. Pay and hiring decisions are the employer's.",
+      },
+      {
+        question: 'Do you guarantee I\'ll get a job?',
+        answer:
+          "No, and no honest platform can. We guarantee that the roles you see are real and open to you, so your effort goes where it counts.",
+      },
+      {
+        question: 'What is SyncFlow?',
+        answer:
+          'Your private job pipeline. Save roles and move them through Saved, Applied, Interviewing and Offer.',
+      },
+      {
+        question: 'Will AI decide whether I get hired?',
+        answer:
+          'No. AI scores the interview and shows its evidence. A person makes every hiring decision.',
+      },
+      {
+        question: 'What if I find a role that isn\'t real or isn\'t open to Africa?',
+        answer:
+          'Tap "Report this job". We review reports and remove roles that don\'t hold up.',
+      },
+    ],
   },
-  finalCta: {
-    title: 'Ready for real opportunity?',
-    subtitle: 'Browse open roles or start hiring verified talent today.',
-    primaryButton: 'Find Work',
-    secondaryButton: 'For recruiters',
+  closingCta: {
+    h2: "You've waited long enough for a fair shot.",
+    bodyPrefix: 'Join ',
+    bodySuffix: '+ professionals searching smarter, and the companies hiring them.',
+    ctaPrimary: 'Create your free profile',
+    ctaPrimaryHref: '/register',
+    ctaSecondary: "I'm hiring in Africa",
+    ctaSecondaryHref: '/#for-recruiters',
+    microcopy: 'Free for candidates. No credit card. Takes about 3 minutes.',
+  },
+  footer: {
+    tagline: 'Talent is everywhere. Real opportunity should be too.',
+    columns: {
+      explore: {
+        title: 'Explore',
+        links: [
+          { label: 'Find Work', href: '/find-work' },
+          { label: 'How it works', href: '/#how-it-works' },
+          { label: 'For candidates', href: '/#for-candidates' },
+          { label: 'For recruiters', href: '/#for-recruiters' },
+        ],
+      },
+      company: {
+        title: 'Company',
+        links: [
+          { label: 'About', href: '/about' },
+          { label: 'How we verify roles', href: '/how-we-verify' },
+          { label: 'Contact', href: '/contact' },
+        ],
+      },
+      legal: {
+        title: 'Legal & Compliance',
+        links: [
+          { label: 'Privacy (NDPA)', href: '/privacy' },
+          { label: 'Terms', href: '/terms' },
+          { label: 'AI transparency', href: '/scoring-methodology' },
+        ],
+      },
+    },
+    smallPrint:
+      'Sync730 verifies that roles are real and open to Africa. Hiring decisions are made by employers.',
   },
 } as const;

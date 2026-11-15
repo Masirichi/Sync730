@@ -9,25 +9,36 @@ import { LiveStatsBand } from '@/components/home/live-stats-band';
 import { BeliefSection } from '@/components/home/belief-section';
 import { ForCandidatesSection, LatestJobItem } from '@/components/home/for-candidates-section';
 import { HowItWorksSection } from '@/components/home/how-it-works-section';
+import { LatestRolesSection } from '@/components/home/latest-roles-section';
+import { DifferentiatorsSection } from '@/components/home/differentiators-section';
 import { ForRecruitersSection } from '@/components/home/for-recruiters-section';
-import { StartWhereYouAreSection } from '@/components/home/start-where-you-are-section';
-import { TrustSection } from '@/components/home/trust-section';
+import { SocialProofSection, Testimonial, ApprovedPartner } from '@/components/home/social-proof-section';
 import { FaqSection } from '@/components/home/faq-section';
 import { FinalCtaSection } from '@/components/home/final-cta-section';
 import { BookDemoModal } from '@/components/modals/book-demo-modal';
 import { EnterpriseModal } from '@/components/modals/enterprise-modal';
-import { ApprovedProof } from '@/components/proof/approved-proof';
 import { PublicStats } from '@/lib/stats/service';
+import { PublicJob } from '@/lib/jobs/service';
 import { RemoteJob } from '@/lib/supabase/types';
 import { trackEvent } from '@/lib/analytics';
 
-interface HomeViewProps {
+export interface HomeViewProps {
   initialStats: PublicStats;
   latestRoles: LatestJobItem[];
+  feedJobs?: PublicJob[];
   tickerJobs?: RemoteJob[];
+  testimonials?: Testimonial[];
+  partners?: ApprovedPartner[];
 }
 
-export function HomeView({ initialStats, latestRoles, tickerJobs = [] }: HomeViewProps) {
+export function HomeView({
+  initialStats,
+  latestRoles,
+  feedJobs = [],
+  tickerJobs = [],
+  testimonials = [],
+  partners = [],
+}: HomeViewProps) {
   const [demoOpen, setDemoOpen] = useState(false);
   const [enterpriseOpen, setEnterpriseOpen] = useState(false);
 
@@ -42,6 +53,7 @@ export function HomeView({ initialStats, latestRoles, tickerJobs = [] }: HomeVie
       <SiteHeader />
 
       <main id="main-content" className="flex-1 focus:outline-none" tabIndex={-1}>
+        {/* TOP HALF: */}
         {/* 1. Hero: Talent is everywhere. Real opportunity should be too. */}
         <HeroSection onOpenDemo={() => setDemoOpen(true)} />
 
@@ -57,26 +69,27 @@ export function HomeView({ initialStats, latestRoles, tickerJobs = [] }: HomeVie
         {/* 5. How It Works: Four steps (#how-it-works) */}
         <HowItWorksSection />
 
-        {/* Part B: For Recruiters (#for-recruiters) */}
+        {/* BOTTOM HALF (Continuing after "How it works"): */}
+        {/* 6. Latest roles: HIRING NOW · LIVE FEED with 3 to 6 newest public jobs */}
+        <LatestRolesSection jobs={feedJobs} rolesLive={initialStats.rolesLive} />
+
+        {/* 7. Differentiators: THE SYNC730 DIFFERENCE. No false hope. Just real roles. */}
+        <DifferentiatorsSection />
+
+        {/* 8. For Recruiters: WE BELIEVE IN HIRING THE PERSON, NOT THE ADDRESS (#for-recruiters) */}
         <ForRecruitersSection onOpenDemo={() => setDemoOpen(true)} />
 
-        {/* Part B: Optional Verified Proof Component */}
-        <ApprovedProof />
+        {/* 9. Social Proof: FROM THE PEOPLE USING IT (conditionally rendered only if real data exists) */}
+        <SocialProofSection testimonials={testimonials} partners={partners} />
 
-        {/* Part B: Start Where You Are */}
-        <StartWhereYouAreSection
-          onOpenDemo={() => setDemoOpen(true)}
-          onOpenEnterprise={() => setEnterpriseOpen(true)}
-        />
-
-        {/* Part B: Trust */}
-        <TrustSection />
-
-        {/* Part B: FAQ */}
+        {/* 10. FAQ: QUESTIONS WE HEAR OFTEN (accessible accordion + FAQPage JSON-LD) */}
         <FaqSection />
 
-        {/* Part B: Final CTA Band */}
-        <FinalCtaSection onOpenDemo={() => setDemoOpen(true)} />
+        {/* 11. Closing CTA: You've waited long enough for a fair shot. */}
+        <FinalCtaSection
+          onOpenDemo={() => setDemoOpen(true)}
+          talents={initialStats.talents}
+        />
       </main>
 
       {/* Universal Footer */}

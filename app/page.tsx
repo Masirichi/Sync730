@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { HomeView } from '@/components/home/home-view';
 import { getLivePublicStats } from '@/lib/stats/service';
 import { fetchActiveRemoteJobs } from '@/lib/crawler/jobs-fetcher';
+import { getAllApprovedJobs, PublicJob } from '@/lib/jobs/service';
 import { LatestJobItem } from '@/components/home/for-candidates-section';
 import { HOME_CONTENT } from '@/src/content/home';
 
@@ -56,8 +57,20 @@ export default async function HomePage() {
   // 2. Fetch active jobs to compute the newest roles and live ticker jobs
   let latestRoles: LatestJobItem[] = [];
   let tickerJobs: any[] = [];
+  let feedJobs: PublicJob[] = [];
   try {
     const allJobs = await fetchActiveRemoteJobs();
+
+    // Compute 3 to 6 newest public (non-stale, valid) jobs for Latest Roles feed
+    const approved = getAllApprovedJobs(allJobs);
+    feedJobs = approved
+      .sort((a, b) => {
+        const timeA = new Date(a.posted_date || 0).getTime();
+        const timeB = new Date(b.posted_date || 0).getTime();
+        return timeB - timeA;
+      })
+      .slice(0, 6);
+
     const sorted = allJobs
       .filter((j) => j.is_active !== false)
       .sort((a, b) => {
@@ -141,6 +154,7 @@ export default async function HomePage() {
       <HomeView
         initialStats={initialStats}
         latestRoles={latestRoles}
+        feedJobs={feedJobs}
         tickerJobs={tickerJobs}
       />
     </>

@@ -26,6 +26,11 @@ const nextConfig = {
         destination: '/dashboard/syncflow',
         permanent: true,
       },
+      {
+        source: '/ai-transparency',
+        destination: '/scoring-methodology',
+        permanent: true,
+      },
     ];
   },
 };
