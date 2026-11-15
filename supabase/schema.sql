@@ -764,8 +764,8 @@ CREATE POLICY "Admins can view and manage transactions"
 -- ==============================================================================
 -- Cron Integration: Scheduled Job Ingestion & Verification Maintenance
 -- ==============================================================================
-CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA extensions;
-CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+CREATE EXTENSION IF NOT EXISTS pg_net;
 
 GRANT USAGE ON SCHEMA cron TO postgres;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA cron TO postgres;
@@ -777,7 +777,7 @@ CREATE OR REPLACE FUNCTION public.invoke_crawl_jobs(
 RETURNS BIGINT
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = extensions, public
+SET search_path = extensions, net, public
 AS $$
 DECLARE
   v_secret TEXT;

@@ -6,8 +6,8 @@
 -- ==============================================================================
 
 -- 1. Enable required PostgreSQL extensions in Supabase
-CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA extensions;
-CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+CREATE EXTENSION IF NOT EXISTS pg_net;
 
 -- Grant execution privileges on the cron schema to postgres and service_role
 GRANT USAGE ON SCHEMA cron TO postgres;
@@ -21,7 +21,7 @@ CREATE OR REPLACE FUNCTION public.invoke_crawl_jobs(
 RETURNS BIGINT
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = extensions, public
+SET search_path = extensions, net, public
 AS $$
 DECLARE
   v_secret TEXT;
