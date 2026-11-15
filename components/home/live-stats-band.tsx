@@ -104,10 +104,10 @@ const DEFAULT_STREAM_ROLES: Partial<RemoteJob>[] = [
   },
 ];
 
-// Live platform verification and matching milestone events
+// Live platform verification and application pipeline events
 interface LiveActivityEvent {
   id: string;
-  category: 'VETTING' | 'INTERVIEW' | 'SHORTLIST' | 'APPROVAL';
+  category: 'VERIFIED' | 'INTERVIEW' | 'SYNCFLOW' | 'OFFER';
   title: string;
   detail: string;
   location: string;
@@ -117,9 +117,9 @@ interface LiveActivityEvent {
 const DEFAULT_PLATFORM_EVENTS: LiveActivityEvent[] = [
   {
     id: 'ev-1',
-    category: 'VETTING',
-    title: 'AI Screening Completed',
-    detail: 'Full-Stack Engineer ranked in 98th percentile',
+    category: 'VERIFIED',
+    title: 'Role Confirmed Open',
+    detail: 'Full-Stack Engineer role verified open to Africa',
     location: 'Lagos, Nigeria',
     timeAgo: 'Just now',
   },
@@ -127,48 +127,48 @@ const DEFAULT_PLATFORM_EVENTS: LiveActivityEvent[] = [
     id: 'ev-2',
     category: 'INTERVIEW',
     title: 'Interview Scheduled',
-    detail: 'Cloud Platform Architect with European Tech Team',
+    detail: 'Cloud Platform Architect meeting hiring team',
     location: 'Remote (Global)',
     timeAgo: '4m ago',
   },
   {
     id: 'ev-3',
-    category: 'SHORTLIST',
-    title: 'Candidate Shortlisted',
-    detail: 'Product Designer advanced to round two',
+    category: 'SYNCFLOW',
+    title: 'Application Advanced',
+    detail: 'Product Designer moved to Interview stage',
     location: 'Lekki, Lagos',
     timeAgo: '9m ago',
   },
   {
     id: 'ev-4',
-    category: 'VETTING',
-    title: 'Technical Profile Verified',
-    detail: 'Senior Mobile Engineer (Flutter & iOS) added to pool',
+    category: 'VERIFIED',
+    title: 'Role Verified',
+    detail: 'Senior Mobile Engineer role confirmed active',
     location: 'Abuja, Nigeria',
     timeAgo: '14m ago',
   },
   {
     id: 'ev-5',
-    category: 'APPROVAL',
-    title: 'Verified Role Approved',
-    detail: 'Backend Systems Architect role published',
+    category: 'OFFER',
+    title: 'Offer Stage Reached',
+    detail: 'Backend Systems Architect offer received in SyncFlow',
     location: 'Worldwide Remote',
     timeAgo: '18m ago',
   },
   {
     id: 'ev-6',
-    category: 'SHORTLIST',
-    title: 'Fast-Track Matching',
-    detail: 'Operations Lead reviewed for African Fintech',
-    location: 'Maitama, Abuja',
+    category: 'SYNCFLOW',
+    title: 'Profile Shared',
+    detail: 'Customer Support Lead profile reviewed by hiring manager',
+    location: 'Nairobi, Kenya',
     timeAgo: '23m ago',
   },
   {
     id: 'ev-7',
-    category: 'VETTING',
-    title: 'Code Architecture Audit',
-    detail: 'Data Platform Engineer scored 96% on systems review',
-    location: 'Port Harcourt, Nigeria',
+    category: 'VERIFIED',
+    title: 'Role Confirmed Open',
+    detail: 'Data Engineer role verified open to Africa',
+    location: 'Accra, Ghana',
     timeAgo: '31m ago',
   },
 ];
@@ -537,11 +537,11 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
           <div className="flex w-max animate-marquee-right hover:[animation-play-state:paused] motion-reduce:animate-none motion-reduce:overflow-x-auto motion-reduce:max-w-full gap-3 sm:gap-4 px-4">
             {duplicatedEvents.map((evt, idx) => {
               const dotColor =
-                evt.category === 'VETTING'
-                  ? 'bg-sky-400'
-                  : evt.category === 'INTERVIEW'
+                evt.category === 'VERIFIED'
                   ? 'bg-emerald-400'
-                  : evt.category === 'SHORTLIST'
+                  : evt.category === 'INTERVIEW'
+                  ? 'bg-sky-400'
+                  : evt.category === 'SYNCFLOW'
                   ? 'bg-purple-400'
                   : 'bg-amber-400';
 
