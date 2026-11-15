@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
 import { HOME_CONTENT } from '@/src/content/home';
@@ -100,11 +101,21 @@ export function FaqSection() {
                   aria-labelledby={headerId}
                   hidden={!isOpen}
                   className={cn(
-                    'mt-4 text-sm leading-7 text-muted-foreground pr-8',
+                    'mt-4 text-sm leading-7 text-muted-foreground pr-8 space-y-2',
                     !isOpen && 'hidden'
                   )}
                 >
-                  {item.answer}
+                  <p>{item.answer}</p>
+                  {item.question.includes('Role verified') && (
+                    <p className="pt-1">
+                      <Link
+                        href="/how-we-verify"
+                        className="inline-flex items-center text-xs font-semibold text-foreground underline underline-offset-4 hover:opacity-80"
+                      >
+                        Read how we verify roles →
+                      </Link>
+                    </p>
+                  )}
                 </div>
               </div>
             );

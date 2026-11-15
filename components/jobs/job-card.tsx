@@ -190,8 +190,19 @@ export function JobCard({
                         <span>Role verified</span>
                       </span>
                     </TooltipTrigger>
-                    <TooltipContent className="max-w-xs p-2.5 text-xs bg-neutral-900 text-white border-none shadow-xl rounded-xl">
-                      Role verified. Sync730 confirmed this role exists, is open, and accepts applicants from the locations shown. Pay and hiring decisions are the employer&apos;s.
+                    <TooltipContent className="max-w-xs p-3 text-xs bg-neutral-900 text-white border-none shadow-xl rounded-xl space-y-2">
+                      <p className="leading-relaxed">
+                        Role verified. Sync730 confirmed this role exists, is open, and accepts applicants from the locations shown. Pay and hiring decisions are the employer&apos;s.
+                      </p>
+                      <p>
+                        <Link
+                          href="/how-we-verify"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center text-[11px] font-semibold text-emerald-400 hover:underline"
+                        >
+                          Learn how we verify →
+                        </Link>
+                      </p>
                     </TooltipContent>
                   </Tooltip>
 
