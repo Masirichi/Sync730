@@ -14,6 +14,8 @@ import { cn } from '@/lib/utils';
 
 export interface SiteHeaderProps {
   ctaMode?: 'profile' | 'demo';
+  isNavVisible?: boolean;
+  compact?: boolean;
 }
 
 function getInitials(nameOrEmail?: string): string {
@@ -26,7 +28,7 @@ function getInitials(nameOrEmail?: string): string {
   return clean.slice(0, 2).toUpperCase();
 }
 
-export function SiteHeader({ ctaMode = 'profile' }: SiteHeaderProps) {
+export function SiteHeader({ ctaMode = 'profile', isNavVisible = true, compact = false }: SiteHeaderProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
@@ -104,8 +106,18 @@ export function SiteHeader({ ctaMode = 'profile' }: SiteHeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/95 backdrop-blur-md">
-        <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10">
+      <header
+        className={cn(
+          "sticky top-0 z-50 w-full border-b border-border/70 bg-background/95 backdrop-blur-md transition-transform duration-200",
+          !isNavVisible && "-translate-y-full"
+        )}
+      >
+        <div
+          className={cn(
+            "mx-auto flex max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10 transition-all",
+            compact ? "h-16" : "h-16 sm:h-[76px]"
+          )}
+        >
           {/* Left: Wordmark and logo mark */}
           <BrandLogo />
 

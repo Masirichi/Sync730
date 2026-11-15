@@ -23,10 +23,13 @@ export interface JobFilterParams {
   modality?: 'all' | 'remote' | 'hybrid' | 'onsite';
   location?: string;
   department?: string;
+  category?: string;
+  open_to?: string;
   seniority?: string;
   job_type?: string;
   salary_shown?: boolean;
-  sort?: 'recent' | 'match';
+  min_salary?: number;
+  sort?: 'recent' | 'salary_desc' | 'match';
   page?: number;
   limit?: number;
 }
@@ -55,6 +58,12 @@ export interface PaginatedJobsResult {
   featuredRoles: PublicJob[];
   stats: PublicJobsStats;
   availableLocations: string[];
+  countsByModalityForFilters: {
+    all: number;
+    remote: number;
+    hybrid: number;
+    onsite: number;
+  };
 }
 
 /**
@@ -457,18 +466,13 @@ export function getFilteredPublicJobs(params: JobFilterParams, extraJobs?: any[]
   // Featured roles
   const featuredRoles = getQualifyingFeaturedRoles(allJobs);
 
-  let filtered = [...allJobs];
+  // Pre-filter with everything EXCEPT modality so modality chips get accurate live counts respecting all other active filters
+  let preModality = [...allJobs];
 
-  // 1. Modality filter
-  if (params.modality && params.modality !== 'all') {
-    const targetModality = params.modality.toLowerCase();
-    filtered = filtered.filter((j) => j.modality.toLowerCase() === targetModality);
-  }
-
-  // 2. Keyword query
+  // 1. Keyword query
   if (params.q && params.q.trim()) {
     const q = params.q.trim().toLowerCase();
-    filtered = filtered.filter(
+    preModality = preModality.filter(
       (j) =>
         j.title.toLowerCase().includes(q) ||
         j.company.toLowerCase().includes(q) ||
@@ -477,10 +481,23 @@ export function getFilteredPublicJobs(params: JobFilterParams, extraJobs?: any[]
     );
   }
 
+  // 2. Category / Department filter
+  const targetCategory = params.category || params.department;
+  if (targetCategory && targetCategory !== 'all') {
+    const cat = targetCategory.toLowerCase();
+    preModality = preModality.filter(
+      (j) =>
+        (j.category && j.category.toLowerCase() === cat) ||
+        (j.category && j.category.toLowerCase().includes(cat)) ||
+        (j.industry && j.industry.toLowerCase().includes(cat)) ||
+        j.title.toLowerCase().includes(cat)
+    );
+  }
+
   // 3. Location filter
   if (params.location && params.location !== 'all') {
     const loc = params.location.toLowerCase();
-    filtered = filtered.filter(
+    preModality = preModality.filter(
       (j) =>
         j.location.toLowerCase().includes(loc) ||
         j.location_rule.toLowerCase().includes(loc) ||
@@ -488,25 +505,68 @@ export function getFilteredPublicJobs(params: JobFilterParams, extraJobs?: any[]
     );
   }
 
-  // 4. Seniority
+  // 4. Open to / Country filter
+  if (params.open_to && params.open_to !== 'all') {
+    const openLower = params.open_to.toLowerCase();
+    if (openLower.includes('africa-wide') || openLower.includes('africa_wide')) {
+      preModality = preModality.filter(
+        (j) =>
+          j.eligibility?.scope === 'africa_wide' ||
+          j.location_rule.toLowerCase().includes('worldwide') ||
+          j.location_rule.toLowerCase().includes('africa')
+      );
+    } else {
+      preModality = preModality.filter(
+        (j) =>
+          j.eligible_countries.some((c) => c.toLowerCase().includes(openLower)) ||
+          j.eligibility?.countries?.some((c) => c.toLowerCase().includes(openLower)) ||
+          j.location_rule.toLowerCase().includes(openLower) ||
+          (j.city_location && j.city_location.toLowerCase().includes(openLower))
+      );
+    }
+  }
+
+  // 5. Seniority
   if (params.seniority && params.seniority !== 'all') {
     const sen = params.seniority.toLowerCase();
-    filtered = filtered.filter((j) => j.seniority.toLowerCase().includes(sen));
+    preModality = preModality.filter((j) => j.seniority.toLowerCase().includes(sen));
   }
 
-  // 5. Job Type
+  // 6. Job Type
   if (params.job_type && params.job_type !== 'all') {
     const jt = params.job_type.toLowerCase();
-    filtered = filtered.filter((j) => j.employment_type.toLowerCase().includes(jt));
+    preModality = preModality.filter((j) => j.employment_type.toLowerCase().includes(jt));
   }
 
-  // 6. Salary shown
+  // 7. Salary shown
   if (params.salary_shown) {
-    filtered = filtered.filter((j) => Boolean(j.salary && !j.salary.toLowerCase().includes('not listed')));
+    preModality = preModality.filter((j) => Boolean(j.salary && !j.salary.toLowerCase().includes('not listed')));
   }
 
-  // 7. Sorting
-  if (params.sort === 'recent' || !params.sort) {
+  // 8. Minimum salary
+  if (params.min_salary && params.min_salary > 0) {
+    preModality = preModality.filter((j) => (j.salary_max || j.salary_min || 0) >= params.min_salary!);
+  }
+
+  // Live counts for modality chips respecting all active filters
+  const countsByModalityForFilters = {
+    all: preModality.length,
+    remote: preModality.filter((j) => j.modality.toLowerCase() === 'remote').length,
+    hybrid: preModality.filter((j) => j.modality.toLowerCase() === 'hybrid').length,
+    onsite: preModality.filter((j) => j.modality.toLowerCase() === 'onsite').length,
+  };
+
+  // Now apply modality filter
+  let filtered = [...preModality];
+  if (params.modality && params.modality !== 'all') {
+    const targetModality = params.modality.toLowerCase();
+    filtered = filtered.filter((j) => j.modality.toLowerCase() === targetModality);
+  }
+
+  // 9. Sorting
+  if (params.sort === 'salary_desc') {
+    filtered.sort((a, b) => (b.salary_max || b.salary_min || 0) - (a.salary_max || a.salary_min || 0));
+  } else if (params.sort === 'recent' || !params.sort) {
     filtered.sort((a, b) => new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime());
   }
 
@@ -526,6 +586,7 @@ export function getFilteredPublicJobs(params: JobFilterParams, extraJobs?: any[]
     featuredRoles,
     stats,
     availableLocations,
+    countsByModalityForFilters,
   };
 }
 

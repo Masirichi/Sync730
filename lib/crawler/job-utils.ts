@@ -334,7 +334,7 @@ export function normalizeJobRecord(raw: Partial<RemoteJob>): RemoteJob {
 
   const timezone_overlap = raw.timezone_overlap || (
     location_rule === 'africa_only'
-      ? 'WAT / CAT (100% African time zone alignment)'
+      ? 'WAT / CAT (Full African time zone alignment)'
       : location_rule === 'emea'
       ? '4 hours daily overlap with GMT / CET business hours'
       : '3-4 hours daily overlap with US Eastern or GMT business hours'

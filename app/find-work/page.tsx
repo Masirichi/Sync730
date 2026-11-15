@@ -52,14 +52,25 @@ export default async function FindWorkPage({ searchParams }: FindWorkPageProps) 
       ? (searchParams.modality.toLowerCase() as any)
       : undefined;
   const department =
-    typeof searchParams.department === 'string' ? searchParams.department : undefined;
+    typeof searchParams.department === 'string'
+      ? searchParams.department
+      : typeof searchParams.category === 'string'
+      ? searchParams.category
+      : undefined;
+  const category = department;
   const location =
     typeof searchParams.location === 'string' ? searchParams.location : undefined;
+  const open_to =
+    typeof searchParams.open_to === 'string' ? searchParams.open_to : undefined;
   const seniority =
     typeof searchParams.seniority === 'string' ? searchParams.seniority : undefined;
   const job_type =
     typeof searchParams.job_type === 'string' ? searchParams.job_type : undefined;
   const salary_shown = searchParams.salary_shown === 'true';
+  const min_salary =
+    typeof searchParams.min_salary === 'string' ? parseInt(searchParams.min_salary, 10) : undefined;
+  const sort =
+    typeof searchParams.sort === 'string' ? (searchParams.sort as any) : undefined;
   const rawPage = typeof searchParams.page === 'string' ? parseInt(searchParams.page, 10) : 1;
   const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
 
@@ -75,10 +86,14 @@ export default async function FindWorkPage({ searchParams }: FindWorkPageProps) 
     q,
     modality: modality !== 'all' ? modality : undefined,
     department: department !== 'all' ? department : undefined,
+    category: category !== 'all' ? category : undefined,
     location: location !== 'all' ? location : undefined,
+    open_to: open_to !== 'all' ? open_to : undefined,
     seniority: seniority !== 'all' ? seniority : undefined,
     job_type: job_type !== 'all' ? job_type : undefined,
     salary_shown: salary_shown ? true : undefined,
+    min_salary: min_salary && !isNaN(min_salary) ? min_salary : undefined,
+    sort,
     page,
     limit: 12,
   };
