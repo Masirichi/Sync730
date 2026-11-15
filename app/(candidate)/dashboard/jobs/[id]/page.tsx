@@ -579,7 +579,7 @@ function JobDetailContent() {
                 <div>
                   <span className="font-semibold text-neutral-500 block">Payment Method:</span>
                   <p className="mt-0.5 text-neutral-900 dark:text-neutral-100 font-medium">
-                    {job.payment_method || 'Direct Wire / USD Contract / Local Bank'}
+                    {job.payment_method || 'Direct Wire / USD / Local Bank'}
                   </p>
                 </div>
               </div>

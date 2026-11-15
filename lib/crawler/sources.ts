@@ -39,7 +39,7 @@ export const JOB_SOURCES_META: Record<JobSource, SourceMetadata> = {
     label: 'Freehire Open Remote',
     shortLabel: 'Freehire',
     badgeClass: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20 dark:text-cyan-400',
-    description: 'Open remote marketplace eliminating agency fees for direct contracts.',
+    description: 'Open remote marketplace eliminating agency fees for direct roles.',
     website: 'https://freehire.me',
   },
   company_direct: {

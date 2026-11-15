@@ -485,7 +485,7 @@ export function JobDetailDialog({
             onClick={() => onBookmarkToggle && onBookmarkToggle(job)}
             aria-label={`Save to SyncFlow: ${job.title}`}
             aria-pressed={isSaved}
-            className="p-3 rounded-xl border border-border/80 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-neutral-900"
+            className="min-h-[44px] min-w-[44px] p-3 rounded-xl border border-border/80 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-neutral-900"
           >
             <Bookmark
               className={cn(

@@ -77,10 +77,10 @@ export const BENEFIT_STRIP_ITEMS = [
     description: 'Pay ranges on every role, with ₦ and $ views.',
   },
   {
-    id: 'tracker',
+    id: 'syncflow',
     flag: 'always_true',
     title: 'One place for your job hunt',
-    description: 'Save roles and track every application in your private tracker.',
+    description: 'Save roles and track every application in SyncFlow.',
   },
 ] as const;
 

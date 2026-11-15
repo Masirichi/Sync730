@@ -8,7 +8,7 @@ import {
 } from '../../lib/jobs/helpers.ts';
 import { getCleanFacts } from '../../components/jobs/job-card.tsx';
 import { reportJob } from '../../app/actions/report-job.ts';
-import { getAllApprovedJobs } from '../../lib/jobs/service.ts';
+import { getAllApprovedJobs, getFilteredPublicJobs } from '../../lib/jobs/service.ts';
 
 test('1. ELIGIBILITY: "+N" overflow calculation and Africa-wide label', () => {
   // 1a. Africa-wide scope
@@ -177,3 +177,46 @@ test('5. REPORT FLOW: reportJob server action submits report and returns confirm
   assert.ok(result.reportId, 'Must return a generated reportId');
   assert.ok(result.message.includes('Thank you for reporting'));
 });
+
+test('6. FILTER LOGIC: getFilteredPublicJobs filters accurately by modality, category, and query keyword', () => {
+  // Modality filter
+  const remoteOnly = getFilteredPublicJobs({ modality: 'remote' });
+  assert.ok(remoteOnly.jobs.length > 0, 'Should find remote jobs');
+  assert.ok(
+    remoteOnly.jobs.every((j) => j.modality.toLowerCase() === 'remote'),
+    'All returned jobs must have remote modality'
+  );
+
+  // Category filter
+  const engOnly = getFilteredPublicJobs({ department: 'Software Engineering' });
+  assert.ok(engOnly.jobs.length > 0, 'Should find Software Engineering jobs');
+  assert.ok(
+    engOnly.jobs.every(
+      (j) =>
+        j.category?.toLowerCase().includes('software') ||
+        j.category?.toLowerCase().includes('engineering') ||
+        j.title.toLowerCase().includes('engineer') ||
+        j.title.toLowerCase().includes('developer')
+    ),
+    'All returned jobs must match category'
+  );
+
+  // Query filter
+  const reactJobs = getFilteredPublicJobs({ q: 'react' });
+  assert.ok(reactJobs.jobs.length > 0, 'Should match react query keyword');
+  assert.ok(
+    reactJobs.jobs.every(
+      (j) =>
+        j.title.toLowerCase().includes('react') ||
+        j.description.toLowerCase().includes('react') ||
+        (j.skills && j.skills.some((s) => s.toLowerCase().includes('react')))
+    ),
+    'All returned query matches must contain search term'
+  );
+
+  // All jobs
+  const allResult = getFilteredPublicJobs({});
+  assert.ok(allResult.jobs.length >= remoteOnly.jobs.length);
+  assert.ok(allResult.total >= remoteOnly.total);
+});
+

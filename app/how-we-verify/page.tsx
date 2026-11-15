@@ -22,6 +22,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://sync730.com/how-we-verify',
   },
+  openGraph: {
+    title: 'How We Verify Roles | Sync730',
+    description:
+      'Every role on Sync730 is confirmed real, open, and eligible for people living in Africa before it appears publicly.',
+    url: 'https://sync730.com/how-we-verify',
+    siteName: 'Sync730',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'How We Verify Roles | Sync730',
+    description:
+      'Every role on Sync730 is confirmed real, open, and eligible for people living in Africa before it appears publicly.',
+  },
 };
 
 export default function HowWeVerifyPage() {

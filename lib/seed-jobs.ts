@@ -639,7 +639,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     responsibilities: '• Design resilient multi-region financial ledger systems.\n• Oversee database partitioning, transactional consistency, and data replication.\n• Lead technical design reviews and architectural audits.',
     requirements: '• 8+ years building high-reliability distributed systems.\n• Deep expertise with Go, PostgreSQL ACID internals, and event sourcing.\n• Experience with regulated fintech or banking infrastructure is a major plus.',
     timezone_overlap: 'Asynchronous first with core availability during WAT/GMT/EST',
-    payment_method: 'USD Wire / Direct Contractor Contract via Deel',
+    payment_method: 'USD Wire / Deel direct transfer',
     category: 'Software & Engineering',
     candidate_required_location: 'Worldwide Remote (All Timezones)',
     location_tier: 'Worldwide',

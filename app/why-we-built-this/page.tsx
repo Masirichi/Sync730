@@ -15,6 +15,20 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
+  openGraph: {
+    title: 'Why We Built Sync730 | Real remote jobs, open to Africa',
+    description:
+      "Where you live shouldn't decide what you can become. Why we built Sync730 for African talent.",
+    url: 'https://sync730.com/why-we-built-this',
+    siteName: 'Sync730',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Why We Built Sync730 | Real remote jobs, open to Africa',
+    description:
+      "Where you live shouldn't decide what you can become. Why we built Sync730 for African talent.",
+  },
 };
 
 export default function WhyWeBuiltThisPage() {

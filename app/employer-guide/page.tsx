@@ -17,7 +17,7 @@ export default function EmployerGuidePage() {
     <div className="flex min-h-screen flex-col bg-background text-foreground font-sans selection:bg-foreground selection:text-background">
       <SiteHeader ctaMode="demo" />
 
-      <main className="flex-1 py-16 sm:py-24">
+      <main id="main-content" className="flex-1 py-16 sm:py-24 focus:outline-none" tabIndex={-1}>
         <div className="mx-auto max-w-4xl px-5 sm:px-8 lg:px-10">
           <div className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             <span>Employer Guide · Draft Edition</span>

@@ -595,7 +595,7 @@ export function JobsClientView({
       {/* State-Aware Site Header with Auto-Hide on Scroll Down */}
       <SiteHeader ctaMode="profile" isNavVisible={isNavVisible} compact />
 
-      <main id="jobs-content" className="flex-1">
+      <main id="main-content" className="flex-1 focus:outline-none" tabIndex={-1}>
         {/* 1. HERO SECTION (~240-280px tall) */}
         <section className="border-b border-border/70 bg-[#fcfcf9] dark:bg-neutral-950 pt-8 pb-7 px-5 sm:px-8 lg:px-12">
           <div className="mx-auto max-w-7xl">

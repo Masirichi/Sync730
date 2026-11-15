@@ -23,7 +23,7 @@ export default function PrivacyPage() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-4xl mx-auto px-6 py-12 w-full">
+      <main id="main-content" className="flex-1 max-w-4xl mx-auto px-6 py-12 w-full focus:outline-none" tabIndex={-1}>
         <div className="inline-block px-3 py-1 bg-[#edf3ec] text-[#346538] text-xs font-semibold rounded-[4px] uppercase tracking-wider mb-6">
           Draft, pending legal review
         </div>

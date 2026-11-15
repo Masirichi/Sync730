@@ -344,7 +344,7 @@ export function JobCard({
               }}
               aria-label={`Save to SyncFlow: ${job.title}`}
               aria-pressed={isSaved}
-              className="relative z-10 p-2 rounded-xl text-neutral-600 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-900"
+              className="relative z-10 min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 rounded-xl text-neutral-600 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-900"
             >
               <Bookmark
                 className={cn(
@@ -362,7 +362,7 @@ export function JobCard({
                 type="button"
                 disabled
                 aria-disabled="true"
-                className="relative z-10 px-4 py-2 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 text-xs font-semibold cursor-not-allowed flex items-center gap-1.5 shadow-none select-none"
+                className="relative z-10 min-h-[44px] px-4 py-2.5 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 text-xs font-semibold cursor-not-allowed flex items-center gap-1.5 shadow-none select-none"
               >
                 <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" aria-hidden="true" />
                 <span>Applied</span>
@@ -375,7 +375,7 @@ export function JobCard({
                   e.stopPropagation();
                   if (onApplyClick) onApplyClick(e, job);
                 }}
-                className="relative z-10 px-4 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                className="relative z-10 min-h-[44px] px-4 py-2.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
               >
                 Apply
               </button>

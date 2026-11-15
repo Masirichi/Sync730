@@ -78,7 +78,7 @@ const FLOWMINGO_TEMPLATES = [
   {
     id: 'Engineering',
     name: 'Engineering (Full-Stack & Systems)',
-    description: 'System design tradeoffs, state collocation, debugging production concurrency, asynchronous API contracts.',
+    description: 'System design tradeoffs, state collocation, debugging production concurrency, asynchronous API interfaces.',
     rubrics: ['Technical Depth', 'System Architecture', 'Debugging & Optimization'],
   },
   {
