@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils';
 export interface JobCardProps {
   job: PublicJob | any;
   isSaved?: boolean;
+  isApplied?: boolean;
   onBookmarkToggle?: (e: React.MouseEvent, job: any) => void;
   onApplyClick?: (e: React.MouseEvent, job: any) => void;
   onSelect?: (job: any) => void;
@@ -96,6 +97,7 @@ export function getCleanFacts(job: any) {
 export function JobCard({
   job,
   isSaved = false,
+  isApplied = false,
   onBookmarkToggle,
   onApplyClick,
   onSelect,
@@ -343,18 +345,30 @@ export function JobCard({
               />
             </button>
 
-            {/* Primary Apply Button above stretched link */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (onApplyClick) onApplyClick(e, job);
-              }}
-              className="relative z-10 px-4 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
-            >
-              Apply
-            </button>
+            {/* Primary Apply Button / Disabled Applied State above stretched link */}
+            {isApplied ? (
+              <button
+                type="button"
+                disabled
+                aria-disabled="true"
+                className="relative z-10 px-4 py-2 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 text-xs font-semibold cursor-not-allowed flex items-center gap-1.5 shadow-none select-none"
+              >
+                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" aria-hidden="true" />
+                <span>Applied</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (onApplyClick) onApplyClick(e, job);
+                }}
+                className="relative z-10 px-4 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+              >
+                Apply
+              </button>
+            )}
           </div>
         </div>
 

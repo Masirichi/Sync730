@@ -158,6 +158,16 @@ export function isJobSavedInTracker(jobId: string): boolean {
   return current.some((i) => i.job_id === jobId || i.id === jobId);
 }
 
+// Check if job is marked as applied
+export function isJobAppliedInTracker(jobId: string): boolean {
+  const current = getLocalTrackerItems();
+  return current.some(
+    (i) =>
+      (i.job_id === jobId || i.id === jobId) &&
+      (i.status === 'APPLIED' || i.status === 'INTERVIEWING' || i.status === 'OFFER' || (i.status as string) === 'OFFERED')
+  );
+}
+
 // Mark job as applied (or add to tracker as APPLIED)
 export function markJobAsApplied(job: Partial<RemoteJob>): CandidateTrackerItem {
   const current = getLocalTrackerItems();

@@ -83,7 +83,12 @@ export default function SyncFlowPage() {
   }, []);
 
   // Update card status via dropdown
-  const handleStatusChange = async (itemId: string, newStatus: TrackerStatus) => {
+  const handleStatusChange = async (itemId: string, selectedValue: string) => {
+    if (selectedValue === 'REMOVE') {
+      handleDelete(itemId);
+      return;
+    }
+    const newStatus = selectedValue as TrackerStatus;
     const colMatch = COLUMNS.find((c) => c.id === newStatus);
     const updated = await updateTrackerStatus(itemId, newStatus);
     setItems(updated);
@@ -164,7 +169,7 @@ export default function SyncFlowPage() {
             <span>SyncFlow ({items.length})</span>
           </h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-            Track and advance jobs across Saved, Applied, Interviewing, and Offer.
+            Your private job pipeline. Move roles from Saved to Offer as you progress.
           </p>
         </div>
 
@@ -223,42 +228,58 @@ export default function SyncFlowPage() {
         </div>
       </div>
 
-      {/* 4-Column SyncFlow Board */}
-      <div
-        tabIndex={0}
-        role="region"
-        aria-label="SyncFlow pipeline columns"
-        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-start overflow-x-auto pb-4 focus:outline-none focus:ring-2 focus:ring-neutral-400 rounded-xl"
-      >
-        {COLUMNS.map((col) => {
-          const colItems = filteredItems.filter(
-            (i) => i.status === col.id || (col.id === 'OFFER' && (i.status as string) === 'OFFERED')
-          );
-
-          return (
-            <div
-              key={col.id}
-              className={`flex flex-col rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 p-3 min-w-[260px] border-t-2 ${col.color}`}
+      {/* Empty Board State */}
+      {items.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 p-12 text-center">
+          <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            Nothing here yet. Tap the bookmark on any role to save it.
+          </p>
+          <div className="mt-4">
+            <Link
+              href="/find-work"
+              className="inline-flex h-9 items-center justify-center rounded-full bg-neutral-950 dark:bg-white px-5 text-xs font-semibold text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors"
             >
-              {/* Column Header */}
-              <div className="flex items-center justify-between pb-3 px-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
-                    {col.label}
-                  </span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${col.badgeColor}`}>
-                    {colItems.length}
-                  </span>
-                </div>
-              </div>
+              Browse roles
+            </Link>
+          </div>
+        </div>
+      ) : (
+        /* 4-Column SyncFlow Board */
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label="SyncFlow pipeline columns"
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-start overflow-x-auto pb-4 focus:outline-none focus:ring-2 focus:ring-neutral-400 rounded-xl"
+        >
+          {COLUMNS.map((col) => {
+            const colItems = filteredItems.filter(
+              (i) => i.status === col.id || (col.id === 'OFFER' && (i.status as string) === 'OFFERED')
+            );
 
-              {/* Cards Container */}
-              <div className="space-y-3 min-h-[350px]">
-                {colItems.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-neutral-200 dark:border-neutral-800 p-6 text-center text-xs text-neutral-700 dark:text-neutral-300 font-medium">
-                    No roles in {col.label.toLowerCase()}
+            return (
+              <div
+                key={col.id}
+                className={`flex flex-col rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 p-3 min-w-[260px] border-t-2 ${col.color}`}
+              >
+                {/* Column Header */}
+                <div className="flex items-center justify-between pb-3 px-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+                      {col.label}
+                    </span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${col.badgeColor}`}>
+                      {colItems.length}
+                    </span>
                   </div>
-                ) : (
+                </div>
+
+                {/* Cards Container */}
+                <div className="space-y-3 min-h-[350px]">
+                  {colItems.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-neutral-200 dark:border-neutral-800 p-6 text-center text-xs text-neutral-700 dark:text-neutral-300 font-medium">
+                      No roles
+                    </div>
+                  ) : (
                   colItems.map((item) => (
                     <Card
                       key={item.id}
@@ -344,7 +365,7 @@ export default function SyncFlowPage() {
                           <div className="flex-1 max-w-[130px]">
                             <Select
                               value={item.status === 'OFFERED' ? 'OFFER' : item.status}
-                              onValueChange={(val) => handleStatusChange(item.id, val as TrackerStatus)}
+                              onValueChange={(val) => handleStatusChange(item.id, val)}
                             >
                               <SelectTrigger aria-label={`Status for ${item.title}`} className="h-9 min-h-[36px] text-xs px-2.5 py-1 border-neutral-200 dark:border-neutral-800">
                                 <SelectValue />
@@ -355,6 +376,9 @@ export default function SyncFlowPage() {
                                     {c.label}
                                   </SelectItem>
                                 ))}
+                                <SelectItem value="REMOVE" className="text-base sm:text-sm text-red-600 focus:text-red-600">
+                                  Remove
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -381,6 +405,7 @@ export default function SyncFlowPage() {
           );
         })}
       </div>
+      )}
 
       {/* Edit Notes Modal */}
       <Dialog

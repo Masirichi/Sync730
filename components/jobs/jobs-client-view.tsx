@@ -19,7 +19,14 @@ import {
 import type { PublicJob, JobFilterParams, PublicJobsStats } from '@/lib/jobs/service';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { fireJobAnalytics } from '@/lib/analytics/client';
-import { fetchCandidateTracker, saveJobToTracker } from '@/lib/tracker';
+import {
+  fetchCandidateTracker,
+  saveJobToTracker,
+  getLocalTrackerItems,
+  removeJobFromTracker,
+  markJobAsApplied,
+} from '@/lib/tracker';
+import { toast } from 'sonner';
 import { ApplyReadyResult } from '@/lib/candidate/apply-ready-config';
 import { ExtendedCandidateProfile } from '@/lib/candidate/profile-store';
 import { FinishProfileModal } from '@/components/jobs/finish-profile-modal';
@@ -150,11 +157,31 @@ export function JobsClientView({
   const [selectedJobForModal, setSelectedJobForModal] = useState<PublicJob | null>(null);
   const [selectedJobForDetail, setSelectedJobForDetail] = useState<PublicJob | null>(null);
 
-  // User & Candidate auth state
+  // User & Candidate auth state & SyncFlow tracking
   const [user, setUser] = useState<any>(null);
   const [candidateProfile, setCandidateProfile] = useState<ExtendedCandidateProfile | null>(null);
   const [applyReadyResult, setApplyReadyResult] = useState<ApplyReadyResult | null>(null);
-  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
+  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(() => {
+    try {
+      const items = getLocalTrackerItems();
+      return new Set(items.filter((i) => i.status === 'SAVED').map((i) => i.job_id).filter(Boolean) as string[]);
+    } catch {
+      return new Set();
+    }
+  });
+  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(() => {
+    try {
+      const items = getLocalTrackerItems();
+      return new Set(
+        items
+          .filter((i) => ['APPLIED', 'INTERVIEWING', 'OFFER', 'OFFERED'].includes(i.status))
+          .map((i) => i.job_id)
+          .filter(Boolean) as string[]
+      );
+    } catch {
+      return new Set();
+    }
+  });
 
   // Polite live announcement message
   const [announcement, setAnnouncement] = useState('');
@@ -248,6 +275,30 @@ export function JobsClientView({
 
     checkUser();
   }, [initialResults.total, activeModality]);
+
+  // Keep SyncFlow saved and applied job IDs synced in real-time across tabs / components
+  useEffect(() => {
+    const handleTrackerUpdated = () => {
+      try {
+        const items = getLocalTrackerItems();
+        const nextSaved = new Set<string>();
+        const nextApplied = new Set<string>();
+        items.forEach((i) => {
+          if (i.job_id) {
+            if (i.status === 'SAVED') nextSaved.add(i.job_id);
+            if (['APPLIED', 'INTERVIEWING', 'OFFER', 'OFFERED'].includes(i.status as string)) {
+              nextApplied.add(i.job_id);
+            }
+          }
+        });
+        setSavedJobIds(nextSaved);
+        setAppliedJobIds(nextApplied);
+      } catch {}
+    };
+
+    window.addEventListener('sync730_tracker_updated', handleTrackerUpdated);
+    return () => window.removeEventListener('sync730_tracker_updated', handleTrackerUpdated);
+  }, []);
 
   // URL Query Updater
   const updateFilters = (newParams: Partial<JobFilterParams>) => {
@@ -354,16 +405,13 @@ export function JobsClientView({
     e.preventDefault();
     e.stopPropagation();
 
-    if (!user) {
-      router.push(`/register?next=/jobs/${job.slug}&save=1`);
-      return;
-    }
-
     const isCurrentlySaved = savedJobIds.has(job.id);
     const updated = new Set(savedJobIds);
 
     if (isCurrentlySaved) {
       updated.delete(job.id);
+      removeJobFromTracker(job.id);
+      setSavedJobIds(updated);
     } else {
       updated.add(job.id);
       await saveJobToTracker({
@@ -371,20 +419,51 @@ export function JobsClientView({
         title: job.title,
         company: job.company,
         candidate_required_location: job.location_rule,
+        location_tier: (job as any).location_tier || job.location_rule,
+        apply_url: job.apply_url || (job as any).url,
       });
+      setSavedJobIds(updated);
       fireJobAnalytics('job_saved', { job_id: job.id });
-    }
 
-    setSavedJobIds(updated);
+      // Standardized polite toast with View action to open SyncFlow drawer
+      toast('Saved to SyncFlow', {
+        duration: 4500,
+        action: {
+          label: 'View',
+          onClick: () => {
+            window.dispatchEvent(new CustomEvent('sync730_open_syncflow'));
+          },
+        },
+      });
+    }
   };
 
   const handleCardApplyClick = (e: React.MouseEvent, job: PublicJob) => {
     e.preventDefault();
     e.stopPropagation();
 
+    // Mark as applied in SyncFlow persistence
+    markJobAsApplied({
+      id: job.id,
+      title: job.title,
+      company: job.company,
+      location_tier: (job as any).location_tier || job.location_rule,
+      candidate_required_location: job.location_rule,
+      apply_url: job.apply_url || (job as any).url,
+    });
+
+    const nextApplied = new Set(appliedJobIds);
+    nextApplied.add(job.id);
+    setAppliedJobIds(nextApplied);
+
     if (!user) {
       fireJobAnalytics('apply_click_logged_out', { job_id: job.id });
-      router.push(`/register?next=/jobs/${job.slug}`);
+      const targetUrl = job.apply_url || (job as any).url;
+      if (targetUrl) {
+        window.open(targetUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        router.push(`/register?next=/jobs/${job.slug}`);
+      }
       return;
     }
 
@@ -409,7 +488,12 @@ export function JobsClientView({
             setDidYouApplyOpen(true);
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          const fallbackUrl = job.apply_url || (job as any).url;
+          if (fallbackUrl) {
+            window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+          }
+        });
     }
   };
 
@@ -797,6 +881,7 @@ export function JobsClientView({
                     job={job}
                     variant="featured"
                     isSaved={savedJobIds.has(job.id)}
+                    isApplied={appliedJobIds.has(job.id)}
                     onBookmarkToggle={handleBookmarkToggle}
                     onApplyClick={handleCardApplyClick}
                     onSelect={(j) => setSelectedJobForDetail(j)}
@@ -847,6 +932,7 @@ export function JobsClientView({
                     job={job}
                     variant="standard"
                     isSaved={savedJobIds.has(job.id)}
+                    isApplied={appliedJobIds.has(job.id)}
                     onBookmarkToggle={handleBookmarkToggle}
                     onApplyClick={handleCardApplyClick}
                     onSelect={(j) => setSelectedJobForDetail(j)}
@@ -1009,6 +1095,7 @@ export function JobsClientView({
         isOpen={Boolean(selectedJobForDetail)}
         onClose={() => setSelectedJobForDetail(null)}
         isSaved={selectedJobForDetail ? savedJobIds.has(selectedJobForDetail.id) : false}
+        isApplied={selectedJobForDetail ? appliedJobIds.has(selectedJobForDetail.id) : false}
         onBookmarkToggle={(j) => {
           handleBookmarkToggle({ preventDefault: () => {}, stopPropagation: () => {} } as any, j);
         }}

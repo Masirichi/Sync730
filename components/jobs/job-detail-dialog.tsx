@@ -22,6 +22,7 @@ export interface JobDetailDialogProps {
   onClose: () => void;
   triggerRef?: React.RefObject<HTMLElement | null>;
   isSaved?: boolean;
+  isApplied?: boolean;
   onBookmarkToggle?: (job: PublicJob) => void;
   onApplyClick?: (job: PublicJob) => void;
 }
@@ -67,6 +68,7 @@ export function JobDetailDialog({
   onClose,
   triggerRef,
   isSaved = false,
+  isApplied = false,
   onBookmarkToggle,
   onApplyClick,
 }: JobDetailDialogProps) {
@@ -478,14 +480,26 @@ export function JobDetailDialog({
             />
           </button>
 
-          <button
-            type="button"
-            onClick={() => onApplyClick && onApplyClick(job)}
-            className="flex-1 h-12 px-6 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs sm:text-sm font-bold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors shadow-sm flex items-center justify-center gap-2"
-          >
-            <span>Apply for this role</span>
-            <ExternalLink className="w-4 h-4" />
-          </button>
+          {isApplied ? (
+            <button
+              type="button"
+              disabled
+              aria-disabled="true"
+              className="flex-1 h-12 px-6 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 text-xs sm:text-sm font-bold cursor-not-allowed flex items-center justify-center gap-2 shadow-none select-none"
+            >
+              <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" aria-hidden="true" />
+              <span>Applied</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onApplyClick && onApplyClick(job)}
+              className="flex-1 h-12 px-6 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs sm:text-sm font-bold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors shadow-sm flex items-center justify-center gap-2"
+            >
+              <span>Apply for this role</span>
+              <ExternalLink className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
     </div>

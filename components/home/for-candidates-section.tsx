@@ -25,9 +25,9 @@ const jobHuntFeatures = [
   },
   {
     number: '02',
-    title: 'SyncFlow application tracker',
+    title: 'SyncFlow',
     description:
-      'Keep every application, status and next step organized in one place with SyncFlow.',
+      'Your private job pipeline. Move roles from Saved to Offer as you progress.',
   },
   {
     number: '03',
