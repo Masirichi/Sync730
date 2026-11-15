@@ -27,6 +27,9 @@ const BANNED_VOICE_TERMS = [
   { term: 'age of ai', regex: /\bage\s+of\s+ai\b/i },
   { term: 'seamless', regex: /\bseamless(?:ly)?\b/i },
   { term: 'cutting-edge', regex: /\bcutting-edge\b/i },
+  { term: 'unbiased', regex: /\bunbiased\b/i },
+  { term: 'ai recruiter', regex: /\bai\s+recruiter\b/i },
+  { term: 'detects cheating', regex: /\bdetects?\s+cheating\b/i },
   { term: 'glyph ✦', regex: /✦/ },
   { term: 'glyph ✨', regex: /✨/ },
 ];

@@ -10,7 +10,7 @@ export const showUnconfirmedClaims = POSITIONING_CONFIG.showUnconfirmedClaims;
 
 export const SYNC730_BELIEF = {
   core: "Where you live shouldn't decide what you can become. Talent is everywhere. Real opportunity should be too.",
-  mission: "Real, open roles eligible for people living in Africa.",
+  mission: "To make hiring in Africa faster, fairer and real.",
 } as const;
 
 export const SYNC730_AUDIENCE = {
@@ -32,4 +32,8 @@ export const BANNED_VOICE_WORDS = [
   'seamless',
   'cutting-edge',
   'unlock',
+  'unbiased',
+  'guaranteed',
+  'ai recruiter',
+  'detects cheating',
 ] as const;
