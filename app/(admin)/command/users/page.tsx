@@ -43,6 +43,10 @@ export default function CommandUsersPage() {
   const [reauthPassword, setReauthPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    document.title = 'Users and roles | Command Center';
+  }, []);
+
   const fetchUsersAndMetrics = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -171,20 +175,13 @@ export default function CommandUsersPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-neutral-900 border border-neutral-800">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-xs uppercase font-semibold tracking-wider text-neutral-400">
-              Identity & Access Management
-            </span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-            User directory
-          </h1>
-          <p className="text-sm text-neutral-400">
-            Review accounts, manage ecosystem permissions, and audit role elevation.
-          </p>
-        </div>
+      <div>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+          Users and roles
+        </h1>
+        <p className="text-sm text-neutral-400 mt-1">
+          Manage user directory, workspace permissions, and administrator access.
+        </p>
       </div>
 
       {/* Directory Table Card */}
@@ -266,13 +263,13 @@ export default function CommandUsersPage() {
                           <div className="font-semibold text-white">
                             {u.full_name || 'Sync730 User'}
                           </div>
-                          <span className="text-xs text-neutral-500 font-mono">{u.id}</span>
+                          <span className="text-xs text-neutral-500 tabular-nums">{u.id}</span>
                         </div>
                       </div>
                     </td>
 
                     {/* Email */}
-                    <td className="py-3.5 text-neutral-300 font-mono text-xs">
+                    <td className="py-3.5 text-neutral-300 text-xs">
                       {u.email}
                     </td>
 

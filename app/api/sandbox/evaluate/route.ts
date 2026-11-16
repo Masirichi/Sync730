@@ -55,11 +55,12 @@ function generateHeuristicScorecard(
   const sampleBetterAnswers: SampleBetterAnswer[] = questions.map((q) => {
     let modelAnswer = '';
     let takeaway = '';
+    const cat = q?.category || '';
 
-    if (q.category.includes('Architecture') || q.category.includes('Distributed') || q.category.includes('Systems')) {
+    if (cat.includes('Architecture') || cat.includes('Distributed') || cat.includes('Systems')) {
       modelAnswer = `In high-scale architectures ${companyName ? `at ${companyName}` : ''}, I structure the system around decoupled boundaries, asynchronous messaging queues with idempotency keys, and multi-tier caching with strict invalidation tags. For edge latency, I implement streaming SSR and edge CDN distribution to guarantee sub-second delivery.`;
       takeaway = 'Lead with clear architectural trade-offs, mention idempotency, and provide measurable latency targets.';
-    } else if (q.category.includes('Performance') || q.category.includes('Data') || q.category.includes('Research')) {
+    } else if (cat.includes('Performance') || cat.includes('Data') || cat.includes('Research')) {
       modelAnswer = `I isolate performance bottlenecks systematically using telemetry profilers and synthetic benchmarks before optimizing. For instance, by migrating heavy computations to web workers and indexing high-cardinality database columns with composite keys, I cut query latencies by 64% while maintaining memory stability.`;
       takeaway = 'Quantify the problem, explain the exact profiling method used, and state the measurable outcome.';
     } else {
@@ -68,8 +69,8 @@ function generateHeuristicScorecard(
     }
 
     return {
-      question_id: q.id,
-      question: q.question,
+      question_id: q?.id || 1,
+      question: q?.question || '',
       model_answer: modelAnswer,
       key_takeaway: takeaway,
     };
