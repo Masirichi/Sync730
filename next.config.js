@@ -27,6 +27,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/for-employers',
+        destination: '/#for-recruiters',
+        permanent: false,
+      },
+      {
         source: '/ai-transparency',
         destination: '/scoring-methodology',
         permanent: true,

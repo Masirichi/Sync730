@@ -75,35 +75,28 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
             {hero.sub}
           </p>
 
-          {/* Action Buttons */}
+          {/* Action Buttons: Equal size, height and type weight, side by side on desktop, stacked on mobile */}
           <div className="mt-8 flex flex-col gap-3.5 sm:mt-10 sm:flex-row sm:items-center">
             <Link
               href={hero.ctaPrimaryHref}
               onClick={handleJobsClick}
-              className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-7 text-sm font-semibold text-background hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
+              className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-full bg-foreground px-7 text-sm font-semibold text-background hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
             >
               {hero.ctaPrimary}
             </Link>
             <Link
               href={hero.ctaSecondaryHref}
               onClick={handleHiringClick}
-              className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-background px-7 text-sm font-semibold text-foreground hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
+              className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-full border border-foreground bg-background px-7 text-sm font-semibold text-foreground hover:bg-foreground/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
             >
               {hero.ctaSecondary}
             </Link>
           </div>
 
-          {/* Proof line: Plain text items separated by thin vertical dividers (No checkmark icons/emojis) */}
-          <div className="mt-10 flex flex-wrap items-center gap-y-2 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:mt-12">
-            {hero.proofItems.map((item, idx) => (
-              <React.Fragment key={item}>
-                {idx > 0 && (
-                  <span className="mx-3.5 h-3.5 w-px bg-border/80" aria-hidden="true" />
-                )}
-                <span>{item}</span>
-              </React.Fragment>
-            ))}
-          </div>
+          {/* Proof line: One line, middle dots, muted text */}
+          <p className="mt-10 text-xs font-medium text-muted-foreground sm:mt-12">
+            {hero.proofLine}
+          </p>
         </div>
 
         {/* Right Column: Hero Visual with Light-Gray Circles & Static Sample Job Card */}

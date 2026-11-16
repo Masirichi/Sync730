@@ -7,6 +7,18 @@ export { homeCopy, HOME_CONTENT } from '@/content/home';
 
 // Full copy mirrors content/home.ts for test runners inspecting src/content/home.ts directly
 /*
+Sync730: Smarter recruitment with AI solutions for everyday businesses
+Meet the people who fit, not the pile. Sync730 interviews every applicant, scores them on your criteria, and hands you a ranked shortlist. You decide.
+WE BELIEVE TALENT IS EVERYWHERE
+Talent is everywhere. Real opportunity should be too.
+Sync730 checks that every role is live and open to Africa, so you can stop applying into the void. For employers, we interview every applicant and hand you a shortlist, so you can stop sorting the pile.
+I'm looking for work
+I'm hiring in Africa
+Free for candidates · People make every hiring decision · Built for how Africa hires
+LIVE ON SYNC730
+Roles live now
+Countries roles are open to
+Employers hiring
 HIRING NOW · LIVE FEED
 Roles you can actually apply for.
 Curated remote, hybrid and onsite roles in Lagos, Abuja and across Africa

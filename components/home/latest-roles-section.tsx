@@ -91,7 +91,7 @@ export function LatestRolesSection({ jobs = [], rolesLive }: LatestRolesSectionP
 
   // Limit between 3 and 6 newest public jobs
   const displayJobs = jobs.slice(0, 6);
-  const liveCount = rolesLive || jobs.length || 26;
+  const liveCount = rolesLive || jobs.length;
 
   if (displayJobs.length === 0) {
     return null;

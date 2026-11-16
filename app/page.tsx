@@ -10,7 +10,9 @@ import { homeCopy } from '@/content/home';
 export const revalidate = 60; // ISR cache revalidation at edge
 
 export const metadata: Metadata = {
-  title: homeCopy.meta.title,
+  title: {
+    absolute: homeCopy.meta.title,
+  },
   description: homeCopy.meta.description,
   alternates: {
     canonical: homeCopy.meta.canonical || 'https://sync730.com/',

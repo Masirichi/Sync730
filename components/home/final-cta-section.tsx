@@ -11,7 +11,7 @@ interface FinalCtaSectionProps {
   talents?: number;
 }
 
-export function FinalCtaSection({ onOpenDemo, talents = 137 }: FinalCtaSectionProps) {
+export function FinalCtaSection({ onOpenDemo, talents = 0 }: FinalCtaSectionProps) {
   const content = homeCopy.closing;
 
   const handleRecruiterClick = () => {

@@ -10,9 +10,14 @@ import { createBrowserClient } from '@/lib/supabase/client';
 import { homeCopy } from '@/content/home';
 
 interface StatsData {
-  rolesLast24h: number;
-  talents: number;
-  partners: number;
+  rolesLiveNow?: number;
+  countriesCount?: number;
+  employersCount?: number;
+  updatedAt?: string;
+  rolesLive?: number;
+  rolesLast24h?: number;
+  talents?: number;
+  partners?: number;
 }
 
 interface LiveStatsBandProps {
@@ -216,9 +221,34 @@ function formatLocationPill(job: Partial<RemoteJob>): { text: string; mode: 'REM
   return { text: 'Remote • Global', mode: 'REMOTE' };
 }
 
+function formatRelativeUpdated(isoString?: string): string | null {
+  if (!isoString) return null;
+  const time = new Date(isoString).getTime();
+  if (isNaN(time) || time <= 0) return null;
+  const diffMs = Date.now() - time;
+  if (diffMs < 0) return 'Updated just now';
+  const diffSec = Math.floor(diffMs / 1000);
+  if (diffSec < 60) return 'Updated just now';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `Updated ${diffMin}m ago`;
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) return `Updated ${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `Updated ${diffDays}d ago`;
+}
+
 export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps) {
-  const [stats, setStats] = useState<StatsData>(initialStats);
-  const [displayValues, setDisplayValues] = useState<StatsData>(initialStats);
+  const [stats, setStats] = useState<StatsData>(() => ({
+    rolesLiveNow: initialStats?.rolesLiveNow ?? initialStats?.rolesLive ?? 0,
+    countriesCount: initialStats?.countriesCount ?? 0,
+    employersCount: initialStats?.employersCount ?? initialStats?.partners ?? 0,
+    updatedAt: initialStats?.updatedAt,
+  }));
+  const [displayValues, setDisplayValues] = useState(() => ({
+    rolesLiveNow: initialStats?.rolesLiveNow ?? initialStats?.rolesLive ?? 0,
+    countriesCount: initialStats?.countriesCount ?? 0,
+    employersCount: initialStats?.employersCount ?? initialStats?.partners ?? 0,
+  }));
   const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   const bandRef = useRef<HTMLElement>(null);
@@ -232,16 +262,31 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
     return DEFAULT_STREAM_ROLES;
   });
 
-  // Check if counters qualify based on minimums
-  const meetsMinRoles = stats.rolesLast24h >= STATS_CONFIG.minimums.rolesLast24h;
-  const meetsMinTalents = stats.talents >= STATS_CONFIG.minimums.talents;
-  const meetsMinPartners = stats.partners >= STATS_CONFIG.minimums.partners;
+  // Cells in exact required order: "Roles live now", "Countries roles are open to", "Employers hiring"
+  // Hide any stat if value is 0, null, or query fails
+  const cells = [
+    {
+      id: 'roles-live-now',
+      value: displayValues.rolesLiveNow,
+      rawValue: stats.rolesLiveNow,
+      label: homeCopy.stats.rolesLiveNowLabel || 'Roles live now',
+    },
+    {
+      id: 'countries-open',
+      value: displayValues.countriesCount,
+      rawValue: stats.countriesCount,
+      label: homeCopy.stats.countriesOpenLabel || 'Countries roles are open to',
+    },
+    {
+      id: 'employers-hiring',
+      value: displayValues.employersCount,
+      rawValue: stats.employersCount,
+      label: homeCopy.stats.employersHiringLabel || 'Employers hiring',
+    },
+  ].filter((c) => typeof c.rawValue === 'number' && c.rawValue > 0);
 
-  const qualifyingCount =
-    (meetsMinRoles ? 1 : 0) + (meetsMinTalents ? 1 : 0) + (meetsMinPartners ? 1 : 0);
-
-  // Rule: If fewer than two cells qualify, hide the whole band
-  const shouldRenderBand = qualifyingCount >= 2;
+  // Rule: If fewer than two stats remain, hide the whole section including its label
+  const shouldRenderBand = cells.length >= 2;
 
   // Count-up animation helper
   const animateValue = (
@@ -287,15 +332,21 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
           trackEvent({ name: 'stats_band_view' });
           setHasAnimatedIn(true);
 
-          animateValue(0, stats.rolesLast24h, 1500, (v) =>
-            setDisplayValues((prev) => ({ ...prev, rolesLast24h: v }))
-          );
-          animateValue(0, stats.talents, 1500, (v) =>
-            setDisplayValues((prev) => ({ ...prev, talents: v }))
-          );
-          animateValue(0, stats.partners, 1500, (v) =>
-            setDisplayValues((prev) => ({ ...prev, partners: v }))
-          );
+          if (stats.rolesLiveNow) {
+            animateValue(0, stats.rolesLiveNow, 1200, (v) =>
+              setDisplayValues((prev) => ({ ...prev, rolesLiveNow: v }))
+            );
+          }
+          if (stats.countriesCount) {
+            animateValue(0, stats.countriesCount, 1200, (v) =>
+              setDisplayValues((prev) => ({ ...prev, countriesCount: v }))
+            );
+          }
+          if (stats.employersCount) {
+            animateValue(0, stats.employersCount, 1200, (v) =>
+              setDisplayValues((prev) => ({ ...prev, employersCount: v }))
+            );
+          }
 
           observer.disconnect();
         }
@@ -322,38 +373,34 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
         if (!res.ok) return;
 
         const data = await res.json();
-        const newRoles = data.rolesLast24h ?? stats.rolesLast24h;
-        const newTalents = data.talents ?? stats.talents;
-        const newPartners = data.partners ?? stats.partners;
+        const newRoles = data.rolesLiveNow ?? data.rolesLive ?? stats.rolesLiveNow ?? 0;
+        const newCountries = data.countriesCount ?? stats.countriesCount ?? 0;
+        const newEmployers = data.employersCount ?? data.partners ?? stats.employersCount ?? 0;
+        const newUpdated = data.updatedAt ?? stats.updatedAt;
 
-        if (newRoles > stats.rolesLast24h) {
-          animateValue(stats.rolesLast24h, newRoles, 750, (v) =>
-            setDisplayValues((prev) => ({ ...prev, rolesLast24h: v }))
+        if (newRoles !== (stats.rolesLiveNow ?? 0)) {
+          animateValue(stats.rolesLiveNow ?? 0, newRoles, 750, (v) =>
+            setDisplayValues((prev) => ({ ...prev, rolesLiveNow: v }))
           );
-        } else {
-          setDisplayValues((prev) => ({ ...prev, rolesLast24h: newRoles }));
         }
 
-        if (newTalents > stats.talents) {
-          animateValue(stats.talents, newTalents, 750, (v) =>
-            setDisplayValues((prev) => ({ ...prev, talents: v }))
+        if (newCountries !== (stats.countriesCount ?? 0)) {
+          animateValue(stats.countriesCount ?? 0, newCountries, 750, (v) =>
+            setDisplayValues((prev) => ({ ...prev, countriesCount: v }))
           );
-        } else {
-          setDisplayValues((prev) => ({ ...prev, talents: newTalents }));
         }
 
-        if (newPartners > stats.partners) {
-          animateValue(stats.partners, newPartners, 750, (v) =>
-            setDisplayValues((prev) => ({ ...prev, partners: v }))
+        if (newEmployers !== (stats.employersCount ?? 0)) {
+          animateValue(stats.employersCount ?? 0, newEmployers, 750, (v) =>
+            setDisplayValues((prev) => ({ ...prev, employersCount: v }))
           );
-        } else {
-          setDisplayValues((prev) => ({ ...prev, partners: newPartners }));
         }
 
         setStats({
-          rolesLast24h: newRoles,
-          talents: newTalents,
-          partners: newPartners,
+          rolesLiveNow: newRoles,
+          countriesCount: newCountries,
+          employersCount: newEmployers,
+          updatedAt: newUpdated,
         });
 
         const now = Date.now();
@@ -385,11 +432,12 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
               setStreamRoles((prev) => [newJob, ...prev.slice(0, 15)]);
               setStats((prev) => ({
                 ...prev,
-                rolesLast24h: prev.rolesLast24h + 1,
+                rolesLiveNow: (prev.rolesLiveNow ?? 0) + 1,
+                updatedAt: new Date().toISOString(),
               }));
               setDisplayValues((prev) => ({
                 ...prev,
-                rolesLast24h: prev.rolesLast24h + 1,
+                rolesLiveNow: (prev.rolesLiveNow ?? 0) + 1,
               }));
             }
           }
@@ -408,27 +456,7 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
     return null;
   }
 
-  // Format cells
-  const cells = [
-    {
-      id: 'roles',
-      show: meetsMinRoles,
-      value: displayValues.rolesLast24h,
-      label: homeCopy.stats.rolesSuffix,
-    },
-    {
-      id: 'talents',
-      show: meetsMinTalents,
-      value: displayValues.talents,
-      label: homeCopy.stats.talentsSuffix,
-    },
-    {
-      id: 'partners',
-      show: meetsMinPartners,
-      value: displayValues.partners,
-      label: homeCopy.stats.partnersSuffix,
-    },
-  ].filter((c) => c.show);
+  const relativeUpdated = formatRelativeUpdated(stats.updatedAt);
 
   // Duplicate stream items for smooth infinite loop
   const duplicatedRoles = [...streamRoles, ...streamRoles];
@@ -480,6 +508,15 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
           </div>
         ))}
       </div>
+
+      {/* Muted line: Updated {relative time} */}
+      {relativeUpdated && (
+        <div className="mx-auto max-w-7xl px-5 pt-3 pb-6 sm:px-8 lg:px-10">
+          <p className="text-xs text-background/50">
+            {relativeUpdated}
+          </p>
+        </div>
+      )}
 
       {/* 3. Mercor-Style Live Activity Ticker Stream */}
       <div className="relative border-t border-background/15 bg-foreground/90 py-5 sm:py-6 overflow-hidden">

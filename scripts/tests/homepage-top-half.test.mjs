@@ -13,10 +13,13 @@ test('1. Content Centralization in src/content/home.ts', async () => {
   assert.ok(HOME_CONTENT, 'HOME_CONTENT must be exported');
 
   // Meta
-  assert.equal(HOME_CONTENT.meta.title, 'Sync730: Real remote jobs, open to Africa');
+  assert.equal(
+    HOME_CONTENT.meta.title,
+    'Sync730: Smarter recruitment with AI solutions for everyday businesses'
+  );
   assert.equal(
     HOME_CONTENT.meta.description,
-    "Every role on Sync730 is confirmed real and open to people in Africa. No ghost jobs. No 'US only' surprises. Free for candidates."
+    'Meet the people who fit, not the pile. Sync730 interviews every applicant, scores them on your criteria, and hands you a ranked shortlist. You decide.'
   );
 
   // Hero
@@ -24,29 +27,20 @@ test('1. Content Centralization in src/content/home.ts', async () => {
   assert.equal(HOME_CONTENT.hero.h1, 'Talent is everywhere. Real opportunity should be too.');
   assert.equal(
     HOME_CONTENT.hero.sub,
-    "You've sent applications into the void. You've found \"worldwide remote\" jobs that weren't. We built Sync730 so every role you see is real, open to you in Africa, and one click from your pipeline."
+    'Sync730 checks that every role is live and open to Africa, so you can stop applying into the void. For employers, we interview every applicant and hand you a shortlist, so you can stop sorting the pile.'
   );
   assert.equal(HOME_CONTENT.hero.ctaPrimary, "I'm looking for work");
   assert.equal(HOME_CONTENT.hero.ctaSecondary, "I'm hiring in Africa");
   assert.equal(
     HOME_CONTENT.hero.proofLine,
-    'Free for candidates · Humans make every hiring decision · Built for how Africa hires'
+    'Free for candidates · People make every hiring decision · Built for how Africa hires'
   );
 
   // Live stats
   assert.equal(HOME_CONTENT.liveStats.label, 'LIVE ON SYNC730');
-  assert.equal(
-    HOME_CONTENT.liveStats.rolesSuffix,
-    'new roles in the last 24 hours, each checked before you saw it'
-  );
-  assert.equal(
-    HOME_CONTENT.liveStats.talentsSuffix,
-    'professionals already tracking their search in SyncFlow'
-  );
-  assert.equal(
-    HOME_CONTENT.liveStats.partnersSuffix,
-    'companies hiring from Africa right now'
-  );
+  assert.equal(HOME_CONTENT.liveStats.rolesLiveNowLabel, 'Roles live now');
+  assert.equal(HOME_CONTENT.liveStats.countriesOpenLabel, 'Countries roles are open to');
+  assert.equal(HOME_CONTENT.liveStats.employersHiringLabel, 'Employers hiring');
 
   // Belief
   assert.equal(HOME_CONTENT.belief.label, 'WHY WE EXIST');

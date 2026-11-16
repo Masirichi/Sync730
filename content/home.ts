@@ -29,6 +29,9 @@ export interface HomeCopy {
     eyebrow: string;
     headline: string;
     subheading: string;
+    rolesLiveNowLabel: string;
+    countriesOpenLabel: string;
+    employersHiringLabel: string;
     rolesSuffix: string;
     talentsSuffix: string;
     partnersSuffix: string;
@@ -203,9 +206,9 @@ export interface HomeCopy {
 
 export const homeCopy: HomeCopy = {
   meta: {
-    title: 'Sync730: Real remote jobs, open to Africa',
+    title: 'Sync730: Smarter recruitment with AI solutions for everyday businesses',
     description:
-      "Every role on Sync730 is confirmed real and open to people in Africa. No ghost jobs. No 'US only' surprises. Free for candidates.",
+      'Meet the people who fit, not the pile. Sync730 interviews every applicant, scores them on your criteria, and hands you a ranked shortlist. You decide.',
     canonical: 'https://sync730.com/',
     siteName: 'Sync730',
     ogImage: '/og-sync730.png',
@@ -213,16 +216,16 @@ export const homeCopy: HomeCopy = {
   hero: {
     eyebrow: 'WE BELIEVE TALENT IS EVERYWHERE',
     h1: 'Talent is everywhere. Real opportunity should be too.',
-    sub: "You've sent applications into the void. You've found \"worldwide remote\" jobs that weren't. We built Sync730 so every role you see is real, open to you in Africa, and one click from your pipeline.",
+    sub: 'Sync730 checks that every role is live and open to Africa, so you can stop applying into the void. For employers, we interview every applicant and hand you a shortlist, so you can stop sorting the pile.',
     ctaPrimary: "I'm looking for work",
     ctaPrimaryHref: '/find-work',
     ctaSecondary: "I'm hiring in Africa",
-    ctaSecondaryHref: '/#for-recruiters',
+    ctaSecondaryHref: '/for-employers',
     proofLine:
-      'Free for candidates · Humans make every hiring decision · Built for how Africa hires',
+      'Free for candidates · People make every hiring decision · Built for how Africa hires',
     proofItems: [
       'Free for candidates',
-      'Humans make every hiring decision',
+      'People make every hiring decision',
       'Built for how Africa hires',
     ],
     sampleBadge: 'Sample',
@@ -232,6 +235,9 @@ export const homeCopy: HomeCopy = {
     eyebrow: 'VERIFIED METRICS',
     headline: 'Sync730 by the numbers',
     subheading: 'Updated in real time from live platform activity.',
+    rolesLiveNowLabel: 'Roles live now',
+    countriesOpenLabel: 'Countries roles are open to',
+    employersHiringLabel: 'Employers hiring',
     rolesSuffix:
       'new roles in the last 24 hours, each checked before you saw it',
     talentsSuffix:
@@ -463,7 +469,7 @@ export const homeCopy: HomeCopy = {
     ctaPrimary: 'Create your free profile',
     ctaPrimaryHref: '/register',
     ctaSecondary: "I'm hiring in Africa",
-    ctaSecondaryHref: '/#for-recruiters',
+    ctaSecondaryHref: '/for-employers',
     microcopy: 'Free for candidates. No credit card. Takes about 3 minutes.',
   },
   nav: {
