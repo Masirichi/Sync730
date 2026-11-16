@@ -99,8 +99,10 @@ function InterviewCoachContent() {
   const [showJdInput, setShowJdInput] = useState(false);
   const [trackerRoles, setTrackerRoles] = useState<{ id: string; title: string; company: string; notes?: string }[]>([]);
 
-  // 5 Questions State
-  const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
+  // 5 Questions State - Initialize synchronously so questions is never empty on initial render
+  const [questions, setQuestions] = useState<InterviewQuestion[]>(() =>
+    generateRoleQuestions(queryRole || PRESET_ROLES[0], queryCompany || '', '')
+  );
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   // Practice Mode state
@@ -290,10 +292,10 @@ function InterviewCoachContent() {
 
   // Simulation: Submit question answer and advance
   const handleNextSimulationQuestion = () => {
-    const currentQ = questions[currentQuestionIndex];
+    const qItem = questions[currentQuestionIndex] || currentQ;
     const newAnswer: CandidateAnswer = {
-      question_id: currentQ.id,
-      question: currentQ.question,
+      question_id: qItem.id,
+      question: qItem.question,
       transcript: currentAnswerText || 'Answer delivered via live microphone recording.',
       answer_text: currentAnswerText || 'Answer delivered via live microphone recording.',
       duration_seconds: recordingSeconds,
@@ -359,8 +361,14 @@ function InterviewCoachContent() {
     }, 1500);
   };
 
-  const currentQ = questions[currentQuestionIndex] || questions[0];
-  const currentResult = practiceResults[currentQ?.id];
+  const fallbackQuestion: InterviewQuestion = {
+    id: 1,
+    category: 'Core Technical Competency',
+    question: `Describe your technical experience as a ${targetRole || 'Software Engineer'}.`,
+    hint: 'Use the STAR format: Situation, Task, Action, Result.',
+  };
+  const currentQ = (questions && questions[currentQuestionIndex]) || (questions && questions[0]) || fallbackQuestion;
+  const currentResult = practiceResults[currentQ.id];
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
@@ -520,14 +528,14 @@ function InterviewCoachContent() {
             <span className="h-2 w-2 rounded-full bg-emerald-500" /> Question {currentQuestionIndex + 1} of 5
           </span>
           <span className="text-neutral-500 font-medium">
-            Category: <strong className="text-neutral-900 dark:text-neutral-100">{currentQ.category}</strong>
+            Category: <strong className="text-neutral-900 dark:text-neutral-100">{currentQ?.category || 'Core Technical Competency'}</strong>
           </span>
         </div>
 
         <div className="grid grid-cols-5 gap-1.5 pt-1">
           {questions.map((q, idx) => (
             <button
-              key={q.id}
+              key={q.id || idx}
               type="button"
               onClick={() => setCurrentQuestionIndex(idx)}
               className={`h-2 rounded-full transition-all ${
@@ -537,7 +545,7 @@ function InterviewCoachContent() {
                   ? 'bg-emerald-500'
                   : 'bg-neutral-200 dark:bg-neutral-800'
               }`}
-              title={`Question ${idx + 1}: ${q.category}`}
+              title={`Question ${idx + 1}: ${q?.category || 'General'}`}
             />
           ))}
         </div>
@@ -550,7 +558,7 @@ function InterviewCoachContent() {
             <CardHeader className="bg-neutral-50/50 dark:bg-neutral-900/50 border-b border-neutral-100 dark:border-neutral-800">
               <div className="flex items-center justify-between">
                 <Badge variant="outline" className="text-xs font-semibold bg-white dark:bg-neutral-950">
-                  {currentQ.category}
+                  {currentQ?.category || 'Core Technical Competency'}
                 </Badge>
                 <button
                   type="button"
@@ -563,13 +571,13 @@ function InterviewCoachContent() {
               </div>
 
               <CardTitle className="text-base sm:text-lg font-bold text-neutral-900 dark:text-neutral-100 pt-2 leading-snug">
-                {currentQ.question}
+                {currentQ?.question || ''}
               </CardTitle>
 
-              {showHint && currentQ.hint && (
+              {showHint && currentQ?.hint && (
                 <div className="mt-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/50 p-3 text-xs text-amber-900 dark:text-amber-200">
                   <p className="font-semibold mb-0.5">Recommended Structure:</p>
-                  <p>{currentQ.hint}</p>
+                  <p>{currentQ?.hint}</p>
                 </div>
               )}
             </CardHeader>
@@ -751,14 +759,14 @@ function InterviewCoachContent() {
                     <Badge variant="outline" className="text-xs font-semibold">
                       Question {currentQuestionIndex + 1} of 5
                     </Badge>
-                    <span className="text-xs text-neutral-500">{currentQ.category}</span>
+                    <span className="text-xs text-neutral-500">{currentQ?.category || 'Core Technical Competency'}</span>
                   </div>
 
                   <h2 className="text-base sm:text-lg font-bold text-neutral-900 dark:text-neutral-100">
-                    {currentQ.question}
+                    {currentQ?.question || ''}
                   </h2>
 
-                  {currentQ.hint && (
+                  {currentQ?.hint && (
                     <div className="p-3 rounded-lg bg-neutral-50 dark:bg-neutral-900 text-xs text-neutral-600 dark:text-neutral-400">
                       <strong>Hint:</strong> {currentQ.hint}
                     </div>

@@ -30,6 +30,11 @@ test('1. Interview Coach: 5 questions & Job Description synthesis', () => {
   assert.ok(coachContent.includes('jobDescription'), 'Must allow inputting job description');
   assert.ok(coachContent.includes('5 questions'), 'Must specify 5 questions');
 
+  // Verify questions state is initialized synchronously and guarded with fallback to prevent undefined category error
+  assert.ok(coachContent.includes('generateRoleQuestions(queryRole'), 'Questions state must initialize synchronously');
+  assert.ok(coachContent.includes('fallbackQuestion'), 'Must provide fallbackQuestion to guard currentQ');
+  assert.ok(coachContent.includes('currentQ?.category'), 'Must use safe navigation currentQ?.category');
+
   // Verify legacy routes forward to Interview Coach
   const prepPath = path.resolve('app/(candidate)/dashboard/prep/page.tsx');
   const prepContent = fs.readFileSync(prepPath, 'utf8');

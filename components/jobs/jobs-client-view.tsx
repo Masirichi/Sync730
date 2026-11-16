@@ -115,7 +115,7 @@ function getInitials(name: string): string {
 
 export function JobsClientView({
   initialResults,
-  filterParams,
+  filterParams = {} as JobFilterParams,
   basePath = '/find-work',
 }: JobsClientViewProps) {
   const router = useRouter();
@@ -124,16 +124,16 @@ export function JobsClientView({
   const [isPending, startTransition] = useTransition();
 
   // Active filter states from URL
-  const activeQ = filterParams.q || '';
-  const activeModality = (filterParams.modality || 'all').toLowerCase();
-  const activeLoc = filterParams.location || 'all';
-  const activeCategory = filterParams.category || filterParams.department || 'all';
-  const activeOpenTo = filterParams.open_to || 'all';
-  const activeSeniority = filterParams.seniority || 'all';
-  const activeJobType = filterParams.job_type || 'all';
-  const activeMinSalary = filterParams.min_salary || 0;
-  const activeSalaryShown = Boolean(filterParams.salary_shown);
-  const activeSort = filterParams.sort || 'recent';
+  const activeQ = filterParams?.q || '';
+  const activeModality = (filterParams?.modality || 'all').toLowerCase();
+  const activeLoc = filterParams?.location || 'all';
+  const activeCategory = filterParams?.category || filterParams?.department || 'all';
+  const activeOpenTo = filterParams?.open_to || 'all';
+  const activeSeniority = filterParams?.seniority || 'all';
+  const activeJobType = filterParams?.job_type || 'all';
+  const activeMinSalary = filterParams?.min_salary || 0;
+  const activeSalaryShown = Boolean(filterParams?.salary_shown);
+  const activeSort = filterParams?.sort || 'recent';
 
   // Currency & Period display toggles
   const [currency, setCurrency] = useState<CurrencyChoice>('ORIGINAL');

@@ -573,24 +573,25 @@ export function LiveStatsBand({ initialStats, initialJobs }: LiveStatsBandProps)
           {/* Row 2: Live Platform Milestones (Moving Right) */}
           <div className="flex w-max animate-marquee-right hover:[animation-play-state:paused] motion-reduce:animate-none motion-reduce:overflow-x-auto motion-reduce:max-w-full gap-3 sm:gap-4 px-4">
             {duplicatedEvents.map((evt, idx) => {
+              const category = evt?.category || 'UPDATE';
               const dotColor =
-                evt.category === 'VERIFIED'
+                category === 'VERIFIED'
                   ? 'bg-emerald-400'
-                  : evt.category === 'INTERVIEW'
+                  : category === 'INTERVIEW'
                   ? 'bg-sky-400'
-                  : evt.category === 'SYNCFLOW'
+                  : category === 'SYNCFLOW'
                   ? 'bg-purple-400'
                   : 'bg-amber-400';
 
               return (
                 <div
-                  key={`evt-${evt.id}-${idx}`}
+                  key={`evt-${evt?.id || idx}-${idx}`}
                   className="flex items-center gap-2.5 rounded-full border border-background/10 bg-background/[0.03] px-3.5 py-1.5 text-xs text-background/80 backdrop-blur-sm shrink-0"
                 >
                   <span className={`inline-block h-1.5 w-1.5 rounded-full ${dotColor}`} />
 
                   <span className="text-[10px] uppercase font-bold tracking-wider text-background/50">
-                    {evt.category}
+                    {category}
                   </span>
 
                   <span className="text-background/30">•</span>
