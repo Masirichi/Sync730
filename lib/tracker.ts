@@ -1,4 +1,4 @@
-import { CandidateTrackerItem, RemoteJob, TrackerStatus } from './supabase/types';
+import { CandidateTrackerItem, RemoteJob, TrackerStatus, TrackerJobType, TrackerRatePeriod } from './supabase/types';
 import { createBrowserClient } from './supabase/client';
 
 const LOCAL_STORAGE_KEY = 'sync730_candidate_tracker';
@@ -12,10 +12,15 @@ export const INITIAL_TRACKER_ITEMS: CandidateTrackerItem[] = [
     title: 'Senior Full Stack Engineer (Next.js & Supabase)',
     location: 'Worldwide',
     salary: '$110,000 - $140,000 USD',
+    rate: '$10,000/mo',
+    rate_period: 'monthly',
+    job_type: 'Full-time',
     status: 'SAVED',
     url: 'https://remotive.com',
     notes: 'Bookmarked from Verified Remote Feed. One profile, every application.',
     applied_date: null,
+    interview_date: null,
+    contact: 'Amara Okafor (Head of Talent) · amara@creditwellness.com',
     created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
   },
   {
@@ -26,10 +31,15 @@ export const INITIAL_TRACKER_ITEMS: CandidateTrackerItem[] = [
     title: 'Lead Product Designer (Design Systems)',
     location: 'Africa Only',
     salary: '$65,000 - $90,000 USD',
+    rate: '$45/hr',
+    rate_period: 'hourly',
+    job_type: 'Contract',
     status: 'APPLIED',
     url: 'https://remotive.com',
     notes: 'Submitted video portfolio. Recruiter confirmation email received.',
     applied_date: new Date(Date.now() - 3600000 * 48).toISOString(),
+    interview_date: null,
+    contact: 'Kwame Mensah (Recruiting Lead) · kwame@finsync.io',
     created_at: new Date(Date.now() - 3600000 * 72).toISOString(),
   },
   {
@@ -40,11 +50,35 @@ export const INITIAL_TRACKER_ITEMS: CandidateTrackerItem[] = [
     title: 'Backend Systems Engineer',
     location: 'EMEA',
     salary: '€110,000 EUR',
+    rate: '€9,200/mo',
+    rate_period: 'monthly',
+    job_type: 'Full-time',
     status: 'INTERVIEWING',
     url: 'https://stripe.com/jobs',
-    notes: 'Technical screen passed with hiring manager. Round 2 system design on Thursday.',
+    notes: 'Technical screen passed with hiring manager. Round 2 system design scheduled.',
     applied_date: new Date(Date.now() - 3600000 * 120).toISOString(),
+    interview_date: new Date(Date.now() + 3600000 * 48).toISOString(),
+    contact: 'Elena Rostova (Engineering Recruiter) · elena@stripe.com',
     created_at: new Date(Date.now() - 3600000 * 140).toISOString(),
+  },
+  {
+    id: 'track-004',
+    candidate_id: 'local-candidate-01',
+    job_id: null,
+    company: 'Paystack',
+    title: 'Senior Developer Relations Advocate',
+    location: 'Lagos, Nigeria (Hybrid)',
+    salary: '₦1,200,000/mo',
+    rate: '₦1,200,000/mo',
+    rate_period: 'monthly',
+    job_type: 'Full-time',
+    status: 'OFFER',
+    url: 'https://paystack.com/careers',
+    notes: 'Offer package received via email. Reviewing equity terms and start date.',
+    applied_date: new Date(Date.now() - 3600000 * 240).toISOString(),
+    interview_date: new Date(Date.now() - 3600000 * 72).toISOString(),
+    contact: 'Tunde Adebayo (VP People) · tunde@paystack.com',
+    created_at: new Date(Date.now() - 3600000 * 260).toISOString(),
   },
 ];
 
@@ -99,6 +133,18 @@ export async function fetchCandidateTracker(candidateId?: string): Promise<Candi
   return getLocalTrackerItems();
 }
 
+function deriveRateAndPeriod(salaryStr?: string | null): { rate: string | null; rate_period: TrackerRatePeriod | null } {
+  if (!salaryStr) return { rate: null, rate_period: null };
+  const sLower = salaryStr.toLowerCase();
+  if (sLower.includes('/ hr') || sLower.includes('/hr') || sLower.includes('per hour') || sLower.includes('/hour')) {
+    return { rate: salaryStr, rate_period: 'hourly' };
+  }
+  if (sLower.includes('/ mo') || sLower.includes('/mo') || sLower.includes('per month') || sLower.includes('/month')) {
+    return { rate: salaryStr, rate_period: 'monthly' };
+  }
+  return { rate: salaryStr, rate_period: 'monthly' };
+}
+
 // Save a job from crawler to tracker
 export async function saveJobToTracker(
   job: Partial<RemoteJob>,
@@ -111,18 +157,27 @@ export async function saveJobToTracker(
     return { success: true, item: existing, isNew: false };
   }
 
+  const { rate, rate_period } = deriveRateAndPeriod(job.salary);
+  const job_type = (job.job_type || (job as any).employment_type || 'Full-time') as TrackerJobType;
+  const companyName = job.company_name || job.company || 'Direct Employer';
+
   const newItem: CandidateTrackerItem = {
     id: `track-${Date.now()}-${Math.random().toString(36).substring(7)}`,
     candidate_id: candidateId || 'local-candidate-01',
     job_id: job.id || job.external_id || '',
-    company: job.company_name || job.company || 'Direct Employer',
+    company: companyName,
     title: job.title || 'Role',
     location: job.candidate_required_location || job.location_tier || 'Remote',
     salary: job.salary || null,
+    rate,
+    rate_period,
+    job_type,
     status: 'SAVED',
     url: job.apply_url || job.url || null,
+    contact: `${companyName} Hiring Team`,
     notes: `Saved from Verified Remote Feed (${job.location_tier || 'Remote'}). Source: ${job.source_name || job.source || 'Direct'}.`,
     applied_date: null,
+    interview_date: null,
     created_at: new Date().toISOString(),
   };
 
@@ -179,18 +234,27 @@ export function markJobAsApplied(job: Partial<RemoteJob>): CandidateTrackerItem 
     saveLocalTrackerItems(current);
     return current[existingIndex];
   } else {
+    const { rate, rate_period } = deriveRateAndPeriod(job.salary);
+    const companyName = job.company_name || job.company || 'Direct Employer';
+    const job_type = (job.job_type || (job as any).employment_type || 'Full-time') as TrackerJobType;
+
     const newItem: CandidateTrackerItem = {
       id: `track-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       candidate_id: 'local-candidate-01',
       job_id: job.id || job.external_id || '',
-      company: job.company_name || job.company || 'Direct Employer',
+      company: companyName,
       title: job.title || 'Role',
       location: job.candidate_required_location || job.location_tier || 'Remote',
       salary: job.salary || null,
+      rate,
+      rate_period,
+      job_type,
       status: 'APPLIED',
       url: job.apply_url || job.url || null,
+      contact: `${companyName} Hiring Team`,
       notes: `Applied directly via verified link on ${new Date().toLocaleDateString()}.`,
       applied_date: new Date().toISOString(),
+      interview_date: null,
       created_at: new Date().toISOString(),
     };
     saveLocalTrackerItems([newItem, ...current]);
@@ -209,7 +273,10 @@ export async function updateTrackerStatus(
       ? {
           ...i,
           status: newStatus,
-          applied_date: newStatus === 'APPLIED' && !i.applied_date ? new Date().toISOString() : i.applied_date,
+          applied_date:
+            (newStatus === 'APPLIED' || newStatus === 'INTERVIEWING' || newStatus === 'OFFER') && !i.applied_date
+              ? new Date().toISOString()
+              : i.applied_date,
           updated_at: new Date().toISOString(),
         }
       : i
@@ -228,20 +295,60 @@ export async function updateTrackerStatus(
   return updated;
 }
 
-// Add external job manually
+// Update any field of a tracker item (e.g. title, company, status, job_type, applied_date, interview_date, rate, contact, notes)
+export async function updateTrackerItem(
+  itemId: string,
+  updates: Partial<CandidateTrackerItem>
+): Promise<CandidateTrackerItem[]> {
+  const current = getLocalTrackerItems();
+  const updated = current.map((i) =>
+    i.id === itemId
+      ? {
+          ...i,
+          ...updates,
+          updated_at: new Date().toISOString(),
+        }
+      : i
+  );
+
+  saveLocalTrackerItems(updated);
+
+  try {
+    const supabase = createBrowserClient();
+    await supabase.from('candidate_tracker').update(updates).eq('id', itemId);
+  } catch (err) {
+    console.warn('Supabase tracker item update warning:', err);
+  }
+
+  return updated;
+}
+
+export interface ExternalTrackerJobInput {
+  title: string;
+  company: string;
+  status: TrackerStatus;
+  job_type?: TrackerJobType | string | null;
+  applied_date?: string | null;
+  interview_date?: string | null;
+  rate?: string | null;
+  rate_period?: TrackerRatePeriod | null;
+  contact?: string | null;
+  location?: string | null;
+  salary?: string | null;
+  url?: string | null;
+  notes?: string | null;
+}
+
+// Add external job manually with all core tracker features
 export async function addExternalTrackerJob(
-  jobData: {
-    title: string;
-    company: string;
-    location?: string;
-    salary?: string;
-    url?: string;
-    notes?: string;
-    status: TrackerStatus;
-  },
+  jobData: ExternalTrackerJobInput,
   candidateId?: string
 ): Promise<CandidateTrackerItem> {
   const current = getLocalTrackerItems();
+
+  const isAppliedStatus = jobData.status === 'APPLIED' || jobData.status === 'INTERVIEWING' || jobData.status === 'OFFER' || (jobData.status as string) === 'OFFERED';
+  const applied_date = jobData.applied_date || (isAppliedStatus ? new Date().toISOString() : null);
+
   const newItem: CandidateTrackerItem = {
     id: `track-${Date.now()}-${Math.random().toString(36).substring(7)}`,
     candidate_id: candidateId || 'local-candidate-01',
@@ -249,11 +356,16 @@ export async function addExternalTrackerJob(
     company: jobData.company,
     title: jobData.title,
     location: jobData.location || 'Remote',
-    salary: jobData.salary || null,
+    salary: jobData.salary || jobData.rate || null,
+    rate: jobData.rate || jobData.salary || null,
+    rate_period: jobData.rate_period || 'monthly',
+    job_type: jobData.job_type || 'Full-time',
     status: jobData.status,
     url: jobData.url || null,
+    contact: jobData.contact || null,
     notes: jobData.notes || 'Manually added external application',
-    applied_date: jobData.status !== 'SAVED' ? new Date().toISOString() : null,
+    applied_date,
+    interview_date: jobData.interview_date || null,
     created_at: new Date().toISOString(),
   };
 

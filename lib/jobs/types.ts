@@ -95,6 +95,8 @@ export interface PublicJob {
   reports_count: number;
   is_apply_link_flagged: boolean;
   apply_url?: string;
+  matchScore?: number;
+  matchReasons?: string[];
 }
 
 export interface JobPublishingInput {

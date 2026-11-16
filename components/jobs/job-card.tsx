@@ -212,6 +212,13 @@ export function JobCard({
                       Featured
                     </span>
                   )}
+
+                  {/* Recommendation Match Badge */}
+                  {typeof job.matchScore === 'number' && job.matchScore > 0 && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700">
+                      {job.matchScore}% Match
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

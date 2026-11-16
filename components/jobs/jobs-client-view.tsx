@@ -780,6 +780,7 @@ export function JobsClientView({
                     aria-label="Sort listings"
                   >
                     <option value="recent">Newest</option>
+                    <option value="match">Best match (Recommended)</option>
                     <option value="salary_desc">Highest salary</option>
                   </select>
                   <ChevronDown className="w-3 h-3 text-muted-foreground absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />

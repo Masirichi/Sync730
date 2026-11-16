@@ -221,13 +221,13 @@ export default function CandidateDashboard() {
 
           {/* Quick Action CTAs */}
           <div className="hidden xl:flex items-center gap-2 pl-2">
-            <Link href="/dashboard/crawler">
+            <Link href="/find-work">
               <Button
                 variant="outline"
                 size="sm"
                 className="text-xs h-9 px-3 rounded-lg border-neutral-200 dark:border-neutral-800 font-medium"
               >
-                Remote Feed
+                Browse Jobs
               </Button>
             </Link>
             <Link href="/dashboard/syncflow">
@@ -356,7 +356,7 @@ export default function CandidateDashboard() {
                 Recommended for you ({recommendedJobs.length})
               </h2>
               <Link
-                href="/candidate/jobs"
+                href="/find-work?sort=match"
                 className="text-xs font-semibold text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 inline-flex items-center gap-1 transition-colors"
               >
                 View all <ArrowRight className="h-3 w-3 stroke-[1.5]" />

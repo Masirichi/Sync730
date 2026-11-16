@@ -117,6 +117,8 @@ export interface RemoteJob {
 }
 
 export type TrackerStatus = 'SAVED' | 'APPLIED' | 'INTERVIEWING' | 'OFFER' | 'OFFERED' | 'REJECTED';
+export type TrackerJobType = 'Full-time' | 'Part-time' | 'Contract' | 'Internship' | 'Freelance';
+export type TrackerRatePeriod = 'hourly' | 'monthly' | 'yearly';
 
 export interface CandidateTrackerItem {
   id: string;
@@ -132,6 +134,13 @@ export interface CandidateTrackerItem {
   applied_date?: string | null;
   created_at: string;
   updated_at?: string;
+
+  // SyncFlow Core Features
+  job_type?: TrackerJobType | string | null;
+  interview_date?: string | null;
+  rate?: string | null;
+  rate_period?: TrackerRatePeriod | null;
+  contact?: string | null;
 }
 
 export interface Job {
@@ -184,6 +193,9 @@ export interface CandidateAnswer {
   transcript: string;
   duration_seconds: number;
   video_blob_url?: string;
+  answer_text?: string;
+  recorded_seconds?: number;
+  timestamp?: string;
 }
 
 export interface SampleBetterAnswer {
@@ -198,10 +210,17 @@ export interface InterviewFeedbackScorecard {
   overall_score: number;
   communication_clarity: number;
   technical_depth: number;
+  technical_depth_score?: number;
+  communication_clarity_score?: number;
+  system_design_score?: number;
+  star_adherence_score?: number;
   summary?: string;
+  interview_summary?: string;
   strengths: string[];
   areas_to_improve: string[];
-  sample_better_answers: SampleBetterAnswer[];
+  actionable_improvements?: string[];
+  recommended_level?: string;
+  sample_better_answers?: SampleBetterAnswer[];
 }
 
 export interface MockPrepSession {
@@ -209,6 +228,7 @@ export interface MockPrepSession {
   candidate_id?: string | null;
   target_role: string;
   company_name?: string | null;
+  job_description?: string | null;
   amount: number;
   currency: string;
   payment_reference: string;

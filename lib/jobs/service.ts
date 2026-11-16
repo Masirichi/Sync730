@@ -15,6 +15,8 @@ import {
   normalizeToCanonicalEligibility,
   isRoleStale,
 } from './helpers';
+import { calculateJobRecommendation } from './recommendations';
+import { getCandidateProfile } from '@/lib/candidate/profile';
 
 export type { PublicJob, JobModality, JobCategory, JobEligibility };
 
@@ -563,9 +565,16 @@ export function getFilteredPublicJobs(params: JobFilterParams, extraJobs?: any[]
     filtered = filtered.filter((j) => j.modality.toLowerCase() === targetModality);
   }
 
-  // 9. Sorting
+  // 9. Sorting & Candidate Job Recommendations
   if (params.sort === 'salary_desc') {
     filtered.sort((a, b) => (b.salary_max || b.salary_min || 0) - (a.salary_max || a.salary_min || 0));
+  } else if (params.sort === 'match') {
+    const profile = getCandidateProfile();
+    filtered = filtered.map((j) => {
+      const rec = calculateJobRecommendation(j, profile);
+      return { ...j, matchScore: rec.matchScore, matchReasons: rec.matchReasons };
+    });
+    filtered.sort((a, b) => ((b as any).matchScore || 0) - ((a as any).matchScore || 0));
   } else if (params.sort === 'recent' || !params.sort) {
     filtered.sort((a, b) => new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime());
   }
