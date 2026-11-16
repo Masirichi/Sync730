@@ -184,13 +184,13 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
             </Link>
           </div>
 
-          {/* Log Out Pill */}
+          {/* Sign Out Action */}
           <button
             onClick={handleSignOut}
             className="flex items-center justify-center gap-2 w-full py-2.5 rounded-2xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-xs font-semibold text-neutral-300 hover:text-white transition-all shadow-xs"
           >
             <LogOut className="h-3.5 w-3.5 stroke-[1.5]" />
-            <span>Terminate Admin Session</span>
+            <span>Sign out</span>
           </button>
         </div>
       </aside>
@@ -283,7 +283,7 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs font-semibold text-neutral-300"
               >
                 <LogOut className="h-4 w-4 stroke-[1.5]" />
-                <span>Log Out</span>
+                <span>Sign out</span>
               </button>
             </div>
             <div className="flex-1" onClick={() => setMobileMenuOpen(false)} />

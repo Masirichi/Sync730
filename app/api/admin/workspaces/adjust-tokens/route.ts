@@ -1,40 +1,64 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
-import {
-  saveAdminAuditLog,
-  savePlatformTransaction,
-} from '@/lib/admin/store';
+import { savePlatformTransaction } from '@/lib/admin/store';
 import { getLocalWorkspace, saveLocalWorkspace } from '@/lib/recruiter/store';
-import { PlatformTransaction, AdminAuditLog } from '@/lib/admin/types';
+import { PlatformTransaction } from '@/lib/admin/types';
+import { requireReason, recordDangerousAuditLog } from '@/lib/admin/audit';
+import { MAX_TOKEN_ADJUSTMENT, getClientIp } from '@/lib/admin/security';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { workspace_id, token_adjustment, notes } = body;
+    const { workspace_id, direction, amount, token_adjustment, reason, notes } = body;
 
+    // 1. Mandatory Parameter Validation
     if (!workspace_id) {
-      return NextResponse.json({ success: false, error: 'workspace_id is required' }, { status: 400 });
-    }
-
-    const adjustment = parseInt(token_adjustment, 10);
-    if (isNaN(adjustment) || adjustment === 0) {
       return NextResponse.json(
-        { success: false, error: 'token_adjustment must be a non-zero integer' },
+        { success: false, error: 'workspace_id is required' },
         { status: 400 }
       );
     }
 
-    if (!notes || notes.trim() === '') {
+    // 2. Reason Validation (min 10 characters)
+    let validatedReason: string;
+    try {
+      validatedReason = requireReason(reason || notes, 10);
+    } catch (reasonErr: any) {
       return NextResponse.json(
-        { success: false, error: 'A mandatory notes explanation is required for admin token adjustments' },
+        { success: false, error: reasonErr.message || 'A valid reason of at least 10 characters is required.' },
         { status: 400 }
       );
     }
 
-    let updatedBalance = 0;
-    let companyName = 'Workspace';
+    // 3. Amount & Direction Calculation
+    let resolvedAmount = typeof amount === 'number' ? amount : parseInt(token_adjustment, 10);
+    let resolvedDirection: 'ADD' | 'REMOVE' = direction || (resolvedAmount < 0 ? 'REMOVE' : 'ADD');
+    resolvedAmount = Math.abs(resolvedAmount);
 
-    // 1. Fetch current workspace & update token_balance in Supabase
+    if (isNaN(resolvedAmount) || resolvedAmount <= 0) {
+      return NextResponse.json(
+        { success: false, error: 'Token adjustment amount must be a positive integer greater than zero.' },
+        { status: 400 }
+      );
+    }
+
+    // 4. Configurable Upper Limit Check
+    if (resolvedAmount > MAX_TOKEN_ADJUSTMENT) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Adjustment amount exceeds the maximum allowed limit of ${MAX_TOKEN_ADJUSTMENT} tokens per transaction.`,
+        },
+        { status: 400 }
+      );
+    }
+
+    const delta = resolvedDirection === 'REMOVE' ? -resolvedAmount : resolvedAmount;
+
+    // 5. Fetch Current Workspace & Balance
+    let currentBalance = 0;
+    let companyName = 'Corporate Workspace';
+
     try {
       const supabase = await createServerClient();
       const { data: ws } = await supabase
@@ -44,36 +68,54 @@ export async function POST(req: NextRequest) {
         .maybeSingle();
 
       if (ws) {
-        companyName = ws.company_name;
-        updatedBalance = Math.max(0, (ws.token_balance || 0) + adjustment);
-
-        await supabase
-          .from('corporate_workspaces')
-          .update({ token_balance: updatedBalance })
-          .eq('id', workspace_id);
+        companyName = ws.company_name || companyName;
+        currentBalance = ws.token_balance || 0;
       }
     } catch {}
 
-    // Also update local workspace if matches
     const localWs = getLocalWorkspace();
     if (localWs && localWs.id === workspace_id) {
-      companyName = localWs.company_name;
-      updatedBalance = Math.max(0, (localWs.token_balance || 0) + adjustment);
-      const updated = { ...localWs, token_balance: updatedBalance };
-      saveLocalWorkspace(updated);
+      companyName = localWs.company_name || companyName;
+      currentBalance = localWs.token_balance || currentBalance;
     }
 
-    // 2. Create Platform Transaction
+    // 6. Block Result Below Zero
+    const updatedBalance = currentBalance + delta;
+    if (updatedBalance < 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Adjustment would result in a negative token balance (${updatedBalance}). Operation blocked.`,
+        },
+        { status: 400 }
+      );
+    }
+
+    // 7. Update Balance in Supabase
+    try {
+      const supabase = await createServerClient();
+      await supabase
+        .from('corporate_workspaces')
+        .update({ token_balance: updatedBalance })
+        .eq('id', workspace_id);
+    } catch {}
+
+    // Update in local store
+    if (localWs && localWs.id === workspace_id) {
+      saveLocalWorkspace({ ...localWs, token_balance: updatedBalance });
+    }
+
+    // 8. Create Platform Transaction
     const txRecord: PlatformTransaction = {
       id: `tx-adj-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
       created_at: new Date().toISOString(),
       workspace_id,
       company_name: companyName,
-      amount_ngn: adjustment > 0 ? adjustment * 20000 : 0, // ₦20,000 per token valuation
+      amount_ngn: delta > 0 ? delta * 20000 : 0, // ₦20,000 per token valuation
       transaction_type: 'ADMIN_ADJUSTMENT',
       payment_reference: `adj_ref_${Date.now()}`,
       status: 'SUCCESS',
-      notes: `${notes.trim()} (${adjustment > 0 ? '+' : ''}${adjustment} tokens)`,
+      notes: `${validatedReason} (${delta > 0 ? '+' : ''}${delta} tokens)`,
     };
 
     try {
@@ -90,32 +132,37 @@ export async function POST(req: NextRequest) {
     } catch {}
     savePlatformTransaction(txRecord);
 
-    // 3. Write to Admin Audit Log
-    const auditRecord: AdminAuditLog = {
-      id: `log-adj-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
-      created_at: new Date().toISOString(),
-      admin_id: 'usr-platform-admin',
-      action_type: 'TOKEN_ADJUSTMENT',
-      target_id: workspace_id,
-      notes: `Adjusted tokens by ${adjustment > 0 ? '+' : ''}${adjustment} for ${companyName}. Reason: ${notes.trim()}`,
-    };
-
+    // 9. Resolve Session / Actor
+    let actorId = 'usr-platform-admin';
+    let actorName = 'Platform Admin';
     try {
       const supabase = await createServerClient();
-      await supabase.from('admin_audit_logs').insert({
-        id: auditRecord.id,
-        created_at: auditRecord.created_at,
-        admin_id: auditRecord.admin_id,
-        action_type: auditRecord.action_type,
-        target_id: auditRecord.target_id,
-        notes: auditRecord.notes,
-      });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        actorId = user.id;
+        actorName = user.user_metadata?.full_name || user.email || actorName;
+      }
     } catch {}
-    saveAdminAuditLog(auditRecord);
+    const headerActorId = req.headers.get('x-admin-user-id');
+    if (headerActorId) actorId = headerActorId;
+
+    // 10. Record Append-Only Audit Log
+    const auditRecord = await recordDangerousAuditLog({
+      actor_id: actorId,
+      actor_name: actorName,
+      action: 'WORKSPACE_TOKEN_ADJUSTMENT',
+      target_type: 'WORKSPACE_TOKENS',
+      target_id: workspace_id,
+      target_label: companyName,
+      reason: validatedReason,
+      before: { token_balance: currentBalance },
+      after: { token_balance: updatedBalance, delta, direction: resolvedDirection },
+      ip: getClientIp(req),
+    });
 
     return NextResponse.json({
       success: true,
-      message: `Successfully adjusted tokens by ${adjustment > 0 ? '+' : ''}${adjustment} for ${companyName}.`,
+      message: `Token balance for ${companyName} adjusted from ${currentBalance} to ${updatedBalance}.`,
       token_balance: updatedBalance,
       transaction: txRecord,
       audit_log: auditRecord,
@@ -123,7 +170,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Adjust tokens error:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to adjust workspace tokens' },
+      { success: false, error: error.message || 'Failed to adjust tokens' },
       { status: 500 }
     );
   }

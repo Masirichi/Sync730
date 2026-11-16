@@ -5,13 +5,9 @@ import {
   Users,
   Search,
   ShieldCheck,
-  UserCheck,
-  Briefcase,
-  User,
-  RefreshCw,
   MoreHorizontal,
-  CheckCircle2,
-  AlertCircle,
+  Check,
+  X,
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,7 +22,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ConfirmationDialog } from '@/components/admin/confirmation-dialog';
 import { AdminUserProfile, PlatformRole } from '@/lib/admin/types';
+import { formatLagosDateTime } from '@/lib/admin/date';
 import { toast } from 'sonner';
 
 export default function CommandUsersPage() {
@@ -34,7 +32,13 @@ export default function CommandUsersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | 'PLATFORM_ADMIN' | 'recruiter' | 'candidate'>('ALL');
   const [isLoading, setIsLoading] = useState(true);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  // Dialog state for role change confirmation
+  const [targetUser, setTargetUser] = useState<AdminUserProfile | null>(null);
+  const [pendingRole, setPendingRole] = useState<PlatformRole | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [reauthPassword, setReauthPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -55,33 +59,53 @@ export default function CommandUsersPage() {
     fetchUsers();
   }, []);
 
-  const handleUpdateRole = async (userId: string, newRole: PlatformRole) => {
-    setUpdatingId(userId);
+  const handleOpenRoleChange = (user: AdminUserProfile, newRole: PlatformRole) => {
+    setTargetUser(user);
+    setPendingRole(newRole);
+    setReauthPassword('');
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirmRoleChange = async (reason: string) => {
+    if (!targetUser || !pendingRole) return;
+
+    setIsSubmitting(true);
     try {
       const res = await fetch('/api/admin/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: userId,
-          new_role: newRole,
-          notes: `Elevated / changed to ${newRole} via Platform Admin Command Center`,
+          user_id: targetUser.id,
+          new_role: pendingRole,
+          reason,
+          reauth_password: reauthPassword,
         }),
       });
 
       const data = await res.json();
       if (data.success) {
         setUsers((prev) =>
-          prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
+          prev.map((u) => (u.id === targetUser.id ? { ...u, role: pendingRole } : u))
         );
-        toast.success(`Role for ${userId} updated to ${newRole}. Audit log recorded.`);
+        toast.success(`Role for ${targetUser.full_name || targetUser.email} updated to ${getRoleLabel(pendingRole)}.`);
+        setIsDialogOpen(false);
+        setTargetUser(null);
+        setPendingRole(null);
       } else {
         throw new Error(data.error || 'Failed to update user role');
       }
     } catch (err: any) {
       toast.error(err.message || 'Error updating role.');
     } finally {
-      setUpdatingId(null);
+      setIsSubmitting(false);
     }
+  };
+
+  const getRoleLabel = (role: string) => {
+    const rLower = role.toLowerCase();
+    if (rLower === 'platform_admin' || rLower === 'admin') return 'Platform admin';
+    if (rLower === 'recruiter') return 'Recruiter';
+    return 'Candidate';
   };
 
   const filteredUsers = users.filter((u) => {
@@ -98,21 +122,50 @@ export default function CommandUsersPage() {
     return u.role === roleFilter;
   });
 
+  // Dialog configuration helpers
+  const isTargetAdmin =
+    targetUser?.role === 'PLATFORM_ADMIN' ||
+    (targetUser?.role as string)?.toLowerCase() === 'admin';
+  const isElevatingToAdmin = pendingRole === 'PLATFORM_ADMIN' || pendingRole === 'admin';
+  const isRevokingAdmin = isTargetAdmin && !isElevatingToAdmin;
+  const requiresReauth = isElevatingToAdmin || isRevokingAdmin;
+
+  let dialogTitle = 'Change role?';
+  let dialogDescription = 'Update the permissions assigned to this user.';
+  let dialogActionLabel = 'Change role';
+
+  if (targetUser && pendingRole) {
+    const userName = targetUser.full_name || targetUser.email;
+    if (isElevatingToAdmin) {
+      dialogTitle = `Give ${userName} full admin access?`;
+      dialogDescription = 'This grants platform-wide administrative privileges to manage all jobs, workspaces, and permissions.';
+      dialogActionLabel = 'Make admin';
+    } else if (isRevokingAdmin) {
+      dialogTitle = `Revoke admin access from ${userName}?`;
+      dialogDescription = `This removes administrative privileges and resets access to ${getRoleLabel(pendingRole)}.`;
+      dialogActionLabel = 'Revoke admin';
+    } else {
+      dialogTitle = `Change ${userName}'s role to ${getRoleLabel(pendingRole)}?`;
+      dialogDescription = `This modifies account privileges to the ${getRoleLabel(pendingRole)} level.`;
+      dialogActionLabel = 'Save role change';
+    }
+  }
+
   return (
-    <div className="space-y-8 select-none">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-neutral-900/90 border border-neutral-800 shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-neutral-900 border border-neutral-800">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs uppercase font-extrabold tracking-widest text-blue-400">
-              Identity & Access Management (IAM)
+            <span className="text-xs uppercase font-semibold tracking-wider text-neutral-400">
+              Identity & Access Management
             </span>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">
-            User Profiles & Role Directory
-          </h2>
-          <p className="text-xs text-neutral-400">
-            Search all registered accounts, elevate members to PLATFORM_ADMIN, and manage ecosystem permissions.
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+            User directory
+          </h1>
+          <p className="text-sm text-neutral-400">
+            Review accounts, manage ecosystem permissions, and audit role elevation.
           </p>
         </div>
 
@@ -120,15 +173,14 @@ export default function CommandUsersPage() {
           onClick={fetchUsers}
           variant="outline"
           size="sm"
-          className="h-9 px-3 rounded-xl border-neutral-800 bg-neutral-900 text-xs font-semibold text-neutral-300 hover:text-white"
+          className="h-10 px-4 rounded-xl border-neutral-800 bg-neutral-900 text-sm font-semibold text-neutral-300 hover:text-white"
         >
-          <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
-          <span>Refresh Directory</span>
+          <span>Refresh</span>
         </Button>
       </div>
 
       {/* Directory Table Card */}
-      <Card className="rounded-3xl border border-neutral-800 bg-neutral-900/90 p-6 shadow-sm space-y-4">
+      <Card className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 shadow-sm space-y-4">
         {/* Controls Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-800">
           <div className="flex items-center gap-1.5 overflow-x-auto">
@@ -136,16 +188,16 @@ export default function CommandUsersPage() {
               <button
                 key={r}
                 onClick={() => setRoleFilter(r)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                   roleFilter === r
-                    ? 'bg-neutral-800 text-white shadow-xs border border-neutral-700'
+                    ? 'bg-neutral-800 text-white border border-neutral-700'
                     : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 {r === 'ALL'
-                  ? 'All Roles'
+                  ? 'All roles'
                   : r === 'PLATFORM_ADMIN'
-                  ? 'Platform Admins'
+                  ? 'Platform admins'
                   : r === 'recruiter'
                   ? 'Recruiters'
                   : 'Candidates'}
@@ -154,35 +206,34 @@ export default function CommandUsersPage() {
           </div>
 
           <div className="relative w-full sm:w-72">
-            <Search className="h-3.5 w-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 stroke-[1.5]" />
+            <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 stroke-[1.5]" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search user name or email..."
-              className="h-9 pl-8 pr-3 text-xs rounded-xl bg-neutral-950 border-neutral-800 text-white placeholder:text-neutral-500"
+              className="h-10 pl-9 pr-3 text-sm rounded-xl bg-neutral-950 border-neutral-800 text-white placeholder:text-neutral-500"
             />
           </div>
         </div>
 
         {/* Users Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-neutral-800 text-neutral-400 text-[11px] font-semibold">
+              <tr className="border-b border-neutral-800 text-neutral-400 text-xs font-semibold">
                 <th className="pb-3 font-semibold">User</th>
                 <th className="pb-3 font-semibold">Email</th>
-                <th className="pb-3 font-semibold">Current Role</th>
-                <th className="pb-3 font-semibold">Joined Date</th>
-                <th className="pb-3 font-semibold text-right">Role Promotion</th>
+                <th className="pb-3 font-semibold">Role</th>
+                <th className="pb-3 font-semibold">Joined</th>
+                <th className="pb-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-800/80">
+            <tbody className="divide-y divide-neutral-800">
               {filteredUsers.map((u) => {
                 const isAdmin =
                   u.role === 'PLATFORM_ADMIN' ||
                   (u.role as string).toLowerCase() === 'admin';
                 const isRecruiter = u.role === 'recruiter';
-                const isCandidate = u.role === 'candidate';
 
                 const initials = (u.full_name || u.email)
                   .split(' ')
@@ -191,112 +242,103 @@ export default function CommandUsersPage() {
                   .substring(0, 2)
                   .toUpperCase();
 
+                const dateInfo = formatLagosDateTime(u.created_at);
+
                 return (
-                  <tr key={u.id} className="hover:bg-neutral-800/30 transition-colors">
+                  <tr key={u.id} className="hover:bg-neutral-800/40 transition-colors">
                     {/* User Profile */}
                     <td className="py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <Avatar className="h-8 w-8 rounded-full border border-neutral-800">
-                          <AvatarFallback className="bg-neutral-800 text-white text-[10px] font-bold">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9 rounded-full border border-neutral-800">
+                          <AvatarFallback className="bg-neutral-800 text-white text-xs font-bold">
                             {initials}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-bold text-white">
+                          <div className="font-semibold text-white">
                             {u.full_name || 'Sync730 User'}
                           </div>
-                          <span className="text-[10px] text-neutral-500 font-mono">{u.id}</span>
+                          <span className="text-xs text-neutral-500 font-mono">{u.id}</span>
                         </div>
                       </div>
                     </td>
 
                     {/* Email */}
-                    <td className="py-3.5 text-neutral-300 font-mono text-[11px]">
+                    <td className="py-3.5 text-neutral-300 font-mono text-xs">
                       {u.email}
                     </td>
 
                     {/* Current Role Badge */}
                     <td className="py-3.5">
                       <Badge
-                        className={`text-[10px] font-bold ${
+                        variant="outline"
+                        className={`text-xs font-semibold ${
                           isAdmin
-                            ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                            ? 'border-neutral-700 bg-neutral-800 text-white'
                             : isRecruiter
-                            ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                            : 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+                            ? 'border-neutral-700 bg-neutral-900 text-neutral-300'
+                            : 'border-neutral-800 bg-neutral-950 text-neutral-400'
                         }`}
                       >
-                        {isAdmin ? 'PLATFORM_ADMIN' : u.role.toUpperCase()}
+                        {getRoleLabel(u.role)}
                       </Badge>
                     </td>
 
                     {/* Joined Date */}
-                    <td className="py-3.5 text-neutral-400 font-mono text-[11px]">
-                      {new Date(u.created_at).toLocaleDateString()}
+                    <td className="py-3.5 text-neutral-400 text-xs" title={`Joined: ${dateInfo.relative}`}>
+                      {dateInfo.formatted}
                     </td>
 
-                    {/* Action Menu */}
+                    {/* Quiet Row Menu (No pink pill) */}
                     <td className="py-3.5 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        {!isAdmin ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
                           <Button
-                            onClick={() => handleUpdateRole(u.id, 'PLATFORM_ADMIN')}
-                            disabled={updatingId === u.id}
+                            variant="ghost"
                             size="sm"
-                            className="h-8 px-2.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white font-bold text-[11px] gap-1 shadow-xs"
+                            className="h-10 w-10 p-0 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-800"
+                            aria-label={`Open actions for ${u.full_name || u.email}`}
                           >
-                            <ShieldCheck className="h-3.5 w-3.5" />
-                            <span>Make Admin</span>
+                            <MoreHorizontal className="h-4 w-4 stroke-[1.5]" />
                           </Button>
-                        ) : (
-                          <Button
-                            onClick={() => handleUpdateRole(u.id, 'candidate')}
-                            disabled={updatingId === u.id}
-                            size="sm"
-                            variant="outline"
-                            className="h-8 px-2.5 rounded-xl border-neutral-700 bg-neutral-800 text-neutral-300 hover:text-white font-medium text-[11px]"
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 text-neutral-200 w-48">
+                          <DropdownMenuLabel className="text-xs text-neutral-400">
+                            Change role
+                          </DropdownMenuLabel>
+                          <DropdownMenuSeparator className="bg-neutral-800" />
+                          <DropdownMenuItem
+                            onClick={() => handleOpenRoleChange(u, 'candidate')}
+                            disabled={u.role === 'candidate'}
+                            className="text-xs min-h-[36px]"
                           >
-                            <span>Demote</span>
-                          </Button>
-                        )}
-
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-neutral-800 text-neutral-400"
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 text-white text-xs">
-                            <DropdownMenuLabel>Reassign Role</DropdownMenuLabel>
-                            <DropdownMenuSeparator className="bg-neutral-800" />
+                            Set as Candidate
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleOpenRoleChange(u, 'recruiter')}
+                            disabled={u.role === 'recruiter'}
+                            className="text-xs min-h-[36px]"
+                          >
+                            Set as Recruiter
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator className="bg-neutral-800" />
+                          {!isAdmin ? (
                             <DropdownMenuItem
-                              onClick={() => handleUpdateRole(u.id, 'PLATFORM_ADMIN')}
-                              className="gap-2 cursor-pointer focus:bg-neutral-800"
+                              onClick={() => handleOpenRoleChange(u, 'PLATFORM_ADMIN')}
+                              className="text-xs min-h-[36px] font-semibold text-white focus:text-white"
                             >
-                              <ShieldCheck className="h-3.5 w-3.5 text-rose-400" />
-                              <span>Promote to PLATFORM_ADMIN</span>
+                              Make Platform admin
                             </DropdownMenuItem>
+                          ) : (
                             <DropdownMenuItem
-                              onClick={() => handleUpdateRole(u.id, 'recruiter')}
-                              className="gap-2 cursor-pointer focus:bg-neutral-800"
+                              onClick={() => handleOpenRoleChange(u, 'candidate')}
+                              className="text-xs min-h-[36px] font-semibold text-red-400 focus:text-red-400"
                             >
-                              <Briefcase className="h-3.5 w-3.5 text-amber-400" />
-                              <span>Set as Recruiter</span>
+                              Revoke admin access
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleUpdateRole(u.id, 'candidate')}
-                              className="gap-2 cursor-pointer focus:bg-neutral-800"
-                            >
-                              <User className="h-3.5 w-3.5 text-blue-400" />
-                              <span>Set as Candidate</span>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </td>
                   </tr>
                 );
@@ -305,6 +347,39 @@ export default function CommandUsersPage() {
           </table>
         </div>
       </Card>
+
+      {/* Confirmation Dialog for Role Changes */}
+      <ConfirmationDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        title={dialogTitle}
+        description={dialogDescription}
+        actionLabel={dialogActionLabel}
+        isDestructive={isRevokingAdmin}
+        requireReason={true}
+        isLoading={isSubmitting}
+        onConfirm={handleConfirmRoleChange}
+      >
+        {requiresReauth && (
+          <div className="space-y-1.5 pt-1">
+            <label htmlFor="admin-reauth" className="text-xs font-semibold text-neutral-300 block">
+              Admin password re-authentication <span className="text-rose-400">*</span>
+            </label>
+            <Input
+              id="admin-reauth"
+              type="password"
+              placeholder="Enter your administrator password to confirm..."
+              value={reauthPassword}
+              onChange={(e) => setReauthPassword(e.target.value)}
+              className="h-10 text-xs bg-neutral-950 border-neutral-800 text-white placeholder:text-neutral-500"
+              required
+            />
+            <p className="text-[11px] text-neutral-500">
+              Role changes involving platform administrator access require active credential step-up.
+            </p>
+          </div>
+        )}
+      </ConfirmationDialog>
     </div>
   );
 }

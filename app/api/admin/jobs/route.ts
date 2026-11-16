@@ -143,8 +143,12 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Dev seed action for Nigerian sample roles
+    // Dev seed action for Nigerian sample roles (blocked in production)
     if (body.action === 'seed_nigeria') {
+      if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json({ success: false, error: 'Endpoint not found' }, { status: 404 });
+      }
+
       const seeded: AdminRemoteJob[] = [];
       for (const role of SAMPLE_NIGERIA_ROLES) {
         const saved = saveServerJob(role);

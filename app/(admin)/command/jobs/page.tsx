@@ -475,21 +475,23 @@ export default function AdminJobsManagerPage() {
             </Button>
           </Link>
 
-          {/* Dev Seed Button for Nigerian Hybrid & Onsite Roles */}
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleSeedNigeriaRoles}
-            disabled={isSeedingNigeria}
-            className="h-9 px-3.5 text-xs font-semibold rounded-xl bg-emerald-950/40 border-emerald-500/30 text-emerald-300 hover:bg-emerald-900/50 hover:text-white gap-1.5 shadow-sm"
-          >
-            {isSeedingNigeria ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
-            ) : (
-              <Building2 className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />
-            )}
-            <span>Seed Lagos & Abuja Roles</span>
-          </Button>
+          {/* Dev Seed Button for Nigerian Hybrid & Onsite Roles - Hidden in production */}
+          {process.env.NODE_ENV !== 'production' && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleSeedNigeriaRoles}
+              disabled={isSeedingNigeria}
+              className="h-9 px-3.5 text-xs font-semibold rounded-xl bg-neutral-900 border-neutral-800 text-neutral-300 hover:bg-neutral-800 hover:text-white gap-1.5 shadow-sm"
+            >
+              {isSeedingNigeria ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-neutral-400" />
+              ) : (
+                <Building2 className="h-3.5 w-3.5 text-neutral-400" aria-hidden="true" />
+              )}
+              <span>Seed Lagos & Abuja Roles</span>
+            </Button>
+          )}
 
           {/* Post New Verified Job Trigger */}
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

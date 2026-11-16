@@ -4,6 +4,8 @@ import { createBrowserClient } from '@/lib/supabase/client';
 import { getServiceRoleClient } from '@/lib/supabase/service-role';
 import { JobSource } from '@/lib/supabase/types';
 import { crawlSources, CRAWLER_ADAPTERS, JobCategory, JOB_CATEGORIES } from '@/lib/crawler';
+import { recordDangerousAuditLog } from '@/lib/admin/audit';
+import { getClientIp } from '@/lib/admin/security';
 
 export async function GET(request: NextRequest) {
   return handleJobCrawl(request);
@@ -86,11 +88,11 @@ async function handleJobCrawl(request: NextRequest) {
       source: j.source || 'crawler',
       tags: j.tags || [],
       eligibility: j.eligibility || { scope: 'africa_wide', countries: [] },
-      role_verified_at: j.role_verified_at || new Date().toISOString(),
-      review_status: j.review_status || 'approved',
+      role_verified_at: null,
+      review_status: 'needs-review',
       source_type: 'CRAWLER',
-      is_active: j.is_active ?? true,
-      is_featured: j.is_featured ?? false,
+      is_active: false,
+      is_featured: false,
       updated_at: new Date().toISOString(),
     }));
 
@@ -108,6 +110,22 @@ async function handleJobCrawl(request: NextRequest) {
   } catch (err: any) {
     dbError = err?.message || 'Database error during crawl upsert';
   }
+
+  // Record append-only audit log for crawler execution
+  try {
+    await recordDangerousAuditLog({
+      actor_id: 'cron-or-admin',
+      actor_name: 'Platform Remote Job Crawler',
+      action: 'TRIGGER_CRAWLER',
+      target_type: 'REMOTE_JOB_CRAWLER',
+      target_id: `crawl-${Date.now()}`,
+      target_label: `Multi-Source Remote Crawl (${sourceParam})`,
+      reason: `Ingested ${jobs.length} roles from Remotive, Jobicy, RemoteOK, Himalayas. Set as needs-review.`,
+      before: { publicly_visible: false },
+      after: { total_crawled: jobs.length, review_status: 'needs-review', is_active: false },
+      ip: getClientIp(request),
+    });
+  } catch {}
 
   return NextResponse.json({
     success: true,
