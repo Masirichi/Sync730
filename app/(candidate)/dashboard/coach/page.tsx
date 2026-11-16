@@ -227,9 +227,9 @@ function InterviewCoachContent() {
       if (wordCount < 60) improvements.push('Expand on architectural considerations and fallback handling.');
 
       const result: PracticeSessionResult = {
-        questionId: currentQ.id,
-        question: currentQ.question,
-        category: currentQ.category,
+        questionId: currentQ?.id || 1,
+        question: currentQ?.question || '',
+        category: currentQ?.category || 'Core Technical Competency',
         answer: practiceAnswer,
         score: { structure, depth, clarity, overall },
         strengths,
