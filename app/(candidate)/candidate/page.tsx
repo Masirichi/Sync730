@@ -221,13 +221,22 @@ export default function CandidateDashboard() {
 
           {/* Quick Action CTAs */}
           <div className="hidden xl:flex items-center gap-2 pl-2">
-            <Link href="/find-work">
+            <Link href="/dashboard/coach">
               <Button
                 variant="outline"
                 size="sm"
                 className="text-xs h-9 px-3 rounded-lg border-neutral-200 dark:border-neutral-800 font-medium"
               >
-                Browse Jobs
+                Interview Coach
+              </Button>
+            </Link>
+            <Link href="/dashboard/resume">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-9 px-3 rounded-lg border-neutral-200 dark:border-neutral-800 font-medium"
+              >
+                Resume Studio
               </Button>
             </Link>
             <Link href="/dashboard/syncflow">

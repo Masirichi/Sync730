@@ -37,6 +37,7 @@ import {
   User,
   Mail,
   ExternalLink,
+  FileText,
 } from 'lucide-react';
 import { ResumeGeneratorModal, TargetJobContext } from '@/components/resume/resume-generator-modal';
 import { VetOnceTriggerModal } from '@/components/candidate/vet-once-trigger-modal';
@@ -487,6 +488,20 @@ export default function SyncFlowPage() {
                               </span>
                             )}
                           </div>
+
+                          {/* Saved or Applied: Tailor Resume Studio Button */}
+                          {(col.id === 'SAVED' || col.id === 'APPLIED') && (
+                            <div className="pt-1">
+                              <Link
+                                href={`/dashboard/resume?role=${encodeURIComponent(item.title)}&company=${encodeURIComponent(item.company)}`}
+                                className="flex items-center justify-center gap-1.5 w-full min-h-[44px] py-2 px-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white hover:bg-neutral-50 dark:bg-neutral-900 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-semibold transition-all shadow-sm"
+                              >
+                                <FileText className="h-3.5 w-3.5 stroke-[1.5]" />
+                                <span>Tailor Resume</span>
+                                <ArrowUpRight className="h-3 w-3 stroke-[1.5] opacity-75" />
+                              </Link>
+                            </div>
+                          )}
 
                           {/* Interviewing Sandbox Practice Button */}
                           {col.id === 'INTERVIEWING' && (
