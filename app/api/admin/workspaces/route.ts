@@ -13,6 +13,7 @@ const SEED_WORKSPACES: AdminCorporateWorkspace[] = [
     industry: 'Fintech',
     company_size: '50-200',
     created_at: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
+    is_demo: false,
   },
   {
     id: 'ws-sync730-demo',
@@ -22,6 +23,7 @@ const SEED_WORKSPACES: AdminCorporateWorkspace[] = [
     industry: 'Cloud Software',
     company_size: '20-50',
     created_at: new Date(Date.now() - 3600000 * 24 * 12).toISOString(),
+    is_demo: true,
   },
   {
     id: 'ws-cloudscale-03',
@@ -31,6 +33,7 @@ const SEED_WORKSPACES: AdminCorporateWorkspace[] = [
     industry: 'Infrastructure & AI',
     company_size: '100-500',
     created_at: new Date(Date.now() - 3600000 * 24 * 20).toISOString(),
+    is_demo: false,
   },
 ];
 

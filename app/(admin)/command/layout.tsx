@@ -4,29 +4,29 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  Activity,
   Briefcase,
-  CreditCard,
-  ShieldAlert,
   Users,
   LogOut,
-  ChevronRight,
   ShieldCheck,
-  Terminal,
   Menu,
   X,
-  ExternalLink,
   Bell,
+  Coins,
+  Flag,
+  Clock,
+  Check,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { createBrowserClient } from '@/lib/supabase/client';
+import { AdminHeaderProvider, useAdminHeader } from '@/components/admin/admin-header-context';
 import { toast } from 'sonner';
 
-export default function CommandLayout({ children }: { children: React.ReactNode }) {
+function CommandLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { includeDemo, setIncludeDemo, triggerRefresh, isRefreshing } = useAdminHeader();
 
   const handleSignOut = async () => {
     try {
@@ -45,7 +45,7 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
     {
       name: 'Operations & Metrics',
       href: '/command/metrics',
-      icon: Activity,
+      icon: Clock,
       badge: 'Live',
     },
     {
@@ -57,13 +57,13 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
     {
       name: 'Financial & Tokens',
       href: '/command/finance',
-      icon: CreditCard,
+      icon: Coins,
       badge: null,
     },
     {
       name: 'Anti-Cheat & Vetting',
       href: '/command/vetting',
-      icon: ShieldAlert,
+      icon: Flag,
       badge: 'Queue',
     },
     {
@@ -110,7 +110,7 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
                 <p className="text-[10px] text-neutral-400">Global Cluster: Lagos & US-East</p>
               </div>
             </div>
-            <Activity className="h-4 w-4 text-neutral-500 stroke-[1.5]" />
+            <ShieldCheck className="h-4 w-4 text-neutral-500 stroke-[1.5]" />
           </div>
 
           {/* Navigation Links */}
@@ -198,39 +198,68 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-30 bg-[#09090b]/95 backdrop-blur-md border-b border-neutral-800/80 px-4 sm:px-8 py-4 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-[#09090b]/95 backdrop-blur-md border-b border-neutral-800/80 px-4 sm:px-8 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Mobile Menu Trigger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-200"
+              aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
 
             <div>
               <div className="flex items-center gap-2">
-                <Terminal className="h-4 w-4 text-rose-400 stroke-[1.5]" />
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+                <ShieldCheck className="h-4 w-4 text-rose-400 stroke-[1.5]" />
+                <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white">
                   {pageTitle}
                 </h1>
               </div>
             </div>
           </div>
 
-          {/* Right Admin Profile & Notifications */}
+          {/* Header Controls: Include Demo Data Toggle + Single Unified Refresh Button */}
           <div className="flex items-center gap-3">
+            {/* Include Demo Data Toggle */}
+            <label
+              htmlFor="include-demo-toggle"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-neutral-800 bg-neutral-900 text-xs text-neutral-300 cursor-pointer select-none hover:border-neutral-700 transition-colors"
+            >
+              <input
+                id="include-demo-toggle"
+                type="checkbox"
+                checked={includeDemo}
+                onChange={(e) => setIncludeDemo(e.target.checked)}
+                className="h-3.5 w-3.5 rounded border-neutral-700 bg-neutral-800 text-rose-500 focus:ring-0 cursor-pointer"
+              />
+              <span className="font-medium text-[11px] sm:text-xs">Include demo data</span>
+            </label>
+
+            {/* Single Header Refresh Button */}
+            <Button
+              onClick={triggerRefresh}
+              variant="outline"
+              size="sm"
+              disabled={isRefreshing}
+              className="h-9 px-3.5 rounded-xl border-neutral-800 bg-neutral-900 hover:bg-neutral-800 text-xs font-semibold text-neutral-200 hover:text-white"
+            >
+              <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
+            </Button>
+
+            {/* Notifications */}
             <button
-              onClick={() => toast.info('System Audit: All health checks green.')}
-              className="relative p-2.5 rounded-full bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white transition-colors"
+              onClick={() => toast.info('System Audit: All platform services operational.')}
+              className="relative p-2 rounded-full bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white transition-colors"
+              aria-label="System notifications"
             >
               <Bell className="h-4 w-4 stroke-[1.5]" />
-              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-neutral-950" />
+              <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-emerald-500 ring-2 ring-neutral-950" />
             </button>
 
             {/* Admin User Badge */}
-            <div className="flex items-center gap-3 pl-2 sm:pl-3 border-l border-neutral-800">
-              <Avatar className="h-9 w-9 rounded-full ring-2 ring-rose-500/40">
+            <div className="flex items-center gap-2.5 pl-2 sm:pl-3 border-l border-neutral-800">
+              <Avatar className="h-8 w-8 rounded-full ring-2 ring-rose-500/40">
                 <AvatarFallback className="bg-rose-950 text-rose-300 text-xs font-bold">
                   PA
                 </AvatarFallback>
@@ -240,7 +269,7 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
                 <div className="text-xs font-bold text-white leading-tight">
                   David O. Alabi
                 </div>
-                <div className="text-[11px] text-rose-400 font-medium">
+                <div className="text-[10px] text-rose-400 font-medium">
                   PLATFORM_ADMIN
                 </div>
               </div>
@@ -248,7 +277,20 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
           </div>
         </header>
 
-        {/* Mobile Drawer */}
+        {/* Demo Data Included Visible Banner */}
+        {includeDemo && (
+          <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 sm:px-8 py-2 text-xs font-semibold text-amber-300 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Flag className="h-3.5 w-3.5 stroke-[2]" />
+              <span>Demo data included</span>
+            </div>
+            <span className="text-[11px] text-amber-400/80 font-normal hidden sm:inline">
+              Metrics, listings, and records include sandbox workspaces and test entries.
+            </span>
+          </div>
+        )}
+
+        {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="lg:hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex">
             <div className="w-72 bg-[#0e0e12] text-white p-5 flex flex-col justify-between h-full">
@@ -258,7 +300,7 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
                     <span className="text-white">Sync</span>
                     <span className="text-neutral-400">730</span>
                   </span>
-                  <button onClick={() => setMobileMenuOpen(false)} className="text-neutral-400">
+                  <button onClick={() => setMobileMenuOpen(false)} className="text-neutral-400" aria-label="Close menu">
                     <X className="h-5 w-5" />
                   </button>
                 </div>
@@ -296,5 +338,13 @@ export default function CommandLayout({ children }: { children: React.ReactNode 
         </main>
       </div>
     </div>
+  );
+}
+
+export default function CommandLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AdminHeaderProvider>
+      <CommandLayoutInner>{children}</CommandLayoutInner>
+    </AdminHeaderProvider>
   );
 }

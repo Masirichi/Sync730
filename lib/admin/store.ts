@@ -25,6 +25,7 @@ export const SEED_ADMIN_USERS: AdminUserProfile[] = [
     created_at: new Date(Date.now() - 3600000 * 24 * 30).toISOString(),
     avatar_url: '',
     phone: '+234 801 000 0001',
+    is_demo: false,
   },
   {
     id: 'usr-recruiter-001',
@@ -34,6 +35,7 @@ export const SEED_ADMIN_USERS: AdminUserProfile[] = [
     created_at: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
     avatar_url: '',
     phone: '+234 812 345 6789',
+    is_demo: false,
   },
   {
     id: 'usr-recruiter-002',
@@ -43,6 +45,7 @@ export const SEED_ADMIN_USERS: AdminUserProfile[] = [
     created_at: new Date(Date.now() - 3600000 * 24 * 12).toISOString(),
     avatar_url: '',
     phone: '+234 809 111 2233',
+    is_demo: true,
   },
   {
     id: 'usr-cand-001',
@@ -52,6 +55,7 @@ export const SEED_ADMIN_USERS: AdminUserProfile[] = [
     created_at: new Date(Date.now() - 3600000 * 24 * 14).toISOString(),
     avatar_url: '',
     phone: '+234 812 345 6789',
+    is_demo: false,
   },
   {
     id: 'usr-cand-002',
@@ -61,6 +65,7 @@ export const SEED_ADMIN_USERS: AdminUserProfile[] = [
     created_at: new Date(Date.now() - 3600000 * 24 * 10).toISOString(),
     avatar_url: '',
     phone: '+234 803 987 6543',
+    is_demo: false,
   },
   {
     id: 'usr-cand-003',
@@ -70,6 +75,7 @@ export const SEED_ADMIN_USERS: AdminUserProfile[] = [
     created_at: new Date(Date.now() - 3600000 * 24 * 8).toISOString(),
     avatar_url: '',
     phone: '+234 901 234 5678',
+    is_demo: false,
   },
 ];
 
@@ -85,6 +91,7 @@ export const SEED_PLATFORM_TRANSACTIONS: PlatformTransaction[] = [
     payment_reference: 'pstk_ref_9823194',
     status: 'SUCCESS',
     notes: 'Purchased 5 candidate unlock tokens via Paystack',
+    is_demo: true,
   },
   {
     id: 'tx-002',
@@ -96,6 +103,7 @@ export const SEED_PLATFORM_TRANSACTIONS: PlatformTransaction[] = [
     payment_reference: 'pstk_ref_7741289',
     status: 'SUCCESS',
     notes: 'Purchased 10 candidate unlock tokens via Paystack',
+    is_demo: false,
   },
   {
     id: 'tx-003',
@@ -107,6 +115,7 @@ export const SEED_PLATFORM_TRANSACTIONS: PlatformTransaction[] = [
     payment_reference: 'pstk_mock_prep_5512',
     status: 'SUCCESS',
     notes: 'Paid AI Mock Video Prep Sandbox unlock fee',
+    is_demo: true,
   },
 ];
 

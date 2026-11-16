@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   Users,
@@ -14,17 +14,18 @@ import {
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { ConfirmationDialog } from '@/components/admin/confirmation-dialog';
-import { AdminMetrics } from '@/lib/admin/types';
+import { AdminMetricsData } from '@/lib/admin/types';
 import { formatLagosDateTime } from '@/lib/admin/date';
+import { useAdminHeader } from '@/components/admin/admin-header-context';
 import { toast } from 'sonner';
 
 export default function CommandMetricsPage() {
-  const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
+  const [metrics, setMetrics] = useState<AdminMetricsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCrawling, setIsCrawling] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const { includeDemo, lastUpdated } = useAdminHeader();
 
   // Crawler telemetry state
   const [lastCrawledAt, setLastCrawledAt] = useState<string>(() => {
@@ -41,9 +42,10 @@ export default function CommandMetricsPage() {
     return 0;
   });
 
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const res = await fetch('/api/admin/metrics');
+      const res = await fetch(`/api/admin/metrics?include_demo=${includeDemo ? 'true' : 'false'}`);
       const data = await res.json();
       if (data.success && data.metrics) {
         setMetrics(data.metrics);
@@ -53,13 +55,18 @@ export default function CommandMetricsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [includeDemo]);
 
   useEffect(() => {
     fetchMetrics();
-    const interval = setInterval(fetchMetrics, 20000);
-    return () => clearInterval(interval);
-  }, []);
+  }, [fetchMetrics, lastUpdated]);
+
+  // Listen to header refresh event
+  useEffect(() => {
+    const handleHeaderRefresh = () => fetchMetrics();
+    window.addEventListener('sync730_admin_refresh_metrics', handleHeaderRefresh);
+    return () => window.removeEventListener('sync730_admin_refresh_metrics', handleHeaderRefresh);
+  }, [fetchMetrics]);
 
   const handleExecuteCrawler = async () => {
     setIsCrawling(true);
@@ -96,11 +103,15 @@ export default function CommandMetricsPage() {
     style: 'currency',
     currency: 'NGN',
     maximumFractionDigits: 0,
-  }).format(metrics?.gross_revenue_ngn || 0);
+  }).format(metrics?.revenue.gross_revenue_ngn || 0);
 
   const lastRunInfo = lastCrawledAt
     ? formatLagosDateTime(lastCrawledAt)
     : { formatted: 'Not recorded yet', relative: 'never' };
+
+  const updatedTimeLabel = metrics?.metadata.updated_at
+    ? formatLagosDateTime(metrics.metadata.updated_at).relative
+    : 'just now';
 
   return (
     <div className="space-y-6">
@@ -111,33 +122,17 @@ export default function CommandMetricsPage() {
             <span className="text-xs uppercase font-semibold tracking-wider text-neutral-400">
               Operations Center
             </span>
-            <Badge
-              variant="outline"
-              className="text-xs font-semibold border-neutral-700 text-neutral-300 bg-neutral-800 gap-1.5"
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              <span>Live sync</span>
-            </Badge>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
             Platform overview
           </h1>
           <p className="text-sm text-neutral-400">
-            Real-time telemetry, verification pipelines, token liquidity, and automated scrapers.
+            Canonical telemetry, verification pipelines, token liquidity, and automated scrapers.
           </p>
         </div>
 
-        {/* Crawler Action: Secondary Button */}
+        {/* Crawler Action: Secondary Button (Refresh moved to page header) */}
         <div className="flex items-center gap-3">
-          <Button
-            onClick={fetchMetrics}
-            variant="outline"
-            size="sm"
-            className="h-10 px-4 rounded-xl border-neutral-800 bg-neutral-900 text-sm font-semibold text-neutral-300 hover:text-white"
-          >
-            <span>Refresh</span>
-          </Button>
-
           <Button
             onClick={() => setIsConfirmOpen(true)}
             disabled={isCrawling}
@@ -149,7 +144,7 @@ export default function CommandMetricsPage() {
         </div>
       </div>
 
-      {/* 5 Real-Time KPI Cards */}
+      {/* 5 Real-Time KPI Cards (With Small-Sample Honesty & Updated relative time) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* KPI 1: Registered Candidates */}
         <Card className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5 flex flex-col justify-between shadow-sm">
@@ -163,10 +158,13 @@ export default function CommandMetricsPage() {
           </div>
           <div className="mt-4">
             <div className="text-2xl font-bold text-white tracking-tight">
-              {metrics?.total_candidates ?? 142}
+              {metrics?.users.by_role.candidate ?? 0}
             </div>
-            <div className="text-xs text-neutral-400 mt-1">
-              Registered job seekers
+            <div className="text-xs text-neutral-400 mt-1 flex items-center justify-between">
+              <span>Registered candidates</span>
+            </div>
+            <div className="text-[11px] text-neutral-500 mt-1">
+              Updated {updatedTimeLabel}
             </div>
           </div>
         </Card>
@@ -183,15 +181,41 @@ export default function CommandMetricsPage() {
           </div>
           <div className="mt-4">
             <div className="text-2xl font-bold text-white tracking-tight">
-              {metrics?.active_workspaces ?? 3}
+              {metrics?.workspaces.total ?? 0}
             </div>
-            <div className="text-xs text-neutral-400 mt-1">
-              Active employers
+            <div className="text-xs text-neutral-400 mt-1 flex items-center justify-between">
+              <span>Active employers: {metrics?.workspaces.employers_count ?? 0}</span>
+            </div>
+            <div className="text-[11px] text-neutral-500 mt-1">
+              Updated {updatedTimeLabel}
             </div>
           </div>
         </Card>
 
-        {/* KPI 3: Completed Video Assessments */}
+        {/* KPI 3: Live Roles (Reconciled with Find Work) */}
+        <Card className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5 flex flex-col justify-between shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-neutral-400">
+              Live roles
+            </span>
+            <div className="h-8 w-8 rounded-xl bg-neutral-800 text-neutral-300 flex items-center justify-center shrink-0">
+              <Briefcase className="h-4 w-4 stroke-[1.5]" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <div className="text-2xl font-bold text-white tracking-tight">
+              {metrics?.roles.live ?? 0}
+            </div>
+            <div className="text-xs text-neutral-400 mt-1 flex items-center justify-between">
+              <span>Catalog total: {metrics?.roles.total ?? 0}</span>
+            </div>
+            <div className="text-[11px] text-neutral-500 mt-1">
+              Updated {updatedTimeLabel}
+            </div>
+          </div>
+        </Card>
+
+        {/* KPI 4: Video Assessments & Flags */}
         <Card className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5 flex flex-col justify-between shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-neutral-400">
@@ -203,35 +227,18 @@ export default function CommandMetricsPage() {
           </div>
           <div className="mt-4">
             <div className="text-2xl font-bold text-white tracking-tight">
-              {metrics?.completed_assessments ?? 3}
+              {metrics?.flagged_videos.completed_assessments ?? 0}
             </div>
-            <div className="text-xs text-neutral-400 mt-1">
-              First-round interviews
+            <div className="text-xs text-neutral-400 mt-1 flex items-center justify-between">
+              <span>Flagged for review: {metrics?.flagged_videos.total ?? 0}</span>
             </div>
-          </div>
-        </Card>
-
-        {/* KPI 4: Total Tokens Unlocked */}
-        <Card className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5 flex flex-col justify-between shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-neutral-400">
-              Tokens unlocked
-            </span>
-            <div className="h-8 w-8 rounded-xl bg-neutral-800 text-neutral-300 flex items-center justify-center shrink-0">
-              <Coins className="h-4 w-4 stroke-[1.5]" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="text-2xl font-bold text-white tracking-tight">
-              {metrics?.tokens_unlocked ?? 1}
-            </div>
-            <div className="text-xs text-neutral-400 mt-1">
-              Profiles unlocked
+            <div className="text-[11px] text-neutral-500 mt-1">
+              Updated {updatedTimeLabel}
             </div>
           </div>
         </Card>
 
-        {/* KPI 5: Gross Platform Revenue (₦) */}
+        {/* KPI 5: Gross Platform Revenue (₦) — Excludes Mock/Test Always */}
         <Card className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5 flex flex-col justify-between shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-neutral-400">
@@ -245,8 +252,11 @@ export default function CommandMetricsPage() {
             <div className="text-xl font-bold text-white tracking-tight truncate">
               {grossRevFormatted}
             </div>
-            <div className="text-xs text-neutral-400 mt-1">
-              B2B tokens & tools
+            <div className="text-xs text-neutral-400 mt-1 flex items-center justify-between">
+              <span>B2B tokens purchased</span>
+            </div>
+            <div className="text-[11px] text-neutral-500 mt-1">
+              Updated {updatedTimeLabel}
             </div>
           </div>
         </Card>

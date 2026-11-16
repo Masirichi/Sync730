@@ -39,7 +39,6 @@ import {
   ExternalLink,
   FileText,
 } from 'lucide-react';
-import { ResumeGeneratorModal, TargetJobContext } from '@/components/resume/resume-generator-modal';
 import { VetOnceTriggerModal } from '@/components/candidate/vet-once-trigger-modal';
 import { CandidateTrackerItem, TrackerStatus, TrackerJobType, TrackerRatePeriod } from '@/lib/supabase/types';
 import {
@@ -494,6 +493,7 @@ export default function SyncFlowPage() {
                             <div className="pt-1">
                               <Link
                                 href={`/dashboard/resume?role=${encodeURIComponent(item.title)}&company=${encodeURIComponent(item.company)}`}
+                                prefetch={false}
                                 className="flex items-center justify-center gap-1.5 w-full min-h-[44px] py-2 px-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white hover:bg-neutral-50 dark:bg-neutral-900 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-semibold transition-all shadow-sm"
                               >
                                 <FileText className="h-3.5 w-3.5 stroke-[1.5]" />
@@ -508,6 +508,7 @@ export default function SyncFlowPage() {
                             <div className="pt-1">
                               <Link
                                 href={`/dashboard/coach?role=${encodeURIComponent(item.title)}&company=${encodeURIComponent(item.company)}`}
+                                prefetch={false}
                                 className="flex items-center justify-center gap-1.5 w-full min-h-[44px] py-2 px-3 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900 text-xs font-semibold transition-all shadow-sm"
                               >
                                 <Video className="h-3.5 w-3.5 stroke-[1.5]" />

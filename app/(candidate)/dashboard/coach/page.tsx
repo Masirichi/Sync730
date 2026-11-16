@@ -236,7 +236,7 @@ function InterviewCoachContent() {
         improvements,
       };
 
-      setPracticeResults((prev) => ({ ...prev, [currentQ.id]: result }));
+      setPracticeResults((prev) => ({ ...prev, [currentQ?.id || 1]: result }));
       setIsEvaluatingPractice(false);
       toast.success('Evaluation complete! Review your rubric breakdown below.');
     }, 900);
@@ -294,8 +294,8 @@ function InterviewCoachContent() {
   const handleNextSimulationQuestion = () => {
     const qItem = questions[currentQuestionIndex] || currentQ;
     const newAnswer: CandidateAnswer = {
-      question_id: qItem.id,
-      question: qItem.question,
+      question_id: qItem?.id || 1,
+      question: qItem?.question || '',
       transcript: currentAnswerText || 'Answer delivered via live microphone recording.',
       answer_text: currentAnswerText || 'Answer delivered via live microphone recording.',
       duration_seconds: recordingSeconds,
@@ -368,7 +368,7 @@ function InterviewCoachContent() {
     hint: 'Use the STAR format: Situation, Task, Action, Result.',
   };
   const currentQ = (questions && questions[currentQuestionIndex]) || (questions && questions[0]) || fallbackQuestion;
-  const currentResult = practiceResults[currentQ.id];
+  const currentResult = practiceResults[currentQ?.id || 1];
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
@@ -535,13 +535,13 @@ function InterviewCoachContent() {
         <div className="grid grid-cols-5 gap-1.5 pt-1">
           {questions.map((q, idx) => (
             <button
-              key={q.id || idx}
+              key={q?.id || idx}
               type="button"
               onClick={() => setCurrentQuestionIndex(idx)}
               className={`h-2 rounded-full transition-all ${
                 idx === currentQuestionIndex
                   ? 'bg-neutral-950 dark:bg-white'
-                  : idx < currentQuestionIndex || practiceResults[q.id]
+                  : idx < currentQuestionIndex || practiceResults[q?.id || idx]
                   ? 'bg-emerald-500'
                   : 'bg-neutral-200 dark:bg-neutral-800'
               }`}
@@ -768,7 +768,7 @@ function InterviewCoachContent() {
 
                   {currentQ?.hint && (
                     <div className="p-3 rounded-lg bg-neutral-50 dark:bg-neutral-900 text-xs text-neutral-600 dark:text-neutral-400">
-                      <strong>Hint:</strong> {currentQ.hint}
+                      <strong>Hint:</strong> {currentQ?.hint || 'Structure your response using the STAR method.'}
                     </div>
                   )}
 

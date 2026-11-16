@@ -9,6 +9,56 @@ export interface AdminMetrics {
   recent_activity: AdminActivityItem[];
 }
 
+export interface AdminMetricsData {
+  users: {
+    total: number;
+    by_role: {
+      PLATFORM_ADMIN: number;
+      recruiter: number;
+      candidate: number;
+    };
+    sample_size: number;
+    has_trend: boolean;
+  };
+  workspaces: {
+    total: number;
+    employers_count: number;
+    sample_size: number;
+    has_trend: boolean;
+  };
+  roles: {
+    live: number;
+    needs_review: number;
+    archived: number;
+    total: number;
+    featured: number;
+    sample_size: number;
+    has_trend: boolean;
+  };
+  applications: {
+    total: number;
+    sample_size: number;
+    has_trend: boolean;
+  };
+  flagged_videos: {
+    total: number;
+    completed_assessments: number;
+    sample_size: number;
+    has_trend: boolean;
+  };
+  revenue: {
+    gross_revenue_ngn: number;
+    tokens_unlocked: number;
+    sample_size: number;
+    has_trend: boolean;
+  };
+  metadata: {
+    updated_at: string;
+    is_demo_included: boolean;
+  };
+  recent_activity?: AdminActivityItem[];
+}
+
 export interface AdminActivityItem {
   id: string;
   type: 'SIGNUP' | 'AUDIT_LOG' | 'TOKEN_ADJUSTMENT' | 'VETTING' | 'CRAWLER';
@@ -28,6 +78,7 @@ export interface PlatformTransaction {
   payment_reference: string;
   status: string;
   notes?: string;
+  is_demo?: boolean;
 }
 
 export interface AdminAuditLog {
@@ -48,6 +99,7 @@ export interface AdminUserProfile {
   created_at: string;
   avatar_url?: string;
   phone?: string;
+  is_demo?: boolean;
 }
 
 export interface AdminCorporateWorkspace {
@@ -58,6 +110,7 @@ export interface AdminCorporateWorkspace {
   industry?: string | null;
   company_size?: string | null;
   created_at: string;
+  is_demo?: boolean;
 }
 
 export interface AdminRemoteJob {
@@ -96,4 +149,5 @@ export interface AdminRemoteJob {
   city_location?: string | null;
   published_at: string;
   created_at: string;
+  is_demo?: boolean;
 }

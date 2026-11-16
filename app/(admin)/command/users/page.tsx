@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Users,
   Search,
@@ -23,15 +23,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ConfirmationDialog } from '@/components/admin/confirmation-dialog';
-import { AdminUserProfile, PlatformRole } from '@/lib/admin/types';
+import { AdminUserProfile, PlatformRole, AdminMetricsData } from '@/lib/admin/types';
 import { formatLagosDateTime } from '@/lib/admin/date';
+import { useAdminHeader } from '@/components/admin/admin-header-context';
 import { toast } from 'sonner';
 
 export default function CommandUsersPage() {
   const [users, setUsers] = useState<AdminUserProfile[]>([]);
+  const [metrics, setMetrics] = useState<AdminMetricsData | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | 'PLATFORM_ADMIN' | 'recruiter' | 'candidate'>('ALL');
   const [isLoading, setIsLoading] = useState(true);
+  const { includeDemo, lastUpdated } = useAdminHeader();
 
   // Dialog state for role change confirmation
   const [targetUser, setTargetUser] = useState<AdminUserProfile | null>(null);
@@ -40,24 +43,38 @@ export default function CommandUsersPage() {
   const [reauthPassword, setReauthPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchUsers = async () => {
+  const fetchUsersAndMetrics = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/admin/users');
-      const data = await res.json();
-      if (data.success && Array.isArray(data.users)) {
-        setUsers(data.users);
+      const [usersRes, metricsRes] = await Promise.all([
+        fetch('/api/admin/users'),
+        fetch(`/api/admin/metrics?include_demo=${includeDemo ? 'true' : 'false'}`),
+      ]);
+      const usersData = await usersRes.json();
+      const metricsData = await metricsRes.json();
+
+      if (usersData.success && Array.isArray(usersData.users)) {
+        setUsers(usersData.users);
+      }
+      if (metricsData.success && metricsData.metrics) {
+        setMetrics(metricsData.metrics);
       }
     } catch (err) {
       console.warn('Failed to fetch users directory:', err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [includeDemo]);
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsersAndMetrics();
+  }, [fetchUsersAndMetrics, lastUpdated]);
+
+  useEffect(() => {
+    const handleRefresh = () => fetchUsersAndMetrics();
+    window.addEventListener('sync730_admin_refresh_metrics', handleRefresh);
+    return () => window.removeEventListener('sync730_admin_refresh_metrics', handleRefresh);
+  }, [fetchUsersAndMetrics]);
 
   const handleOpenRoleChange = (user: AdminUserProfile, newRole: PlatformRole) => {
     setTargetUser(user);
@@ -168,15 +185,6 @@ export default function CommandUsersPage() {
             Review accounts, manage ecosystem permissions, and audit role elevation.
           </p>
         </div>
-
-        <Button
-          onClick={fetchUsers}
-          variant="outline"
-          size="sm"
-          className="h-10 px-4 rounded-xl border-neutral-800 bg-neutral-900 text-sm font-semibold text-neutral-300 hover:text-white"
-        >
-          <span>Refresh</span>
-        </Button>
       </div>
 
       {/* Directory Table Card */}
