@@ -268,6 +268,22 @@ export interface PipelineCandidate {
   }>;
 }
 
+export interface VideoAssessmentFlag {
+  id: string;
+  type: string;
+  timestamp_seconds: number;
+  timestamp_label: string;
+  severity: 'For review';
+  description?: string;
+}
+
+export type VideoModerationStatus =
+  | 'PENDING'
+  | 'FLAGGED'
+  | 'RETAKE_REQUESTED'
+  | 'APPROVED'
+  | 'REJECTED';
+
 export interface VideoAssessment {
   id: string;
   candidate_id: string;
@@ -275,12 +291,23 @@ export interface VideoAssessment {
   overall_match_score: number;
   technical_depth_score: number;
   communication_score: number;
+  interview_score?: number;
+  resume_match_score?: number;
   ai_summary: string;
   secure_video_url: string;
   poster_url?: string;
   duration_seconds?: number;
   proctoring_flags: string[];
+  structured_flags?: VideoAssessmentFlag[];
   status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'PROCESSING';
+  moderation_status?: VideoModerationStatus;
+  decision_by?: string | null;
+  decision_date?: string | null;
+  decision_reason?: string | null;
+  ai_recommendation?: 'APPROVED' | 'REJECTED' | 'FLAGGED';
+  ai_overridden?: boolean;
+  retention_period?: string | null;
+  deletion_status?: string | null;
   created_at: string;
   expires_at?: number;
 

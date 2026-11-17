@@ -131,17 +131,35 @@ export interface AdminActivityItem {
   metadata?: Record<string, any>;
 }
 
+export type PlatformTransactionType =
+  | 'TOKEN_PURCHASE'
+  | 'INTERVIEW_PREP'
+  | 'RESUME_GENERATOR'
+  | 'LINKEDIN_OPTIMIZATION'
+  | 'ADMIN_ADJUSTMENT'
+  | 'REFUND'
+  | 'MOCK_PREP_FEE';
+
 export interface PlatformTransaction {
   id: string;
   created_at: string;
-  workspace_id: string;
+  workspace_id?: string;
   company_name?: string;
-  amount_ngn: number;
-  transaction_type: 'TOKEN_PURCHASE' | 'ADMIN_ADJUSTMENT' | 'MOCK_PREP_FEE';
+  payer_name?: string;
+  payer_email?: string;
+  amount?: number;
+  amount_ngn?: number;
+  currency?: 'NGN' | 'USD' | string;
+  transaction_type: PlatformTransactionType;
+  tool_name?: 'Interview Prep' | 'Résumé Generator' | 'LinkedIn Profile Optimization' | string;
   payment_reference: string;
-  status: string;
+  paystack_reference?: string;
+  status: 'PAID' | 'FAILED' | 'REFUNDED' | 'SUCCESS';
   notes?: string;
   is_demo?: boolean;
+  refunded_amount?: number;
+  refund_reason?: string;
+  refunded_at?: string;
 }
 
 export interface AdminAuditLog {
@@ -151,6 +169,10 @@ export interface AdminAuditLog {
   action_type: string;
   target_id?: string;
   notes?: string;
+  reason?: string;
+  before?: any;
+  after?: any;
+  ip?: string;
   metadata?: Record<string, any>;
 }
 
@@ -159,6 +181,9 @@ export interface AdminUserProfile {
   email: string;
   full_name?: string;
   role: PlatformRole;
+  workspace_name?: string;
+  status?: 'ACTIVE' | 'SUSPENDED';
+  last_active?: string;
   created_at: string;
   avatar_url?: string;
   phone?: string;
@@ -172,6 +197,10 @@ export interface AdminCorporateWorkspace {
   token_balance: number;
   industry?: string | null;
   company_size?: string | null;
+  roles_posted?: number;
+  roles_live?: number;
+  interviews_run?: number;
+  last_active?: string;
   created_at: string;
   is_demo?: boolean;
 }

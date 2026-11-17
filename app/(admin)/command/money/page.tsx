@@ -297,7 +297,7 @@ export default function CommandFinancePage() {
                       </Badge>
                     </td>
                     <td className="py-3.5 tabular-nums text-xs text-white">
-                      ₦{tx.amount_ngn.toLocaleString()}
+                      ₦{(tx.amount_ngn || tx.amount || 0).toLocaleString()}
                     </td>
                     <td className="py-3.5 text-xs text-neutral-400" title={`Recorded: ${dateInfo.relative}`}>
                       {dateInfo.formatted}
