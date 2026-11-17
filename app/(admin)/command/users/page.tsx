@@ -1,19 +1,21 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import Link from 'next/link';
 import {
   Users,
   Search,
-  ShieldCheck,
   MoreHorizontal,
-  Check,
-  X,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  ShieldAlert,
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,45 +25,51 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ConfirmationDialog } from '@/components/admin/confirmation-dialog';
-import { AdminUserProfile, PlatformRole, AdminMetricsData } from '@/lib/admin/types';
+import { AdminUserProfile, PlatformRole } from '@/lib/admin/types';
 import { formatLagosDateTime } from '@/lib/admin/date';
 import { useAdminHeader } from '@/components/admin/admin-header-context';
 import { toast } from 'sonner';
 
+type SortField = 'name' | 'email' | 'role' | 'workspace' | 'status' | 'last_active' | 'joined';
+type SortOrder = 'asc' | 'desc';
+
+const PAGE_SIZE = 25;
+
 export default function CommandUsersPage() {
   const [users, setUsers] = useState<AdminUserProfile[]>([]);
-  const [metrics, setMetrics] = useState<AdminMetricsData | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | 'PLATFORM_ADMIN' | 'recruiter' | 'candidate'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'SUSPENDED'>('ALL');
+  const [sortField, setSortField] = useState<SortField>('joined');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const { includeDemo, lastUpdated } = useAdminHeader();
 
   // Dialog state for role change confirmation
   const [targetUser, setTargetUser] = useState<AdminUserProfile | null>(null);
   const [pendingRole, setPendingRole] = useState<PlatformRole | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [reauthPassword, setReauthPassword] = useState('');
+
+  // Dialog state for suspend / restore confirmation
+  const [suspendTargetUser, setSuspendTargetUser] = useState<AdminUserProfile | null>(null);
+  const [suspendAction, setSuspendAction] = useState<'SUSPEND' | 'RESTORE'>('SUSPEND');
+  const [isSuspendDialogOpen, setIsSuspendDialogOpen] = useState(false);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     document.title = 'Users and roles | Command Center';
   }, []);
 
-  const fetchUsersAndMetrics = useCallback(async () => {
+  const fetchUsers = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [usersRes, metricsRes] = await Promise.all([
-        fetch('/api/admin/users'),
-        fetch(`/api/admin/metrics?include_demo=${includeDemo ? 'true' : 'false'}`),
-      ]);
-      const usersData = await usersRes.json();
-      const metricsData = await metricsRes.json();
-
-      if (usersData.success && Array.isArray(usersData.users)) {
-        setUsers(usersData.users);
-      }
-      if (metricsData.success && metricsData.metrics) {
-        setMetrics(metricsData.metrics);
+      const res = await fetch(`/api/admin/users?include_demo=${includeDemo ? 'true' : 'false'}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.users)) {
+        setUsers(data.users);
       }
     } catch (err) {
       console.warn('Failed to fetch users directory:', err);
@@ -71,20 +79,131 @@ export default function CommandUsersPage() {
   }, [includeDemo]);
 
   useEffect(() => {
-    fetchUsersAndMetrics();
-  }, [fetchUsersAndMetrics, lastUpdated]);
+    fetchUsers();
+  }, [fetchUsers, lastUpdated]);
 
   useEffect(() => {
-    const handleRefresh = () => fetchUsersAndMetrics();
+    const handleRefresh = () => fetchUsers();
     window.addEventListener('sync730_admin_refresh_metrics', handleRefresh);
-    return () => window.removeEventListener('sync730_admin_refresh_metrics', handleRefresh);
-  }, [fetchUsersAndMetrics]);
+    window.addEventListener('sync730_users_updated', handleRefresh);
+    return () => {
+      window.removeEventListener('sync730_admin_refresh_metrics', handleRefresh);
+      window.removeEventListener('sync730_users_updated', handleRefresh);
+    };
+  }, [fetchUsers]);
 
+  // Format plain text role
+  const getRolePlainText = (role: string) => {
+    const rLower = (role || '').toLowerCase();
+    if (rLower === 'platform_admin' || rLower === 'admin') return 'Platform admin';
+    if (rLower === 'recruiter') return 'Recruiter';
+    return 'Candidate';
+  };
+
+  // Handle Sort Toggle
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+    setCurrentPage(1);
+  };
+
+  // Filter and sort users
+  const filteredUsers = useMemo(() => {
+    return users.filter((u) => {
+      // Demo guard
+      if (!includeDemo && u.is_demo) return false;
+
+      // Search query filter
+      const q = searchQuery.toLowerCase().trim();
+      if (q) {
+        const matchesName = (u.full_name || '').toLowerCase().includes(q);
+        const matchesEmail = (u.email || '').toLowerCase().includes(q);
+        const matchesWorkspace = (u.workspace_name || '').toLowerCase().includes(q);
+        if (!matchesName && !matchesEmail && !matchesWorkspace) return false;
+      }
+
+      // Role filter
+      if (roleFilter !== 'ALL') {
+        const rLower = (u.role || '').toLowerCase();
+        if (roleFilter === 'PLATFORM_ADMIN') {
+          if (rLower !== 'platform_admin' && rLower !== 'admin') return false;
+        } else if (rLower !== roleFilter.toLowerCase()) {
+          return false;
+        }
+      }
+
+      // Status filter
+      if (statusFilter !== 'ALL') {
+        const userStatus = u.status || 'ACTIVE';
+        if (userStatus !== statusFilter) return false;
+      }
+
+      return true;
+    });
+  }, [users, searchQuery, roleFilter, statusFilter, includeDemo]);
+
+  const sortedUsers = useMemo(() => {
+    const list = [...filteredUsers];
+    list.sort((a, b) => {
+      let valA: string | number = '';
+      let valB: string | number = '';
+
+      switch (sortField) {
+        case 'name':
+          valA = (a.full_name || a.email || '').toLowerCase();
+          valB = (b.full_name || b.email || '').toLowerCase();
+          break;
+        case 'email':
+          valA = (a.email || '').toLowerCase();
+          valB = (b.email || '').toLowerCase();
+          break;
+        case 'role':
+          valA = getRolePlainText(a.role).toLowerCase();
+          valB = getRolePlainText(b.role).toLowerCase();
+          break;
+        case 'workspace':
+          valA = (a.workspace_name || '—').toLowerCase();
+          valB = (b.workspace_name || '—').toLowerCase();
+          break;
+        case 'status':
+          valA = (a.status || 'ACTIVE').toLowerCase();
+          valB = (b.status || 'ACTIVE').toLowerCase();
+          break;
+        case 'last_active':
+          valA = new Date(a.last_active || a.created_at).getTime();
+          valB = new Date(b.last_active || b.created_at).getTime();
+          break;
+        case 'joined':
+        default:
+          valA = new Date(a.created_at).getTime();
+          valB = new Date(b.created_at).getTime();
+          break;
+      }
+
+      if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+      if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return list;
+  }, [filteredUsers, sortField, sortOrder]);
+
+  // Pagination calculation
+  const totalPages = Math.max(1, Math.ceil(sortedUsers.length / PAGE_SIZE));
+  const paginatedUsers = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return sortedUsers.slice(start, start + PAGE_SIZE);
+  }, [sortedUsers, currentPage]);
+
+  // Role change dialog handlers
   const handleOpenRoleChange = (user: AdminUserProfile, newRole: PlatformRole) => {
     setTargetUser(user);
     setPendingRole(newRole);
     setReauthPassword('');
-    setIsDialogOpen(true);
+    setIsRoleDialogOpen(true);
   };
 
   const handleConfirmRoleChange = async (reason: string) => {
@@ -108,8 +227,8 @@ export default function CommandUsersPage() {
         setUsers((prev) =>
           prev.map((u) => (u.id === targetUser.id ? { ...u, role: pendingRole } : u))
         );
-        toast.success(`Role for ${targetUser.full_name || targetUser.email} updated to ${getRoleLabel(pendingRole)}.`);
-        setIsDialogOpen(false);
+        toast.success(`Role for ${targetUser.full_name || targetUser.email} updated to ${getRolePlainText(pendingRole)}.`);
+        setIsRoleDialogOpen(false);
         setTargetUser(null);
         setPendingRole(null);
       } else {
@@ -122,28 +241,51 @@ export default function CommandUsersPage() {
     }
   };
 
-  const getRoleLabel = (role: string) => {
-    const rLower = role.toLowerCase();
-    if (rLower === 'platform_admin' || rLower === 'admin') return 'Platform admin';
-    if (rLower === 'recruiter') return 'Recruiter';
-    return 'Candidate';
+  // Suspend / Restore dialog handlers
+  const handleOpenSuspendRestore = (user: AdminUserProfile, action: 'SUSPEND' | 'RESTORE') => {
+    setSuspendTargetUser(user);
+    setSuspendAction(action);
+    setIsSuspendDialogOpen(true);
   };
 
-  const filteredUsers = users.filter((u) => {
-    const q = searchQuery.toLowerCase();
-    const matchesSearch =
-      (u.full_name || '').toLowerCase().includes(q) ||
-      (u.email || '').toLowerCase().includes(q);
+  const handleConfirmSuspendRestore = async (reason: string) => {
+    if (!suspendTargetUser) return;
 
-    if (!matchesSearch) return false;
-    if (roleFilter === 'ALL') return true;
-    if (roleFilter === 'PLATFORM_ADMIN') {
-      return u.role === 'PLATFORM_ADMIN' || (u.role as string).toLowerCase() === 'admin';
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: suspendTargetUser.id,
+          action: suspendAction,
+          reason,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        const nextStatus = suspendAction === 'SUSPEND' ? 'SUSPENDED' : 'ACTIVE';
+        setUsers((prev) =>
+          prev.map((u) => (u.id === suspendTargetUser.id ? { ...u, status: nextStatus } : u))
+        );
+        toast.success(
+          `Account for ${suspendTargetUser.full_name || suspendTargetUser.email} ${
+            suspendAction === 'SUSPEND' ? 'suspended' : 'restored'
+          }.`
+        );
+        setIsSuspendDialogOpen(false);
+        setSuspendTargetUser(null);
+      } else {
+        throw new Error(data.error || `Failed to ${suspendAction.toLowerCase()} user account`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Error updating account status.');
+    } finally {
+      setIsSubmitting(false);
     }
-    return u.role === roleFilter;
-  });
+  };
 
-  // Dialog configuration helpers
   const isTargetAdmin =
     targetUser?.role === 'PLATFORM_ADMIN' ||
     (targetUser?.role as string)?.toLowerCase() === 'admin';
@@ -151,71 +293,115 @@ export default function CommandUsersPage() {
   const isRevokingAdmin = isTargetAdmin && !isElevatingToAdmin;
   const requiresReauth = isElevatingToAdmin || isRevokingAdmin;
 
-  let dialogTitle = 'Change role?';
-  let dialogDescription = 'Update the permissions assigned to this user.';
-  let dialogActionLabel = 'Change role';
+  let roleDialogTitle = 'Change role?';
+  let roleDialogDescription = 'Update the permissions assigned to this user.';
+  let roleDialogActionLabel = 'Change role';
 
   if (targetUser && pendingRole) {
     const userName = targetUser.full_name || targetUser.email;
     if (isElevatingToAdmin) {
-      dialogTitle = `Give ${userName} full admin access?`;
-      dialogDescription = 'This grants platform-wide administrative privileges to manage all jobs, workspaces, and permissions.';
-      dialogActionLabel = 'Make admin';
+      roleDialogTitle = `Give ${userName} full admin access?`;
+      roleDialogDescription =
+        'This grants platform-wide administrative privileges to manage all jobs, workspaces, and permissions.';
+      roleDialogActionLabel = 'Make admin';
     } else if (isRevokingAdmin) {
-      dialogTitle = `Revoke admin access from ${userName}?`;
-      dialogDescription = `This removes administrative privileges and resets access to ${getRoleLabel(pendingRole)}.`;
-      dialogActionLabel = 'Revoke admin';
+      roleDialogTitle = `Revoke admin access from ${userName}?`;
+      roleDialogDescription = `This removes administrative privileges and resets access to ${getRolePlainText(
+        pendingRole
+      )}.`;
+      roleDialogActionLabel = 'Revoke admin';
     } else {
-      dialogTitle = `Change ${userName}'s role to ${getRoleLabel(pendingRole)}?`;
-      dialogDescription = `This modifies account privileges to the ${getRoleLabel(pendingRole)} level.`;
-      dialogActionLabel = 'Save role change';
+      roleDialogTitle = `Change ${userName}'s role to ${getRolePlainText(pendingRole)}?`;
+      roleDialogDescription = `This modifies account privileges to the ${getRolePlainText(pendingRole)} level.`;
+      roleDialogActionLabel = 'Save role change';
     }
   }
 
+  const renderSortIndicator = (field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="h-3 w-3 ml-1 text-neutral-500 inline opacity-60" />;
+    }
+    return sortOrder === 'asc' ? (
+      <ArrowUp className="h-3 w-3 ml-1 text-white inline" />
+    ) : (
+      <ArrowDown className="h-3 w-3 ml-1 text-white inline" />
+    );
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
+      {/* 3. PAGE HEADER: Exactly one h1 and one line of description */}
+      <div className="pb-2 border-b border-neutral-800">
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
           Users and roles
         </h1>
         <p className="text-sm text-neutral-400 mt-1">
-          Manage user directory, workspace permissions, and administrator access.
+          Manage user directory, workspace assignments, and access statuses.
         </p>
       </div>
 
-      {/* Directory Table Card */}
+      {/* Main Table Card */}
       <Card className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 shadow-sm space-y-4">
-        {/* Controls Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-800">
-          <div className="flex items-center gap-1.5 overflow-x-auto">
-            {(['ALL', 'PLATFORM_ADMIN', 'recruiter', 'candidate'] as const).map((r) => (
-              <button
-                key={r}
-                onClick={() => setRoleFilter(r)}
-                className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                  roleFilter === r
-                    ? 'bg-neutral-800 text-white border border-neutral-700'
-                    : 'text-neutral-400 hover:text-white'
-                }`}
-              >
-                {r === 'ALL'
-                  ? 'All roles'
-                  : r === 'PLATFORM_ADMIN'
-                  ? 'Platform admins'
-                  : r === 'recruiter'
-                  ? 'Recruiters'
-                  : 'Candidates'}
-              </button>
-            ))}
+        {/* Controls Bar: Search & Filters */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-neutral-800">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Role Filter Buttons */}
+            <div className="flex items-center gap-1 bg-neutral-950 p-1 rounded-xl border border-neutral-800">
+              {(['ALL', 'PLATFORM_ADMIN', 'recruiter', 'candidate'] as const).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => {
+                    setRoleFilter(r);
+                    setCurrentPage(1);
+                  }}
+                  className={`min-h-[36px] px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    roleFilter === r
+                      ? 'bg-neutral-800 text-white'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  {r === 'ALL'
+                    ? 'All roles'
+                    : r === 'PLATFORM_ADMIN'
+                    ? 'Platform admins'
+                    : r === 'recruiter'
+                    ? 'Recruiters'
+                    : 'Candidates'}
+                </button>
+              ))}
+            </div>
+
+            {/* Status Filter Buttons */}
+            <div className="flex items-center gap-1 bg-neutral-950 p-1 rounded-xl border border-neutral-800">
+              {(['ALL', 'ACTIVE', 'SUSPENDED'] as const).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => {
+                    setStatusFilter(s);
+                    setCurrentPage(1);
+                  }}
+                  className={`min-h-[36px] px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    statusFilter === s
+                      ? 'bg-neutral-800 text-white'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  {s === 'ALL' ? 'All status' : s === 'ACTIVE' ? 'Active' : 'Suspended'}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="relative w-full sm:w-72">
+          {/* Search Box */}
+          <div className="relative w-full lg:w-72">
             <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 stroke-[1.5]" />
             <Input
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search user name or email..."
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search name, email, workspace..."
               className="h-10 pl-9 pr-3 text-sm rounded-xl bg-neutral-950 border-neutral-800 text-white placeholder:text-neutral-500"
             />
           </div>
@@ -225,166 +411,275 @@ export default function CommandUsersPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-neutral-800 text-neutral-400 text-xs font-semibold">
-                <th className="pb-3 font-semibold">User</th>
-                <th className="pb-3 font-semibold">Email</th>
-                <th className="pb-3 font-semibold">Role</th>
-                <th className="pb-3 font-semibold">Joined</th>
+              <tr className="border-b border-neutral-800 text-neutral-400 text-xs font-semibold select-none">
+                <th
+                  onClick={() => handleSort('name')}
+                  className="pb-3 font-semibold cursor-pointer hover:text-white transition-colors"
+                >
+                  Name {renderSortIndicator('name')}
+                </th>
+                <th
+                  onClick={() => handleSort('email')}
+                  className="pb-3 font-semibold cursor-pointer hover:text-white transition-colors"
+                >
+                  Email {renderSortIndicator('email')}
+                </th>
+                <th
+                  onClick={() => handleSort('role')}
+                  className="pb-3 font-semibold cursor-pointer hover:text-white transition-colors"
+                >
+                  Role {renderSortIndicator('role')}
+                </th>
+                <th
+                  onClick={() => handleSort('workspace')}
+                  className="pb-3 font-semibold cursor-pointer hover:text-white transition-colors"
+                >
+                  Workspace {renderSortIndicator('workspace')}
+                </th>
+                <th
+                  onClick={() => handleSort('status')}
+                  className="pb-3 font-semibold cursor-pointer hover:text-white transition-colors"
+                >
+                  Status {renderSortIndicator('status')}
+                </th>
+                <th
+                  onClick={() => handleSort('last_active')}
+                  className="pb-3 font-semibold cursor-pointer hover:text-white transition-colors"
+                >
+                  Last active {renderSortIndicator('last_active')}
+                </th>
+                <th
+                  onClick={() => handleSort('joined')}
+                  className="pb-3 font-semibold cursor-pointer hover:text-white transition-colors"
+                >
+                  Joined {renderSortIndicator('joined')}
+                </th>
                 <th className="pb-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-800">
-              {filteredUsers.map((u) => {
-                const isAdmin =
-                  u.role === 'PLATFORM_ADMIN' ||
-                  (u.role as string).toLowerCase() === 'admin';
-                const isRecruiter = u.role === 'recruiter';
+              {paginatedUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-8 text-center text-xs text-neutral-500">
+                    No users match the selected filters.
+                  </td>
+                </tr>
+              ) : (
+                paginatedUsers.map((u) => {
+                  const roleText = getRolePlainText(u.role);
+                  const isSuspended = u.status === 'SUSPENDED';
+                  const joinedInfo = formatLagosDateTime(u.created_at);
+                  const activeInfo = u.last_active ? formatLagosDateTime(u.last_active) : joinedInfo;
 
-                const initials = (u.full_name || u.email)
-                  .split(' ')
-                  .map((w) => w[0])
-                  .join('')
-                  .substring(0, 2)
-                  .toUpperCase();
-
-                const dateInfo = formatLagosDateTime(u.created_at);
-
-                return (
-                  <tr key={u.id} className="hover:bg-neutral-800/40 transition-colors">
-                    {/* User Profile */}
-                    <td className="py-3.5">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9 rounded-full border border-neutral-800">
-                          <AvatarFallback className="bg-neutral-800 text-white text-xs font-bold">
-                            {initials}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-semibold text-white">
-                            {u.full_name || 'Sync730 User'}
-                          </div>
-                          <span className="text-xs text-neutral-500 tabular-nums">{u.id}</span>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Email */}
-                    <td className="py-3.5 text-neutral-300 text-xs">
-                      {u.email}
-                    </td>
-
-                    {/* Current Role Badge */}
-                    <td className="py-3.5">
-                      <Badge
-                        variant="outline"
-                        className={`text-xs font-semibold ${
-                          isAdmin
-                            ? 'border-neutral-700 bg-neutral-800 text-white'
-                            : isRecruiter
-                            ? 'border-neutral-700 bg-neutral-900 text-neutral-300'
-                            : 'border-neutral-800 bg-neutral-950 text-neutral-400'
-                        }`}
-                      >
-                        {getRoleLabel(u.role)}
-                      </Badge>
-                    </td>
-
-                    {/* Joined Date */}
-                    <td className="py-3.5 text-neutral-400 text-xs" title={`Joined: ${dateInfo.relative}`}>
-                      {dateInfo.formatted}
-                    </td>
-
-                    {/* Quiet Row Menu (No pink pill) */}
-                    <td className="py-3.5 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-10 w-10 p-0 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-800"
-                            aria-label={`Open actions for ${u.full_name || u.email}`}
-                          >
-                            <MoreHorizontal className="h-4 w-4 stroke-[1.5]" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 text-neutral-200 w-48">
-                          <DropdownMenuLabel className="text-xs text-neutral-400">
-                            Change role
-                          </DropdownMenuLabel>
-                          <DropdownMenuSeparator className="bg-neutral-800" />
-                          <DropdownMenuItem
-                            onClick={() => handleOpenRoleChange(u, 'candidate')}
-                            disabled={u.role === 'candidate'}
-                            className="text-xs min-h-[36px]"
-                          >
-                            Set as Candidate
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleOpenRoleChange(u, 'recruiter')}
-                            disabled={u.role === 'recruiter'}
-                            className="text-xs min-h-[36px]"
-                          >
-                            Set as Recruiter
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator className="bg-neutral-800" />
-                          {!isAdmin ? (
-                            <DropdownMenuItem
-                              onClick={() => handleOpenRoleChange(u, 'PLATFORM_ADMIN')}
-                              className="text-xs min-h-[36px] font-semibold text-white focus:text-white"
-                            >
-                              Make Platform admin
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem
-                              onClick={() => handleOpenRoleChange(u, 'candidate')}
-                              className="text-xs min-h-[36px] font-semibold text-red-400 focus:text-red-400"
-                            >
-                              Revoke admin access
-                            </DropdownMenuItem>
+                  return (
+                    <tr key={u.id} className="hover:bg-neutral-800/40 transition-colors">
+                      {/* Name */}
+                      <td className="py-3.5 font-semibold text-white">
+                        <div className="flex items-center gap-2">
+                          <span>{u.full_name || 'Sync730 User'}</span>
+                          {u.is_demo && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-800 text-amber-400 font-mono">
+                              demo
+                            </span>
                           )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </td>
-                  </tr>
-                );
-              })}
+                        </div>
+                      </td>
+
+                      {/* Email */}
+                      <td className="py-3.5 text-neutral-300 text-xs">
+                        {u.email}
+                      </td>
+
+                      {/* Role: Plain text, no pills or badges */}
+                      <td className="py-3.5 text-xs text-neutral-200 font-medium">
+                        {roleText}
+                      </td>
+
+                      {/* Workspace */}
+                      <td className="py-3.5 text-xs text-neutral-400">
+                        {u.workspace_name || '—'}
+                      </td>
+
+                      {/* Status: Active / Suspended plain text */}
+                      <td className="py-3.5 text-xs">
+                        <span
+                          className={`font-semibold ${
+                            isSuspended ? 'text-red-400' : 'text-emerald-400'
+                          }`}
+                        >
+                          {isSuspended ? 'Suspended' : 'Active'}
+                        </span>
+                      </td>
+
+                      {/* Last Active */}
+                      <td className="py-3.5 text-xs text-neutral-400" title={`Last active: ${activeInfo.relative}`}>
+                        {activeInfo.relative}
+                      </td>
+
+                      {/* Joined Date */}
+                      <td className="py-3.5 text-xs text-neutral-400" title={`Joined: ${joinedInfo.relative}`}>
+                        {joinedInfo.formatted}
+                      </td>
+
+                      {/* Row Menu: Quiet MoreHorizontal dropdown */}
+                      <td className="py-3.5 text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg min-h-[32px]"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-52 bg-neutral-900 border-neutral-800 text-neutral-200">
+                            <DropdownMenuLabel className="text-xs font-semibold text-neutral-400 px-3 py-2">
+                              Actions
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator className="bg-neutral-800" />
+
+                            {/* Change Role Submenu */}
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleOpenRoleChange(
+                                  u,
+                                  u.role === 'PLATFORM_ADMIN' || u.role === 'admin' ? 'recruiter' : 'PLATFORM_ADMIN'
+                                )
+                              }
+                              className="text-xs cursor-pointer hover:bg-neutral-800 focus:bg-neutral-800"
+                            >
+                              Change role...
+                            </DropdownMenuItem>
+
+                            {/* Suspend / Restore Action */}
+                            {isSuspended ? (
+                              <DropdownMenuItem
+                                onClick={() => handleOpenSuspendRestore(u, 'RESTORE')}
+                                className="text-xs cursor-pointer text-emerald-400 hover:text-emerald-300 hover:bg-neutral-800 focus:bg-neutral-800"
+                              >
+                                Restore account...
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={() => handleOpenSuspendRestore(u, 'SUSPEND')}
+                                className="text-xs cursor-pointer text-red-400 hover:text-red-300 hover:bg-neutral-800 focus:bg-neutral-800"
+                              >
+                                Suspend user...
+                              </DropdownMenuItem>
+                            )}
+
+                            <DropdownMenuSeparator className="bg-neutral-800" />
+
+                            {/* View Activity Link */}
+                            <DropdownMenuItem asChild>
+                              <Link
+                                href={`/command/audit?user=${encodeURIComponent(u.email || u.id)}`}
+                                className="text-xs cursor-pointer hover:bg-neutral-800 focus:bg-neutral-800 w-full"
+                              >
+                                View activity
+                              </Link>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Bar (25 items per page) */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-neutral-800 text-xs text-neutral-400">
+          <div>
+            Showing{' '}
+            <strong className="text-white">
+              {filteredUsers.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}
+            </strong>{' '}
+            to{' '}
+            <strong className="text-white">
+              {Math.min(currentPage * PAGE_SIZE, filteredUsers.length)}
+            </strong>{' '}
+            of <strong className="text-white">{filteredUsers.length}</strong> users
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage <= 1}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              className="h-8 px-2.5 rounded-lg border-neutral-800 bg-neutral-950 text-neutral-300 hover:text-white hover:bg-neutral-800 text-xs gap-1 min-h-[32px]"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" /> Previous
+            </Button>
+            <span className="px-2 font-medium">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage >= totalPages}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              className="h-8 px-2.5 rounded-lg border-neutral-800 bg-neutral-950 text-neutral-300 hover:text-white hover:bg-neutral-800 text-xs gap-1 min-h-[32px]"
+            >
+              Next <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
       </Card>
 
-      {/* Confirmation Dialog for Role Changes */}
+      {/* Confirmation Dialog: Role Change */}
       <ConfirmationDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        title={dialogTitle}
-        description={dialogDescription}
-        actionLabel={dialogActionLabel}
-        isDestructive={isRevokingAdmin}
+        open={isRoleDialogOpen}
+        onOpenChange={setIsRoleDialogOpen}
+        title={roleDialogTitle}
+        description={roleDialogDescription}
         requireReason={true}
+        actionLabel={roleDialogActionLabel}
+        isDestructive={isRevokingAdmin}
         isLoading={isSubmitting}
         onConfirm={handleConfirmRoleChange}
       >
         {requiresReauth && (
           <div className="space-y-1.5 pt-1">
-            <label htmlFor="admin-reauth" className="text-xs font-semibold text-neutral-300 block">
-              Admin password re-authentication <span className="text-rose-400">*</span>
+            <label className="text-xs font-semibold text-neutral-300 block">
+              Confirm your password (Step-up authentication required for admin changes)
             </label>
             <Input
-              id="admin-reauth"
               type="password"
-              placeholder="Enter your administrator password to confirm..."
+              placeholder="Enter current password..."
               value={reauthPassword}
               onChange={(e) => setReauthPassword(e.target.value)}
-              className="h-10 text-xs bg-neutral-950 border-neutral-800 text-white placeholder:text-neutral-500"
-              required
+              className="h-10 text-xs rounded-xl bg-neutral-950 border-neutral-800 text-white"
             />
-            <p className="text-[11px] text-neutral-500">
-              Role changes involving platform administrator access require active credential step-up.
-            </p>
           </div>
         )}
       </ConfirmationDialog>
+
+      {/* Confirmation Dialog: Suspend / Restore */}
+      <ConfirmationDialog
+        open={isSuspendDialogOpen}
+        onOpenChange={setIsSuspendDialogOpen}
+        title={
+          suspendAction === 'SUSPEND'
+            ? `Suspend ${suspendTargetUser?.full_name || suspendTargetUser?.email}?`
+            : `Restore ${suspendTargetUser?.full_name || suspendTargetUser?.email}?`
+        }
+        description={
+          suspendAction === 'SUSPEND'
+            ? 'This blocks the user from signing in or performing any operations on the platform.'
+            : 'This re-enables full access for the user to sign in and resume operations.'
+        }
+        requireReason={true}
+        actionLabel={suspendAction === 'SUSPEND' ? 'Suspend user' : 'Restore user'}
+        isDestructive={suspendAction === 'SUSPEND'}
+        isLoading={isSubmitting}
+        onConfirm={handleConfirmSuspendRestore}
+      />
     </div>
   );
 }

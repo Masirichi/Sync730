@@ -155,6 +155,7 @@ export interface PlatformTransaction {
   payment_reference: string;
   paystack_reference?: string;
   status: 'PAID' | 'FAILED' | 'REFUNDED' | 'SUCCESS';
+  mode?: 'LIVE' | 'TEST' | string;
   notes?: string;
   is_demo?: boolean;
   refunded_amount?: number;

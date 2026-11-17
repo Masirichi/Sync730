@@ -10,6 +10,9 @@ import { verifyAdminReauth, getClientIp } from '@/lib/admin/security';
 
 export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const includeDemo = searchParams.get('include_demo') === 'true';
+
     let users = getAdminUsers();
 
     try {
@@ -31,11 +34,26 @@ export async function GET(req: NextRequest) {
             created_at: d.created_at,
             phone: d.phone,
             avatar_url: d.avatar_url,
+            is_demo: Boolean(d.is_demo),
+            status: d.status || 'ACTIVE',
+            last_active: d.last_sign_in_at || d.updated_at || d.created_at,
           })),
           ...localOnly,
         ];
       }
     } catch {}
+
+    // Exclude demo users unless include_demo is explicitly true
+    if (!includeDemo) {
+      users = users.filter((u) => {
+        if (u.is_demo) return false;
+        const email = (u.email || '').toLowerCase();
+        if (email.includes('@test.') || email.includes('@example.') || email.includes('demo')) {
+          return false;
+        }
+        return true;
+      });
+    }
 
     return NextResponse.json({ success: true, users });
   } catch (error: any) {
@@ -49,20 +67,12 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { user_id, new_role, reason, reauth_password, reauth_token } = body;
+    const { user_id, new_role, action, status, reason, reauth_password, reauth_token } = body;
 
     // 1. Mandatory Parameter Validation
-    if (!user_id || !new_role) {
+    if (!user_id) {
       return NextResponse.json(
-        { success: false, error: 'user_id and new_role are required' },
-        { status: 400 }
-      );
-    }
-
-    const validRoles = ['candidate', 'recruiter', 'PLATFORM_ADMIN', 'admin'];
-    if (!validRoles.includes(new_role)) {
-      return NextResponse.json(
-        { success: false, error: `Invalid role. Must be one of: ${validRoles.join(', ')}` },
+        { success: false, error: 'user_id is required' },
         { status: 400 }
       );
     }
@@ -98,9 +108,90 @@ export async function POST(req: NextRequest) {
       actorId = headerActorId;
     }
 
-    // 4. Find Target User & Existing Role
     const allUsers = getAdminUsers();
     const existingUser = allUsers.find((u) => u.id === user_id || u.email === user_id);
+
+    // -------------------------------------------------------------------------
+    // A. SUSPEND / RESTORE FLOW
+    // -------------------------------------------------------------------------
+    if (action === 'SUSPEND' || action === 'RESTORE' || status === 'SUSPENDED' || status === 'ACTIVE') {
+      const newStatus = action === 'SUSPEND' || status === 'SUSPENDED' ? 'SUSPENDED' : 'ACTIVE';
+      const prevStatus = existingUser?.status || 'ACTIVE';
+
+      // Block self-suspension
+      if (actorId === user_id && newStatus === 'SUSPENDED') {
+        return NextResponse.json(
+          { success: false, error: 'Self-suspension is prohibited. You cannot suspend your own account.' },
+          { status: 400 }
+        );
+      }
+
+      // Update in Supabase
+      try {
+        const supabase = await createServerClient();
+        await supabase
+          .from('profiles')
+          .update({ status: newStatus })
+          .eq('id', user_id);
+      } catch {}
+
+      // Update in local store
+      let updatedUser: AdminUserProfile | null = null;
+      const updatedUsers = allUsers.map((u) => {
+        if (u.id === user_id || u.email === user_id) {
+          updatedUser = { ...u, status: newStatus };
+          return updatedUser;
+        }
+        return u;
+      });
+
+      if (!updatedUser && existingUser) {
+        updatedUser = { ...existingUser, status: newStatus };
+        updatedUsers.unshift(updatedUser);
+      }
+
+      saveAdminUsers(updatedUsers);
+
+      // Record Audit Log
+      const auditRecord = await recordDangerousAuditLog({
+        actor_id: actorId,
+        actor_name: actorName,
+        action: newStatus === 'SUSPENDED' ? 'USER_SUSPENDED' : 'USER_RESTORED',
+        target_type: 'USER',
+        target_id: user_id,
+        target_label: `${updatedUser?.full_name || 'User'} (${updatedUser?.email || user_id})`,
+        reason: validatedReason,
+        before: { status: prevStatus },
+        after: { status: newStatus },
+        ip: getClientIp(req),
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: `User account successfully ${newStatus === 'SUSPENDED' ? 'suspended' : 'restored'}.`,
+        user: updatedUser,
+        audit_log: auditRecord,
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // B. ROLE CHANGE FLOW
+    // -------------------------------------------------------------------------
+    if (!new_role) {
+      return NextResponse.json(
+        { success: false, error: 'new_role is required for role modification' },
+        { status: 400 }
+      );
+    }
+
+    const validRoles = ['candidate', 'recruiter', 'PLATFORM_ADMIN', 'admin'];
+    if (!validRoles.includes(new_role)) {
+      return NextResponse.json(
+        { success: false, error: `Invalid role. Must be one of: ${validRoles.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
     const currentRole = existingUser?.role || 'candidate';
 
     const isTargetAdmin =
@@ -110,7 +201,7 @@ export async function POST(req: NextRequest) {
       new_role === 'PLATFORM_ADMIN' ||
       new_role.toLowerCase() === 'admin';
 
-    // 5. Enforce Re-Authentication for Role Changes To or From Admin
+    // Enforce Re-Authentication for Role Changes To or From Admin
     const isElevatingToAdmin = !isTargetAdmin && isNewAdmin;
     const isRevokingAdmin = isTargetAdmin && !isNewAdmin;
     const requiresReauth = isElevatingToAdmin || isRevokingAdmin;
@@ -128,7 +219,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 6. Block Self-Demotion Server-Side
+    // Block Self-Demotion Server-Side
     if (actorId === user_id && isTargetAdmin && !isNewAdmin) {
       return NextResponse.json(
         {
@@ -139,7 +230,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 7. Block Removing the Last Remaining Platform Admin Server-Side
+    // Block Removing the Last Remaining Platform Admin Server-Side
     if (isRevokingAdmin) {
       const adminCount = allUsers.filter(
         (u) => u.role === 'PLATFORM_ADMIN' || (u.role as string).toLowerCase() === 'admin'
@@ -156,7 +247,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 8. Update Profile in Supabase
+    // Update Profile in Supabase
     try {
       const supabase = await createServerClient();
       await supabase
@@ -165,7 +256,7 @@ export async function POST(req: NextRequest) {
         .eq('id', user_id);
     } catch {}
 
-    // 9. Update in Admin Store
+    // Update in Admin Store
     let updatedUser: AdminUserProfile | null = null;
     const updatedUsers = allUsers.map((u) => {
       if (u.id === user_id || u.email === user_id) {
@@ -187,7 +278,7 @@ export async function POST(req: NextRequest) {
     }
     saveAdminUsers(updatedUsers);
 
-    // 10. Record Append-Only Audit Log
+    // Record Append-Only Audit Log
     const auditRecord = await recordDangerousAuditLog({
       actor_id: actorId,
       actor_name: actorName,
