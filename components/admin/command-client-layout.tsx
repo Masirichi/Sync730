@@ -179,12 +179,12 @@ function CommandLayoutShell({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Helper to get number badge (hidden when 0)
+  // Helper to get number badge (hidden when 0, matches Overview attention cards exactly)
   const getBadgeCount = (key?: 'roles' | 'reports' | 'video'): number => {
     if (!key || !metrics) return 0;
-    if (key === 'roles') return metrics.roles?.needs_review || 0;
-    if (key === 'video') return metrics.flagged_videos?.total || 0;
-    if (key === 'reports') return 0; // Not tracked yet / open reports in future phase
+    if (key === 'roles') return metrics.attention?.roles_to_verify ?? metrics.roles?.needs_review ?? 0;
+    if (key === 'video') return metrics.attention?.flagged_videos ?? metrics.flagged_videos?.total ?? 0;
+    if (key === 'reports') return metrics.attention?.open_reports ?? metrics.reports?.open ?? 0;
     return 0;
   };
 

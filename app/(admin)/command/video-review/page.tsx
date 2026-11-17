@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   ShieldCheck,
   Video,
@@ -32,7 +33,8 @@ interface VettingAssessment {
   real_email?: string;
 }
 
-export default function CommandVideoReviewPage() {
+function CommandVideoReviewContent() {
+  const searchParams = useSearchParams();
   const [assessments, setAssessments] = useState<VettingAssessment[]>([]);
   const [activeTab, setActiveTab] = useState<'ALL' | 'FLAGGED' | 'APPROVED' | 'REJECTED'>('ALL');
   const [isLoading, setIsLoading] = useState(true);
@@ -41,6 +43,13 @@ export default function CommandVideoReviewPage() {
   useEffect(() => {
     document.title = 'Video review | Command Center';
   }, []);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'flagged') {
+      setActiveTab('FLAGGED');
+    }
+  }, [searchParams]);
 
   const fetchVettingQueue = async () => {
     setIsLoading(true);
@@ -287,5 +296,13 @@ export default function CommandVideoReviewPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CommandVideoReviewPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-neutral-400 text-xs text-center">Loading Video Review Queue...</div>}>
+      <CommandVideoReviewContent />
+    </Suspense>
   );
 }

@@ -52,11 +52,74 @@ export interface AdminMetricsData {
     sample_size: number;
     has_trend: boolean;
   };
+  reports?: {
+    open: number;
+    resolved: number;
+    total: number;
+  };
+  attention: AttentionMetrics;
+  role_pipeline: RolePipelineMetrics;
+  mission_health: MissionHealthMetrics;
+  recent_activity?: AdminRecentAuditItem[];
   metadata: {
     updated_at: string;
     is_demo_included: boolean;
   };
-  recent_activity?: AdminActivityItem[];
+}
+
+export interface AttentionMetrics {
+  roles_to_verify: number;
+  open_reports: number;
+  flagged_videos: number;
+  roles_going_stale: number;
+}
+
+export interface RolePipelineMetrics {
+  needs_review: number;
+  verified: number;
+  live: number;
+  going_stale: number;
+  removed_last_30_days: number;
+}
+
+export interface MissionHealthItem {
+  label: string;
+  value: string | number | null;
+  status: 'available' | 'not_enough_data' | 'not_tracked';
+  sample_size?: number;
+  min_sample?: number;
+  description?: string;
+}
+
+export interface MissionHealthMetrics {
+  faster: {
+    median_time_to_shortlist: MissionHealthItem;
+    median_role_age_when_verified: MissionHealthItem;
+  };
+  fairer: {
+    retake_rate: MissionHealthItem;
+    appeal_overturn_rate: MissionHealthItem;
+    flagged_video_rate: MissionHealthItem;
+    reviewer_ai_override_rate: MissionHealthItem;
+  };
+  real: {
+    share_verified_last_14_days: MissionHealthItem;
+    open_reports: MissionHealthItem;
+    median_time_to_take_down: MissionHealthItem;
+  };
+}
+
+export interface AdminRecentAuditItem {
+  id: string;
+  actor_name: string;
+  action_verb: string;
+  target_label: string;
+  target_type: 'ROLE' | 'WORKSPACE' | 'USER' | 'VIDEO' | 'REPORT' | 'SETTING' | 'SYSTEM';
+  target_id?: string;
+  time_ago: string;
+  timestamp: string;
+  link: string;
+  formatted_entry: string;
 }
 
 export interface AdminActivityItem {

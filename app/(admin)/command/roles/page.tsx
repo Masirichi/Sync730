@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import {
   Briefcase,
   Search,
@@ -50,12 +51,13 @@ import {
   SAMPLE_NIGERIA_ROLES,
 } from '@/lib/admin/store';
 
-export default function AdminRolesManagerPage() {
+function RolesManagerContent() {
   const [activeTab, setActiveTab] = useState<'remote' | 'employer'>('remote');
 
   useEffect(() => {
     document.title = 'Roles | Command Center';
   }, []);
+  const searchParams = useSearchParams();
   const [remoteJobs, setRemoteJobs] = useState<AdminRemoteJob[]>(() => {
     return getAdminRemoteJobs();
   });
@@ -65,6 +67,17 @@ export default function AdminRolesManagerPage() {
   const [tierFilter, setTierFilter] = useState<string>('ALL');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [sourceFilter, setSourceFilter] = useState<string>('ALL');
+
+  // React to URL search params (e.g. /command/roles?status=needs_review or ?filter=going_stale)
+  useEffect(() => {
+    const statusParam = searchParams.get('status');
+    const filterParam = searchParams.get('filter');
+    if (statusParam === 'needs_review' || statusParam === 'needs-review') {
+      setStatusFilter('NEEDS_REVIEW');
+    } else if (filterParam === 'going_stale') {
+      setStatusFilter('GOING_STALE');
+    }
+  }, [searchParams]);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -411,12 +424,28 @@ export default function AdminRolesManagerPage() {
       const matchesTier = tierFilter === 'ALL' || job.location_tier === tierFilter;
 
       // Status filter
-      const matchesStatus =
-        statusFilter === 'ALL'
-          ? true
-          : statusFilter === 'ACTIVE'
-          ? job.is_active
-          : !job.is_active;
+      let matchesStatus = true;
+      if (statusFilter === 'ACTIVE') {
+        matchesStatus = Boolean(job.is_active && (job as any).status !== 'needs_review');
+      } else if (statusFilter === 'TAKEN_DOWN' || statusFilter === 'INACTIVE') {
+        matchesStatus = !job.is_active || (job as any).status === 'removed';
+      } else if (statusFilter === 'NEEDS_REVIEW') {
+        const s = (job as any).status || (job as any).review_status;
+        matchesStatus = s === 'needs_review' || s === 'needs-review' || s === 'ingested';
+      } else if (statusFilter === 'GOING_STALE') {
+        if (!job.is_active) {
+          matchesStatus = false;
+        } else {
+          const verifiedStr = job.last_verified_at || (job as any).verified_at || job.published_at || job.created_at;
+          const vTime = verifiedStr ? new Date(verifiedStr).getTime() : NaN;
+          if (!isNaN(vTime)) {
+            const ageDays = (Date.now() - vTime) / (24 * 60 * 60 * 1000);
+            matchesStatus = ageDays >= 11 && ageDays <= 14;
+          } else {
+            matchesStatus = false;
+          }
+        }
+      }
 
       // Source filter
       const matchesSource =
@@ -808,7 +837,9 @@ export default function AdminRolesManagerPage() {
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
                   <SelectItem value="ALL">All Status</SelectItem>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="NEEDS_REVIEW">Needs review</SelectItem>
+                  <SelectItem value="ACTIVE">Active / Live</SelectItem>
+                  <SelectItem value="GOING_STALE">Going stale (≤ 3d)</SelectItem>
                   <SelectItem value="TAKEN_DOWN">Taken Down</SelectItem>
                 </SelectContent>
               </Select>
@@ -1128,5 +1159,13 @@ export default function AdminRolesManagerPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AdminRolesManagerPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-xs text-neutral-400">Loading roles workspace...</div>}>
+      <RolesManagerContent />
+    </Suspense>
   );
 }
