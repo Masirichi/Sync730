@@ -253,12 +253,13 @@ export default function SyncFlowPage() {
   };
 
   // Filter items by search query
-  const filteredItems = items.filter((item) => {
+  const filteredItems = (items || []).filter((item) => {
+    if (!item) return false;
     const q = searchQuery.toLowerCase().trim();
     if (!q) return true;
     return (
-      item.title.toLowerCase().includes(q) ||
-      item.company.toLowerCase().includes(q) ||
+      (item.title && item.title.toLowerCase().includes(q)) ||
+      (item.company && item.company.toLowerCase().includes(q)) ||
       (item.job_type && item.job_type.toLowerCase().includes(q)) ||
       (item.contact && item.contact.toLowerCase().includes(q)) ||
       (item.rate && item.rate.toLowerCase().includes(q)) ||

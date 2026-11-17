@@ -339,7 +339,7 @@ function JobDetailContent() {
               {job.location_tier}
             </Badge>
             <Badge variant="secondary" className="text-xs font-medium">
-              {job.category}
+              {job.category || 'General'}
             </Badge>
             <span className="text-xs font-medium px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
               {job.seniority || 'Mid'}

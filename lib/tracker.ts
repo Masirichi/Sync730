@@ -91,7 +91,18 @@ export function getLocalTrackerItems(): CandidateTrackerItem[] {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(INITIAL_TRACKER_ITEMS));
       return INITIAL_TRACKER_ITEMS;
     }
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return INITIAL_TRACKER_ITEMS;
+    }
+    return parsed
+      .filter((item): item is CandidateTrackerItem => Boolean(item && typeof item === 'object' && item.id))
+      .map((item) => ({
+        ...item,
+        title: item.title || 'Untitled Role',
+        company: item.company || 'Company',
+        status: (item.status === 'OFFERED' ? 'OFFER' : item.status) || 'SAVED',
+      }));
   } catch {
     return INITIAL_TRACKER_ITEMS;
   }
