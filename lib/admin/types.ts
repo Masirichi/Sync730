@@ -1,4 +1,10 @@
-export type PlatformRole = 'candidate' | 'recruiter' | 'PLATFORM_ADMIN' | 'admin';
+export type AdminRole = 'super_admin' | 'moderator' | 'vetting_reviewer' | 'finance' | 'support';
+export type PlatformRole =
+  | AdminRole
+  | 'candidate'
+  | 'recruiter'
+  | 'PLATFORM_ADMIN'
+  | 'admin';
 
 export interface AdminMetrics {
   total_candidates: number;
@@ -189,6 +195,9 @@ export interface AdminUserProfile {
   avatar_url?: string;
   phone?: string;
   is_demo?: boolean;
+  mfa_enabled?: boolean;
+  mfa_enrolled_at?: string;
+  mfa_grace_expires_at?: string;
 }
 
 export interface AdminCorporateWorkspace {

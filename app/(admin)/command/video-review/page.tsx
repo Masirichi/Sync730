@@ -75,6 +75,7 @@ function CommandVideoReviewContent() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [permissionDenied, setPermissionDenied] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Video player state
@@ -107,8 +108,14 @@ function CommandVideoReviewContent() {
   // Fetch queue from API
   const fetchQueue = useCallback(async () => {
     setIsLoading(true);
+    setPermissionDenied(null);
     try {
       const res = await fetch('/api/admin/vetting');
+      if (res.status === 403) {
+        const errData = await res.json().catch(() => ({}));
+        setPermissionDenied(errData.error || 'Your role does not have permission to access Video review.');
+        return;
+      }
       const data = await res.json();
       if (data.success && Array.isArray(data.assessments)) {
         setAssessments(data.assessments);
@@ -322,6 +329,23 @@ function CommandVideoReviewContent() {
   const hasFlags = selectedCandidate ? (selectedCandidate.structured_flags?.length > 0 || selectedCandidate.proctoring_flags?.length > 0) : false;
   const isReviewPending = selectedCandidate ? (selectedCandidate.moderation_status === 'FLAGGED' || selectedCandidate.moderation_status === 'PENDING') : false;
   const showScorePending = hasFlags && isReviewPending;
+
+  if (permissionDenied) {
+    return (
+      <div className="max-w-md mx-auto py-20 px-4 text-center space-y-4">
+        <div className="inline-flex p-3 rounded-2xl bg-red-500/10 text-red-400 border border-red-500/20">
+          <AlertCircle className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl font-bold text-white">Access Restricted</h2>
+        <p className="text-sm text-neutral-400">{permissionDenied}</p>
+        <div className="pt-2">
+          <Button asChild variant="outline" className="border-neutral-800 text-xs text-neutral-300 hover:text-white">
+            <a href="/command">Return to Overview</a>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

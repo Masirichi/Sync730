@@ -4,9 +4,16 @@ import { getPlatformTransactions, savePlatformTransaction } from '@/lib/admin/st
 import { PlatformTransaction } from '@/lib/admin/types';
 import { requireReason, recordDangerousAuditLog } from '@/lib/admin/audit';
 import { getClientIp } from '@/lib/admin/security';
+import { assertServerPermission } from '@/lib/admin/permissions';
 
 export async function POST(req: NextRequest) {
   try {
+    // Phase 8: Scoped role check - Only Super admin & Finance
+    const permission = await assertServerPermission(req, 'money:refund');
+    if (!permission.authorized) {
+      return permission.response;
+    }
+
     const body = await req.json();
     const { transaction_id, refund_amount, reason } = body;
 

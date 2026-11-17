@@ -5,9 +5,16 @@ import { getLocalWorkspace, saveLocalWorkspace } from '@/lib/recruiter/store';
 import { PlatformTransaction } from '@/lib/admin/types';
 import { requireReason, recordDangerousAuditLog } from '@/lib/admin/audit';
 import { MAX_TOKEN_ADJUSTMENT, getClientIp } from '@/lib/admin/security';
+import { assertServerPermission } from '@/lib/admin/permissions';
 
 export async function POST(req: NextRequest) {
   try {
+    // Phase 8: Scoped role check - Only Super admin can adjust token balances
+    const permission = await assertServerPermission(req, 'employers:adjust_tokens');
+    if (!permission.authorized) {
+      return permission.response;
+    }
+
     const body = await req.json();
     const { workspace_id, direction, amount, token_adjustment, reason, notes } = body;
 

@@ -6,9 +6,16 @@ import { AdminRemoteJob } from '@/lib/admin/types';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
 import { SAMPLE_NIGERIA_ROLES } from '@/lib/admin/store';
 import { validateJobPublishing } from '@/lib/jobs/validation';
+import { assertServerPermission } from '@/lib/admin/permissions';
 
 export async function GET(request: NextRequest) {
   try {
+    // Phase 8: Scoped role check - Super admin, Moderator, Support
+    const permission = await assertServerPermission(request, 'roles:read');
+    if (!permission.authorized) {
+      return permission.response;
+    }
+
     const supabase = await createServerClient();
 
     // 1. Fetch remote_jobs from Supabase (using created_at ordering supported by PostgreSQL)
@@ -141,6 +148,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Phase 8: Scoped role check - Super admin & Moderator
+    const permission = await assertServerPermission(request, 'roles:edit');
+    if (!permission.authorized) {
+      return permission.response;
+    }
+
     const body = await request.json();
 
     // Dev seed action for Nigerian sample roles (blocked in production)

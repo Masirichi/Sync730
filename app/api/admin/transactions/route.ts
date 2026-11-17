@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { getPlatformTransactions } from '@/lib/admin/store';
+import { assertServerPermission } from '@/lib/admin/permissions';
 
 export async function GET(req: NextRequest) {
   try {
+    // Phase 8: Scoped role check - Only Super admin & Finance
+    const permission = await assertServerPermission(req, 'money:read');
+    if (!permission.authorized) {
+      return permission.response;
+    }
+
     let transactions = getPlatformTransactions();
 
     try {

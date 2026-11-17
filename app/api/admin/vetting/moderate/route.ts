@@ -3,9 +3,16 @@ import { createServerClient } from '@/lib/supabase/server';
 import { saveAdminAuditLog } from '@/lib/admin/store';
 import { getLocalAssessments, saveLocalAssessment } from '@/lib/recruiter/store';
 import { AdminAuditLog } from '@/lib/admin/types';
+import { assertServerPermission } from '@/lib/admin/permissions';
 
 export async function POST(req: NextRequest) {
   try {
+    // Phase 8: Scoped role check - Only Super admin & Vetting reviewer
+    const permission = await assertServerPermission(req, 'video_review:moderate');
+    if (!permission.authorized) {
+      return permission.response;
+    }
+
     const body = await req.json();
     const { assessment_id, decision, reason, ai_overridden } = body;
 

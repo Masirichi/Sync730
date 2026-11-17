@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { getLocalAssessments } from '@/lib/recruiter/store';
 import { VideoAssessmentFlag } from '@/lib/recruiter/types';
+import { assertServerPermission } from '@/lib/admin/permissions';
 
 function parseStructuredFlags(flags: any[], candidateId: string): VideoAssessmentFlag[] {
   if (!Array.isArray(flags) || flags.length === 0) {
@@ -73,6 +74,12 @@ function parseStructuredFlags(flags: any[], candidateId: string): VideoAssessmen
 
 export async function GET(req: NextRequest) {
   try {
+    // Phase 8: Scoped role check - Only Super admin & Vetting reviewer
+    const permission = await assertServerPermission(req, 'video_review:read');
+    if (!permission.authorized) {
+      return permission.response;
+    }
+
     let assessments = getLocalAssessments();
 
     try {

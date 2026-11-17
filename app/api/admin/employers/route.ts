@@ -3,6 +3,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { getLocalWorkspace, getLocalAssessments } from '@/lib/recruiter/store';
 import { getServerJobs } from '@/lib/admin/server-store';
 import { AdminCorporateWorkspace } from '@/lib/admin/types';
+import { assertServerPermission } from '@/lib/admin/permissions';
 
 const SEED_EMPLOYERS: AdminCorporateWorkspace[] = [
   {
@@ -79,6 +80,12 @@ const SEED_EMPLOYERS: AdminCorporateWorkspace[] = [
 
 export async function GET(req: NextRequest) {
   try {
+    // Phase 8: Scoped role check - Only Super admin, Finance & Support
+    const permission = await assertServerPermission(req, 'employers:read');
+    if (!permission.authorized) {
+      return permission.response;
+    }
+
     const { searchParams } = new URL(req.url);
     const includeDemo = searchParams.get('include_demo') === 'true';
 

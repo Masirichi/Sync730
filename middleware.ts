@@ -4,6 +4,24 @@ import { updateSession } from '@/lib/supabase/middleware';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Phase 8: Strict Server-Side View-As Read-Only Enforcement
+  // When an admin is in View-As mode, all write operations (POST, PUT, PATCH, DELETE)
+  // across all user endpoints are strictly prohibited.
+  const viewAsCookie = request.cookies.get('sync730_view_as')?.value;
+  if (viewAsCookie && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) {
+    // Only allow stopping or updating the View-As session itself
+    if (pathname !== '/api/admin/view-as') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Action prohibited: All write operations are strictly blocked while in read-only View-As mode.',
+          code: 'VIEW_AS_READ_ONLY',
+        },
+        { status: 403 }
+      );
+    }
+  }
+
   // Run Supabase SSR session updater
   const { supabaseResponse, user, role } = await updateSession(request);
   const isPlatformAdmin = role === 'PLATFORM_ADMIN';

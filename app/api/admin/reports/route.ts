@@ -3,11 +3,18 @@ import { createServerClient } from '@/lib/supabase/server';
 import { getAllReports } from '@/lib/jobs/reports-and-alerts';
 import { getServerJobs } from '@/lib/admin/server-store';
 import { recordDangerousAuditLog } from '@/lib/admin/audit';
+import { assertServerPermission } from '@/lib/admin/permissions';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
+    // Phase 8: Scoped role check - Super admin, Moderator, Support
+    const permission = await assertServerPermission(req, 'reports:read');
+    if (!permission.authorized) {
+      return permission.response;
+    }
+
     const url = new URL(req.url);
     const includeDemo = url.searchParams.get('include_demo') === 'true';
 

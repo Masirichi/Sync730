@@ -76,7 +76,9 @@ export async function getAdminMetrics(options: MetricsQueryOptions = {}): Promis
     return true;
   });
 
-  const platformAdminCount = filteredUsers.filter((u) => u.role === 'PLATFORM_ADMIN' || u.role === 'admin').length;
+  const platformAdminCount = filteredUsers.filter(
+    (u) => u.role === 'PLATFORM_ADMIN' || u.role === 'admin' || u.role === 'super_admin'
+  ).length;
   const recruiterCount = filteredUsers.filter((u) => u.role === 'recruiter').length;
   const candidateCount = filteredUsers.filter((u) => u.role === 'candidate').length;
   const totalUsersCount = filteredUsers.length;

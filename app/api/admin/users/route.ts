@@ -7,9 +7,16 @@ import {
 import { AdminUserProfile } from '@/lib/admin/types';
 import { requireReason, recordDangerousAuditLog } from '@/lib/admin/audit';
 import { verifyAdminReauth, getClientIp } from '@/lib/admin/security';
+import { assertServerPermission, normalizeAdminRole } from '@/lib/admin/permissions';
 
 export async function GET(req: NextRequest) {
   try {
+    // Phase 8: Scoped role server-side check
+    const permissionCheck = await assertServerPermission(req, 'users:read');
+    if (!permissionCheck.authorized) {
+      return permissionCheck.response;
+    }
+
     const { searchParams } = new URL(req.url);
     const includeDemo = searchParams.get('include_demo') === 'true';
 
@@ -66,6 +73,12 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    // Phase 8: Scoped role permission check - Only Super admin can manage users & roles
+    const permissionCheck = await assertServerPermission(req, 'users:manage_roles');
+    if (!permissionCheck.authorized) {
+      return permissionCheck.response;
+    }
+
     const body = await req.json();
     const { user_id, new_role, action, status, reason, reauth_password, reauth_token } = body;
 
@@ -184,7 +197,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const validRoles = ['candidate', 'recruiter', 'PLATFORM_ADMIN', 'admin'];
+    const validRoles = [
+      'candidate',
+      'recruiter',
+      'super_admin',
+      'moderator',
+      'vetting_reviewer',
+      'finance',
+      'support',
+      'PLATFORM_ADMIN',
+      'admin',
+    ];
     if (!validRoles.includes(new_role)) {
       return NextResponse.json(
         { success: false, error: `Invalid role. Must be one of: ${validRoles.join(', ')}` },
@@ -194,17 +217,19 @@ export async function POST(req: NextRequest) {
 
     const currentRole = existingUser?.role || 'candidate';
 
-    const isTargetAdmin =
-      currentRole === 'PLATFORM_ADMIN' ||
-      (currentRole as string).toLowerCase() === 'admin';
-    const isNewAdmin =
-      new_role === 'PLATFORM_ADMIN' ||
-      new_role.toLowerCase() === 'admin';
+    const isTargetSuperAdmin = normalizeAdminRole(currentRole) === 'super_admin';
+    const isNewSuperAdmin = normalizeAdminRole(new_role) === 'super_admin';
 
-    // Enforce Re-Authentication for Role Changes To or From Admin
+    const isTargetAdmin = isTargetSuperAdmin || normalizeAdminRole(currentRole) !== null;
+    const isNewAdmin = isNewSuperAdmin || normalizeAdminRole(new_role) !== null;
+
+    // Enforce Re-Authentication for Role Changes To or From Super Admin / Admin
     const isElevatingToAdmin = !isTargetAdmin && isNewAdmin;
     const isRevokingAdmin = isTargetAdmin && !isNewAdmin;
-    const requiresReauth = isElevatingToAdmin || isRevokingAdmin;
+    const requiresReauth =
+      isElevatingToAdmin ||
+      isRevokingAdmin ||
+      (isTargetSuperAdmin !== isNewSuperAdmin);
 
     if (requiresReauth) {
       const reauthCheck = await verifyAdminReauth(req, actorEmail, reauth_password, reauth_token);
@@ -220,27 +245,27 @@ export async function POST(req: NextRequest) {
     }
 
     // Block Self-Demotion Server-Side
-    if (actorId === user_id && isTargetAdmin && !isNewAdmin) {
+    if (actorId === user_id && isTargetSuperAdmin && !isNewSuperAdmin) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Self-demotion is prohibited. You cannot remove your own platform admin privileges.',
+          error: 'Self-demotion is prohibited. You cannot remove your own Super admin privileges.',
         },
         { status: 400 }
       );
     }
 
-    // Block Removing the Last Remaining Platform Admin Server-Side
-    if (isRevokingAdmin) {
-      const adminCount = allUsers.filter(
-        (u) => u.role === 'PLATFORM_ADMIN' || (u.role as string).toLowerCase() === 'admin'
+    // Block Removing the Last Remaining Super Admin Server-Side
+    if (isTargetSuperAdmin && !isNewSuperAdmin) {
+      const superAdminCount = allUsers.filter(
+        (u) => normalizeAdminRole(u.role) === 'super_admin'
       ).length;
 
-      if (adminCount <= 1) {
+      if (superAdminCount <= 1) {
         return NextResponse.json(
           {
             success: false,
-            error: 'Cannot remove the last remaining platform admin. At least one platform admin must always exist.',
+            error: 'Cannot remove the last remaining Super admin. At least one Super admin must always exist.',
           },
           { status: 400 }
         );

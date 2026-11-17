@@ -3,44 +3,25 @@ import { createServerClient } from '@/lib/supabase/server';
 import { getPlatformTransactions } from '@/lib/admin/store';
 import { recordDangerousAuditLog } from '@/lib/admin/audit';
 import { getClientIp } from '@/lib/admin/security';
+import { assertServerPermission } from '@/lib/admin/permissions';
 
 export async function GET(req: NextRequest) {
   try {
-    // 1. Authorization check: Finance or Super Admin
-    let actorId = 'usr-admin-001';
-    let actorName = 'Platform Admin';
-    let userRole = 'PLATFORM_ADMIN';
-
-    try {
-      const supabase = await createServerClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        actorId = user.id;
-        actorName = user.user_metadata?.full_name || user.email || 'Admin';
-        userRole = user.user_metadata?.role || user.app_metadata?.role || userRole;
-      }
-    } catch {}
-
-    const isAuthorized =
-      userRole === 'PLATFORM_ADMIN' ||
-      userRole === 'admin' ||
-      userRole === 'finance' ||
-      userRole === 'FINANCE';
-
-    if (!isAuthorized) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized. Only Finance and Platform Admins can export transaction ledgers.' },
-        { status: 403 }
-      );
+    // Phase 8: Scoped role check - Only Super admin (PLATFORM_ADMIN) & finance
+    const permission = await assertServerPermission(req, 'money:export');
+    if (!permission.authorized) {
+      return permission.response;
     }
+
+    const { actor } = permission;
 
     // 2. Fetch transactions
     const transactions = getPlatformTransactions();
 
     // 3. Log audit event
     await recordDangerousAuditLog({
-      actor_id: actorId,
-      actor_name: actorName,
+      actor_id: actor.id,
+      actor_name: actor.name,
       action: 'DATA_EXPORT',
       target_type: 'TRANSACTION',
       target_id: 'export-csv',

@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Toaster } from '@/components/ui/sonner';
+import { ViewAsBanner } from '@/components/admin/view-as-banner';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://sync730.com'),
@@ -55,6 +56,7 @@ export default function RootLayout({
             Skip to main content
           </a>
         </nav>
+        <ViewAsBanner />
         {children}
         <Toaster />
       </body>

@@ -28,6 +28,7 @@ import { ConfirmationDialog } from '@/components/admin/confirmation-dialog';
 import { AdminUserProfile, PlatformRole } from '@/lib/admin/types';
 import { formatLagosDateTime } from '@/lib/admin/date';
 import { useAdminHeader } from '@/components/admin/admin-header-context';
+import { getRoleDisplayName, normalizeAdminRole } from '@/lib/admin/permissions-matrix';
 import { toast } from 'sonner';
 
 type SortField = 'name' | 'email' | 'role' | 'workspace' | 'status' | 'last_active' | 'joined';
@@ -94,10 +95,7 @@ export default function CommandUsersPage() {
 
   // Format plain text role
   const getRolePlainText = (role: string) => {
-    const rLower = (role || '').toLowerCase();
-    if (rLower === 'platform_admin' || rLower === 'admin') return 'Platform admin';
-    if (rLower === 'recruiter') return 'Recruiter';
-    return 'Candidate';
+    return getRoleDisplayName(role);
   };
 
   // Handle Sort Toggle
@@ -545,7 +543,9 @@ export default function CommandUsersPage() {
                               onClick={() =>
                                 handleOpenRoleChange(
                                   u,
-                                  u.role === 'PLATFORM_ADMIN' || u.role === 'admin' ? 'recruiter' : 'PLATFORM_ADMIN'
+                                  u.role === 'super_admin' || u.role === 'PLATFORM_ADMIN' || u.role === 'admin'
+                                    ? 'recruiter'
+                                    : 'super_admin'
                                 )
                               }
                               className="text-xs cursor-pointer hover:bg-neutral-800 focus:bg-neutral-800"
@@ -644,6 +644,25 @@ export default function CommandUsersPage() {
         isLoading={isSubmitting}
         onConfirm={handleConfirmRoleChange}
       >
+        <div className="space-y-1.5 pt-1">
+          <label className="text-xs font-semibold text-neutral-300 block">
+            Target Role
+          </label>
+          <select
+            value={pendingRole || ''}
+            onChange={(e) => setPendingRole(e.target.value as PlatformRole)}
+            className="w-full h-10 px-3 text-xs rounded-xl bg-neutral-950 border border-neutral-800 text-white focus:outline-none focus:border-neutral-600"
+          >
+            <option value="candidate">Candidate</option>
+            <option value="recruiter">Recruiter</option>
+            <option value="support">Support</option>
+            <option value="finance">Finance</option>
+            <option value="vetting_reviewer">Vetting reviewer</option>
+            <option value="moderator">Moderator</option>
+            <option value="super_admin">Super admin</option>
+          </select>
+        </div>
+
         {requiresReauth && (
           <div className="space-y-1.5 pt-1">
             <label className="text-xs font-semibold text-neutral-300 block">

@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { getAdminAuditLogs } from '@/lib/admin/store';
+import { assertServerPermission } from '@/lib/admin/permissions';
 
 export async function GET(req: NextRequest) {
   try {
+    // Phase 8: Scoped role check - Super admin only
+    const permission = await assertServerPermission(req, 'audit:read');
+    if (!permission.authorized) {
+      return permission.response;
+    }
+
     let auditLogs = getAdminAuditLogs();
 
     try {
