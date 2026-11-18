@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { saveAdminAuditLog } from '@/lib/admin/store';
 import { AdminAuditLog } from '@/lib/admin/types';
+import { assertServerPermission } from '@/lib/admin/permissions';
+import { recordDangerousAuditLog } from '@/lib/admin/audit';
+import { getClientIp } from '@/lib/admin/security';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,40 +15,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'assessment_id is required' }, { status: 400 });
     }
 
-    // Server-side permission check: Only Video reviewer or Super admin can view candidate video
-    let actorId = 'usr-admin-001';
-    let actorName = 'David O. Alabi';
-    let userRole = 'PLATFORM_ADMIN';
-
-    try {
-      const supabase = await createServerClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        actorId = user.id;
-        actorName = user.user_metadata?.full_name || user.email || 'Admin';
-        const role = user.user_metadata?.role || user.app_metadata?.role;
-        if (role) userRole = role;
-      }
-    } catch {}
-
-    const allowedRoles = ['PLATFORM_ADMIN', 'super_admin', 'video_reviewer', 'admin'];
-    if (!allowedRoles.includes(userRole) && !allowedRoles.includes(userRole.toLowerCase())) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized: Only Video Reviewers and Platform Admins can open candidate video recordings.' },
-        { status: 403 }
-      );
+    // Permission check: Only Super admin (PLATFORM_ADMIN) & Vetting reviewer (video_reviewer)
+    const permission = await assertServerPermission(req, 'video_review:read');
+    if (!permission.authorized) {
+      return permission.response;
     }
+
+    const { actor } = permission;
 
     // Append-only access audit log entry
     const logEntry: AdminAuditLog = {
       id: `log-view-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
       created_at: new Date().toISOString(),
-      admin_id: actorId,
+      admin_id: actor.id,
       action_type: 'VIDEO_VIEW_OPENED',
       target_id: assessment_id,
-      notes: `${actorName} opened video recording for candidate ${candidate_name || assessment_id}. Access verified.`,
+      notes: `${actor.name} opened video recording for candidate ${candidate_name || assessment_id}. Access verified.`,
       metadata: {
-        actor_name: actorName,
+        actor_name: actor.name,
         action_verb: 'viewed video recording of',
         target_label: candidate_name || assessment_id,
         target_type: 'VIDEO',
@@ -56,26 +43,26 @@ export async function POST(req: NextRequest) {
     saveAdminAuditLog(logEntry);
 
     try {
-      const supabase = await createServerClient();
-      await supabase.from('audit_log').insert({
-        id: logEntry.id,
-        created_at: logEntry.created_at,
-        actor_id: actorId,
-        actor_name: actorName,
+      await recordDangerousAuditLog({
+        actor_id: actor.id,
+        actor_name: actor.name,
         action: 'VIDEO_VIEW_OPENED',
         target_type: 'VIDEO',
         target_id: assessment_id,
         target_label: candidate_name || assessment_id,
-        reason: 'Authorized video playback review',
+        reason: 'Authorized candidate video playback review',
+        ip: getClientIp(req),
       });
     } catch {}
 
     return NextResponse.json({
       success: true,
       logged: true,
-      audit_id: logEntry.id,
+      access_id: logEntry.id,
+      actor: actor.name,
     });
   } catch (error: any) {
+    console.error('Failed to log video access:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to log video access' },
       { status: 500 }

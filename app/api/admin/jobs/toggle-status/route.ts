@@ -1,17 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { toggleServerJobActive, saveServerAuditLog } from '@/lib/admin/server-store';
+import { assertServerPermission } from '@/lib/admin/permissions';
+import { requireReason, recordDangerousAuditLog } from '@/lib/admin/audit';
+import { getClientIp } from '@/lib/admin/security';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { job_id, is_employer_job, is_active } = body;
+    const { job_id, is_employer_job, is_active, reason, notes } = body;
 
     if (!job_id) {
       return NextResponse.json(
         { success: false, error: 'Missing job_id' },
         { status: 400 }
       );
+    }
+
+    const isTakedown = Boolean(is_active);
+
+    // Permission check: Super admin & Moderator
+    const requiredPermission = isTakedown ? 'roles:delete' : 'roles:verify';
+    const permission = await assertServerPermission(request, requiredPermission);
+    if (!permission.authorized) {
+      return permission.response;
+    }
+
+    const { actor } = permission;
+
+    // Enforce mandatory reason for takedown dangerous action (min 10 chars)
+    let validatedReason = 'Role status update';
+    if (isTakedown) {
+      try {
+        validatedReason = requireReason(reason || notes, 10);
+      } catch (err: any) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: err.message || 'A valid reason of at least 10 characters is required for role takedown.',
+          },
+          { status: 400 }
+        );
+      }
     }
 
     if (is_employer_job) {
@@ -30,18 +60,23 @@ export async function POST(request: NextRequest) {
         console.warn('Employer job DB update notice:', e);
       }
 
-      saveServerAuditLog({
-        id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-        created_at: new Date().toISOString(),
-        admin_id: 'usr-admin-001',
-        action_type: 'JOB_STATUS_CHANGE',
+      await recordDangerousAuditLog({
+        actor_id: actor.id,
+        actor_name: actor.name,
+        action: isTakedown ? 'JOB_TAKEDOWN' : 'JOB_REPUBLISH',
+        target_type: 'EMPLOYER_JOB',
         target_id: job_id,
-        notes: `Admin changed employer job ${job_id} status to ${!is_active ? 'ACTIVE' : 'TAKEN_DOWN'}`,
+        target_label: `Employer Job ${job_id}`,
+        reason: validatedReason,
+        before: { is_active: true, status: 'active' },
+        after: { is_active: !is_active, status: nextStatus },
+        ip: getClientIp(request),
       });
 
       return NextResponse.json({
         success: true,
         is_active: !is_active,
+        action: isTakedown ? 'TAKEDOWN' : 'REPUBLISH',
       });
     }
 
@@ -59,9 +94,23 @@ export async function POST(request: NextRequest) {
       console.warn('Remote job DB update notice:', e);
     }
 
+    await recordDangerousAuditLog({
+      actor_id: actor.id,
+      actor_name: actor.name,
+      action: isTakedown ? 'JOB_TAKEDOWN' : 'JOB_REPUBLISH',
+      target_type: 'REMOTE_JOB',
+      target_id: job_id,
+      target_label: `Remote Job ${job_id}`,
+      reason: validatedReason,
+      before: { is_active: is_active },
+      after: { is_active: res.is_active },
+      ip: getClientIp(request),
+    });
+
     return NextResponse.json({
       success: true,
       is_active: res.is_active,
+      action: isTakedown ? 'TAKEDOWN' : 'REPUBLISH',
     });
   } catch (err: any) {
     console.error('Error in toggle-status route:', err);

@@ -147,13 +147,25 @@ export function toggleServerJobFeatured(jobId: string, currentStatus?: boolean):
   const existing = getServerJobs();
   const target = existing.find((j) => j.id === jobId || j.external_id === jobId);
 
+  const willBeFeatured = currentStatus !== undefined ? !currentStatus : target ? !target.is_featured : true;
+
+  // Phase 9 Compliance: Featured roles capped strictly at maximum of 3
+  if (willBeFeatured) {
+    const activeFeaturedCount = existing.filter(
+      (j) => j.is_featured && j.id !== jobId && j.external_id !== jobId
+    ).length;
+    if (activeFeaturedCount >= 3) {
+      throw new Error('Featured roles are capped at a maximum of 3. Please unfeature an existing role before pinning another.');
+    }
+  }
+
   if (target) {
-    target.is_featured = currentStatus !== undefined ? !currentStatus : !target.is_featured;
+    target.is_featured = willBeFeatured;
     newFeatured = target.is_featured;
     memoryJobsCache = existing;
     writeFileSafe(PRIMARY_JOBS_FILE, FALLBACK_JOBS_FILE, JSON.stringify(existing, null, 2));
   } else {
-    newFeatured = !currentStatus;
+    newFeatured = willBeFeatured;
   }
 
   saveServerAuditLog({

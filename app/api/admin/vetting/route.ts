@@ -127,6 +127,12 @@ export async function GET(req: NextRequest) {
       const interviewScore = a.interview_score ?? a.communication_score ?? 90;
       const resumeMatchScore = a.resume_match_score ?? a.technical_depth_score ?? 92;
 
+      // Interview recording retention: set per workspace, maximum 90 days
+      const retentionDays = Math.min(Number(a.recording_retention_days || a.retention_days || a.retention_period || 90), 90);
+      const createdTime = new Date(a.created_at || Date.now()).getTime();
+      const ageDays = isNaN(createdTime) ? 0 : Math.floor((Date.now() - createdTime) / (24 * 60 * 60 * 1000));
+      const isExpired = ageDays > retentionDays;
+
       return {
         ...a,
         interview_score: interviewScore,
@@ -139,8 +145,13 @@ export async function GET(req: NextRequest) {
         decision_by: a.decision_by || (modStatus === 'APPROVED' ? 'David O. Alabi' : null),
         decision_date: a.decision_date || (modStatus === 'APPROVED' ? a.created_at : null),
         decision_reason: a.decision_reason || null,
-        retention_period: a.retention_period ?? null,
-        deletion_status: a.deletion_status ?? null,
+        retention_period: retentionDays,
+        retention_days_remaining: Math.max(0, retentionDays - ageDays),
+        deletion_status: isExpired ? 'PURGED' : (a.deletion_status ?? 'ACTIVE'),
+        secure_video_url: isExpired ? null : (a.secure_video_url || a.video_url || 'https://assets.sync730.com/demo/sample-interview.mp4'),
+        video_unavailable_reason: isExpired
+          ? `Recording purged per retention policy (${retentionDays}-day workspace limit, maximum 90 days).`
+          : null,
       };
     });
 

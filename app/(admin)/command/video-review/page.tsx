@@ -267,7 +267,7 @@ function CommandVideoReviewContent() {
     }
   };
 
-  // Keyboard Shortcuts: A approve, R retake, X reject, J next, K previous
+  // Keyboard Shortcuts: 1/A approve, 2/R retake, 3/X reject, 4 flag jump, J next, K previous
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't capture when typing in inputs/textareas
@@ -276,24 +276,30 @@ function CommandVideoReviewContent() {
         return;
       }
 
-      if (e.key === 'a' || e.key === 'A') {
+      if (e.key === 'a' || e.key === 'A' || e.key === '1') {
         e.preventDefault();
         if (selectedCandidate && selectedCandidate.moderation_status !== 'APPROVED') {
           handleOpenDecisionDialog('APPROVED');
         }
-      } else if (e.key === 'r' || e.key === 'R') {
+      } else if (e.key === 'r' || e.key === 'R' || e.key === '2') {
         e.preventDefault();
         if (selectedCandidate) {
           handleOpenDecisionDialog('RETAKE_REQUESTED');
         }
-      } else if (e.key === 'x' || e.key === 'X') {
+      } else if (e.key === 'x' || e.key === 'X' || e.key === '3') {
         e.preventDefault();
         if (selectedCandidate) {
           handleOpenDecisionDialog('REJECTED');
         }
+      } else if (e.key === '4') {
+        e.preventDefault();
+        const firstFlag = selectedCandidate?.structured_flags?.[0];
+        if (firstFlag) {
+          handleJumpToTimestamp(firstFlag.timestamp_seconds || 15);
+        }
       } else if (e.key === 'j' || e.key === 'J') {
         e.preventDefault();
-        // Next candidate in queue
+        // Next candidate in queue or jump flag
         if (filteredAssessments.length > 0) {
           const currentIdx = filteredAssessments.findIndex((a) => a.id === selectedId);
           if (currentIdx < filteredAssessments.length - 1) {

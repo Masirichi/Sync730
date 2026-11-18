@@ -14,5 +14,6 @@ export const metadata: Metadata = {
 };
 
 export default function CommandLayout({ children }: { children: React.ReactNode }) {
+  // Pinned account block renders <span>Sign out</span> via CommandClientLayout
   return <CommandClientLayout>{children}</CommandClientLayout>;
 }

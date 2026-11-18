@@ -1,4 +1,5 @@
 import { JobSource, LocationTier, RemoteJob } from '@/lib/supabase/types';
+export type { JobSource, LocationTier, RemoteJob };
 import { CrawlerAdapter } from './types';
 import { scaleArmyAdapter } from './adapters/scalearmy';
 import { bruntworkAdapter } from './adapters/bruntwork';

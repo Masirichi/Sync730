@@ -104,16 +104,13 @@ export function evaluateListingReview(job: ReviewableJob): ListingReviewCheckRes
     job.created_at;
   const notStale = !isRoleStale(verifiedTimestamp, ROLE_STALE_WINDOW_DAYS);
 
-  // Status check: excludes 'needs-review', 'rejected', 'closed'
+  // Status check: excludes 'needs-review', 'needs_review', 'ingested', 'rejected', 'closed', 'stale', 'removed'
   const revStatus = (job.review_status || '').toLowerCase();
   const generalStatus = (job.status || '').toLowerCase();
+  const unapprovedStatuses = ['needs-review', 'needs_review', 'ingested', 'rejected', 'closed', 'stale', 'removed'];
   const approvedStatus =
-    revStatus !== 'needs-review' &&
-    revStatus !== 'needs_review' &&
-    revStatus !== 'rejected' &&
-    generalStatus !== 'closed' &&
-    generalStatus !== 'rejected' &&
-    generalStatus !== 'needs-review' &&
+    !unapprovedStatuses.includes(revStatus) &&
+    !unapprovedStatuses.includes(generalStatus) &&
     job.is_active !== false;
 
   const passed =

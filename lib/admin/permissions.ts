@@ -52,7 +52,20 @@ export async function resolveAdminActor(req: NextRequest): Promise<{
       actorEmail = user.email || actorEmail;
       actorName = user.user_metadata?.full_name || actorEmail;
       if (!cookieRole && !headerRole) {
-        rawRole = user.user_metadata?.role || user.app_metadata?.role || rawRole;
+        // Security rule: NEVER base authorization on user_metadata (users can edit it).
+        // Authoritative role must be read from the admin_roles table.
+        const { data: adminRoleRow } = await supabase
+          .from('admin_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (adminRoleRow?.role) {
+          rawRole = adminRoleRow.role;
+        } else {
+          // Fallback to app_metadata (service_role only, immutable by user) or default super_admin
+          rawRole = user.app_metadata?.role || rawRole;
+        }
       }
     }
   } catch {}

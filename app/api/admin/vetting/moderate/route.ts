@@ -4,6 +4,8 @@ import { saveAdminAuditLog } from '@/lib/admin/store';
 import { getLocalAssessments, saveLocalAssessment } from '@/lib/recruiter/store';
 import { AdminAuditLog } from '@/lib/admin/types';
 import { assertServerPermission } from '@/lib/admin/permissions';
+import { requireReason, recordDangerousAuditLog } from '@/lib/admin/audit';
+import { getClientIp } from '@/lib/admin/security';
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,6 +31,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Server-side enforcement: Reason is mandatory for REJECTED, RETAKE_REQUESTED, and REVOKE (min 10 chars)
+    let validatedReason = 'Moderation decision recorded';
     if (['REJECTED', 'RETAKE_REQUESTED', 'REVOKE'].includes(decision)) {
       if (!reason || typeof reason !== 'string' || reason.trim().length < 10) {
         return NextResponse.json(
@@ -39,6 +42,7 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
+      validatedReason = requireReason(reason, 10);
     }
 
     // Find target assessment
@@ -114,20 +118,20 @@ export async function POST(req: NextRequest) {
 
     saveAdminAuditLog(auditRecord);
 
+    const actorName = permission.actor.name;
+    const actorId = permission.actor.id;
     try {
-      const supabase = await createServerClient();
-      await supabase.from('audit_log').insert({
-        id: auditRecord.id,
-        created_at: auditRecord.created_at,
-        actor_id: auditRecord.admin_id,
-        actor_name: 'David O. Alabi',
-        action: auditRecord.action_type,
+      await recordDangerousAuditLog({
+        actor_id: actorId,
+        actor_name: actorName,
+        action: `VIDEO_MODERATION_${decision}`,
         target_type: 'VIDEO',
         target_id: assessment_id,
-        target_label: auditRecord.metadata?.target_label,
-        reason: auditRecord.reason,
-        before: auditRecord.before,
-        after: auditRecord.after,
+        target_label: target?.candidate_name || target?.real_name || target?.target_role || assessment_id,
+        reason: validatedReason,
+        before: { moderation_status: prevStatus },
+        after: { moderation_status: newStatus },
+        ip: getClientIp(req),
       });
     } catch {}
 

@@ -43,7 +43,7 @@ export function ConfirmationDialog({
   const [reason, setReason] = useState('');
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Reset reason when dialog opens/closes
+  // Reset reason when dialog opens/closes & listen for Escape key
   useEffect(() => {
     if (open) {
       setReason('');
@@ -51,8 +51,16 @@ export function ConfirmationDialog({
       setTimeout(() => {
         cancelButtonRef.current?.focus();
       }, 50);
+
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape' && !isLoading) {
+          onOpenChange(false);
+        }
+      };
+      window.addEventListener('keydown', handleEscape);
+      return () => window.removeEventListener('keydown', handleEscape);
     }
-  }, [open]);
+  }, [open, isLoading, onOpenChange]);
 
   const trimmedReason = reason.trim();
   const isReasonValid = !requireReason || trimmedReason.length >= 10;

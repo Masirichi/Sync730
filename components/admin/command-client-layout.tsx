@@ -395,6 +395,23 @@ function CommandLayoutShell({ children }: { children: React.ReactNode }) {
     return pathname.startsWith(href);
   };
 
+  // Phase 9 Compliance: Enforce permission matrix on direct URL visits
+  const currentAction = useMemo<AdminAction | null>(() => {
+    if (pathname === '/command') return 'page:overview';
+    if (pathname.startsWith('/command/roles')) return 'page:roles';
+    if (pathname.startsWith('/command/reports')) return 'page:reports';
+    if (pathname.startsWith('/command/sources')) return 'page:sources';
+    if (pathname.startsWith('/command/users')) return 'page:users';
+    if (pathname.startsWith('/command/employers')) return 'page:employers';
+    if (pathname.startsWith('/command/video-review')) return 'page:video_review';
+    if (pathname.startsWith('/command/money')) return 'page:money';
+    if (pathname.startsWith('/command/audit')) return 'page:audit';
+    if (pathname.startsWith('/command/settings')) return 'page:settings';
+    return null;
+  }, [pathname]);
+
+  const isPageAuthorized = currentAction ? can(currentRole, currentAction) : true;
+
   return (
     <div className="min-h-screen bg-[#09090b] text-neutral-100 flex flex-col">
       {/* MFA Grace Period Alert Banner (Phase 8 Requirement) */}
@@ -763,9 +780,34 @@ function CommandLayoutShell({ children }: { children: React.ReactNode }) {
             </div>
           )}
 
-          {/* Main Content Body */}
+          {/* Main Content Body: Direct URL Access Protection */}
           <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
-            {children}
+            {!isPageAuthorized ? (
+              <div className="max-w-md mx-auto py-20 px-4 text-center space-y-4">
+                <div className="inline-flex p-3 rounded-2xl bg-red-500/10 text-red-400 border border-red-500/20">
+                  <Lock className="w-8 h-8" />
+                </div>
+                <div className="space-y-1">
+                  <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-red-500/15 text-red-400 border border-red-500/30">
+                    HTTP 403 Forbidden
+                  </span>
+                  <h2 className="text-xl font-bold text-white">Access Restricted</h2>
+                </div>
+                <p className="text-sm text-neutral-400">
+                  Your role ({userRole}) does not have permission to access {getHeaderLabel()}. Contact a Super admin if you require elevated privileges.
+                </p>
+                <div className="pt-2">
+                  <Link
+                    href="/command"
+                    className="inline-flex items-center px-4 py-2 rounded-xl bg-neutral-800 text-neutral-200 hover:text-white text-xs font-semibold border border-neutral-700 transition-colors"
+                  >
+                    Return to Overview
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              children
+            )}
           </main>
         </div>
       </div>

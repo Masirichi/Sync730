@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
-import { toggleServerJobFeatured, saveServerAuditLog } from '@/lib/admin/server-store';
+import { toggleServerJobFeatured, saveServerAuditLog, getServerJobs } from '@/lib/admin/server-store';
+import { assertServerPermission } from '@/lib/admin/permissions';
+import { recordDangerousAuditLog } from '@/lib/admin/audit';
+import { getClientIp } from '@/lib/admin/security';
 
 export async function POST(request: NextRequest) {
   try {
+    // Permission check: Super admin & Moderator
+    const permission = await assertServerPermission(request, 'roles:edit');
+    if (!permission.authorized) {
+      return permission.response;
+    }
+
     const body = await request.json();
     const { job_id, is_employer_job, is_featured } = body;
 
@@ -12,6 +21,24 @@ export async function POST(request: NextRequest) {
         { success: false, error: 'Missing job_id' },
         { status: 400 }
       );
+    }
+
+    // Phase 9 Compliance: Featured roles capped at maximum of 3
+    if (!is_featured) {
+      const allJobs = getServerJobs();
+      const currentFeatured = allJobs.filter(
+        (j) => j.is_featured && j.id !== job_id && j.external_id !== job_id
+      ).length;
+      if (currentFeatured >= 3) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Featured roles are capped at a maximum of 3. Please unfeature an existing role before pinning another.',
+            code: 'FEATURED_CAP_REACHED',
+          },
+          { status: 400 }
+        );
+      }
     }
 
     if (is_employer_job) {

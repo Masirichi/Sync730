@@ -229,6 +229,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Phase 9 Compliance: Featured roles capped at maximum of 3
+    const requestedFeatured = Boolean(is_featured);
+    if (requestedFeatured) {
+      const allJobs = getServerJobs();
+      const currentFeatured = allJobs.filter((j) => j.is_featured).length;
+      if (currentFeatured >= 3) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Featured roles are capped at a maximum of 3. Please unfeature an existing role before pinning another.',
+            code: 'FEATURED_CAP_REACHED',
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     // Generate valid UUID for database compatibility along with readable external_id
     const jobUuid = crypto.randomUUID();
     const newId = `admin-job-${Date.now()}`;

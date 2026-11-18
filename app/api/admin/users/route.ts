@@ -128,6 +128,11 @@ export async function POST(req: NextRequest) {
     // A. SUSPEND / RESTORE FLOW
     // -------------------------------------------------------------------------
     if (action === 'SUSPEND' || action === 'RESTORE' || status === 'SUSPENDED' || status === 'ACTIVE') {
+      const suspendPerm = await assertServerPermission(req, 'users:suspend');
+      if (!suspendPerm.authorized) {
+        return suspendPerm.response;
+      }
+
       const newStatus = action === 'SUSPEND' || status === 'SUSPENDED' ? 'SUSPENDED' : 'ACTIVE';
       const prevStatus = existingUser?.status || 'ACTIVE';
 
@@ -265,7 +270,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(
           {
             success: false,
-            error: 'Cannot remove the last remaining Super admin. At least one Super admin must always exist.',
+            error: 'Cannot remove the last remaining platform admin / Cannot remove the last remaining Super admin. At least one platform admin must always exist.',
           },
           { status: 400 }
         );

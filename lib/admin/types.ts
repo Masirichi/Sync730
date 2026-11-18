@@ -213,6 +213,7 @@ export interface AdminCorporateWorkspace {
   last_active?: string;
   created_at: string;
   is_demo?: boolean;
+  recording_retention_days?: number; // Video retention in days (maximum 90 days)
 }
 
 export interface AdminRemoteJob {
@@ -252,4 +253,5 @@ export interface AdminRemoteJob {
   published_at: string;
   created_at: string;
   is_demo?: boolean;
+  recording_retention_days?: number; // Video retention in days (maximum 90 days)
 }
