@@ -136,10 +136,6 @@ export function JobsClientView({
   const activeStartupOnly = Boolean(filterParams?.startup_only);
   const activeSort = filterParams?.sort || 'recent';
 
-  // Universal Careers Crawler state
-  const [isCrawling, setIsCrawling] = useState(false);
-  const [crawlStatus, setCrawlStatus] = useState<string | null>(null);
-
   // Currency & Period display toggles
   const [currency, setCurrency] = useState<CurrencyChoice>('ORIGINAL');
   const [period, setPeriod] = useState<PeriodChoice>('ORIGINAL');
@@ -304,28 +300,6 @@ export function JobsClientView({
     window.addEventListener('sync730_tracker_updated', handleTrackerUpdated);
     return () => window.removeEventListener('sync730_tracker_updated', handleTrackerUpdated);
   }, []);
-
-  // Universal Company Careers Crawler On-Demand Trigger
-  const handleTriggerUniversalCrawl = async () => {
-    setIsCrawling(true);
-    setCrawlStatus('Scanning verified company ATS career boards...');
-    toast.info('Indexing company career pages (Greenhouse, Lever, Ashby) for remote Africa roles...');
-    try {
-      const res = await fetch('/api/crawler/universal', { method: 'POST' });
-      const data = await res.json();
-      if (data.success) {
-        setCrawlStatus(`Indexed ${data.total_roles} remote roles across ${data.boards_checked || 18} company boards.`);
-        toast.success(`Universal Crawler: ${data.total_roles} roles indexed (${data.startup_roles} startup vacancies). Feed refreshed.`);
-        router.refresh();
-      } else {
-        toast.error('Unable to refresh universal crawler at this time.');
-      }
-    } catch {
-      toast.error('Crawler connection timeout. Showing cached verified vacancies.');
-    } finally {
-      setIsCrawling(false);
-    }
-  };
 
   // URL Query Updater
   const updateFilters = (newParams: Partial<JobFilterParams>) => {
@@ -598,7 +572,7 @@ export function JobsClientView({
   if (activeStartupOnly) {
     activeChips.push({
       key: 'startup_only',
-      label: '🚀 Startup Jobs',
+      label: 'Startup Jobs',
       onRemove: () => updateFilters({ startup_only: false }),
     });
   }
@@ -797,7 +771,7 @@ export function JobsClientView({
                       : 'bg-amber-50/80 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border-amber-200/90 dark:border-amber-800/60 hover:border-amber-500'
                   }`}
                 >
-                  <span>🚀 Startup Jobs</span>
+                  <span>Startup Jobs</span>
                 </button>
               </div>
 
@@ -869,43 +843,24 @@ export function JobsClientView({
 
         {/* 6. MAIN RESULTS SECTION */}
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12 py-8 space-y-8">
-          {/* Universal Company Careers Crawler Live Banner */}
-          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
-                <Globe className="w-5 h-5 animate-pulse" />
-              </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200">
-                    Universal Company Careers Crawler
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                    Live ATS Indexing
-                  </span>
-                </div>
-                <p className="text-xs text-neutral-600 dark:text-neutral-300 mt-1 max-w-2xl leading-relaxed">
-                  Actively crawling direct ATS career pages (Greenhouse, Lever, Ashby) across Moniepoint, Paystack, Chowdeck, Kuda, Canonical, GitLab, Buffer, and 18+ high-growth tech startups hiring remotely from Africa.
-                </p>
-                {crawlStatus && (
-                  <p className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 mt-1">
-                    ✓ {crawlStatus}
-                  </p>
-                )}
-              </div>
+          {/* Universal Company Careers Crawler Live Banner (Informational Only - Public Access Locked) */}
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 p-4 sm:p-5 flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+              <Globe className="w-5 h-5" />
             </div>
-
-            <div className="flex items-center gap-2.5 flex-shrink-0 self-end md:self-center">
-              <button
-                type="button"
-                disabled={isCrawling}
-                onClick={handleTriggerUniversalCrawl}
-                className="h-9 px-4 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors flex items-center gap-2 shadow-sm disabled:opacity-60"
-              >
-                <Search className={cn("w-3.5 h-3.5", isCrawling && "animate-spin")} />
-                <span>{isCrawling ? 'Crawling Company Boards...' : 'Sync Latest Vacancies'}</span>
-              </button>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200">
+                  Universal Company Careers Crawler
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Live ATS Indexing
+                </span>
+              </div>
+              <p className="text-xs text-neutral-600 dark:text-neutral-300 mt-1 max-w-3xl leading-relaxed">
+                Actively crawling direct ATS career pages (Greenhouse, Lever, Ashby) across Moniepoint, Paystack, Chowdeck, Kuda, Canonical, GitLab, Buffer, and 18+ high-growth tech startups hiring remotely from Africa.
+              </p>
             </div>
           </div>
           {/* Results Heading with aria-live="polite" and Removable Filter Chips */}

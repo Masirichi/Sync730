@@ -1,13 +1,44 @@
 // app/api/crawler/universal/route.ts
 // Universal Jobs Crawler API endpoint
-// Powers the live company careers & startup vacancies feeds on /find-work and /
+// Internal/Admin & System Cron only - Public access is strictly forbidden.
 
 import { NextRequest, NextResponse } from 'next/server';
 import { runUniversalCareersCrawler, VERIFIED_COMPANY_BOARDS } from '@/lib/crawler/universal-careers-crawler';
+import { assertServerPermission } from '@/lib/admin/permissions';
 
 export const dynamic = 'force-dynamic';
 
+async function checkCrawlerAccess(req: NextRequest): Promise<{ authorized: boolean; error?: string }> {
+  // 1. Allow Vercel Cron or secret-authenticated callers
+  const authHeader = req.headers.get('authorization');
+  const crawlerSecret = req.headers.get('x-crawler-secret');
+  const configuredSecret = process.env.CRON_SECRET || process.env.CRAWLER_SECRET;
+
+  if (configuredSecret && (authHeader === `Bearer ${configuredSecret}` || crawlerSecret === configuredSecret)) {
+    return { authorized: true };
+  }
+
+  // 2. Allow authenticated administrators with 'sources:manage' permission
+  const perm = await assertServerPermission(req, 'sources:manage');
+  if (perm.authorized) {
+    return { authorized: true };
+  }
+
+  return {
+    authorized: false,
+    error: 'Access denied: Universal crawler execution and direct access is restricted to administrators and system cron.',
+  };
+}
+
 export async function GET(req: NextRequest) {
+  const access = await checkCrawlerAccess(req);
+  if (!access.authorized) {
+    return NextResponse.json(
+      { success: false, error: access.error },
+      { status: 403 }
+    );
+  }
+
   try {
     const report = await runUniversalCareersCrawler();
 
@@ -29,7 +60,7 @@ export async function GET(req: NextRequest) {
       },
       {
         headers: {
-          'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+          'Cache-Control': 'no-store',
         },
       }
     );
@@ -43,6 +74,14 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const access = await checkCrawlerAccess(req);
+  if (!access.authorized) {
+    return NextResponse.json(
+      { success: false, error: access.error },
+      { status: 403 }
+    );
+  }
+
   try {
     const report = await runUniversalCareersCrawler();
 

@@ -105,11 +105,12 @@ test('4. Find Work & Homepage integration: startup_only filtering in service', (
   assert.match(serviceSrc, /startup_only/, 'getFilteredPublicJobs must support startup_only filter');
   assert.match(serviceSrc, /is_startup/, 'toPublicJob must populate is_startup field');
 
-  // Verify JobsClientView has the Universal Crawler Banner and Startup Filter Pill
+  // Verify JobsClientView has the Universal Crawler Banner and Startup Filter Pill without emojis or public sync button
   const clientViewSrc = fs.readFileSync(path.join(ROOT_DIR, 'components/jobs/jobs-client-view.tsx'), 'utf8');
   assert.match(clientViewSrc, /Universal Company Careers Crawler/, 'JobsClientView must render Universal Careers Crawler banner');
-  assert.match(clientViewSrc, /🚀 Startup Jobs/, 'JobsClientView must render Startup Jobs filter pill');
-  assert.match(clientViewSrc, /handleTriggerUniversalCrawl/, 'JobsClientView must define handleTriggerUniversalCrawl');
+  assert.match(clientViewSrc, /Startup Jobs/, 'JobsClientView must render Startup Jobs filter pill');
+  assert.doesNotMatch(clientViewSrc, /🚀/, 'JobsClientView must not contain emojis');
+  assert.doesNotMatch(clientViewSrc, /Sync Latest Vacancies/, 'Public JobsClientView must not expose Sync Latest Vacancies button');
 
   // Verify Homepage LatestRolesSection has the Startup Vacancies feed tab
   const homeLatestSrc = fs.readFileSync(path.join(ROOT_DIR, 'components/home/latest-roles-section.tsx'), 'utf8');
@@ -117,7 +118,7 @@ test('4. Find Work & Homepage integration: startup_only filtering in service', (
   assert.match(homeLatestSrc, /activeFeedTab === 'startups'/, 'Homepage must filter by activeFeedTab startups');
 });
 
-test('5. Universal Crawler API Route exists and handles GET & POST', () => {
+test('5. Universal Crawler API Route exists, handles GET & POST, and restricts public access', () => {
   const apiRoutePath = path.join(ROOT_DIR, 'app/api/crawler/universal/route.ts');
   assert.ok(fs.existsSync(apiRoutePath), 'app/api/crawler/universal/route.ts must exist');
 
@@ -125,4 +126,5 @@ test('5. Universal Crawler API Route exists and handles GET & POST', () => {
   assert.match(routeSrc, /export async function GET/, 'Route must export GET handler');
   assert.match(routeSrc, /export async function POST/, 'Route must export POST handler');
   assert.match(routeSrc, /runUniversalCareersCrawler/, 'Route must call runUniversalCareersCrawler');
+  assert.match(routeSrc, /checkCrawlerAccess/, 'Route must enforce access control against public execution');
 });

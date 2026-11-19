@@ -176,7 +176,7 @@ export function LatestRolesSection({ jobs = [], rolesLive }: LatestRolesSectionP
                   : 'bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border border-amber-200/80 dark:border-amber-800/60 hover:border-amber-500'
               }`}
             >
-              <span>🚀 Startup Jobs (Remote Africa)</span>
+              <span>Startup Jobs (Remote Africa)</span>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             </button>
 

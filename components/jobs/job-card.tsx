@@ -214,10 +214,10 @@ export function JobCard({
                     </span>
                   )}
 
-                  {/* Startup Vacancy Badge */}
+                  {/* Startup Vacancy Badge (Clean, No Emoji) */}
                   {Boolean(job.is_startup || (Array.isArray(job.tags) && job.tags.some((t: string) => t.toLowerCase() === 'startup'))) && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold text-amber-900 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800">
-                      <span>🚀 Startup</span>
+                      <span>Startup</span>
                     </span>
                   )}
 
