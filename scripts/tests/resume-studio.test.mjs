@@ -90,3 +90,62 @@ test('4. SyncFlow 1-Click Tailor Resume Integration', () => {
   assert.ok(content.includes('/dashboard/resume'), 'SyncFlow must contain link to /dashboard/resume');
   assert.ok(content.includes('Tailor Resume'), 'SyncFlow card must provide Tailor Resume button');
 });
+
+test('5. OpenXML (.docx) Resume Generation and Markdown to Word XML conversion', async () => {
+  const { createResumeDocxBuffer, markdownToWordXml } = await import('../../lib/resume/docx-builder.ts');
+
+  const markdown = `# JOHN DOE
+john@sync730.com | Lagos, Nigeria | +234 800 000 0000
+
+## PROFESSIONAL SUMMARY
+Senior Full Stack Engineer with 6 years experience.
+
+## CORE COMPETENCIES
+- Next.js, React, TypeScript, Node.js, PostgreSQL
+
+## WORK EXPERIENCE
+### Senior Engineer | Paystack
+- Spearheaded core checkout optimization, reducing transaction latency by 35%.`;
+
+  const wordXml = markdownToWordXml(markdown);
+  assert.ok(wordXml.includes('<w:document'), 'Must produce valid w:document XML');
+  assert.ok(wordXml.includes('JOHN DOE'), 'Must include candidate name');
+  assert.ok(wordXml.includes('PROFESSIONAL SUMMARY'), 'Must include section header');
+  assert.ok(wordXml.includes('Paystack'), 'Must include company name');
+
+  const docxBuffer = createResumeDocxBuffer(markdown);
+  assert.ok(Buffer.isBuffer(docxBuffer), 'Must return a Buffer');
+  assert.ok(docxBuffer.length > 500, 'DOCX buffer must be populated with OpenXML files');
+  assert.equal(docxBuffer[0], 0x50, 'Must have PK ZIP magic byte 0');
+  assert.equal(docxBuffer[1], 0x4b, 'Must have PK ZIP magic byte 1');
+});
+
+test('6. PDF Printable HTML Generation & Formatting', async () => {
+  const { markdownToPrintableHtml } = await import('../../lib/resume/exporter.ts');
+
+  const markdown = `# JANE DOE
+jane@sync730.com | Lagos, Nigeria
+
+## PROFESSIONAL SUMMARY
+Lead Frontend Engineer.
+
+## WORK EXPERIENCE
+- Architected design system and microfrontends.`;
+
+  const html = markdownToPrintableHtml(markdown, 'Jane Doe Resume');
+  assert.ok(html.includes('<!DOCTYPE html>'), 'Must produce valid HTML document');
+  assert.ok(html.includes('JANE DOE'), 'Must render name');
+  assert.ok(html.includes('@media print'), 'Must include print media stylesheet');
+  assert.ok(html.includes('resume-container'), 'Must include container styling');
+});
+
+test('7. Candidate Sidebar & Coach Page layout fixes', () => {
+  const sidebarPath = path.resolve('components/dashboard/dashboard-sidebar.tsx');
+  const sidebarContent = fs.readFileSync(sidebarPath, 'utf8');
+  assert.ok(sidebarContent.includes('overflow-y-auto'), 'Sidebar must support scroll container to avoid clipping');
+
+  const coachPath = path.resolve('app/(candidate)/dashboard/coach/page.tsx');
+  const coachContent = fs.readFileSync(coachPath, 'utf8');
+  assert.ok(coachContent.includes("simStage !== 'SETUP'"), 'Coach page stepper must not display question 1 of 5 during setup stage');
+  assert.ok(coachContent.includes('/dashboard/resume'), 'Coach page must link to Resume Studio');
+});

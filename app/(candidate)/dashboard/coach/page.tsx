@@ -392,32 +392,42 @@ function InterviewCoachContent() {
             </p>
           </div>
 
-          {/* Mode Switcher Tabs */}
-          <div className="flex items-center rounded-xl bg-neutral-100 dark:bg-neutral-800 p-1 border border-neutral-200 dark:border-neutral-700 self-start sm:self-auto">
-            <button
-              type="button"
-              onClick={() => setActiveMode('PRACTICE')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all min-h-[36px] ${
-                activeMode === 'PRACTICE'
-                  ? 'bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white shadow-xs'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900'
-              }`}
+          {/* Cross-Tool Link & Mode Switcher Tabs */}
+          <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
+            <Link
+              href={`/dashboard/resume?role=${encodeURIComponent(targetRole)}&company=${encodeURIComponent(companyName)}`}
+              className="inline-flex items-center gap-1.5 min-h-[36px] px-3.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:border-neutral-950 dark:hover:border-white transition-colors"
             >
-              <BookOpen className="h-3.5 w-3.5 stroke-[2]" />
-              <span>Practice & Rubric</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveMode('SIMULATION')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all min-h-[36px] ${
-                activeMode === 'SIMULATION'
-                  ? 'bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white shadow-xs'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900'
-              }`}
-            >
-              <Play className="h-3.5 w-3.5 stroke-[2]" />
-              <span>Live AI Sandbox</span>
-            </button>
+              <FileText className="h-3.5 w-3.5" />
+              <span>Resume Studio</span>
+            </Link>
+
+            <div className="flex items-center rounded-xl bg-neutral-100 dark:bg-neutral-800 p-1 border border-neutral-200 dark:border-neutral-700">
+              <button
+                type="button"
+                onClick={() => setActiveMode('PRACTICE')}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all min-h-[36px] ${
+                  activeMode === 'PRACTICE'
+                    ? 'bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white shadow-xs'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900'
+                }`}
+              >
+                <BookOpen className="h-3.5 w-3.5 stroke-[2]" />
+                <span>Practice & Rubric</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveMode('SIMULATION')}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all min-h-[36px] ${
+                  activeMode === 'SIMULATION'
+                    ? 'bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white shadow-xs'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900'
+                }`}
+              >
+                <Play className="h-3.5 w-3.5 stroke-[2]" />
+                <span>Live AI Sandbox</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -521,35 +531,37 @@ function InterviewCoachContent() {
         </div>
       </div>
 
-      {/* 2. Stepper: 5 Questions Progress Bar */}
-      <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
-        <div className="flex items-center justify-between text-xs mb-2">
-          <span className="font-semibold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" /> Question {currentQuestionIndex + 1} of 5
-          </span>
-          <span className="text-neutral-500 font-medium">
-            Category: <strong className="text-neutral-900 dark:text-neutral-100">{currentQ?.category || 'Core Technical Competency'}</strong>
-          </span>
-        </div>
+      {/* 2. Stepper: 5 Questions Progress Bar (Active during Practice or ongoing Simulation) */}
+      {(activeMode === 'PRACTICE' || simStage !== 'SETUP') && (
+        <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
+          <div className="flex items-center justify-between text-xs mb-2">
+            <span className="font-semibold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" /> Question {currentQuestionIndex + 1} of 5
+            </span>
+            <span className="text-neutral-500 font-medium">
+              Category: <strong className="text-neutral-900 dark:text-neutral-100">{currentQ?.category || 'Core Technical Competency'}</strong>
+            </span>
+          </div>
 
-        <div className="grid grid-cols-5 gap-1.5 pt-1">
-          {questions.map((q, idx) => (
-            <button
-              key={q?.id || idx}
-              type="button"
-              onClick={() => setCurrentQuestionIndex(idx)}
-              className={`h-2 rounded-full transition-all ${
-                idx === currentQuestionIndex
-                  ? 'bg-neutral-950 dark:bg-white'
-                  : idx < currentQuestionIndex || practiceResults[q?.id || idx]
-                  ? 'bg-emerald-500'
-                  : 'bg-neutral-200 dark:bg-neutral-800'
-              }`}
-              title={`Question ${idx + 1}: ${q?.category || 'General'}`}
-            />
-          ))}
+          <div className="grid grid-cols-5 gap-1.5 pt-1">
+            {questions.map((q, idx) => (
+              <button
+                key={q?.id || idx}
+                type="button"
+                onClick={() => setCurrentQuestionIndex(idx)}
+                className={`h-2 rounded-full transition-all ${
+                  idx === currentQuestionIndex
+                    ? 'bg-neutral-950 dark:bg-white'
+                    : idx < currentQuestionIndex || practiceResults[q?.id || idx]
+                    ? 'bg-emerald-500'
+                    : 'bg-neutral-200 dark:bg-neutral-800'
+                }`}
+                title={`Question ${idx + 1}: ${q?.category || 'General'}`}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 3. MODE: PRACTICE & RUBRIC BREAKDOWN */}
       {activeMode === 'PRACTICE' && (

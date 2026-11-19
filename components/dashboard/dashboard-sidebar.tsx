@@ -37,22 +37,22 @@ export function DashboardSidebar({ items, roleLabel, homeHref }: DashboardSideba
   };
 
   return (
-    <aside className="hidden w-64 shrink-0 bg-[#101114] text-white rounded-[28px] border border-neutral-800/60 lg:flex lg:flex-col justify-between p-4 my-3 ml-3 h-[calc(100vh-24px)] sticky top-3 shadow-sm select-none">
-      <div>
+    <aside className="hidden w-64 shrink-0 bg-[#101114] text-white rounded-[28px] border border-neutral-800/60 lg:flex lg:flex-col justify-between p-3.5 my-3 ml-3 h-[calc(100vh-24px)] max-h-[calc(100vh-24px)] sticky top-3 shadow-sm select-none overflow-y-auto">
+      <div className="flex-1 min-h-0 flex flex-col">
         {/* Brand Logo Header with Sync bold white / 730 grey */}
-        <div className="flex h-16 items-center px-3 pt-2 pb-1">
+        <div className="flex h-14 items-center px-2.5 pt-1 pb-1 shrink-0">
           <BrandLogo inverted />
         </div>
 
         {/* Role Label */}
-        <div className="px-3 pt-4 pb-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-400">
+        <div className="px-2.5 pt-2 pb-1.5 shrink-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-400">
             {roleLabel} Portal
           </p>
         </div>
 
         {/* Navigation Items (Inspiration Floating Pill Style) */}
-        <nav aria-label="Desktop Sidebar Navigation" className="space-y-1.5 px-1 py-2">
+        <nav aria-label="Desktop Sidebar Navigation" className="space-y-1 px-0.5 py-1.5 flex-1 min-h-0 overflow-y-auto">
           {items.map((item) => {
             const active = pathname === item.href || (item.href !== '/candidate' && pathname.startsWith(item.href + '/'));
             return (
@@ -60,14 +60,14 @@ export function DashboardSidebar({ items, roleLabel, homeHref }: DashboardSideba
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-3 rounded-2xl px-3.5 py-2.5 min-h-[44px] text-sm font-medium transition-all',
+                  'flex items-center gap-2.5 rounded-xl px-3 py-2 min-h-[40px] text-xs sm:text-sm font-medium transition-all',
                   active
                     ? 'bg-[#222329] text-white shadow-sm font-semibold'
                     : 'text-neutral-400 hover:text-white hover:bg-neutral-800/40'
                 )}
               >
                 <item.icon className="h-4 w-4 shrink-0 stroke-[1.5]" />
-                <span>{item.label}</span>
+                <span className="truncate">{item.label}</span>
               </Link>
             );
           })}
@@ -75,17 +75,17 @@ export function DashboardSidebar({ items, roleLabel, homeHref }: DashboardSideba
       </div>
 
       {/* Bottom Log Out Section (Inspiration Style) */}
-      <div className="p-2 space-y-2">
+      <div className="p-1 pt-2 space-y-1.5 shrink-0 border-t border-neutral-800/40 mt-1">
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 w-full px-3.5 py-2.5 min-h-[44px] rounded-2xl bg-[#18191E] hover:bg-[#202127] border border-neutral-800/80 text-sm font-medium text-neutral-300 hover:text-white transition-all shadow-sm"
+          className="flex items-center gap-2.5 w-full px-3 py-2 min-h-[40px] rounded-xl bg-[#18191E] hover:bg-[#202127] border border-neutral-800/80 text-xs sm:text-sm font-medium text-neutral-300 hover:text-white transition-all shadow-sm"
         >
           <LogOut className="h-4 w-4 shrink-0 stroke-[1.5] text-neutral-400" />
           <span>Log Out</span>
         </button>
         <Link
           href={homeHref}
-          className="block text-center text-xs text-neutral-400 hover:text-white transition-colors py-2"
+          className="block text-center text-[11px] text-neutral-400 hover:text-white transition-colors py-1.5"
         >
           Back to public site
         </Link>

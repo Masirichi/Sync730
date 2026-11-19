@@ -22,12 +22,23 @@ import {
   RotateCcw,
   SlidersHorizontal,
   Columns3,
+  UploadCloud,
+  FileCheck2,
+  X,
+  Printer,
+  Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import { getLocalTrackerItems } from '@/lib/tracker';
 import { analyzeResumeATS, ATSAnalysisResult } from '@/lib/resume/analyzer';
 import { generateTemplateResume, DEFAULT_CANDIDATE_RESUME_PROFILE } from '@/lib/resume/tailorer';
 import { getCandidateProfile } from '@/lib/candidate/profile';
+import {
+  exportResumeToDocx,
+  printResumeAsPDF,
+  parseResumeFile,
+} from '@/lib/resume/exporter';
 
 type StudioMode = 'ANALYZER' | 'GENERATOR';
 
@@ -87,6 +98,93 @@ function ResumeStudioContent() {
   const [generatedResume, setGeneratedResume] = useState<string>('');
   const [editorTab, setEditorTab] = useState<'preview' | 'markdown'>('preview');
   const [copied, setCopied] = useState(false);
+
+  // Upload & Export State
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number; ext: string } | null>(null);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [isExportingDocx, setIsExportingDocx] = useState(false);
+
+  // File Upload Handler (PDF, DOCX, TXT, MD)
+  const handleFileUpload = async (file: File) => {
+    if (!file) return;
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+    if (file.size > MAX_SIZE) {
+      toast.error('File size exceeds maximum 5MB limit.');
+      return;
+    }
+
+    const validExts = ['pdf', 'docx', 'doc', 'txt', 'md'];
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    if (!validExts.includes(ext)) {
+      toast.error('Please upload a PDF, DOCX, TXT, or MD resume file.');
+      return;
+    }
+
+    setIsUploading(true);
+    toast.info(`Parsing ${file.name}...`);
+    try {
+      const parsed = await parseResumeFile(file);
+      setResumeInput(parsed.text);
+      setUploadedFile({ name: file.name, size: file.size, ext });
+
+      // Automatically run ATS analysis against current target role
+      const res = analyzeResumeATS(parsed.text, targetRole, companyName, jobDescription);
+      setAnalysisResult(res);
+      toast.success(`Resume parsed (${parsed.wordCount} words)! ATS match: ${res.overallScore}%`);
+    } catch {
+      toast.error('Could not extract text automatically. You can paste your resume text manually.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Load from Candidate Profile
+  const handleLoadProfileResume = () => {
+    const profile = getCandidateProfile();
+    if (profile.cvFile?.rawText) {
+      setResumeInput(profile.cvFile.rawText);
+      setUploadedFile({
+        name: profile.cvFile.name || 'Candidate_Profile_CV.pdf',
+        size: profile.cvFile.size || 35000,
+        ext: profile.cvFile.name?.split('.').pop()?.toLowerCase() || 'pdf',
+      });
+      const res = analyzeResumeATS(profile.cvFile.rawText, targetRole, companyName, jobDescription);
+      setAnalysisResult(res);
+      toast.success('Imported CV from your Candidate Profile!');
+    } else {
+      toast.info('No uploaded CV found in your profile. You can upload one directly below.');
+    }
+  };
+
+  // Export as PDF
+  const handleExportPDF = () => {
+    if (!generatedResume) return;
+    setIsExportingPdf(true);
+    try {
+      printResumeAsPDF(generatedResume, { title: targetRole, company: companyName });
+      toast.success('Print dialog opened. Select "Save as PDF" to export vector PDF.');
+    } catch {
+      toast.error('Unable to open print preview dialog.');
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
+  // Export as DOCX
+  const handleExportDOCX = async () => {
+    if (!generatedResume) return;
+    setIsExportingDocx(true);
+    try {
+      await exportResumeToDocx(generatedResume, { title: targetRole, company: companyName });
+      toast.success('Word Document (.docx) downloaded successfully!');
+    } catch {
+      toast.error('Failed to generate Word document.');
+    } finally {
+      setIsExportingDocx(false);
+    }
+  };
 
   // Load SyncFlow Tracker items on mount for 1-click import
   useEffect(() => {
@@ -375,8 +473,100 @@ function ResumeStudioContent() {
       {activeMode === 'ANALYZER' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-            {/* Left: Input Textarea */}
+            {/* Left: Input Textarea & File Upload Dropzone */}
             <div className="lg:col-span-6 space-y-3">
+              {/* File Upload Dropzone (PDF, DOCX, TXT, MD) */}
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragActive(true);
+                }}
+                onDragLeave={() => setIsDragActive(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragActive(false);
+                  const files = e.dataTransfer.files;
+                  if (files && files[0]) handleFileUpload(files[0]);
+                }}
+                className={cn(
+                  'rounded-2xl border-2 border-dashed p-4 text-center transition-all bg-neutral-50/70 dark:bg-neutral-900/50',
+                  isDragActive
+                    ? 'border-neutral-900 dark:border-white bg-neutral-100 dark:bg-neutral-800'
+                    : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600'
+                )}
+              >
+                <input
+                  type="file"
+                  id="resume-file-input"
+                  accept=".pdf,.docx,.doc,.txt,.md"
+                  onChange={(e) => {
+                    const files = e.target.files;
+                    if (files && files[0]) handleFileUpload(files[0]);
+                  }}
+                  className="sr-only"
+                />
+
+                {uploadedFile ? (
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-left">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="p-2 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 shrink-0">
+                        <FileCheck2 className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">
+                          {uploadedFile.name}
+                        </p>
+                        <p className="text-[11px] text-neutral-500">
+                          {(uploadedFile.size / 1024).toFixed(1)} KB · Parsed into ATS Audit
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUploadedFile(null);
+                        setResumeInput(SAMPLE_RESUME_TEXT);
+                        const res = analyzeResumeATS(SAMPLE_RESUME_TEXT, targetRole, companyName);
+                        setAnalysisResult(res);
+                        toast.info('Cleared uploaded file. Reset to sample resume.');
+                      }}
+                      className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                      title="Remove uploaded file"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <label
+                      htmlFor="resume-file-input"
+                      className="cursor-pointer block space-y-1.5 focus:outline-none focus:ring-2 focus:ring-neutral-900 rounded-xl p-2"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 mx-auto flex items-center justify-center">
+                        <UploadCloud className="h-5 w-5" />
+                      </div>
+                      <div className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+                        <span className="underline decoration-neutral-400">Upload your resume</span> or drag and drop
+                      </div>
+                      <p className="text-[11px] text-neutral-500">
+                        Supports PDF, DOCX, TXT, MD (Max 5MB)
+                      </p>
+                    </label>
+
+                    <div className="pt-2 border-t border-neutral-200/60 dark:border-neutral-800/60 mt-2 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={handleLoadProfileResume}
+                        className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white inline-flex items-center gap-1.5"
+                      >
+                        <Sparkles className="h-3 w-3 text-amber-500" />
+                        <span>Load CV from Candidate Profile</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <Card className="rounded-2xl border-neutral-200 dark:border-neutral-800 p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
@@ -585,24 +775,49 @@ function ResumeStudioContent() {
                   </button>
                 </div>
 
+                {/* Export Action Buttons: PDF, DOCX, Markdown, Copy, Regenerate */}
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleCopy(generatedResume)}
-                  className="min-h-[44px] px-3 rounded-xl text-xs font-semibold"
+                  onClick={handleExportPDF}
+                  disabled={!generatedResume || isExportingPdf}
+                  className="min-h-[44px] px-3.5 rounded-xl text-xs font-semibold bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 hover:border-neutral-950 dark:hover:border-white shadow-xs"
                 >
-                  <Copy className="h-3.5 w-3.5 mr-1" />
-                  {copied ? 'Copied!' : 'Copy'}
+                  <Printer className="h-3.5 w-3.5 mr-1.5 text-neutral-700 dark:text-neutral-300" />
+                  <span>{isExportingPdf ? 'Exporting PDF...' : 'Download PDF'}</span>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportDOCX}
+                  disabled={!generatedResume || isExportingDocx}
+                  className="min-h-[44px] px-3.5 rounded-xl text-xs font-semibold bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 hover:border-neutral-950 dark:hover:border-white shadow-xs"
+                >
+                  <FileText className="h-3.5 w-3.5 mr-1.5 text-sky-600 dark:text-sky-400" />
+                  <span>{isExportingDocx ? 'Creating DOCX...' : 'Download DOCX'}</span>
                 </Button>
 
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handleDownload(generatedResume, 'md')}
+                  disabled={!generatedResume}
                   className="min-h-[44px] px-3 rounded-xl text-xs font-semibold"
                 >
                   <Download className="h-3.5 w-3.5 mr-1" />
-                  Download .MD
+                  .MD
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleCopy(generatedResume)}
+                  disabled={!generatedResume}
+                  className="min-h-[44px] px-3 rounded-xl text-xs font-semibold"
+                >
+                  <Copy className="h-3.5 w-3.5 mr-1" />
+                  {copied ? 'Copied!' : 'Copy'}
                 </Button>
 
                 <Button
