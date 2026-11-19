@@ -4,8 +4,9 @@ import { savePlatformTransaction } from '@/lib/admin/store';
 import { getLocalWorkspace, saveLocalWorkspace } from '@/lib/recruiter/store';
 import { PlatformTransaction } from '@/lib/admin/types';
 import { requireReason, recordDangerousAuditLog } from '@/lib/admin/audit';
-import { MAX_TOKEN_ADJUSTMENT, getClientIp } from '@/lib/admin/security';
+import { MAX_TOKEN_ADJUSTMENT, getClientIp, assertStepUpAuth } from '@/lib/admin/security';
 import { assertServerPermission } from '@/lib/admin/permissions';
+import { getServiceRoleClient } from '@/lib/supabase/service-role';
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,6 +36,26 @@ export async function POST(req: NextRequest) {
         { success: false, error: reasonErr.message || 'A valid reason of at least 10 characters is required.' },
         { status: 400 }
       );
+    }
+
+    // Resolve Actor
+    let actorId = 'usr-platform-admin';
+    let actorName = 'Platform Admin';
+    try {
+      const supabase = await createServerClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        actorId = user.id;
+        actorName = user.user_metadata?.full_name || user.email || actorName;
+      }
+    } catch {}
+    const headerActorId = req.headers.get('x-admin-user-id');
+    if (headerActorId) actorId = headerActorId;
+
+    // Step-Up Authentication Guard (5-minute fresh TOTP)
+    const stepUpCheck = await assertStepUpAuth(req, 'token_adjust', actorId, body.step_up_token || body.reauth_token);
+    if (!stepUpCheck.authorized) {
+      return stepUpCheck.response!;
     }
 
     // 3. Amount & Direction Calculation
@@ -98,7 +119,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 7. Update Balance in Supabase
+    // 7. Execute Atomic Postgres RPC: adjust_tokens
+    const serviceClient = getServiceRoleClient();
+    if (serviceClient) {
+      try {
+        await serviceClient.rpc('adjust_tokens', {
+          p_actor_id: actorId,
+          p_actor_name: actorName,
+          p_workspace_id: workspace_id,
+          p_delta: delta,
+          p_reason: validatedReason,
+          p_ip: getClientIp(req),
+        });
+      } catch (rpcErr) {
+        console.warn('Notice: adjust_tokens RPC fallback:', rpcErr);
+      }
+    }
+
+    // Update Balance in Supabase
     try {
       const supabase = await createServerClient();
       await supabase
@@ -138,20 +176,6 @@ export async function POST(req: NextRequest) {
       });
     } catch {}
     savePlatformTransaction(txRecord);
-
-    // 9. Resolve Session / Actor
-    let actorId = 'usr-platform-admin';
-    let actorName = 'Platform Admin';
-    try {
-      const supabase = await createServerClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        actorId = user.id;
-        actorName = user.user_metadata?.full_name || user.email || actorName;
-      }
-    } catch {}
-    const headerActorId = req.headers.get('x-admin-user-id');
-    if (headerActorId) actorId = headerActorId;
 
     // 10. Record Append-Only Audit Log
     const auditRecord = await recordDangerousAuditLog({

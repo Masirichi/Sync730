@@ -34,6 +34,7 @@ export interface JobFilterParams {
   sort?: 'recent' | 'salary_desc' | 'match';
   page?: number;
   limit?: number;
+  startup_only?: boolean;
 }
 
 export interface PublicJobsStats {
@@ -311,6 +312,12 @@ function toPublicJob(raw: any): PublicJob | null {
     reports_count,
     is_apply_link_flagged: false,
     apply_url: raw.apply_url || raw.career_url || raw.url,
+    is_startup: Boolean(
+      raw.is_startup ||
+      (Array.isArray(raw.tags) && raw.tags.some((t: string) => t.toLowerCase() === 'startup')) ||
+      (raw.company && ['moniepoint', 'paystack', 'kuda', 'chowdeck', 'chipper', 'reliance', 'helium', 'fairmoney', 'flutterwave', 'remote', 'buffer', 'deel', 'zapier'].some((s: string) => raw.company.toLowerCase().includes(s)))
+    ),
+    tags: Array.isArray(raw.tags) ? raw.tags : [],
   };
 }
 
@@ -548,6 +555,11 @@ export function getFilteredPublicJobs(params: JobFilterParams, extraJobs?: any[]
   // 8. Minimum salary
   if (params.min_salary && params.min_salary > 0) {
     preModality = preModality.filter((j) => (j.salary_max || j.salary_min || 0) >= params.min_salary!);
+  }
+
+  // 9. Startup Jobs Filter (Vacancies from startups hiring remotely in Africa)
+  if (params.startup_only) {
+    preModality = preModality.filter((j) => Boolean(j.is_startup) || (Array.isArray(j.tags) && j.tags.some((t: string) => t.toLowerCase() === 'startup')));
   }
 
   // Live counts for modality chips respecting all active filters

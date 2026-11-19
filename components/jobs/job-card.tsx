@@ -22,6 +22,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { ShareJobButton } from './share-job-button';
 
 export interface JobCardProps {
   job: PublicJob | any;
@@ -213,6 +214,13 @@ export function JobCard({
                     </span>
                   )}
 
+                  {/* Startup Vacancy Badge */}
+                  {Boolean(job.is_startup || (Array.isArray(job.tags) && job.tags.some((t: string) => t.toLowerCase() === 'startup'))) && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold text-amber-900 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800">
+                      <span>🚀 Startup</span>
+                    </span>
+                  )}
+
                   {/* Recommendation Match Badge */}
                   {typeof job.matchScore === 'number' && job.matchScore > 0 && (
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700">
@@ -341,6 +349,9 @@ export function JobCard({
           </span>
 
           <div className="flex items-center gap-2">
+            {/* Share Job Listing Button */}
+            <ShareJobButton job={job} />
+
             {/* Icon-Only Bookmark Button above stretched link */}
             <button
               type="button"

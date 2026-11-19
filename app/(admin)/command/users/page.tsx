@@ -58,6 +58,12 @@ export default function CommandUsersPage() {
   const [suspendAction, setSuspendAction] = useState<'SUSPEND' | 'RESTORE'>('SUSPEND');
   const [isSuspendDialogOpen, setIsSuspendDialogOpen] = useState(false);
 
+  // Dialog state for token adjustment from user row menu
+  const [tokenTargetUser, setTokenTargetUser] = useState<AdminUserProfile | null>(null);
+  const [isUserTokenDialogOpen, setIsUserTokenDialogOpen] = useState(false);
+  const [userTokenAmount, setUserTokenAmount] = useState('5');
+  const [userTokenDirection, setUserTokenDirection] = useState<'ADD' | 'REMOVE'>('ADD');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -279,6 +285,50 @@ export default function CommandUsersPage() {
       }
     } catch (err: any) {
       toast.error(err.message || 'Error updating account status.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Adjust tokens handlers from user row menu
+  const handleOpenUserAdjustTokens = (user: AdminUserProfile) => {
+    setTokenTargetUser(user);
+    setUserTokenAmount('5');
+    setUserTokenDirection('ADD');
+    setIsUserTokenDialogOpen(true);
+  };
+
+  const handleConfirmUserAdjustTokens = async (reason: string) => {
+    if (!tokenTargetUser) return;
+    const numTokens = parseInt(userTokenAmount, 10);
+    if (isNaN(numTokens) || numTokens <= 0) {
+      toast.error('Token adjustment amount must be a positive integer greater than zero.');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/admin/workspaces/adjust-tokens', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workspace_id: tokenTargetUser.workspace_id || 'ws-sync730-demo',
+          direction: userTokenDirection,
+          amount: numTokens,
+          reason,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(
+          `${userTokenDirection === 'ADD' ? 'Added' : 'Deducted'} ${numTokens} tokens. Balance: ${data.token_balance}`
+        );
+        setIsUserTokenDialogOpen(false);
+        setTokenTargetUser(null);
+      } else {
+        throw new Error(data.error || 'Failed to adjust tokens');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Error adjusting tokens');
     } finally {
       setIsSubmitting(false);
     }
@@ -553,6 +603,14 @@ export default function CommandUsersPage() {
                               Change role...
                             </DropdownMenuItem>
 
+                            {/* Adjust Tokens Action */}
+                            <DropdownMenuItem
+                              onClick={() => handleOpenUserAdjustTokens(u)}
+                              className="text-xs cursor-pointer hover:bg-neutral-800 focus:bg-neutral-800"
+                            >
+                              Adjust tokens...
+                            </DropdownMenuItem>
+
                             {/* Suspend / Restore Action */}
                             {isSuspended ? (
                               <DropdownMenuItem
@@ -699,6 +757,63 @@ export default function CommandUsersPage() {
         isLoading={isSubmitting}
         onConfirm={handleConfirmSuspendRestore}
       />
+
+      {/* Confirmation Dialog: Adjust Tokens */}
+      <ConfirmationDialog
+        open={isUserTokenDialogOpen}
+        onOpenChange={setIsUserTokenDialogOpen}
+        title={`Adjust tokens for ${tokenTargetUser?.full_name || tokenTargetUser?.email}?`}
+        description={`This will ${userTokenDirection === 'ADD' ? 'grant additional' : 'deduct'} recruiter assessment tokens.`}
+        actionLabel={userTokenDirection === 'ADD' ? 'Add tokens' : 'Deduct tokens'}
+        requireReason={true}
+        isDestructive={userTokenDirection === 'REMOVE'}
+        isLoading={isSubmitting}
+        onConfirm={handleConfirmUserAdjustTokens}
+      >
+        <div className="space-y-3 pt-1">
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant={userTokenDirection === 'ADD' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setUserTokenDirection('ADD')}
+              className={`h-9 text-xs rounded-xl ${
+                userTokenDirection === 'ADD'
+                  ? 'bg-neutral-100 text-neutral-900 font-bold'
+                  : 'border-neutral-800 text-neutral-400 hover:text-white'
+              }`}
+            >
+              Add Tokens (+)
+            </Button>
+            <Button
+              type="button"
+              variant={userTokenDirection === 'REMOVE' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setUserTokenDirection('REMOVE')}
+              className={`h-9 text-xs rounded-xl ${
+                userTokenDirection === 'REMOVE'
+                  ? 'bg-red-600 text-white font-bold'
+                  : 'border-neutral-800 text-neutral-400 hover:text-white'
+              }`}
+            >
+              Deduct Tokens (-)
+            </Button>
+          </div>
+          <div>
+            <label className="text-xs text-neutral-300 font-semibold block mb-1">
+              Token Amount (max 100)
+            </label>
+            <Input
+              type="number"
+              min="1"
+              max="100"
+              value={userTokenAmount}
+              onChange={(e) => setUserTokenAmount(e.target.value)}
+              className="h-10 text-xs rounded-xl bg-neutral-950 border-neutral-800 text-white"
+            />
+          </div>
+        </div>
+      </ConfirmationDialog>
     </div>
   );
 }

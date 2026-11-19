@@ -7,17 +7,20 @@ import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
 import { RemoteJob } from '@/lib/supabase/types';
 import { normalizeJobCategory } from '@/lib/crawler/categories';
 import { normalizeJobRecord, deduplicateJobs } from '@/lib/crawler/job-utils';
+import { isRoleStale } from '@/lib/jobs/helpers';
+import { ROLE_STALENESS_DAYS } from '@/lib/admin/constants';
+import { VERIFIED_STARTUP_VACANCIES } from './universal-careers-crawler';
 
 export async function fetchActiveRemoteJobs(): Promise<RemoteJob[]> {
   let remoteJobs: any[] = [];
 
-  // 1. Fetch from Supabase with 2s timeout
+  // 1. Fetch from Supabase via public_roles view with 2s timeout
+  // Phase 4: Public Find Work, homepage, and /api/jobs read exclusively from public_roles
   try {
     const supabase = await createServerClient();
     const dbPromise = supabase
-      .from('remote_jobs')
+      .from('public_roles')
       .select('*')
-      .or('is_active.is.null,is_active.eq.true')
       .order('created_at', { ascending: false });
 
     const timeoutPromise = new Promise<{ data: null; error: Error }>((resolve) =>
@@ -124,8 +127,33 @@ export async function fetchActiveRemoteJobs(): Promise<RemoteJob[]> {
     jobMap.set(aj.id, normalized);
   });
 
-  // Filter out inactive / taken down jobs
-  const activeJobs = Array.from(jobMap.values()).filter((j) => j.is_active !== false);
+  // 3. Universal Company Career Pages & Startup Vacancies (Remote Africa)
+  VERIFIED_STARTUP_VACANCIES.forEach((sj) => {
+    const normalized = normalizeJobRecord({
+      ...sj,
+      id: sj.external_id,
+      category: normalizeJobCategory(sj.category || '', sj.title, sj.description || ''),
+      is_active: true,
+      is_featured: Boolean(sj.is_featured),
+      source_type: 'CRAWLER',
+    });
+    jobMap.set(sj.external_id, normalized);
+  });
+
+  // Filter out inactive, demo, stale, and unverified roles (Phase 4 compliance)
+  const activeJobs = Array.from(jobMap.values()).filter((j: any) => {
+    if (j.is_active === false) return false;
+    if (j.is_demo === true) return false;
+    const status = (j.status || j.review_status || '').toLowerCase();
+    if (['needs_review', 'needs-review', 'ingested', 'stale', 'removed', 'rejected'].includes(status)) {
+      return false;
+    }
+    const verifiedAt = j.verified_at || j.role_verified_at || j.last_verified_at || j.published_at || j.created_at;
+    if (isRoleStale(verifiedAt, ROLE_STALENESS_DAYS)) {
+      return false;
+    }
+    return true;
+  });
 
   // Deduplicate by title + company + apply_url, keeping the most recent
   const deduplicated = deduplicateJobs(activeJobs);

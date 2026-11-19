@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import SalaryDisplay from '@/components/ui/SalaryDisplay';
+import { ConfirmationDialog } from '@/components/admin/confirmation-dialog';
 import { AdminRemoteJob } from '@/lib/admin/types';
 import {
   getAdminRemoteJobs,
@@ -123,6 +124,47 @@ function RolesManagerContent() {
     }, 30000);
     return () => clearInterval(interval);
   }, [lastSyncedAt]);
+
+  const [isCrawlerDialogOpen, setIsCrawlerDialogOpen] = useState(false);
+  const [lastCrawlCount, setLastCrawlCount] = useState<number | null>(null);
+
+  const handleTriggerCrawler = async (reason: string) => {
+    setSyncingLive(true);
+    toast.info('Triggering multi-source crawl across 4 verified sources...');
+    try {
+      const res = await fetch('/api/admin/crawler', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          reason,
+          source: 'all',
+          category: 'all',
+        }),
+      });
+      const data = await res.json();
+      const now = Date.now();
+      setLastSyncedAt(now);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sync730_admin_last_synced_at', now.toString());
+      }
+      if (data.success) {
+        const count = data.total_processed || 0;
+        setLastCrawlCount(count);
+        toast.success(
+          `Crawl completed: ${count} roles ingested into Needs Review queue (hidden from public board).`
+        );
+        setIsCrawlerDialogOpen(false);
+        await loadJobs();
+      } else {
+        toast.error(data.error || 'Live crawler run failed.');
+      }
+    } catch {
+      toast.error('Crawler network timeout. Please verify and retry.');
+    } finally {
+      setSyncingLive(false);
+    }
+  };
 
   const handleSyncLiveJobs = async () => {
     setSyncingLive(true);
@@ -478,13 +520,14 @@ function RolesManagerContent() {
           </span>
 
           <Button
+            variant="outline"
             size="sm"
-            onClick={handleSyncLiveJobs}
+            onClick={() => setIsCrawlerDialogOpen(true)}
             disabled={syncingLive}
             className="h-9 px-3.5 text-xs font-semibold rounded-xl bg-neutral-900 border border-neutral-700 hover:bg-neutral-800 text-neutral-200 hover:text-white gap-2 shadow-xs transition-colors"
           >
             <Clock className={`h-3.5 w-3.5 ${syncingLive ? 'animate-spin text-emerald-400' : 'text-neutral-400'}`} />
-            <span>{syncingLive ? 'Syncing...' : 'Sync Live Jobs'}</span>
+            <span>{syncingLive ? 'Crawling...' : 'Trigger Remote Job Crawler'}</span>
           </Button>
 
           {/* Add job Trigger */}
@@ -1158,6 +1201,20 @@ function RolesManagerContent() {
           </div>
         </div>
       )}
+      {/* Confirmation Dialog: Trigger Remote Job Crawler */}
+      <ConfirmationDialog
+        open={isCrawlerDialogOpen}
+        onOpenChange={setIsCrawlerDialogOpen}
+        title="Trigger Remote Job Crawler?"
+        description={`This will trigger a live multi-source crawl across 4 sources: DevGlobalJobs, WeWorkRemotely, Remotive, and RemoteOK. Last run: ${timeAgoText}${
+          lastCrawlCount !== null ? ` (${lastCrawlCount} roles created)` : ''
+        }. All newly crawled roles enter the "Needs review" queue (status = needs_review, is_active = false) and are NOT publicly visible until manually verified.`}
+        actionLabel="Trigger crawler"
+        requireReason={true}
+        isDestructive={false}
+        isLoading={syncingLive}
+        onConfirm={handleTriggerCrawler}
+      />
     </div>
   );
 }

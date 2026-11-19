@@ -24,6 +24,7 @@ export function LatestRolesSection({ jobs = [], rolesLive }: LatestRolesSectionP
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
   const [selectedJob, setSelectedJob] = useState<PublicJob | null>(null);
+  const [activeFeedTab, setActiveFeedTab] = useState<'all' | 'startups' | 'enterprise'>('all');
 
   // Sync saved & applied status with SyncFlow
   useEffect(() => {
@@ -89,8 +90,23 @@ export function LatestRolesSection({ jobs = [], rolesLive }: LatestRolesSectionP
     setSelectedJob(job);
   };
 
+  // Filter jobs based on selected feed tab
+  const filteredFeedJobs = jobs.filter((j) => {
+    if (activeFeedTab === 'startups') {
+      return Boolean(
+        j.is_startup ||
+        (Array.isArray(j.tags) && j.tags.some((t: string) => t.toLowerCase() === 'startup')) ||
+        ['moniepoint', 'paystack', 'kuda', 'chowdeck', 'chipper', 'reliance', 'helium', 'fairmoney', 'flutterwave', 'remote', 'buffer', 'deel', 'zapier'].some((s: string) => j.company.toLowerCase().includes(s))
+      );
+    }
+    if (activeFeedTab === 'enterprise') {
+      return !j.is_startup && (j.source_type === 'employer' || j.source_type === 'curated');
+    }
+    return true;
+  });
+
   // Limit between 3 and 6 newest public jobs
-  const displayJobs = jobs.slice(0, 6);
+  const displayJobs = (filteredFeedJobs.length > 0 ? filteredFeedJobs : jobs).slice(0, 6);
   const liveCount = rolesLive || jobs.length;
 
   if (displayJobs.length === 0) {
@@ -123,10 +139,10 @@ export function LatestRolesSection({ jobs = [], rolesLive }: LatestRolesSectionP
 
           <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
             <Link
-              href={homeCopy.latestRoles.buttonHref}
+              href={activeFeedTab === 'startups' ? '/find-work?startup_only=true' : homeCopy.latestRoles.buttonHref}
               className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-6 text-sm font-semibold text-background hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
             >
-              <span>{homeCopy.latestRoles.buttonText}</span>
+              <span>{activeFeedTab === 'startups' ? 'Explore all startup jobs' : homeCopy.latestRoles.buttonText}</span>
               <ArrowRight className="ml-2 h-4 w-4 stroke-[1.5]" aria-hidden="true" />
             </Link>
 
@@ -134,6 +150,57 @@ export function LatestRolesSection({ jobs = [], rolesLive }: LatestRolesSectionP
               {liveCount} {homeCopy.latestRoles.metaSuffix}
             </p>
           </div>
+        </div>
+
+        {/* Feed Switcher Tabs: All Roles vs Startup Vacancies vs Enterprise */}
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-b border-border/60 pb-4">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            <button
+              type="button"
+              onClick={() => setActiveFeedTab('all')}
+              className={`h-9 px-4 rounded-full text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                activeFeedTab === 'all'
+                  ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-sm'
+                  : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white'
+              }`}
+            >
+              <span>All Verified Roles</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveFeedTab('startups')}
+              className={`h-9 px-4 rounded-full text-xs font-semibold transition-colors flex items-center gap-2 ${
+                activeFeedTab === 'startups'
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border border-amber-200/80 dark:border-amber-800/60 hover:border-amber-500'
+              }`}
+            >
+              <span>🚀 Startup Jobs (Remote Africa)</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveFeedTab('enterprise')}
+              className={`h-9 px-4 rounded-full text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                activeFeedTab === 'enterprise'
+                  ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-sm'
+                  : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white'
+              }`}
+            >
+              <span>Direct Enterprise ATS</span>
+            </button>
+          </div>
+
+          {activeFeedTab === 'startups' && (
+            <Link
+              href="/find-work?startup_only=true"
+              className="text-xs font-semibold text-amber-700 dark:text-amber-400 hover:underline flex items-center gap-1"
+            >
+              <span>View all startup openings →</span>
+            </Link>
+          )}
         </div>
 
         {/* 3 to 6 Jobs Grid using Phase JobCard component */}

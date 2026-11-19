@@ -97,6 +97,8 @@ export interface PublicJob {
   apply_url?: string;
   matchScore?: number;
   matchReasons?: string[];
+  is_startup?: boolean;
+  tags?: string[];
 }
 
 export interface JobPublishingInput {

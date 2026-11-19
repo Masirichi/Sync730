@@ -67,6 +67,7 @@ export default async function FindWorkPage({ searchParams }: FindWorkPageProps) 
   const job_type =
     typeof searchParams.job_type === 'string' ? searchParams.job_type : undefined;
   const salary_shown = searchParams.salary_shown === 'true';
+  const startup_only = searchParams.startup_only === 'true' || searchParams.startup === 'true';
   const min_salary =
     typeof searchParams.min_salary === 'string' ? parseInt(searchParams.min_salary, 10) : undefined;
   const sort =
@@ -92,6 +93,7 @@ export default async function FindWorkPage({ searchParams }: FindWorkPageProps) 
     seniority: seniority !== 'all' ? seniority : undefined,
     job_type: job_type !== 'all' ? job_type : undefined,
     salary_shown: salary_shown ? true : undefined,
+    startup_only: startup_only ? true : undefined,
     min_salary: min_salary && !isNaN(min_salary) ? min_salary : undefined,
     sort,
     page,

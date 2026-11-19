@@ -3,7 +3,8 @@ import { createServerClient } from '@/lib/supabase/server';
 import { toggleServerJobActive, saveServerAuditLog } from '@/lib/admin/server-store';
 import { assertServerPermission } from '@/lib/admin/permissions';
 import { requireReason, recordDangerousAuditLog } from '@/lib/admin/audit';
-import { getClientIp } from '@/lib/admin/security';
+import { getClientIp, assertStepUpAuth } from '@/lib/admin/security';
+import { getServiceRoleClient } from '@/lib/supabase/service-role';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     const { actor } = permission;
 
-    // Enforce mandatory reason for takedown dangerous action (min 10 chars)
+    // Enforce mandatory reason and step-up auth for takedown dangerous action (min 10 chars)
     let validatedReason = 'Role status update';
     if (isTakedown) {
       try {
@@ -41,6 +42,28 @@ export async function POST(request: NextRequest) {
           },
           { status: 400 }
         );
+      }
+
+      // Step-up authentication guard
+      const stepUpCheck = await assertStepUpAuth(request, 'takedown', actor.id, body.step_up_token || body.reauth_token);
+      if (!stepUpCheck.authorized) {
+        return stepUpCheck.response!;
+      }
+
+      // Execute Atomic Postgres RPC
+      const serviceClient = getServiceRoleClient();
+      if (serviceClient) {
+        try {
+          await serviceClient.rpc('take_down_role', {
+            p_actor_id: actor.id,
+            p_actor_name: actor.name,
+            p_job_id: job_id,
+            p_reason: validatedReason,
+            p_ip: getClientIp(request),
+          });
+        } catch (rpcErr) {
+          console.warn('Notice: take_down_role RPC fallback:', rpcErr);
+        }
       }
     }
 

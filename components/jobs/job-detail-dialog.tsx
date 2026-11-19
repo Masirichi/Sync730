@@ -16,6 +16,7 @@ import { formatSalary, formatEligibility } from '@/lib/jobs/helpers';
 import { getCleanFacts } from './job-card';
 import { reportJob } from '@/app/actions/report-job';
 import { cn } from '@/lib/utils';
+import { ShareJobButton } from './share-job-button';
 
 export interface JobDetailDialogProps {
   job: PublicJob | null;
@@ -480,20 +481,23 @@ export function JobDetailDialog({
 
         {/* Sticky Action Bar */}
         <div className="sticky bottom-0 z-20 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border-t border-border p-4 sm:p-5 flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={() => onBookmarkToggle && onBookmarkToggle(job)}
-            aria-label={`Save to SyncFlow: ${job.title}`}
-            aria-pressed={isSaved}
-            className="min-h-[44px] min-w-[44px] p-3 rounded-xl border border-border/80 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-neutral-900"
-          >
-            <Bookmark
-              className={cn(
-                'w-4 h-4',
-                isSaved ? 'fill-neutral-950 dark:fill-white text-neutral-950 dark:text-white' : ''
-              )}
-            />
-          </button>
+          <div className="flex items-center gap-2">
+            <ShareJobButton job={job} variant="pill" showLabel />
+            <button
+              type="button"
+              onClick={() => onBookmarkToggle && onBookmarkToggle(job)}
+              aria-label={`Save to SyncFlow: ${job.title}`}
+              aria-pressed={isSaved}
+              className="min-h-[44px] min-w-[44px] p-3 rounded-xl border border-border/80 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-neutral-900"
+            >
+              <Bookmark
+                className={cn(
+                  'w-4 h-4',
+                  isSaved ? 'fill-neutral-950 dark:fill-white text-neutral-950 dark:text-white' : ''
+                )}
+              />
+            </button>
+          </div>
 
           {isApplied ? (
             <button

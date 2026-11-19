@@ -6,8 +6,9 @@ import {
 } from '@/lib/admin/store';
 import { AdminUserProfile } from '@/lib/admin/types';
 import { requireReason, recordDangerousAuditLog } from '@/lib/admin/audit';
-import { verifyAdminReauth, getClientIp } from '@/lib/admin/security';
+import { verifyAdminReauth, getClientIp, assertStepUpAuth } from '@/lib/admin/security';
 import { assertServerPermission, normalizeAdminRole } from '@/lib/admin/permissions';
+import { getServiceRoleClient } from '@/lib/supabase/service-role';
 
 export async function GET(req: NextRequest) {
   try {
@@ -133,6 +134,12 @@ export async function POST(req: NextRequest) {
         return suspendPerm.response;
       }
 
+      // Phase 1: Step-up authentication guard
+      const stepUpCheck = await assertStepUpAuth(req, 'suspend', actorId, body.step_up_token || reauth_token);
+      if (!stepUpCheck.authorized) {
+        return stepUpCheck.response!;
+      }
+
       const newStatus = action === 'SUSPEND' || status === 'SUSPENDED' ? 'SUSPENDED' : 'ACTIVE';
       const prevStatus = existingUser?.status || 'ACTIVE';
 
@@ -142,6 +149,23 @@ export async function POST(req: NextRequest) {
           { success: false, error: 'Self-suspension is prohibited. You cannot suspend your own account.' },
           { status: 400 }
         );
+      }
+
+      // Execute via Atomic Postgres RPC
+      const serviceClient = getServiceRoleClient();
+      if (serviceClient) {
+        try {
+          await serviceClient.rpc('suspend_user', {
+            p_actor_id: actorId,
+            p_actor_name: actorName,
+            p_target_user_id: user_id,
+            p_new_status: newStatus,
+            p_reason: validatedReason,
+            p_ip: getClientIp(req),
+          });
+        } catch (rpcErr) {
+          console.warn('Notice: suspend_user RPC fallback:', rpcErr);
+        }
       }
 
       // Update in Supabase
@@ -227,25 +251,19 @@ export async function POST(req: NextRequest) {
 
     const isTargetAdmin = isTargetSuperAdmin || normalizeAdminRole(currentRole) !== null;
     const isNewAdmin = isNewSuperAdmin || normalizeAdminRole(new_role) !== null;
-
-    // Enforce Re-Authentication for Role Changes To or From Super Admin / Admin
-    const isElevatingToAdmin = !isTargetAdmin && isNewAdmin;
     const isRevokingAdmin = isTargetAdmin && !isNewAdmin;
-    const requiresReauth =
-      isElevatingToAdmin ||
-      isRevokingAdmin ||
-      (isTargetSuperAdmin !== isNewSuperAdmin);
 
-    if (requiresReauth) {
-      const reauthCheck = await verifyAdminReauth(req, actorEmail, reauth_password, reauth_token);
-      if (!reauthCheck.verified) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: reauthCheck.message || 'Re-authentication is required to grant or revoke platform admin access.',
-          },
-          { status: 403 }
-        );
+    // Enforce Step-Up Authentication for Role Changes (MFA TOTP valid within 5 minutes)
+    const stepUpCheck = await assertStepUpAuth(req, 'role_change', actorId, body.step_up_token || reauth_token);
+    if (!stepUpCheck.authorized) {
+      // Backwards-compatible check: if password re-entry was provided
+      if (reauth_password) {
+        const reauthCheck = await verifyAdminReauth(req, actorEmail, reauth_password, reauth_token);
+        if (!reauthCheck.verified) {
+          return stepUpCheck.response!;
+        }
+      } else {
+        return stepUpCheck.response!;
       }
     }
 
@@ -274,6 +292,23 @@ export async function POST(req: NextRequest) {
           },
           { status: 400 }
         );
+      }
+    }
+
+    // Execute via Atomic Postgres RPC: change_user_role
+    const serviceClient = getServiceRoleClient();
+    if (serviceClient) {
+      try {
+        await serviceClient.rpc('change_user_role', {
+          p_actor_id: actorId,
+          p_actor_name: actorName,
+          p_target_user_id: user_id,
+          p_new_role: new_role,
+          p_reason: validatedReason,
+          p_ip: getClientIp(req),
+        });
+      } catch (rpcErr) {
+        console.warn('Notice: change_user_role RPC fallback:', rpcErr);
       }
     }
 

@@ -3,7 +3,7 @@ import { crawlSources, JobCategory, JOB_CATEGORIES } from '@/lib/crawler';
 import type { JobSource } from '@/lib/supabase/types';
 import { assertServerPermission } from '@/lib/admin/permissions';
 import { requireReason, recordDangerousAuditLog } from '@/lib/admin/audit';
-import { getClientIp } from '@/lib/admin/security';
+import { getClientIp, assertStepUpAuth } from '@/lib/admin/security';
 import { getServiceRoleClient } from '@/lib/supabase/service-role';
 import { createBrowserClient } from '@/lib/supabase/client';
 
@@ -31,6 +31,12 @@ export async function POST(request: NextRequest) {
         },
         { status: 400 }
       );
+    }
+
+    // Step-up authentication guard
+    const stepUpCheck = await assertStepUpAuth(request, 'crawler', actor.id, body.step_up_token || body.reauth_token);
+    if (!stepUpCheck.authorized) {
+      return stepUpCheck.response!;
     }
 
     const targetSource = (source as JobSource | 'all') || 'all';
@@ -77,7 +83,25 @@ export async function POST(request: NextRequest) {
       console.warn('Crawler database upsert notice:', dbErr);
     }
 
-    // 5. Append-only Audit Log
+    // 5. Execute Atomic Postgres RPC: trigger_crawler_run
+    const serviceClient = getServiceRoleClient();
+    if (serviceClient) {
+      try {
+        await serviceClient.rpc('trigger_crawler_run', {
+          p_actor_id: actor.id,
+          p_actor_name: actor.name,
+          p_source: targetSource,
+          p_category: targetCategory,
+          p_reason: validatedReason,
+          p_jobs_count: jobs.length,
+          p_ip: getClientIp(request),
+        });
+      } catch (rpcErr) {
+        console.warn('Notice: trigger_crawler_run RPC fallback:', rpcErr);
+      }
+    }
+
+    // Append-only Audit Log
     await recordDangerousAuditLog({
       actor_id: actor.id,
       actor_name: actor.name,

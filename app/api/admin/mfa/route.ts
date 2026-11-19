@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
 import { getAdminUsers, saveAdminUsers } from '@/lib/admin/store';
 import {
   requiresMfa,
@@ -21,6 +20,7 @@ export async function GET(req: NextRequest) {
 
     const needsMfa = requiresMfa(actor.role);
     const mfaEnabled = Boolean(currentUser?.mfa_enabled);
+    const factorsCount = (currentUser as any)?.mfa_factors_count || (mfaEnabled ? 2 : 0);
 
     const grace = calculateMfaGraceDays(
       currentUser?.created_at || new Date().toISOString(),
@@ -32,6 +32,8 @@ export async function GET(req: NextRequest) {
       success: true,
       requires_mfa: needsMfa,
       mfa_enabled: mfaEnabled,
+      factors_count: factorsCount,
+      two_factors_enrolled: factorsCount >= 2,
       grace_days_remaining: grace.daysRemaining,
       is_grace_expired: grace.isExpired,
       enrolled_at: currentUser?.mfa_enrolled_at || null,
@@ -52,24 +54,28 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { action, token, secret, recovery_codes } = body;
+    const { action, token, secret, factor_type = 'primary', recovery_codes } = body;
     const actor = await resolveAdminActor(req);
 
     // 1. Setup flow: Generate secret, TOTP URI, and emergency recovery codes
     if (action === 'SETUP') {
       const newSecret = generateBase32Secret();
       const codes = generateRecoveryCodes(8);
-      const uri = generateTotpUri(actor.email, newSecret);
+      const uri = generateTotpUri(
+        `${actor.email} (${factor_type === 'backup' ? 'Backup' : 'Primary'})`,
+        newSecret
+      );
 
       return NextResponse.json({
         success: true,
+        factor_type,
         secret: newSecret,
         uri,
         recovery_codes: codes,
       });
     }
 
-    // 2. Verify flow: Verify 6-digit TOTP code or recovery code and enroll
+    // 2. Verify flow: Verify 6-digit TOTP code and enroll
     if (action === 'VERIFY' || action === 'ENROLL') {
       if (!token || !secret) {
         return NextResponse.json(
@@ -86,14 +92,20 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Mark MFA as enabled in admin store
+      // Mark factor as enrolled in admin store
       const allUsers = getAdminUsers();
+      let currentFactorsCount = 1;
       const updatedUsers = allUsers.map((u) => {
         if (u.id === actor.id || u.email === actor.email) {
+          const prevCount = (u as any).mfa_factors_count || (u.mfa_enabled ? 1 : 0);
+          currentFactorsCount = factor_type === 'backup' ? Math.max(2, prevCount + 1) : Math.max(1, prevCount);
           return {
             ...u,
             mfa_enabled: true,
+            mfa_factors_count: currentFactorsCount,
             mfa_enrolled_at: new Date().toISOString(),
+            mfa_secret: secret,
+            mfa_recovery_codes: recovery_codes || (u as any).mfa_recovery_codes || [],
           };
         }
         return u;
@@ -108,14 +120,16 @@ export async function POST(req: NextRequest) {
         target_type: 'USER',
         target_id: actor.id,
         target_label: `${actor.name} (${actor.email})`,
-        reason: 'Administrator enrolled in mandatory Multi-Factor Authentication (TOTP)',
+        reason: `Administrator enrolled in ${factor_type} Multi-Factor Authentication (TOTP factor ${currentFactorsCount}/2)`,
         ip: getClientIp(req),
       });
 
       return NextResponse.json({
         success: true,
-        message: 'Two-Factor Authentication successfully enrolled.',
+        message: `${factor_type === 'backup' ? 'Backup' : 'Primary'} Two-Factor Authentication factor successfully enrolled.`,
         mfa_enabled: true,
+        factors_count: currentFactorsCount,
+        two_factors_enrolled: currentFactorsCount >= 2,
       });
     }
 

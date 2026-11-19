@@ -188,6 +188,7 @@ export interface AdminUserProfile {
   email: string;
   full_name?: string;
   role: PlatformRole;
+  workspace_id?: string;
   workspace_name?: string;
   status?: 'ACTIVE' | 'SUSPENDED';
   last_active?: string;
@@ -198,6 +199,9 @@ export interface AdminUserProfile {
   mfa_enabled?: boolean;
   mfa_enrolled_at?: string;
   mfa_grace_expires_at?: string;
+  mfa_secret?: string;
+  mfa_recovery_codes?: string[];
+  two_factors_enrolled?: boolean;
 }
 
 export interface AdminCorporateWorkspace {
