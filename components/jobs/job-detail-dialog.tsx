@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 import {
   X,
   Check,
@@ -229,15 +228,6 @@ export function JobDetailDialog({
               <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 truncate">
                 {job.company}
               </p>
-              <Link
-                href="/how-we-verify"
-                target="_blank"
-                title="Role verified: Learn how we verify"
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 mt-0.5 hover:underline"
-              >
-                <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                <span>Role verified</span>
-              </Link>
             </div>
           </div>
 
@@ -343,19 +333,10 @@ export function JobDetailDialog({
 
           {/* "What we checked" Checklist */}
           <div className="p-4 sm:p-5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/40 border border-border/80 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
-                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>What we checked</span>
-              </h3>
-              <Link
-                href="/how-we-verify"
-                target="_blank"
-                className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
-              >
-                Learn how we verify →
-              </Link>
-            </div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>What we checked</span>
+            </h3>
 
             <div className="space-y-2 text-xs text-neutral-700 dark:text-neutral-300 font-medium">
               <div className="flex items-start gap-2.5">

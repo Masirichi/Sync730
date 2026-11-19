@@ -5,10 +5,29 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import ts from 'typescript';
+
+function loadHomeContent() {
+  const contentSrc = fs.readFileSync('content/home.ts', 'utf8');
+  const js = ts.transpileModule(contentSrc, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+  }).outputText;
+  const mockExports = {};
+  const mockModule = { exports: mockExports };
+  const runner = new Function('require', 'module', 'exports', js);
+  runner(
+    (dep) => {
+      if (dep.includes('flags')) return { confirmed: (text, flag) => (flag ? text : null) };
+      return {};
+    },
+    mockModule,
+    mockExports
+  );
+  return mockModule.exports.HOME_CONTENT || mockModule.exports.homeCopy;
+}
 
 test('1. Content Centralization in src/content/home.ts', async () => {
-  const contentModule = await import('../../src/content/home.ts');
-  const { HOME_CONTENT } = contentModule;
+  const HOME_CONTENT = loadHomeContent();
 
   assert.ok(HOME_CONTENT, 'HOME_CONTENT must be exported');
 
@@ -51,8 +70,8 @@ test('1. Content Centralization in src/content/home.ts', async () => {
   assert.ok(HOME_CONTENT.belief.paragraphs[2].includes("That is not a talent problem. It's an information problem."));
   assert.ok(HOME_CONTENT.belief.paragraphs[3].includes('So we fixed the information.'));
   assert.ok(HOME_CONTENT.belief.paragraphs[4].includes('No false hope. Just a fair shot.'));
-  assert.equal(HOME_CONTENT.belief.linkLabel, 'Read how we verify roles');
-  assert.equal(HOME_CONTENT.belief.linkHref, '/how-we-verify');
+  assert.equal(HOME_CONTENT.belief.linkLabel, 'Browse open roles on Sync730');
+  assert.equal(HOME_CONTENT.belief.linkHref, '/find-work');
 
   // For candidates
   assert.equal(HOME_CONTENT.forCandidates.eyebrow, "FOR THE ONES WHO'VE BEEN GHOSTED");

@@ -263,8 +263,8 @@ export const homeCopy: HomeCopy = {
       'So we fixed the information. On Sync730, every role is confirmed to be real and open before you see it, and we tell you up front which African countries can apply.',
       'No false hope. Just a fair shot.',
     ],
-    linkLabel: 'Read how we verify roles',
-    linkHref: '/how-we-verify',
+    linkLabel: 'Browse open roles on Sync730',
+    linkHref: '/find-work',
   },
   band: {
     label: 'LIVE ON SYNC730',
@@ -427,8 +427,8 @@ export const homeCopy: HomeCopy = {
   faq: {
     label: 'QUESTIONS WE HEAR OFTEN',
     h2: 'Questions',
-    linkText: 'Read how we verify roles →',
-    linkHref: '/how-we-verify',
+    linkText: 'Explore open roles on Sync730 →',
+    linkHref: '/find-work',
     items: [
       {
         question: 'Is Sync730 free?',
@@ -436,9 +436,9 @@ export const homeCopy: HomeCopy = {
           'Yes, for candidates. Creating a profile, browsing roles and using SyncFlow cost nothing.',
       },
       {
-        question: 'What does "Role verified" mean?',
+        question: 'How does Sync730 verify roles?',
         answer:
-          "We've confirmed the role exists, is open, and accepts applicants from the countries shown. Pay and hiring decisions are the employer's.",
+          "Every role is confirmed real, open, and accepting applicants from Africa before it is listed on the platform. Pay and hiring decisions are the employer's.",
       },
       {
         question: 'Do you guarantee I\'ll get a job?',
@@ -501,7 +501,6 @@ export const homeCopy: HomeCopy = {
         title: 'Company',
         links: [
           { label: 'About', href: '/about' },
-          { label: 'How we verify roles', href: '/how-we-verify' },
           { label: 'Contact', href: '/contact' },
         ],
       },

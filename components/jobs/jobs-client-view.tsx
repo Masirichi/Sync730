@@ -843,26 +843,6 @@ export function JobsClientView({
 
         {/* 6. MAIN RESULTS SECTION */}
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12 py-8 space-y-8">
-          {/* Universal Company Careers Crawler Live Banner (Informational Only - Public Access Locked) */}
-          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 p-4 sm:p-5 flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
-              <Globe className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200">
-                  Universal Company Careers Crawler
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  Live ATS Indexing
-                </span>
-              </div>
-              <p className="text-xs text-neutral-600 dark:text-neutral-300 mt-1 max-w-3xl leading-relaxed">
-                Actively crawling direct ATS career pages (Greenhouse, Lever, Ashby) across Moniepoint, Paystack, Chowdeck, Kuda, Canonical, GitLab, Buffer, and 18+ high-growth tech startups hiring remotely from Africa.
-              </p>
-            </div>
-          </div>
           {/* Results Heading with aria-live="polite" and Removable Filter Chips */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -917,9 +897,6 @@ export function JobsClientView({
                 >
                   Featured opportunities
                 </h3>
-                <span className="text-xs text-muted-foreground">
-                  Verified roles
-                </span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">

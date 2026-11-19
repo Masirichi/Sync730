@@ -291,20 +291,6 @@ export function JobDetailClient({ job, isClosed, similarJobs }: JobDetailClientP
                         </Tooltip>
                       )}
 
-                      {/* Role Verified Plain Text Chip */}
-                      {job.role_verified && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-foreground cursor-help">
-                              {VERIFICATION_CLAIMS.role_verified.label}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-xs text-xs">
-                            {VERIFICATION_CLAIMS.role_verified.getTooltip(job.role_verified_at)}
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-
                       {/* Agency Listing Tag */}
                       {job.is_agency && (
                         <Tooltip>

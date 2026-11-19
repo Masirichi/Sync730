@@ -71,13 +71,13 @@ export default function WhyWeBuiltThisPage() {
           })}
         </div>
 
-        {/* Link to Verification Standard */}
+        {/* Link to Open Roles */}
         <div className="pt-6">
           <Link
-            href="/how-we-verify"
+            href="/find-work"
             className="group inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-foreground hover:underline underline-offset-4"
           >
-            <span>Read how we verify roles</span>
+            <span>Explore open roles on Sync730</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>

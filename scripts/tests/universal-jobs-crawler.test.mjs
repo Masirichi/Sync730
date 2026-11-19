@@ -105,9 +105,9 @@ test('4. Find Work & Homepage integration: startup_only filtering in service', (
   assert.match(serviceSrc, /startup_only/, 'getFilteredPublicJobs must support startup_only filter');
   assert.match(serviceSrc, /is_startup/, 'toPublicJob must populate is_startup field');
 
-  // Verify JobsClientView has the Universal Crawler Banner and Startup Filter Pill without emojis or public sync button
+  // Verify JobsClientView has no crawler announcement banner and has Startup Filter Pill without emojis or public sync button
   const clientViewSrc = fs.readFileSync(path.join(ROOT_DIR, 'components/jobs/jobs-client-view.tsx'), 'utf8');
-  assert.match(clientViewSrc, /Universal Company Careers Crawler/, 'JobsClientView must render Universal Careers Crawler banner');
+  assert.doesNotMatch(clientViewSrc, /Universal Company Careers Crawler/, 'JobsClientView must not render announcement banner');
   assert.match(clientViewSrc, /Startup Jobs/, 'JobsClientView must render Startup Jobs filter pill');
   assert.doesNotMatch(clientViewSrc, /🚀/, 'JobsClientView must not contain emojis');
   assert.doesNotMatch(clientViewSrc, /Sync Latest Vacancies/, 'Public JobsClientView must not expose Sync Latest Vacancies button');

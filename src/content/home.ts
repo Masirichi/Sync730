@@ -63,6 +63,6 @@ I'm hiring in Africa
 Free for candidates. No credit card. Takes about 3 minutes.
 Talent is everywhere. Real opportunity should be too.
 Sync730 verifies that roles are real and open to Africa. Hiring decisions are made by employers.
-linkHref: '/how-we-verify'
-href: '/how-we-verify'
+linkHref: '/find-work'
+href: '/find-work'
 */

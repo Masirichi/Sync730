@@ -15,12 +15,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { ShareJobButton } from './share-job-button';
 
@@ -148,8 +142,7 @@ export function JobCard({
   };
 
   return (
-    <TooltipProvider>
-      <article
+    <article
         id={`job-card-${job.id}`}
         className={cn(
           'relative group p-5 sm:p-6 rounded-2xl border transition-all flex flex-col justify-between h-full',
@@ -182,52 +175,30 @@ export function JobCard({
                   {companyName}
                 </p>
 
-                <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-                  {/* Role Verified Badge with Tooltip */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 cursor-help select-none">
-                        <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                        <span>Role verified</span>
+                {(isFeatured || Boolean(job.is_startup || (Array.isArray(job.tags) && job.tags.some((t: string) => t.toLowerCase() === 'startup'))) || (typeof job.matchScore === 'number' && job.matchScore > 0)) && (
+                  <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                    {/* Text-only Featured Badge on Featured Cards (High Contrast >= 4.5:1) */}
+                    {isFeatured && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-amber-950 dark:text-amber-100 bg-amber-200/80 dark:bg-amber-900/80 border border-amber-300 dark:border-amber-700">
+                        Featured
                       </span>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs p-3 text-xs bg-neutral-900 text-white border-none shadow-xl rounded-xl space-y-2">
-                      <p className="leading-relaxed">
-                        Role verified. Sync730 confirmed this role exists, is open, and accepts applicants from the locations shown. Pay and hiring decisions are the employer&apos;s.
-                      </p>
-                      <p>
-                        <Link
-                          href="/how-we-verify"
-                          onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center text-[11px] font-semibold text-emerald-400 hover:underline"
-                        >
-                          Learn how we verify →
-                        </Link>
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
+                    )}
 
-                  {/* Text-only Featured Badge on Featured Cards (High Contrast >= 4.5:1) */}
-                  {isFeatured && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-amber-950 dark:text-amber-100 bg-amber-200/80 dark:bg-amber-900/80 border border-amber-300 dark:border-amber-700">
-                      Featured
-                    </span>
-                  )}
+                    {/* Startup Vacancy Badge (Clean, No Emoji) */}
+                    {Boolean(job.is_startup || (Array.isArray(job.tags) && job.tags.some((t: string) => t.toLowerCase() === 'startup'))) && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold text-amber-900 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800">
+                        <span>Startup</span>
+                      </span>
+                    )}
 
-                  {/* Startup Vacancy Badge (Clean, No Emoji) */}
-                  {Boolean(job.is_startup || (Array.isArray(job.tags) && job.tags.some((t: string) => t.toLowerCase() === 'startup'))) && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold text-amber-900 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800">
-                      <span>Startup</span>
-                    </span>
-                  )}
-
-                  {/* Recommendation Match Badge */}
-                  {typeof job.matchScore === 'number' && job.matchScore > 0 && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700">
-                      {job.matchScore}% Match
-                    </span>
-                  )}
-                </div>
+                    {/* Recommendation Match Badge */}
+                    {typeof job.matchScore === 'number' && job.matchScore > 0 && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800">
+                        <span>{job.matchScore}% match</span>
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -410,6 +381,5 @@ export function JobCard({
           </div>
         )}
       </article>
-    </TooltipProvider>
   );
 }

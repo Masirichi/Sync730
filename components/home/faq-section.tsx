@@ -2,7 +2,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
 import { homeCopy } from '@/content/home';
@@ -106,17 +105,6 @@ export function FaqSection() {
                   )}
                 >
                   <p>{item.answer}</p>
-                  {item.question.includes('Role verified') && (
-                    <p className="pt-1">
-                      {/* href="/how-we-verify" */}
-                      <Link
-                        href={homeCopy.faq.linkHref}
-                        className="inline-flex items-center text-xs font-semibold text-foreground underline underline-offset-4 hover:opacity-80"
-                      >
-                        {homeCopy.faq.linkText}
-                      </Link>
-                    </p>
-                  )}
                 </div>
               </div>
             );
