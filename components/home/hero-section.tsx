@@ -228,7 +228,7 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
                   onMouseLeave={() => setActiveNode(null)}
                   className="absolute left-[16%] sm:left-[22%] bottom-[8%] sm:bottom-[12%] -translate-x-1/2 translate-y-1/2 group cursor-pointer"
                 >
-                  <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl border border-sky-500/30 bg-sky-500/15 text-sky-500 shadow-lg shadow-sky-500/10 transition-transform group-hover:scale-110">
+                  <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/15 text-emerald-500 shadow-lg shadow-emerald-500/10 transition-transform group-hover:scale-110">
                     <Code2 className="h-6 w-6" />
                   </div>
                   {/* Tooltip */}
@@ -237,14 +237,14 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
                   </div>
                 </div>
 
-                {/* CENTER HUB: Large Purple Squircle with Checkmark (CoreShift Signature) */}
+                {/* CENTER HUB: Large Brand Orange Squircle with Checkmark (CoreShift Signature) */}
                 <div className="relative z-10 flex flex-col items-center">
-                  <div className="relative flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-700 shadow-2xl shadow-indigo-500/30 transition-transform hover:scale-105">
+                  <div className="relative flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-3xl bg-gradient-to-br from-orange-500 via-amber-600 to-orange-600 shadow-2xl shadow-orange-500/35 transition-transform hover:scale-105">
                     {/* Glowing outer pulse */}
-                    <span className="absolute -inset-2 rounded-[32px] border border-purple-500/30 animate-pulse pointer-events-none" />
+                    <span className="absolute -inset-2 rounded-[32px] border border-orange-500/30 animate-pulse pointer-events-none" />
                     
                     {/* White Circular Center Check Badge */}
-                    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-purple-700 shadow-md">
+                    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white text-orange-600 shadow-md">
                       <Check className="h-6 w-6 stroke-[3]" />
                     </div>
                   </div>

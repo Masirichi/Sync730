@@ -4,7 +4,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { User, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { User, CheckCircle2, ArrowRight } from 'lucide-react';
 
 interface CoreSolutionsSectionProps {
   onOpenDemo?: () => void;
@@ -20,14 +20,15 @@ interface TalentPortrait {
   stack: string;
 }
 
+// 100% African technical talent profiles across major tech hubs (Nigeria, Kenya, Ghana, South Africa)
 const LEFT_TALENTS: TalentPortrait[] = [
   {
     id: 'talent-1',
     name: 'Chidi N.',
     role: 'Staff Cloud Architect',
-    match: '97% Match',
+    match: '98% Match',
     stack: 'AWS · Kubernetes · Terraform',
-    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1531384441138-2736e62e0919?w=600&auto=format&fit=crop&q=80',
     offsetClass: 'lg:-translate-y-6 lg:-rotate-2',
   },
   {
@@ -41,20 +42,20 @@ const LEFT_TALENTS: TalentPortrait[] = [
   },
   {
     id: 'talent-3',
-    name: 'Tolu O.',
-    role: 'Lead Frontend Engineer',
+    name: 'Kwame M.',
+    role: 'Senior Full-Stack Engineer',
     match: '95% Match',
-    stack: 'React · Next.js · TypeScript',
-    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80',
+    stack: 'Node.js · Postgres · GraphQL',
+    imageUrl: 'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=600&auto=format&fit=crop&q=80',
     offsetClass: 'lg:-translate-y-2 lg:rotate-2',
   },
   {
     id: 'talent-4',
-    name: 'Kwame M.',
-    role: 'Senior Full-Stack Engineer',
-    match: '94% Match',
-    stack: 'Node.js · Postgres · GraphQL',
-    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80',
+    name: 'Tolu O.',
+    role: 'Lead Frontend Engineer',
+    match: '96% Match',
+    stack: 'React · Next.js · TypeScript',
+    imageUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&auto=format&fit=crop&q=80',
     offsetClass: 'lg:translate-y-8 lg:-rotate-1',
   },
 ];
@@ -62,38 +63,38 @@ const LEFT_TALENTS: TalentPortrait[] = [
 const RIGHT_TALENTS: TalentPortrait[] = [
   {
     id: 'talent-5',
-    name: 'Sarah K.',
-    role: 'AI / ML Systems Engineer',
-    match: '98% Match',
-    stack: 'Python · PyTorch · FastEmbed',
-    imageUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&auto=format&fit=crop&q=80',
+    name: 'Babajide A.',
+    role: 'DevOps & SRE Specialist',
+    match: '97% Match',
+    stack: 'Docker · CI/CD · Prometheus',
+    imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&auto=format&fit=crop&q=80',
     offsetClass: 'lg:-translate-y-8 lg:rotate-2',
   },
   {
     id: 'talent-6',
-    name: 'Emmanuel A.',
-    role: 'DevOps & SRE Specialist',
-    match: '95% Match',
-    stack: 'Docker · CI/CD · Prometheus',
-    imageUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&auto=format&fit=crop&q=80',
+    name: 'Sarah K.',
+    role: 'AI / ML Systems Engineer',
+    match: '98% Match',
+    stack: 'Python · PyTorch · FastEmbed',
+    imageUrl: 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=600&auto=format&fit=crop&q=80',
     offsetClass: 'lg:translate-y-2 lg:-rotate-2',
   },
   {
     id: 'talent-7',
     name: 'Zainab S.',
     role: 'Mobile Lead Architect',
-    match: '96% Match',
+    match: '95% Match',
     stack: 'Flutter · React Native · iOS',
-    imageUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=600&auto=format&fit=crop&q=80',
     offsetClass: 'lg:-translate-y-4 lg:rotate-1',
   },
   {
     id: 'talent-8',
-    name: 'David K.',
+    name: 'Amina O.',
     role: 'Backend Platform Engineer',
-    match: '94% Match',
+    match: '96% Match',
     stack: 'Rust · gRPC · Distributed DB',
-    imageUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=600&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=600&auto=format&fit=crop&q=80',
     offsetClass: 'lg:translate-y-6 lg:-rotate-1',
   },
 ];
@@ -105,16 +106,16 @@ export function CoreSolutionsSection({ onOpenDemo }: CoreSolutionsSectionProps) 
       aria-labelledby="core-solutions-heading"
       className="relative overflow-hidden border-b border-border/70 bg-secondary/15 py-20 sm:py-28 lg:py-36 text-foreground"
     >
-      {/* Background Soft Glow */}
+      {/* Brand Ambient Orange Glow */}
       <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[550px] w-[550px] sm:w-[800px] rounded-full bg-purple-500/5 blur-[140px] pointer-events-none"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[550px] w-[550px] sm:w-[800px] rounded-full bg-orange-500/10 blur-[130px] pointer-events-none"
         aria-hidden="true"
       />
 
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
         {/* Responsive Grid: Left Floating Cards | Center Action Block | Right Floating Cards */}
         <div className="grid items-center gap-10 lg:grid-cols-[1fr_auto_1fr] lg:gap-8">
-          {/* LEFT CLOUD: 4 Floating Talent Cards */}
+          {/* LEFT CLOUD: 4 Floating African Talent Cards */}
           <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:gap-5 order-2 lg:order-1">
             {LEFT_TALENTS.map((talent) => (
               <div
@@ -130,7 +131,7 @@ export function CoreSolutionsSection({ onOpenDemo }: CoreSolutionsSectionProps) 
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   {/* Bottom Vignette */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
                   
                   {/* Candidate Details Overlay */}
                   <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
@@ -147,22 +148,22 @@ export function CoreSolutionsSection({ onOpenDemo }: CoreSolutionsSectionProps) 
             ))}
           </div>
 
-          {/* CENTER CORE: Centralized HR & Recruitment Solutions Action Block */}
+          {/* CENTER CORE: Centralized Recruitment Solutions Action Block (Strict Brand Colors) */}
           <div className="mx-auto max-w-md text-center order-1 lg:order-2 px-2">
-            {/* White / Light Squircle with Purple User Icon (Exact CoreShift Match) */}
-            <div className="mx-auto mb-6 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl sm:rounded-3xl border border-border/80 bg-background shadow-xl shadow-purple-500/10 transition-transform hover:scale-105">
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400">
+            {/* White / Light Squircle with Brand Orange User Icon */}
+            <div className="mx-auto mb-6 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl sm:rounded-3xl border border-orange-500/30 bg-background shadow-xl shadow-orange-500/10 transition-transform hover:scale-105">
+              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400">
                 <User className="h-6 w-6 sm:h-7 sm:w-7 stroke-[2.5]" />
               </div>
             </div>
 
-            {/* Headline */}
+            {/* Headline with Brand Orange Gradient */}
             <h2
               id="core-solutions-heading"
               className="text-4xl font-semibold leading-[1.08] tracking-[-0.04em] sm:text-5xl sm:leading-[1.05] lg:text-[56px] lg:leading-[1.02] text-foreground"
             >
               Core recruitment{' '}
-              <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-orange-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 bg-clip-text text-transparent">
                 solutions
               </span>
             </h2>
@@ -172,11 +173,11 @@ export function CoreSolutionsSection({ onOpenDemo }: CoreSolutionsSectionProps) 
               Streamline technical hiring in one centralized platform, connecting Africa&apos;s top 2% engineers with high-growth teams.
             </p>
 
-            {/* CTA Button: CoreShift Pill */}
+            {/* CTA Buttons: Brand Orange (#FF5500) */}
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 href="/solutions"
-                className="inline-flex h-11 sm:h-12 items-center justify-center rounded-full bg-[#8B5CF6] hover:bg-[#7C3AED] px-8 text-sm font-semibold text-white shadow-lg shadow-purple-500/25 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
+                className="inline-flex h-11 sm:h-12 items-center justify-center rounded-full bg-[#FF5500] hover:bg-[#E64D00] px-8 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
               >
                 <span>Learn more</span>
               </Link>
@@ -202,7 +203,7 @@ export function CoreSolutionsSection({ onOpenDemo }: CoreSolutionsSectionProps) 
             </div>
           </div>
 
-          {/* RIGHT CLOUD: 4 Floating Talent Cards */}
+          {/* RIGHT CLOUD: 4 Floating African Talent Cards */}
           <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:gap-5 order-3">
             {RIGHT_TALENTS.map((talent) => (
               <div
@@ -218,7 +219,7 @@ export function CoreSolutionsSection({ onOpenDemo }: CoreSolutionsSectionProps) 
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   {/* Bottom Vignette */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
                   
                   {/* Candidate Details Overlay */}
                   <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
