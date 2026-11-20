@@ -71,15 +71,23 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14 lg:px-10 lg:py-24 items-center">
         {/* Left Column: Headlines & Positioning */}
         <div className="max-w-2xl">
-          {/* Eyebrow with leading rule line */}
-          <div className="mb-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground sm:mb-8">
-            <span className="h-px w-8 bg-foreground" aria-hidden="true" />
-            <span>{hero.eyebrow}</span>
+          {/* Eyebrow with CoreShift orange glowing pill */}
+          <div className="mb-6 flex items-center gap-3 sm:mb-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-orange-600 dark:text-orange-400">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500" />
+              </span>
+              <span>{hero.eyebrow}</span>
+            </div>
           </div>
 
           {/* H1: Exactly one h1 on the entire page */}
           <h1 className="text-4xl font-semibold leading-[1.05] tracking-[-0.05em] sm:text-6xl sm:leading-[1.02] lg:text-[72px] lg:leading-[1.01] text-foreground">
-            {hero.h1}
+            Autonomous AI recruitment for{' '}
+            <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 bg-clip-text text-transparent">
+              modern engineering teams.
+            </span>
           </h1>
 
           {/* Subhead */}
@@ -87,18 +95,18 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
             {hero.sub}
           </p>
 
-          {/* Action Buttons: Equal size, height and type weight, side by side on desktop, stacked on mobile */}
+          {/* Action Buttons: Vibrant CoreShift Orange Primary */}
           <div className="mt-8 flex flex-col gap-3.5 sm:mt-10 sm:flex-row sm:items-center">
             <Link
               href={hero.ctaPrimaryHref}
               onClick={handleHiringClick}
-              className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-full bg-foreground px-7 text-sm font-semibold text-background hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 shadow-xs"
+              className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-full bg-[#FF5500] hover:bg-[#E64D00] px-8 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
             >
               {hero.ctaPrimary}
             </Link>
             <Link
               href={hero.ctaSecondaryHref}
-              className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-full border border-foreground bg-background px-7 text-sm font-semibold text-foreground hover:bg-foreground/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
+              className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-full border border-border/80 bg-background/80 hover:bg-secondary px-8 text-sm font-semibold text-foreground hover:border-foreground/40 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
             >
               {hero.ctaSecondary}
             </Link>
@@ -110,7 +118,7 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
             <Link
               href="/find-work"
               onClick={handleJobsClick}
-              className="font-medium text-foreground underline underline-offset-4 hover:opacity-80 transition-opacity inline-flex items-center gap-1"
+              className="font-medium text-orange-500 hover:text-orange-600 dark:text-orange-400 dark:hover:text-orange-300 underline underline-offset-4 transition-colors inline-flex items-center gap-1"
             >
               Find Work <ChevronRight className="h-3 w-3" />
             </Link>
@@ -124,6 +132,12 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
 
         {/* Right Column: Interactive SaaS AI Candidate Dossier & Video Assessment Preview */}
         <div className="relative flex min-h-[460px] items-center justify-center lg:justify-end">
+          {/* Outcrowd CoreShift ambient orange radiance */}
+          <div
+            className="absolute -right-8 -top-8 h-80 w-80 rounded-full bg-orange-500/10 blur-3xl pointer-events-none"
+            aria-hidden="true"
+          />
+
           {/* Subtle light-gray decorative framing circles behind the card */}
           <div
             className="absolute -left-2 top-4 h-64 w-64 rounded-full border border-border/80 sm:left-4 sm:top-6 sm:h-72 sm:w-72"
@@ -164,7 +178,7 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
               </div>
 
               <span className="rounded-full border border-border/80 bg-background/90 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground shadow-xs">
-                Abuja HQ
+                Verified Talent
               </span>
             </div>
 
@@ -174,12 +188,12 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
                 {/* Header status bar */}
                 <div className="flex items-center justify-between border-b border-border/70 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
                     <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                       AI Sourcing & Vetting Engine
                     </span>
                   </div>
-                  <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                  <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-orange-600 dark:text-orange-400">
                     96% Match
                   </span>
                 </div>
@@ -192,11 +206,11 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
                         Senior Distributed Systems Engineer
                       </h3>
                       <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5 shrink-0 text-foreground" />
+                        <MapPin className="h-3.5 w-3.5 shrink-0 text-orange-500" />
                         <span>Abuja, Nigeria · Worldwide Remote</span>
                       </div>
                     </div>
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-bold text-foreground">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-orange-500/25 bg-orange-500/10 text-xs font-bold text-orange-600 dark:text-orange-400">
                       AO
                     </div>
                   </div>
@@ -211,7 +225,7 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
                   {['Go', 'Rust', 'Kafka', 'Kubernetes', 'gRPC', 'Distributed Consensus'].map((s) => (
                     <span
                       key={s}
-                      className="rounded border border-border/60 bg-secondary/50 px-2 py-0.5 text-[10px] font-medium text-foreground"
+                      className="rounded border border-border/60 bg-secondary/50 px-2 py-0.5 text-[10px] font-medium text-foreground hover:border-orange-500/40 transition-colors"
                     >
                       {s}
                     </span>
@@ -230,10 +244,10 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
 
                   <div className="flex items-center justify-between text-xs font-medium pt-1">
                     <span className="text-muted-foreground">System Architecture</span>
-                    <span className="font-semibold text-foreground tabular-nums">97 / 100</span>
+                    <span className="font-semibold text-orange-500 tabular-nums">97 / 100</span>
                   </div>
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-border/60">
-                    <div className="h-full rounded-full bg-foreground" style={{ width: '97%' }} />
+                    <div className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-500" style={{ width: '97%' }} />
                   </div>
 
                   <div className="flex items-center justify-between text-xs font-medium pt-1">
@@ -256,7 +270,7 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
                 <div className="mt-4 flex items-center gap-2 pt-1">
                   <Link
                     href="/hiring"
-                    className="flex-1 inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-foreground px-4 text-xs font-semibold text-background hover:opacity-90 transition-opacity"
+                    className="flex-1 inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-[#FF5500] hover:bg-[#E64D00] px-4 text-xs font-semibold text-white shadow-md shadow-orange-500/20 active:scale-95 transition-all"
                   >
                     <MessageSquare className="h-3.5 w-3.5" />
                     <span>Direct Chat</span>

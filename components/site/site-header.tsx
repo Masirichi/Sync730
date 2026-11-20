@@ -180,25 +180,8 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
             })}
           </nav>
 
-          {/* Right: SyncFlow (Columns3 + count badge) · Sign in · Primary button */}
+          {/* Right: Sign in · Primary Orange Action Button */}
           <div className="hidden items-center gap-4 md:flex">
-            {/* SyncFlow button with Columns3 icon and count badge */}
-            <button
-              type="button"
-              onClick={handleOpenSyncFlow}
-              aria-label={`Open SyncFlow pipeline (${totalSyncFlowCount} roles)`}
-              title="Open SyncFlow pipeline"
-              className="relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
-            >
-              <Columns3 className="h-4 w-4 stroke-[1.5]" />
-              <span>{homeCopy.nav.syncFlowLabel}</span>
-              {totalSyncFlowCount > 0 && (
-                <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-foreground px-1 text-[10px] font-semibold text-background tabular-nums">
-                  {totalSyncFlowCount}
-                </span>
-              )}
-            </button>
-
             {user ? (
               // LOGGED IN STATE
               <div className="flex items-center gap-4">
@@ -235,24 +218,21 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
                           <LayoutDashboard className="h-4 w-4 stroke-[1.5]" />
                           <span>Candidate Dashboard</span>
                         </Link>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAvatarMenuOpen(false);
-                            handleOpenSyncFlow();
-                          }}
+                        <Link
+                          href="/dashboard/syncflow"
+                          onClick={() => setAvatarMenuOpen(false)}
                           className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary transition-colors"
                         >
                           <div className="flex items-center gap-2">
                             <Columns3 className="h-4 w-4 stroke-[1.5]" />
-                            <span>SyncFlow</span>
+                            <span>SyncFlow Pipeline</span>
                           </div>
                           {totalSyncFlowCount > 0 && (
                             <span className="text-[10px] rounded-full bg-secondary px-1.5 py-0.5 font-semibold tabular-nums">
                               {totalSyncFlowCount}
                             </span>
                           )}
-                        </button>
+                        </Link>
                       </div>
 
                       <div className="border-t border-border pt-1">
@@ -281,7 +261,7 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
 
                 <Link
                   href={homeCopy.nav.createProfileHref}
-                  className="inline-flex h-10 items-center justify-center rounded-full bg-foreground px-5 text-sm font-semibold text-background hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 shadow-xs"
+                  className="inline-flex h-10 items-center justify-center rounded-full bg-[#FF5500] hover:bg-[#E64D00] px-5 text-sm font-semibold text-white shadow-md shadow-orange-500/20 hover:shadow-orange-500/30 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
                 >
                   {homeCopy.nav.createProfileLabel}
                 </Link>
@@ -324,26 +304,6 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
               );
             })}
 
-            {/* Mobile SyncFlow Button */}
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                handleOpenSyncFlow();
-              }}
-              className="flex items-center justify-between w-full py-2.5 text-base font-medium text-muted-foreground hover:text-foreground rounded"
-            >
-              <div className="flex items-center gap-2">
-                <Columns3 className="h-4 w-4 stroke-[1.5]" />
-                <span>{homeCopy.nav.syncFlowLabel}</span>
-              </div>
-              {totalSyncFlowCount > 0 && (
-                <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-foreground px-1.5 text-xs font-semibold text-background tabular-nums">
-                  {totalSyncFlowCount}
-                </span>
-              )}
-            </button>
-
             <div className="flex flex-col gap-2.5 pt-4 border-t border-border/70">
               {user ? (
                 <>
@@ -377,7 +337,7 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
                   <Link
                     href={homeCopy.nav.createProfileHref}
                     onClick={() => setOpen(false)}
-                    className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
+                    className="inline-flex h-11 items-center justify-center rounded-full bg-[#FF5500] hover:bg-[#E64D00] px-4 text-sm font-semibold text-white shadow-md shadow-orange-500/20 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
                   >
                     {homeCopy.nav.createProfileLabel}
                   </Link>

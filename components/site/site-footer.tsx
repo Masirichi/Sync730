@@ -8,29 +8,18 @@ import { homeCopy } from '@/content/home';
 export function SiteFooter() {
   const content = homeCopy.footer;
   const currentYear = new Date().getFullYear();
-
-  // Extract columns dynamically or fallback
   const columns = content.columns;
 
   return (
     <footer className="border-t border-border/70 bg-background text-foreground" aria-label="Site footer">
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-6">
-          {/* Column 1: Brand & Physical Address */}
+          {/* Column 1: Brand & Description */}
           <div className="sm:col-span-2 md:col-span-2">
             <BrandLogo />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
               {content.tagline}
             </p>
-
-            {/* Prominent Physical Address: Abuja, Nigeria */}
-            <div className="mt-5 flex items-center gap-2 rounded-lg border border-border/70 bg-secondary/50 px-3 py-2 w-fit">
-              <MapPin className="h-4 w-4 shrink-0 text-foreground" />
-              <div className="text-xs">
-                <span className="font-semibold text-foreground">Sync730 HQ: </span>
-                <span className="text-muted-foreground">{content.address || 'Abuja, Nigeria'}</span>
-              </div>
-            </div>
           </div>
 
           {/* Column 2: Products */}
@@ -44,7 +33,7 @@ export function SiteFooter() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-muted-foreground transition-colors hover:text-foreground"
+                      className="text-muted-foreground transition-colors hover:text-orange-500"
                     >
                       {link.label}
                     </Link>
@@ -65,7 +54,7 @@ export function SiteFooter() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-muted-foreground transition-colors hover:text-foreground"
+                      className="text-muted-foreground transition-colors hover:text-orange-500"
                     >
                       {link.label}
                     </Link>
@@ -86,7 +75,7 @@ export function SiteFooter() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-muted-foreground transition-colors hover:text-foreground"
+                      className="text-muted-foreground transition-colors hover:text-orange-500"
                     >
                       {link.label}
                     </Link>
@@ -106,7 +95,7 @@ export function SiteFooter() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-muted-foreground transition-colors hover:text-orange-500"
                   >
                     {link.label}
                   </Link>
@@ -116,7 +105,7 @@ export function SiteFooter() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-muted-foreground transition-colors hover:text-orange-500"
                   >
                     {link.label}
                   </Link>
@@ -126,11 +115,22 @@ export function SiteFooter() {
           </div>
         </div>
 
-        {/* Bottom Row: Small print, Abuja Nigeria & Social links */}
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-border/70 pt-8 sm:flex-row">
-          <p className="text-xs text-muted-foreground text-center sm:text-left">
-            © {currentYear} Sync730 Technologies Ltd. Abuja, Nigeria. {content.smallPrint}
-          </p>
+        {/* Bottom Row: Animated Address, Small print & Social links */}
+        <div className="mt-16 flex flex-col items-center justify-between gap-5 border-t border-border/70 pt-8 sm:flex-row">
+          <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+            {/* Animated Address Badge */}
+            <div className="group inline-flex items-center gap-2 rounded-full border border-orange-500/25 bg-orange-500/10 px-3 py-1 text-xs font-medium text-foreground transition-all duration-300 hover:border-orange-500/50 hover:bg-orange-500/15">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500" />
+              </span>
+              <span className="tracking-wide">Abuja, Nigeria</span>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              © {currentYear} Sync730 Technologies Ltd. {content.smallPrint}
+            </p>
+          </div>
 
           <div className="flex items-center gap-5">
             <a
@@ -138,7 +138,7 @@ export function SiteFooter() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Sync730 on X (Twitter)"
-              className="text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground rounded"
+              className="text-muted-foreground transition-colors hover:text-orange-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground rounded"
             >
               <Twitter className="h-4 w-4 stroke-[1.5]" />
             </a>
@@ -147,7 +147,7 @@ export function SiteFooter() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Sync730 on LinkedIn"
-              className="text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground rounded"
+              className="text-muted-foreground transition-colors hover:text-orange-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground rounded"
             >
               <Linkedin className="h-4 w-4 stroke-[1.5]" />
             </a>

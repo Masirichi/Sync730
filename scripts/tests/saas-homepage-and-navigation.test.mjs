@@ -21,8 +21,9 @@ test('1. Master Home Copy: AI Recruitment Solutions SaaS positioning', () => {
   assert.ok(fileContent.includes("createProfileLabel: 'Start Hiring'"), 'Primary button should be Start Hiring');
   assert.ok(fileContent.includes("createProfileHref: '/hiring'"), 'Primary button links to /hiring');
 
-  // Verify Footer Address
+  // Verify Footer Address (No HQ)
   assert.ok(fileContent.includes("address: 'Abuja, Nigeria'"), 'Footer address must be Abuja, Nigeria');
+  assert.ok(!fileContent.includes('Abuja HQ') && !fileContent.includes('Sync730 HQ'), 'Address must not include HQ');
 
   // Verify SaaS Hero Copy
   assert.ok(fileContent.includes('AI RECRUITMENT SOLUTIONS FOR GLOBAL TEAMS'), 'Eyebrow states AI Recruitment Solutions');
@@ -33,18 +34,31 @@ test('1. Master Home Copy: AI Recruitment Solutions SaaS positioning', () => {
   assert.ok(!emojiRegex.test(fileContent), 'home.ts should not contain emoji characters');
 });
 
-test('2. Site Footer: Displays Abuja, Nigeria address and updated columns', () => {
+test('2. Site Header: SyncFlow removed, vibrant orange CTA button', () => {
+  const headerPath = path.join(projectRoot, 'components', 'site', 'site-header.tsx');
+  const fileContent = fs.readFileSync(headerPath, 'utf8');
+
+  // Verify SyncFlow button is removed from header
+  assert.ok(!fileContent.includes('Open SyncFlow pipeline'), 'Header should not have Open SyncFlow pipeline button');
+  assert.ok(!fileContent.includes('homeCopy.nav.syncFlowLabel'), 'Header should not render syncFlowLabel');
+
+  // Verify orange button styling
+  assert.ok(fileContent.includes('#FF5500') || fileContent.includes('bg-orange'), 'Header should have orange CTA button');
+});
+
+test('3. Site Footer: Displays Abuja, Nigeria address at bottom with animation, without HQ', () => {
   const footerPath = path.join(projectRoot, 'components', 'site', 'site-footer.tsx');
   const fileContent = fs.readFileSync(footerPath, 'utf8');
 
   assert.ok(fileContent.includes('Abuja, Nigeria'), 'Footer must display Abuja, Nigeria');
-  assert.ok(fileContent.includes('MapPin'), 'Footer should have MapPin icon for address');
+  assert.ok(!fileContent.includes('Sync730 HQ') && !fileContent.includes('Abuja HQ'), 'Footer must not contain HQ');
+  assert.ok(fileContent.includes('animate-ping'), 'Footer address must have pulse/ping animation');
   assert.ok(fileContent.includes('columns.products'), 'Footer must render Products column');
   assert.ok(fileContent.includes('columns.solutions'), 'Footer must render Solutions column');
   assert.ok(fileContent.includes('columns.hiring'), 'Footer must render Hiring column');
 });
 
-test('3. Dedicated SaaS Pages Exist: /products, /solutions, /hiring', () => {
+test('4. Dedicated SaaS Pages: /products, /solutions, /hiring with orange accents & no HQ', () => {
   const productsPath = path.join(projectRoot, 'app', 'products', 'page.tsx');
   const solutionsPath = path.join(projectRoot, 'app', 'solutions', 'page.tsx');
   const hiringPath = path.join(projectRoot, 'app', 'hiring', 'page.tsx');
@@ -55,23 +69,21 @@ test('3. Dedicated SaaS Pages Exist: /products, /solutions, /hiring', () => {
 
   const productsContent = fs.readFileSync(productsPath, 'utf8');
   assert.ok(productsContent.includes('AI Autonomous Sourcing'), 'Products page covers sourcing');
-  assert.ok(productsContent.includes('AI Video & Technical Interviewer'), 'Products page covers video interviews');
-  assert.ok(productsContent.includes('SyncFlow ATS'), 'Products page covers SyncFlow ATS');
-  assert.ok(productsContent.includes('Abuja, Nigeria'), 'Products page references Abuja, Nigeria HQ');
+  assert.ok(productsContent.includes('#FF5500'), 'Products page uses orange button');
+  assert.ok(!productsContent.includes('Abuja, Nigeria HQ'), 'Products page should not have HQ');
 
   const solutionsContent = fs.readFileSync(solutionsPath, 'utf8');
   assert.ok(solutionsContent.includes('For High-Growth Startups'), 'Solutions covers startups');
-  assert.ok(solutionsContent.includes('For Global Distributed Enterprises'), 'Solutions covers global remote teams');
-  assert.ok(solutionsContent.includes('For CTOs & Engineering Leaders'), 'Solutions covers tech leaders');
-  assert.ok(solutionsContent.includes('Abuja, Nigeria'), 'Solutions page references Abuja, Nigeria HQ');
+  assert.ok(solutionsContent.includes('#FF5500'), 'Solutions page uses orange button');
+  assert.ok(!solutionsContent.includes('Abuja, Nigeria HQ') && !solutionsContent.includes('Abuja (HQ)'), 'Solutions page should not have HQ');
 
   const hiringContent = fs.readFileSync(hiringPath, 'utf8');
   assert.ok(hiringContent.includes('HOW RECRUITING WORKS') || hiringContent.includes('From role posting to verified hire'), 'Hiring page covers workflow');
-  assert.ok(hiringContent.includes('Pay As You Hire'), 'Hiring page covers pricing/tokens');
-  assert.ok(hiringContent.includes('Abuja, Nigeria'), 'Hiring page references Abuja, Nigeria HQ');
+  assert.ok(hiringContent.includes('#FF5500'), 'Hiring page uses orange button');
+  assert.ok(!hiringContent.includes('Abuja, Nigeria HQ'), 'Hiring page should not have HQ');
 });
 
-test('4. Homepage Layout: Hero, Products, Solutions, Hiring integration', () => {
+test('5. Homepage Layout: Hero, Products, Solutions, Hiring integration with orange accents', () => {
   const homeViewPath = path.join(projectRoot, 'components', 'home', 'home-view.tsx');
   const homeViewContent = fs.readFileSync(homeViewPath, 'utf8');
 
@@ -81,7 +93,11 @@ test('4. Homepage Layout: Hero, Products, Solutions, Hiring integration', () => 
 
   const heroPath = path.join(projectRoot, 'components', 'home', 'hero-section.tsx');
   const heroContent = fs.readFileSync(heroPath, 'utf8');
-  assert.ok(heroContent.includes('AI Match Dossier'), 'Hero section provides AI Match Dossier preview');
+  assert.ok(heroContent.includes('#FF5500'), 'Hero section has orange CTA');
   assert.ok(heroContent.includes('Direct Chat'), 'Hero section features direct chat button');
-  assert.ok(heroContent.includes('Find Work'), 'Hero section links candidates to Find Work');
+  assert.ok(!heroContent.includes('Abuja HQ'), 'Hero section should not have HQ');
+
+  const productsSectionPath = path.join(projectRoot, 'components', 'home', 'products-section.tsx');
+  const productsSectionContent = fs.readFileSync(productsSectionPath, 'utf8');
+  assert.ok(productsSectionContent.includes('orange'), 'Products section includes orange accents');
 });

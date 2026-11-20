@@ -33,15 +33,18 @@ export function SolutionsSection() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="max-w-2xl">
-            <div className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-foreground" aria-hidden="true" />
+            <div className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-orange-600 dark:text-orange-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-orange-500" aria-hidden="true" />
               <span>{solutions.label}</span>
             </div>
             <h2
               id="solutions-heading"
               className="mt-5 text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-4xl lg:text-5xl text-foreground"
             >
-              {solutions.h2}
+              Engineered for how top engineering teams{' '}
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                hire.
+              </span>
             </h2>
             <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
               {solutions.sub}
@@ -50,7 +53,7 @@ export function SolutionsSection() {
 
           <Link
             href="/solutions"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:underline underline-offset-4"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-orange-500 hover:text-orange-600 dark:text-orange-400 hover:underline underline-offset-4"
           >
             <span>Compare all solutions</span>
             <ArrowRight className="h-4 w-4" />
@@ -60,10 +63,10 @@ export function SolutionsSection() {
         {/* 3 Solutions Cards */}
         <div className="mt-14 grid gap-8 md:grid-cols-3">
           {/* Solution 1: Startups */}
-          <div className="rounded-2xl border border-border/80 bg-background p-8 flex flex-col justify-between shadow-xs transition-all hover:border-foreground/40">
+          <div className="rounded-2xl border border-border/80 bg-background p-8 flex flex-col justify-between shadow-xs transition-all hover:border-orange-500/40 hover:shadow-lg hover:shadow-orange-500/5">
             <div>
               <div className="flex items-center justify-between">
-                <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-foreground">
+                <span className="rounded-full border border-orange-500/20 bg-orange-500/5 px-3 py-1 text-xs font-semibold text-orange-600 dark:text-orange-400">
                   Seed to Series B
                 </span>
                 <span className="text-xs font-semibold text-muted-foreground">0% Agency Fees</span>
@@ -78,8 +81,8 @@ export function SolutionsSection() {
 
               <div className="mt-6 rounded-xl border border-border/70 bg-secondary/40 p-4">
                 <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-                  <Clock className="h-4 w-4 text-foreground" />
-                  <span>72 Hours Average Time-to-Hire</span>
+                  <Clock className="h-4 w-4 text-orange-500" />
+                  <span className="text-orange-600 dark:text-orange-400 font-bold">72 Hours Average Time-to-Hire</span>
                 </div>
                 <p className="mt-1 text-[11px] text-muted-foreground">
                   Pre-screened senior engineers ready to start building immediately.
@@ -93,7 +96,7 @@ export function SolutionsSection() {
                   'Transparent token top-up model for flexible scaling',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <Check className="h-3.5 w-3.5 text-foreground shrink-0 mt-0.5" />
+                    <Check className="h-3.5 w-3.5 text-orange-500 shrink-0 mt-0.5" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -103,7 +106,7 @@ export function SolutionsSection() {
             <div className="mt-8 pt-4 border-t border-border/70">
               <Link
                 href="/solutions#startups"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-500 hover:text-orange-600 dark:text-orange-400 hover:underline"
               >
                 Startup solutions <ArrowRight className="h-3 w-3" />
               </Link>
@@ -111,10 +114,10 @@ export function SolutionsSection() {
           </div>
 
           {/* Solution 2: Global Remote Teams */}
-          <div className="rounded-2xl border border-border/80 bg-background p-8 flex flex-col justify-between shadow-xs transition-all hover:border-foreground/40">
+          <div className="rounded-2xl border border-border/80 bg-background p-8 flex flex-col justify-between shadow-xs transition-all hover:border-orange-500/40 hover:shadow-lg hover:shadow-orange-500/5">
             <div>
               <div className="flex items-center justify-between">
-                <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-foreground">
+                <span className="rounded-full border border-orange-500/20 bg-orange-500/5 px-3 py-1 text-xs font-semibold text-orange-600 dark:text-orange-400">
                   Global Remote
                 </span>
                 <span className="text-xs font-semibold text-muted-foreground">WAT · CAT · EAT</span>
@@ -129,8 +132,8 @@ export function SolutionsSection() {
 
               <div className="mt-6 rounded-xl border border-border/70 bg-secondary/40 p-4">
                 <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-                  <Globe2 className="h-4 w-4 text-foreground" />
-                  <span>10,000+ Vetted African Engineers</span>
+                  <Globe2 className="h-4 w-4 text-orange-500" />
+                  <span className="text-orange-600 dark:text-orange-400 font-bold">10,000+ Vetted African Engineers</span>
                 </div>
                 <p className="mt-1 text-[11px] text-muted-foreground">
                   Hubs across Abuja, Lagos, Nairobi, Cape Town, and Accra.
@@ -144,7 +147,7 @@ export function SolutionsSection() {
                   'NDPA and GDPR compliant data storage & privacy protection',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <Check className="h-3.5 w-3.5 text-foreground shrink-0 mt-0.5" />
+                    <Check className="h-3.5 w-3.5 text-orange-500 shrink-0 mt-0.5" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -154,7 +157,7 @@ export function SolutionsSection() {
             <div className="mt-8 pt-4 border-t border-border/70">
               <Link
                 href="/solutions#global-teams"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-500 hover:text-orange-600 dark:text-orange-400 hover:underline"
               >
                 Global team solutions <ArrowRight className="h-3 w-3" />
               </Link>
@@ -162,13 +165,13 @@ export function SolutionsSection() {
           </div>
 
           {/* Solution 3: Engineering Leaders & CTOs */}
-          <div className="rounded-2xl border border-border/80 bg-card p-8 flex flex-col justify-between shadow-xs transition-all hover:border-foreground/40">
+          <div className="rounded-2xl border border-border/80 bg-card p-8 flex flex-col justify-between shadow-xs transition-all hover:border-orange-500/40 hover:shadow-lg hover:shadow-orange-500/5">
             <div>
               <div className="flex items-center justify-between">
-                <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-foreground">
+                <span className="rounded-full border border-orange-500/20 bg-orange-500/5 px-3 py-1 text-xs font-semibold text-orange-600 dark:text-orange-400">
                   CTOs & Tech Leads
                 </span>
-                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">94.6% Pass Rate</span>
+                <span className="text-xs font-semibold text-orange-500">94.6% Pass Rate</span>
               </div>
 
               <h3 className="mt-6 text-xl font-semibold tracking-tight text-foreground">
@@ -180,8 +183,8 @@ export function SolutionsSection() {
 
               <div className="mt-6 rounded-xl border border-border/70 bg-secondary/40 p-4">
                 <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-                  <TrendingUp className="h-4 w-4 text-foreground" />
-                  <span>94.6% Final Round Candidate Pass Rate</span>
+                  <TrendingUp className="h-4 w-4 text-orange-500" />
+                  <span className="text-orange-600 dark:text-orange-400 font-bold">94.6% Final Round Candidate Pass Rate</span>
                 </div>
                 <p className="mt-1 text-[11px] text-muted-foreground">
                   Senior engineers review candidate recordings before the final sync.
@@ -195,7 +198,7 @@ export function SolutionsSection() {
                   'Human-in-the-loop: your team makes 100% of final hiring choices',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <Check className="h-3.5 w-3.5 text-foreground shrink-0 mt-0.5" />
+                    <Check className="h-3.5 w-3.5 text-orange-500 shrink-0 mt-0.5" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -205,7 +208,7 @@ export function SolutionsSection() {
             <div className="mt-8 pt-4 border-t border-border/70">
               <Link
                 href="/solutions#engineering"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-500 hover:text-orange-600 dark:text-orange-400 hover:underline"
               >
                 Engineering solutions <ArrowRight className="h-3 w-3" />
               </Link>

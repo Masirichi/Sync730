@@ -53,7 +53,7 @@ export default function HiringPage() {
               <div className="mt-8 flex flex-col gap-3.5 sm:flex-row sm:items-center">
                 <Link
                   href="/register/recruiter"
-                  className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-7 text-sm font-semibold text-background hover:opacity-90 transition-opacity"
+                  className="inline-flex h-12 items-center justify-center rounded-full bg-[#FF5500] hover:bg-[#E64D00] px-8 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 active:scale-95 transition-all"
                 >
                   Create Recruiter Account
                 </Link>
@@ -68,7 +68,7 @@ export default function HiringPage() {
               {/* Sub-proof */}
               <div className="mt-10 flex flex-wrap items-center gap-6 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-foreground" />
+                  <Clock className="h-4 w-4 text-orange-500" />
                   <span>72h Avg. Time-to-Hire</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -76,8 +76,8 @@ export default function HiringPage() {
                   <span>0% Placement Commissions</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-foreground" />
-                  <span>Abuja, Nigeria HQ</span>
+                  <MapPin className="h-4 w-4 text-orange-500" />
+                  <span>Abuja, Nigeria</span>
                 </div>
               </div>
             </div>
@@ -243,7 +243,7 @@ export default function HiringPage() {
                 <div className="mt-8 pt-4">
                   <Link
                     href="/register/recruiter"
-                    className="w-full inline-flex h-11 items-center justify-center rounded-full bg-foreground text-xs font-semibold text-background hover:opacity-90 transition-opacity"
+                    className="w-full inline-flex h-11 items-center justify-center rounded-full bg-[#FF5500] hover:bg-[#E64D00] text-xs font-semibold text-white shadow-md shadow-orange-500/25 active:scale-95 transition-all"
                   >
                     Get Started with Growth
                   </Link>
@@ -305,7 +305,7 @@ export default function HiringPage() {
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/register/recruiter"
-                className="w-full sm:w-auto inline-flex h-12 items-center justify-center rounded-full bg-background px-7 text-sm font-semibold text-foreground hover:bg-background/90 transition-colors"
+                className="w-full sm:w-auto inline-flex h-12 items-center justify-center rounded-full bg-[#FF5500] hover:bg-[#E64D00] px-8 text-sm font-semibold text-white shadow-xl shadow-orange-500/30 hover:shadow-orange-500/40 active:scale-95 transition-all"
               >
                 Create Recruiter Account
               </Link>
@@ -318,7 +318,7 @@ export default function HiringPage() {
             </div>
 
             <p className="mt-6 text-xs text-background/60">
-              Sync730 HQ: Abuja, Nigeria · 0% Placement Commissions · Humans make every final hiring decision
+              Abuja, Nigeria · 0% Placement Commissions · Humans make every final hiring decision
             </p>
           </div>
         </section>

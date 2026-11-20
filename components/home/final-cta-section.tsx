@@ -23,9 +23,15 @@ export function FinalCtaSection({ onOpenDemo, talents = 0 }: FinalCtaSectionProp
     <section
       id="closing-cta"
       aria-label="Join Sync730"
-      className="bg-foreground text-background px-5 py-24 sm:px-8 lg:px-10 lg:py-32"
+      className="relative overflow-hidden bg-foreground text-background px-5 py-24 sm:px-8 lg:px-10 lg:py-32"
     >
-      <div className="mx-auto max-w-4xl text-center">
+      {/* Outcrowd CoreShift ambient orange radiance */}
+      <div
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-orange-500/20 blur-3xl pointer-events-none"
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 mx-auto max-w-4xl text-center">
         {/* H2 */}
         <h2 className="mx-auto max-w-2xl text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-4xl lg:text-5xl text-background">
           {content.h2}
@@ -34,17 +40,17 @@ export function FinalCtaSection({ onOpenDemo, talents = 0 }: FinalCtaSectionProp
         {/* Subline with live number */}
         <p className="mx-auto mt-6 max-w-lg text-base sm:text-lg leading-relaxed text-background/70">
           {content.bodyPrefix}
-          <span className="tabular-nums font-semibold text-background">
+          <span className="tabular-nums font-semibold text-orange-400">
             {talents.toLocaleString()}
           </span>
           {content.bodySuffix}
         </p>
 
-        {/* Action Buttons: "Create your free profile" & "I'm hiring in Africa" */}
+        {/* Action Buttons: Vibrant CoreShift Orange Primary */}
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
             href={content.ctaPrimaryHref}
-            className="w-full sm:w-auto inline-flex h-12 items-center justify-center rounded-full bg-background px-7 text-sm font-semibold text-foreground hover:bg-background/90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
+            className="w-full sm:w-auto inline-flex h-12 items-center justify-center rounded-full bg-[#FF5500] hover:bg-[#E64D00] px-8 text-sm font-semibold text-white shadow-xl shadow-orange-500/30 hover:shadow-orange-500/40 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
           >
             {content.ctaPrimary}
           </Link>
@@ -52,7 +58,7 @@ export function FinalCtaSection({ onOpenDemo, talents = 0 }: FinalCtaSectionProp
           <button
             type="button"
             onClick={handleRecruiterClick}
-            className="w-full sm:w-auto inline-flex h-12 items-center justify-center rounded-full border border-background/40 bg-transparent px-7 text-sm font-semibold text-background hover:bg-background/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
+            className="w-full sm:w-auto inline-flex h-12 items-center justify-center rounded-full border border-background/40 bg-transparent px-8 text-sm font-semibold text-background hover:bg-background/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
           >
             {content.ctaSecondary}
           </button>

@@ -699,7 +699,7 @@ export const homeCopy: HomeCopy = {
       },
     },
     smallPrint:
-      'Headquartered in Abuja, Nigeria. AI-assisted technical evaluations with human-in-the-loop decision autonomy.',
+      'AI-assisted technical evaluations with human-in-the-loop decision autonomy.',
   },
 };
 

@@ -35,8 +35,8 @@ export function ForRecruitersSection({ onOpenDemo }: ForRecruitersSectionProps) 
         {/* Header Grid: Eyebrow, H2, Right Paragraph & CTAs */}
         <div className="grid items-end gap-12 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <div className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-foreground" aria-hidden="true" />
+            <div className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-orange-600 dark:text-orange-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-orange-500" aria-hidden="true" />
               <span>{content.eyebrow}</span>
             </div>
             <h2 className="mt-5 max-w-xl text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-4xl lg:text-5xl text-foreground">
@@ -52,14 +52,14 @@ export function ForRecruitersSection({ onOpenDemo }: ForRecruitersSectionProps) 
               <button
                 type="button"
                 onClick={handleDemoClick}
-                className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-7 text-sm font-semibold text-background hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-[#FF5500] hover:bg-[#E64D00] px-8 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
               >
                 {content.ctaPrimary}
               </button>
               <a
                 href="#sample-report"
                 onClick={handleScrollToSample}
-                className="inline-flex h-12 items-center justify-center rounded-full border border-border px-7 text-sm font-semibold text-foreground hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
+                className="inline-flex h-12 items-center justify-center rounded-full border border-border/80 px-8 text-sm font-semibold text-foreground hover:bg-secondary hover:border-orange-500/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
               >
                 {content.ctaSecondary}
               </a>
