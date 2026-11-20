@@ -32,6 +32,17 @@ export function FinalCtaSection({ onOpenDemo, talents = 0 }: FinalCtaSectionProp
       />
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
+        {/* Eyebrow: A — ACTION */}
+        <div className="mb-6 flex justify-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-orange-400">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500" />
+            </span>
+            <span>{content.eyebrow || 'A — ACTION · START HIRING IN 72 HOURS'}</span>
+          </div>
+        </div>
+
         {/* H2 */}
         <h2 className="mx-auto max-w-2xl text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-4xl lg:text-5xl text-background">
           {content.h2}

@@ -36,7 +36,10 @@ export function ForRecruitersSection({ onOpenDemo }: ForRecruitersSectionProps) 
         <div className="grid items-end gap-12 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
             <div className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-orange-600 dark:text-orange-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-orange-500" aria-hidden="true" />
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500" />
+              </span>
               <span>{content.eyebrow}</span>
             </div>
             <h2 className="mt-5 max-w-xl text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-4xl lg:text-5xl text-foreground">

@@ -35,7 +35,10 @@ export function ProductsSection() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="max-w-2xl">
             <div className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-orange-600 dark:text-orange-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-orange-500" aria-hidden="true" />
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500" />
+              </span>
               <span>{products.label}</span>
             </div>
             <h2

@@ -164,6 +164,7 @@ export interface HomeCopy {
     }>;
   };
   closing: {
+    eyebrow?: string;
     h2: string;
     bodyPrefix: string;
     bodySuffix: string;
@@ -255,26 +256,27 @@ export const homeCopy: HomeCopy = {
     ogImage: '/og-sync730.png',
   },
   hero: {
-    eyebrow: 'AI RECRUITMENT SOLUTIONS FOR GLOBAL TEAMS',
-    h1: 'Autonomous AI recruitment for modern engineering teams.',
-    sub: "Sync730 replaces manual resume screening and endless first rounds with calibrated AI video interviews, real-world code evaluations, and instant shortlists of Africa's top 2% technical talent.",
-    ctaPrimary: 'Start Hiring with AI',
+    eyebrow: 'A — ATTENTION · ALL-IN-ONE AI RECRUITMENT PLATFORM',
+    h1: 'All-in-one AI recruitment platform',
+    sub: "Sync730 is an autonomous, all-in-one AI recruitment platform engineered to source, screen, and hire Africa's top 2% technical talent in 72 hours.",
+    ctaPrimary: 'Request a Demo',
     ctaPrimaryHref: '/hiring',
-    ctaSecondary: 'Explore Products',
-    ctaSecondaryHref: '/products',
+    ctaSecondary: 'Start Hiring with AI',
+    ctaSecondaryHref: '/hiring',
     proofLine:
-      '72h avg. time-to-hire · Calibrated STAR rubrics · Humans make every final hiring decision',
+      '72h avg. time-to-hire · 10,000+ Pre-vetted Engineers · 94.6% Pass Rate · Abuja, Nigeria',
     proofItems: [
       '72h avg. time-to-hire',
-      'Calibrated STAR scoring rubrics',
-      'Humans make every final hiring decision',
+      '10,000+ Pre-vetted Engineers',
+      '94.6% Final round pass rate',
+      'Abuja, Nigeria',
     ],
     sampleBadge: 'AI Match Dossier',
   },
   products: {
-    label: 'OUR SUITE OF AI TOOLS',
+    label: 'I — INTEREST · THE AI RECRUITMENT ENGINE',
     h2: 'Full-cycle AI recruitment architecture.',
-    sub: 'From automated sourcing to live video evaluation and pipeline management, Sync730 gives technical teams high-signal hiring with zero friction.',
+    sub: 'From automated ATS indexing to live STAR video evaluations and direct messaging, Sync730 gives technical teams high-signal hiring with zero friction.',
     items: [
       {
         id: 'sourcing',
@@ -335,9 +337,9 @@ export const homeCopy: HomeCopy = {
     ],
   },
   solutions: {
-    label: 'TAILORED RECRUITMENT SOLUTIONS',
+    label: 'D — DESIRE · PROVEN OUTCOMES & TOP 2% TALENT',
     h2: 'Engineered for how top engineering teams hire.',
-    sub: 'Whether you are an early-stage startup or a global remote enterprise, Sync730 reduces your cost and time-to-hire by over 70%.',
+    sub: "We don't send 500 unvetted resumes. We deliver pre-vetted senior African engineers ready to ship code on Day 1, cutting recruitment cycles from 45 days to 72 hours.",
     items: [
       {
         id: 'startups',
@@ -532,24 +534,24 @@ export const homeCopy: HomeCopy = {
   },
   employers: {
     id: 'for-recruiters',
-    eyebrow: 'WE BELIEVE IN HIRING THE PERSON, NOT THE ADDRESS',
-    h2: 'Meet the person behind the résumé.',
-    body: "Africa has the talent. A CV can't always show it. Every applicant takes the same AI-moderated video interview within 48 hours, so you compare like with like. You review a ranked, evidence-backed shortlist, and your team makes the call.",
+    eyebrow: 'D — DESIRE · HIGH-SIGNAL TECHNICAL VETTING',
+    h2: 'How modern engineering teams make confident hires.',
+    body: "Africa has elite engineering talent. Traditional resumes can't prove production depth. Every candidate completes an adaptive AI video and coding assessment, providing your team with rubric-calibrated evidence to hire in 72 hours.",
     points: [
       {
         number: '01',
-        title: 'Everyone gets a fair shot.',
-        body: 'Each applicant takes the same interview within 48 hours, so you compare like with like.',
+        title: 'Everyone gets a fair, objective shot.',
+        body: 'Each applicant takes an adaptive technical assessment within 48 hours, eliminating subjective recruiter bias.',
       },
       {
         number: '02',
-        title: 'Evidence, not guesswork.',
-        body: 'Every score points to what the candidate actually said.',
+        title: 'Evidence-backed STAR scoring.',
+        body: 'Every score is calibrated against real architecture decisions, error handling, and production trade-offs.',
       },
       {
         number: '03',
-        title: 'You decide. Together.',
-        body: 'Reviewers watch interviews and leave notes in one place, from screen to signed.',
+        title: 'Direct messaging and fast offers.',
+        body: 'Chat directly with pre-vetted engineers and schedule final interviews with one click.',
       },
     ],
     sampleReport: {
@@ -558,16 +560,16 @@ export const homeCopy: HomeCopy = {
       role: 'Senior Backend Engineer',
       candidateId: 'Candidate #A7F2',
       techDepth: 'Technical depth',
-      techDepthScore: '91 / 100',
-      techDepthValue: 91,
+      techDepthScore: '96 / 100',
+      techDepthValue: 96,
       communication: 'Communication',
-      communicationScore: '88 / 100',
-      communicationValue: 88,
-      quote: 'Strong on retries and reconciliation. Gap: distributed tracing.',
+      communicationScore: '92 / 100',
+      communicationValue: 92,
+      quote: 'Exceptional on distributed consensus and high-throughput Kafka event streaming.',
       integrity: 'Identity verified, 0 integrity flags',
       advisory: 'Evaluation advisory: humans decide.',
     },
-    ctaPrimary: 'Book a demo',
+    ctaPrimary: 'Request a Demo',
     ctaSecondary: 'See a sample report',
     ctaSecondaryHref: '#sample-report',
   },
@@ -616,14 +618,15 @@ export const homeCopy: HomeCopy = {
     ],
   },
   closing: {
-    h2: "You've waited long enough for a fair shot.",
+    eyebrow: 'A — ACTION · START HIRING IN 72 HOURS',
+    h2: 'Transform your technical hiring with AI in 72 hours.',
     bodyPrefix: 'Join ',
-    bodySuffix: '+ professionals searching smarter, and the companies hiring them.',
-    ctaPrimary: 'Create your free profile',
-    ctaPrimaryHref: '/register',
-    ctaSecondary: "I'm hiring in Africa",
-    ctaSecondaryHref: '/for-employers',
-    microcopy: 'Free for candidates. No credit card. Takes about 3 minutes.',
+    bodySuffix: '+ engineering teams and vetted technical professionals scaling without agency markups.',
+    ctaPrimary: 'Request a Demo',
+    ctaPrimaryHref: '/hiring',
+    ctaSecondary: 'Start Hiring with AI',
+    ctaSecondaryHref: '/hiring',
+    microcopy: 'Zero placement fees until you make a hire · 30-day replacement guarantee · Abuja, Nigeria',
   },
   nav: {
     links: [

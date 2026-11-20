@@ -6,7 +6,7 @@ import path from 'node:path';
 
 const projectRoot = path.resolve(process.cwd());
 
-test('1. Master Home Copy: AI Recruitment Solutions SaaS positioning', () => {
+test('1. Master Home Copy: CoreShift & AIDA Framework positioning', () => {
   const homeCopyPath = path.join(projectRoot, 'content', 'home.ts');
   const fileContent = fs.readFileSync(homeCopyPath, 'utf8');
 
@@ -21,13 +21,16 @@ test('1. Master Home Copy: AI Recruitment Solutions SaaS positioning', () => {
   assert.ok(fileContent.includes("createProfileLabel: 'Start Hiring'"), 'Primary button should be Start Hiring');
   assert.ok(fileContent.includes("createProfileHref: '/hiring'"), 'Primary button links to /hiring');
 
-  // Verify Footer Address (No HQ)
+  // Verify Footer Address (Strictly No HQ)
   assert.ok(fileContent.includes("address: 'Abuja, Nigeria'"), 'Footer address must be Abuja, Nigeria');
   assert.ok(!fileContent.includes('Abuja HQ') && !fileContent.includes('Sync730 HQ'), 'Address must not include HQ');
 
-  // Verify SaaS Hero Copy
-  assert.ok(fileContent.includes('AI RECRUITMENT SOLUTIONS FOR GLOBAL TEAMS'), 'Eyebrow states AI Recruitment Solutions');
-  assert.ok(fileContent.includes('Autonomous AI recruitment for modern engineering teams.'), 'H1 states autonomous AI recruitment');
+  // Verify AIDA Positioning
+  assert.ok(fileContent.includes('A — ATTENTION'), 'Hero eyebrow contains A — ATTENTION');
+  assert.ok(fileContent.includes('All-in-one AI recruitment platform'), 'H1 matches CoreShift All-in-one pattern');
+  assert.ok(fileContent.includes('I — INTEREST'), 'Products section contains I — INTEREST');
+  assert.ok(fileContent.includes('D — DESIRE'), 'Solutions/employers section contains D — DESIRE');
+  assert.ok(fileContent.includes('A — ACTION'), 'Closing CTA section contains A — ACTION');
 
   // Verify strict no emoji rule in homeCopy
   const emojiRegex = /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
@@ -83,21 +86,26 @@ test('4. Dedicated SaaS Pages: /products, /solutions, /hiring with orange accent
   assert.ok(!hiringContent.includes('Abuja, Nigeria HQ'), 'Hiring page should not have HQ');
 });
 
-test('5. Homepage Layout: Hero, Products, Solutions, Hiring integration with orange accents', () => {
-  const homeViewPath = path.join(projectRoot, 'components', 'home', 'home-view.tsx');
-  const homeViewContent = fs.readFileSync(homeViewPath, 'utf8');
-
-  assert.ok(homeViewContent.includes('<ProductsSection />'), 'HomeView must include ProductsSection');
-  assert.ok(homeViewContent.includes('<SolutionsSection />'), 'HomeView must include SolutionsSection');
-  assert.ok(homeViewContent.includes('<HeroSection'), 'HomeView must include HeroSection');
-
+test('5. Hero Section: CoreShift Connected Platform Hub & AIDA Integration', () => {
   const heroPath = path.join(projectRoot, 'components', 'home', 'hero-section.tsx');
   const heroContent = fs.readFileSync(heroPath, 'utf8');
-  assert.ok(heroContent.includes('#FF5500'), 'Hero section has orange CTA');
+
+  assert.ok(heroContent.includes('CoreShift Platform Hub'), 'Hero includes CoreShift Platform Hub switcher');
+  assert.ok(heroContent.includes('Sync730 Core AI'), 'Hero includes central AI hub node');
+  assert.ok(heroContent.includes('#FF5500'), 'Hero section has vibrant orange CTA');
   assert.ok(heroContent.includes('Direct Chat'), 'Hero section features direct chat button');
   assert.ok(!heroContent.includes('Abuja HQ'), 'Hero section should not have HQ');
 
+  // Verify AIDA stages throughout sections
   const productsSectionPath = path.join(projectRoot, 'components', 'home', 'products-section.tsx');
   const productsSectionContent = fs.readFileSync(productsSectionPath, 'utf8');
-  assert.ok(productsSectionContent.includes('orange'), 'Products section includes orange accents');
+  assert.ok(productsSectionContent.includes('animate-ping'), 'Products section includes animated beacon');
+
+  const solutionsSectionPath = path.join(projectRoot, 'components', 'home', 'solutions-section.tsx');
+  const solutionsSectionContent = fs.readFileSync(solutionsSectionPath, 'utf8');
+  assert.ok(solutionsSectionContent.includes('animate-ping'), 'Solutions section includes animated beacon');
+
+  const finalCtaPath = path.join(projectRoot, 'components', 'home', 'final-cta-section.tsx');
+  const finalCtaContent = fs.readFileSync(finalCtaPath, 'utf8');
+  assert.ok(finalCtaContent.includes('A — ACTION'), 'Closing CTA section features A — ACTION eyebrow');
 });
