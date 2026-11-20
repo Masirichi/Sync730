@@ -7,6 +7,7 @@ import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
 import { SAMPLE_NIGERIA_ROLES } from '@/lib/admin/store';
 import { validateJobPublishing } from '@/lib/jobs/validation';
 import { assertServerPermission } from '@/lib/admin/permissions';
+import { detectJobPlatform } from '@/lib/jobs/platform-detector';
 
 export async function GET(request: NextRequest) {
   try {
@@ -93,6 +94,8 @@ export async function GET(request: NextRequest) {
           published_at: rj.published_at || rj.created_at || new Date().toISOString(),
           created_at: rj.created_at || new Date().toISOString(),
           posted_at: rj.posted_at || rj.created_at || new Date().toISOString(),
+          source_platform: rj.source_platform || rj.platform || detectJobPlatform(url),
+          platform: rj.source_platform || rj.platform || detectJobPlatform(url),
         });
       }
     });
@@ -293,6 +296,8 @@ export async function POST(request: NextRequest) {
       open_to_nigeria: true,
       is_active: true,
       is_featured: isFeatured,
+      source_platform: body.source_platform || body.platform || detectJobPlatform(cleanUrl),
+      platform: body.source_platform || body.platform || detectJobPlatform(cleanUrl),
       published_at: nowIso,
       created_at: nowIso,
       posted_at: nowIso,

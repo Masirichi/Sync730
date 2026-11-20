@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       id: `cnt-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
       workspace_id: targetWsId,
       candidate_id,
-      contact_type: contact_type === 'WHATSAPP' ? 'WHATSAPP' : 'EMAIL',
+      contact_type: contact_type === 'WHATSAPP' ? 'WHATSAPP' : contact_type === 'CHAT' ? 'CHAT' : 'EMAIL',
       recipient,
       subject: subject || 'Interview Invitation from Sync730 Partner',
       message_template: message_template || 'Outreach initiated via recruiter console',

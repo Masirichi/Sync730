@@ -51,6 +51,13 @@ import {
   SEED_ADMIN_REMOTE_JOBS,
   SAMPLE_NIGERIA_ROLES,
 } from '@/lib/admin/store';
+import {
+  JobPlatform,
+  detectJobPlatform,
+  getJobPlatformInfo,
+  ALL_SUPPORTED_PLATFORMS,
+  optimizeUrlForPlatform,
+} from '@/lib/jobs/platform-detector';
 
 function RolesManagerContent() {
   const [activeTab, setActiveTab] = useState<'remote' | 'employer'>('remote');
@@ -93,7 +100,14 @@ function RolesManagerContent() {
   const [workMode, setWorkMode] = useState<'REMOTE' | 'HYBRID' | 'ONSITE'>('REMOTE');
   const [cityLocation, setCityLocation] = useState<string>('Remote (Worldwide / Africa)');
   const [customCityLocation, setCustomCityLocation] = useState<string>('');
+  const [sourcePlatform, setSourcePlatform] = useState<JobPlatform>('direct');
   const [isSeedingNigeria, setIsSeedingNigeria] = useState<boolean>(false);
+
+  const handleCareerUrlChange = (url: string) => {
+    setCareerUrl(url);
+    const detected = detectJobPlatform(url);
+    setSourcePlatform(detected);
+  };
 
   // Live Sync State (Platform Admin Exclusive)
   const [syncingLive, setSyncingLive] = useState(false);
@@ -293,6 +307,9 @@ function RolesManagerContent() {
       return;
     }
 
+    const cleanPlatform = sourcePlatform || detectJobPlatform(resolvedUrl);
+    const optimizedUrl = optimizeUrlForPlatform(resolvedUrl);
+
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/admin/jobs', {
@@ -301,13 +318,15 @@ function RolesManagerContent() {
         body: JSON.stringify({
           company_name: resolvedCompany,
           job_title: resolvedTitle,
-          career_url: resolvedUrl,
+          career_url: optimizedUrl,
           region_allowance: regionAllowance,
           salary_range: resolvedSalary,
           job_description: resolvedDesc,
           is_featured: isFeatured,
           work_mode: workMode,
           city_location: resolvedCity,
+          source_platform: cleanPlatform,
+          platform: cleanPlatform,
         }),
       });
 
@@ -321,6 +340,7 @@ function RolesManagerContent() {
         setCompanyName('');
         setJobTitle('');
         setCareerUrl('');
+        setSourcePlatform('direct');
         setSalaryRange('');
         setJobDescription('');
         setWorkMode('REMOTE');
@@ -489,13 +509,18 @@ function RolesManagerContent() {
         }
       }
 
-      // Source filter
-      const matchesSource =
-        sourceFilter === 'ALL'
-          ? true
-          : sourceFilter === 'ADMIN'
-          ? job.source_type === 'ADMIN_CURATED'
-          : job.source_type !== 'ADMIN_CURATED';
+      // Source & Platform filter
+      let matchesSource = true;
+      if (sourceFilter === 'ALL') {
+        matchesSource = true;
+      } else if (sourceFilter === 'ADMIN') {
+        matchesSource = job.source_type === 'ADMIN_CURATED';
+      } else if (sourceFilter === 'CRAWLER') {
+        matchesSource = job.source_type !== 'ADMIN_CURATED';
+      } else {
+        const p = job.source_platform || (job as any).platform || detectJobPlatform(job.career_url || job.url || job.apply_url);
+        matchesSource = p === sourceFilter;
+      }
 
       return matchesQuery && matchesTier && matchesStatus && matchesSource;
     });
@@ -541,7 +566,7 @@ function RolesManagerContent() {
               </Button>
             </DialogTrigger>
 
-            <DialogContent className="max-w-xl bg-[#0e0e12] border-neutral-800 text-neutral-100 p-6 sm:p-7 rounded-2xl shadow-2xl">
+            <DialogContent className="w-[95vw] sm:max-w-xl max-h-[90vh] overflow-y-auto bg-[#0e0e12] border-neutral-800 text-neutral-100 p-4 sm:p-6 md:p-7 rounded-2xl shadow-2xl">
               <DialogHeader>
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-800 text-neutral-300 border border-neutral-700 text-[10px] font-bold uppercase tracking-wider w-fit mb-1.5">
                   <ShieldCheck className="h-3 w-3 stroke-[2]" />
@@ -551,7 +576,7 @@ function RolesManagerContent() {
                   Add job
                 </DialogTitle>
                 <DialogDescription className="text-xs text-neutral-400 leading-relaxed">
-                  Directly post a vetted technical role to the candidate job board.
+                  Directly post a vetted technical role optimized for cross-platform candidate applications across all devices and ATS providers.
                 </DialogDescription>
               </DialogHeader>
 
@@ -589,18 +614,60 @@ function RolesManagerContent() {
 
                 {/* Row 2: Career URL */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-neutral-300">
-                    Direct Career / Application URL *
-                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-semibold text-neutral-300">
+                      Direct Career / Application URL *
+                    </Label>
+                    {careerUrl && (
+                      <span className={`text-[10px] px-2 py-0.5 rounded border font-mono font-semibold ${getJobPlatformInfo(sourcePlatform).badgeClass}`}>
+                        {getJobPlatformInfo(sourcePlatform).shortName}
+                      </span>
+                    )}
+                  </div>
                   <Input
                     name="career_url"
                     type="url"
                     required
-                    placeholder="https://company.com/careers/role"
+                    placeholder="https://company.com/careers/role (Manatal, Mercor, Greenhouse, Lever, Ashby, etc.)"
                     value={careerUrl}
-                    onChange={(e) => setCareerUrl(e.target.value)}
+                    onChange={(e) => handleCareerUrlChange(e.target.value)}
                     className="h-9 text-xs bg-neutral-900/90 border-neutral-800 text-white placeholder:text-neutral-500"
                   />
+                </div>
+
+                {/* Row 2b: ATS & Sourcing Platform */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-semibold text-neutral-300">
+                      ATS & Sourcing Platform *
+                    </Label>
+                    <span className="text-[10px] text-neutral-400">
+                      Auto-detected from URL
+                    </span>
+                  </div>
+                  <Select
+                    value={sourcePlatform}
+                    onValueChange={(val: JobPlatform) => setSourcePlatform(val)}
+                  >
+                    <SelectTrigger className="h-9 text-xs bg-neutral-900/90 border-neutral-800 text-white">
+                      <SelectValue placeholder="Select Platform" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-neutral-900 border-neutral-800 text-white max-h-60">
+                      {ALL_SUPPORTED_PLATFORMS.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          <div className="flex items-center justify-between gap-3 w-full">
+                            <span>{p.name}</span>
+                            <span className={`text-[9px] px-1.5 py-0.2 rounded border font-mono ${p.badgeClass}`}>
+                              {p.shortName}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-neutral-400">
+                    Optimizes application links for cross-platform candidate applications across iOS, Android, and Desktop.
+                  </p>
                 </div>
 
                 {/* Row 3: Region Allowance & Salary Range */}
@@ -906,9 +973,16 @@ function RolesManagerContent() {
                   <SelectValue placeholder="Source" />
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
-                  <SelectItem value="ALL">All Sources</SelectItem>
+                  <SelectItem value="ALL">All Sources & Platforms</SelectItem>
                   <SelectItem value="ADMIN">Admin Curated</SelectItem>
                   <SelectItem value="CRAWLER">Crawler Ingested</SelectItem>
+                  <SelectItem value="manatal">Manatal ATS</SelectItem>
+                  <SelectItem value="mercor">Mercor AI</SelectItem>
+                  <SelectItem value="greenhouse">Greenhouse ATS</SelectItem>
+                  <SelectItem value="lever">Lever ATS</SelectItem>
+                  <SelectItem value="ashby">Ashby ATS</SelectItem>
+                  <SelectItem value="workable">Workable ATS</SelectItem>
+                  <SelectItem value="direct">Direct Careers</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1039,17 +1113,30 @@ function RolesManagerContent() {
                           </td>
 
                           )}
-                          {/* Source Type */}
+                          {/* Source Type & Platform */}
                           <td className="py-4 px-4">
-                            {isCurated ? (
-                              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                                Admin Curated
-                              </span>
-                            ) : (
-                              <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-400">
-                                {job.source || 'Crawler'}
-                              </span>
-                            )}
+                            <div className="space-y-1">
+                              {isCurated ? (
+                                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 inline-block">
+                                  Admin Curated
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-400 inline-block">
+                                  {job.source || 'Crawler'}
+                                </span>
+                              )}
+                              <div>
+                                {(() => {
+                                  const platform = job.source_platform || (job as any).platform || detectJobPlatform(job.career_url || job.url || job.apply_url);
+                                  const pInfo = getJobPlatformInfo(platform);
+                                  return (
+                                    <span className={`text-[9px] px-1.5 py-0.2 rounded border font-mono ${pInfo.badgeClass}`}>
+                                      {pInfo.shortName}
+                                    </span>
+                                  );
+                                })()}
+                              </div>
+                            </div>
                           </td>
 
                           {/* Board Status */}
@@ -1070,14 +1157,14 @@ function RolesManagerContent() {
                           {/* Actions */}
                           <td className="py-4 px-4 text-right">
                             <div className="flex items-center justify-end gap-2">
-                              {/* External URL */}
+                              {/* External URL with cross-platform optimization */}
                               {job.url && (
                                 <a
-                                  href={job.url}
+                                  href={optimizeUrlForPlatform(job.career_url || job.url || job.apply_url)}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
-                                  title="Open career link"
+                                  title="Open career link (optimized for mobile & desktop)"
                                 >
                                   <Globe className="h-3.5 w-3.5 stroke-[1.5]" />
                                 </a>

@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Shield, Unlock, Lock, Mail, Phone, CheckCircle2 } from 'lucide-react';
+import { Shield, Unlock, Lock, Mail, Phone, CheckCircle2, MessageSquare } from 'lucide-react';
+import { getOrCreateTalentThread } from '@/lib/messages/store';
 import { toast } from 'sonner';
 
 interface CandidateProfile {
@@ -83,9 +85,20 @@ const initialCandidates: CandidateProfile[] = [
 ];
 
 export default function CandidatesPage() {
+  const router = useRouter();
   const [candidates, setCandidates] = useState<CandidateProfile[]>(initialCandidates);
   const [tokenBalance, setTokenBalance] = useState(15);
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
+
+  const handleMessageCandidate = (c: CandidateProfile) => {
+    getOrCreateTalentThread({
+      candidateId: c.id,
+      candidateName: c.is_masked ? c.maskedId : c.realName,
+      candidateRole: c.role,
+      recruiterName: 'Recruiter Squad',
+    });
+    router.push(`/recruiter/messages?talent=${c.id}`);
+  };
 
   const handleUnlockCandidate = (candidateId: string) => {
     if (tokenBalance < 1) {
@@ -244,22 +257,41 @@ export default function CandidatesPage() {
                     {/* Actions */}
                     <div className="flex items-center gap-2 pt-2">
                       {isMasked ? (
-                        <Button
-                          size="sm"
-                          className="gap-1.5 text-xs h-8"
-                          onClick={() => handleUnlockCandidate(c.id)}
-                          disabled={unlockingId === c.id}
-                        >
-                          <Unlock className="h-3.5 w-3.5" />
-                          {unlockingId === c.id ? 'Unlocking...' : 'Unlock Profile (1 Token)'}
-                        </Button>
+                        <>
+                          <Button
+                            size="sm"
+                            className="gap-1.5 text-xs h-8"
+                            onClick={() => handleUnlockCandidate(c.id)}
+                            disabled={unlockingId === c.id}
+                          >
+                            <Unlock className="h-3.5 w-3.5" />
+                            {unlockingId === c.id ? 'Unlocking...' : 'Unlock Profile (1 Token)'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1.5 text-xs h-8"
+                            onClick={() => handleMessageCandidate(c)}
+                          >
+                            <MessageSquare className="h-3.5 w-3.5 text-amber-500" /> Chat
+                          </Button>
+                        </>
                       ) : (
                         <>
-                          <Button size="sm" className="gap-1.5 text-xs h-8">
+                          <Button
+                            size="sm"
+                            className="gap-1.5 text-xs h-8"
+                            onClick={() => handleMessageCandidate(c)}
+                          >
                             View Full Profile
                           </Button>
-                          <Button size="sm" variant="outline" className="gap-1.5 text-xs h-8">
-                            <Mail className="h-3.5 w-3.5" /> Message
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1.5 text-xs h-8"
+                            onClick={() => handleMessageCandidate(c)}
+                          >
+                            <MessageSquare className="h-3.5 w-3.5 text-amber-500" /> Chat
                           </Button>
                         </>
                       )}

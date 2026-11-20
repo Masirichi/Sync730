@@ -39,6 +39,7 @@ import {
   Info,
   Calendar,
   Compass,
+  Send,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,6 +77,11 @@ import {
   VideoPlayerHandle,
 } from '@/components/recruiter/video-assessment-player';
 import { calculateJobMatch, JobMatchAnalysis } from '@/lib/recruiter/matching';
+import {
+  MessageThread,
+  getOrCreateTalentThread,
+  sendMessage as sendTalentMessage,
+} from '@/lib/messages/store';
 import { toast } from 'sonner';
 
 interface NoteItem {
@@ -151,10 +157,16 @@ function VettedTalentContent() {
 
   // Contact Candidate Dialog state
   const [candidateToContact, setCandidateToContact] = useState<VideoAssessment | null>(null);
-  const [contactChannel, setContactChannel] = useState<'EMAIL' | 'WHATSAPP'>('EMAIL');
+  const [contactChannel, setContactChannel] = useState<'EMAIL' | 'WHATSAPP' | 'CHAT'>('CHAT');
   const [contactSubject, setContactSubject] = useState('');
   const [contactMessage, setContactMessage] = useState('');
   const [isLoggingContact, setIsLoggingContact] = useState(false);
+
+  // Direct Talent Chat Modal state
+  const [chatCandidate, setChatCandidate] = useState<VideoAssessment | null>(null);
+  const [chatThread, setChatThread] = useState<MessageThread | null>(null);
+  const [chatInputText, setChatInputText] = useState('');
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   // Load shortlist from localStorage
   useEffect(() => {
@@ -438,7 +450,9 @@ function VettedTalentContent() {
     const recipient =
       contactChannel === 'EMAIL'
         ? candidateToContact.candidate_email || 'candidate@sync730.com'
-        : candidateToContact.whatsapp || candidateToContact.phone || '+2348000000000';
+        : contactChannel === 'WHATSAPP'
+        ? candidateToContact.whatsapp || candidateToContact.phone || '+2348000000000'
+        : candidateToContact.candidate_name || 'Candidate';
 
     try {
       await fetch('/api/recruiter/talent/contact', {
@@ -456,7 +470,28 @@ function VettedTalentContent() {
 
       toast.success(`Outreach attempt logged in your organization audit history.`);
 
-      if (contactChannel === 'EMAIL') {
+      if (contactChannel === 'CHAT') {
+        const candId = candidateToContact.candidate_id || candidateToContact.id;
+        const candidateName =
+          candidateToContact.is_unlocked && candidateToContact.candidate_name
+            ? candidateToContact.candidate_name
+            : `Candidate #${candId.replace(/[^a-zA-Z0-9]/g, '').slice(-4).toUpperCase()}`;
+
+        const thread = getOrCreateTalentThread({
+          candidateId: candId,
+          candidateName,
+          candidateRole: candidateToContact.target_role,
+          candidateAvatar: candidateToContact.is_unlocked ? candidateToContact.poster_url : undefined,
+          recruiterName: workspace.company_name || 'Acme Hiring Team',
+          recruiterCompany: workspace.company_name,
+          initialMessage: contactMessage,
+        });
+        toast.success(`Message sent to talent! Chat conversation initiated.`);
+        setCandidateToContact(null);
+        setChatCandidate(candidateToContact);
+        setChatThread(thread);
+        return;
+      } else if (contactChannel === 'EMAIL') {
         const mailto = `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(contactSubject)}&body=${encodeURIComponent(contactMessage)}`;
         window.open(mailto, '_blank');
       } else {
@@ -472,6 +507,57 @@ function VettedTalentContent() {
       setIsLoggingContact(false);
     }
   };
+
+  // Open direct talent chat modal
+  const handleOpenTalentChat = (cand: VideoAssessment) => {
+    const candId = cand.candidate_id || cand.id;
+    const candName =
+      cand.is_unlocked && cand.candidate_name
+        ? cand.candidate_name
+        : `Candidate #${candId.replace(/[^a-zA-Z0-9]/g, '').slice(-4).toUpperCase()}`;
+
+    const thread = getOrCreateTalentThread({
+      candidateId: candId,
+      candidateName: candName,
+      candidateRole: cand.target_role,
+      candidateAvatar: cand.is_unlocked ? cand.poster_url : undefined,
+      recruiterName: workspace.company_name || 'Acme Hiring Team',
+      recruiterCompany: workspace.company_name,
+    });
+    setChatCandidate(cand);
+    setChatThread(thread);
+    setChatInputText('');
+  };
+
+  const handleSendDirectChatMessage = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!chatInputText.trim() || !chatThread) return;
+
+    const senderName = workspace.company_name || 'Recruiter';
+    const updated = sendTalentMessage(chatThread.id, chatInputText.trim(), 'recruiter', senderName);
+    if (updated) {
+      setChatThread(updated);
+      setChatInputText('');
+      fetch('/api/recruiter/talent/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workspace_id: workspace.id,
+          candidate_id: chatCandidate?.candidate_id || chatCandidate?.id,
+          contact_type: 'CHAT',
+          recipient: chatCandidate?.is_unlocked ? chatCandidate.candidate_name : 'Candidate',
+          subject: `Direct chat from ${workspace.company_name}`,
+          message_template: chatInputText.trim(),
+        }),
+      }).catch(() => {});
+    }
+  };
+
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatThread]);
 
   // Calculate assessment age string & check >12 months
   const getAssessmentAgeInfo = (dateStr?: string) => {
@@ -1155,16 +1241,28 @@ function VettedTalentContent() {
                         <span>View full profile & rubric</span>
                       </button>
 
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openNotesModal(cand)}
-                        className="h-7 px-2 text-[11px] font-semibold text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white gap-1"
-                      >
-                        <MessageSquare className="h-3 w-3 stroke-[1.5]" />
-                        <span>Notes & Score</span>
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenTalentChat(cand)}
+                          className="h-7 px-2 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 gap-1 rounded-lg"
+                          title="Chat with talent"
+                        >
+                          <MessageSquare className="h-3 w-3 stroke-[1.5]" />
+                          <span>Chat</span>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openNotesModal(cand)}
+                          className="h-7 px-2 text-[11px] font-semibold text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white gap-1"
+                        >
+                          <span>Notes</span>
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
@@ -1183,11 +1281,20 @@ function VettedTalentContent() {
                       <div className="flex items-center gap-2">
                         <Button
                           size="sm"
-                          onClick={() => openContactModal(cand)}
+                          onClick={() => handleOpenTalentChat(cand)}
                           className="flex-1 h-8 text-xs bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 font-semibold rounded-xl gap-1.5"
                         >
-                          <Mail className="h-3.5 w-3.5 stroke-[1.5]" />
-                          <span>Contact Candidate</span>
+                          <MessageSquare className="h-3.5 w-3.5 stroke-[1.5]" />
+                          <span>Chat with Talent</span>
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openContactModal(cand)}
+                          className="h-8 px-2.5 text-xs font-semibold rounded-xl gap-1"
+                        >
+                          <Mail className="h-3 w-3 stroke-[1.5]" />
+                          <span>Outreach</span>
                         </Button>
                         <Button
                           size="sm"
@@ -1439,6 +1546,18 @@ function VettedTalentContent() {
                     <div className="flex items-center gap-2">
                       <Button
                         size="sm"
+                        onClick={() => {
+                          const cand = activeDetailCandidate;
+                          setActiveDetailCandidate(null);
+                          handleOpenTalentChat(cand);
+                        }}
+                        className="text-xs bg-amber-500 hover:bg-amber-600 text-neutral-950 font-semibold rounded-xl gap-1.5"
+                      >
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        <span>Chat with Talent</span>
+                      </Button>
+                      <Button
+                        size="sm"
                         onClick={() => openContactModal(activeDetailCandidate)}
                         className="text-xs bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-xl gap-1.5"
                       >
@@ -1454,20 +1573,37 @@ function VettedTalentContent() {
                         Report Issue
                       </Button>
                     </div>
-                  ) : isOwnerOrAdmin ? (
-                    <Button
-                      size="sm"
-                      onClick={() => setCandidateToConfirmUnlock(activeDetailCandidate)}
-                      disabled={unlockingId === activeDetailCandidate.candidate_id}
-                      className="text-xs bg-neutral-950 text-white rounded-xl gap-1.5"
-                    >
-                      <Coins className="h-3.5 w-3.5 text-amber-400 stroke-[1.5]" />
-                      <span>Unlock Full Dossier (1 Token)</span>
-                    </Button>
                   ) : (
-                    <Button disabled size="sm" className="text-xs cursor-not-allowed">
-                      Ask an admin to unlock
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const cand = activeDetailCandidate;
+                          setActiveDetailCandidate(null);
+                          handleOpenTalentChat(cand);
+                        }}
+                        className="text-xs rounded-xl gap-1.5"
+                      >
+                        <MessageSquare className="h-3.5 w-3.5 text-amber-500" />
+                        <span>Chat with Talent</span>
+                      </Button>
+                      {isOwnerOrAdmin ? (
+                        <Button
+                          size="sm"
+                          onClick={() => setCandidateToConfirmUnlock(activeDetailCandidate)}
+                          disabled={unlockingId === activeDetailCandidate.candidate_id}
+                          className="text-xs bg-neutral-950 text-white rounded-xl gap-1.5"
+                        >
+                          <Coins className="h-3.5 w-3.5 text-amber-400 stroke-[1.5]" />
+                          <span>Unlock Full Dossier (1 Token)</span>
+                        </Button>
+                      ) : (
+                        <Button disabled size="sm" className="text-xs cursor-not-allowed">
+                          Ask an admin to unlock
+                        </Button>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
@@ -1713,7 +1849,22 @@ function VettedTalentContent() {
             {candidateToContact && (
               <div className="space-y-4 pt-3 text-xs">
                 {/* Channel Selector */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div
+                    onClick={() => setContactChannel('CHAT')}
+                    className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-2.5 ${
+                      contactChannel === 'CHAT'
+                        ? 'border-neutral-900 dark:border-white bg-neutral-50 dark:bg-neutral-900 ring-1 ring-neutral-900 dark:ring-white'
+                        : 'border-neutral-200 dark:border-neutral-800'
+                    }`}
+                  >
+                    <MessageSquare className="h-4 w-4 text-amber-500" />
+                    <div>
+                      <div className="font-bold text-neutral-900 dark:text-white">Sync730 Chat</div>
+                      <div className="text-[10px] text-neutral-500">In-App Live Message</div>
+                    </div>
+                  </div>
+
                   <div
                     onClick={() => setContactChannel('EMAIL')}
                     className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-2.5 ${
@@ -1725,7 +1876,7 @@ function VettedTalentContent() {
                     <Mail className="h-4 w-4 text-neutral-800 dark:text-neutral-200" />
                     <div>
                       <div className="font-bold text-neutral-900 dark:text-white">Official Email</div>
-                      <div className="text-[10px] text-neutral-500">{candidateToContact.candidate_email}</div>
+                      <div className="text-[10px] text-neutral-500 truncate max-w-[120px]">{candidateToContact.candidate_email || 'Direct Email'}</div>
                     </div>
                   </div>
 
@@ -1739,8 +1890,8 @@ function VettedTalentContent() {
                   >
                     <Phone className="h-4 w-4 text-emerald-600" />
                     <div>
-                      <div className="font-bold text-neutral-900 dark:text-white">WhatsApp Outreach</div>
-                      <div className="text-[10px] text-neutral-500">{candidateToContact.whatsapp || candidateToContact.phone}</div>
+                      <div className="font-bold text-neutral-900 dark:text-white">WhatsApp</div>
+                      <div className="text-[10px] text-neutral-500 truncate max-w-[120px]">{candidateToContact.whatsapp || candidateToContact.phone || 'Direct Chat'}</div>
                     </div>
                   </div>
                 </div>
@@ -1788,7 +1939,12 @@ function VettedTalentContent() {
                     disabled={isLoggingContact}
                     className="h-9 text-xs font-semibold rounded-xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 gap-1.5"
                   >
-                    {contactChannel === 'EMAIL' ? (
+                    {contactChannel === 'CHAT' ? (
+                      <>
+                        <MessageSquare className="h-3.5 w-3.5 text-amber-400" />
+                        <span>Send Chat & Open Thread</span>
+                      </>
+                    ) : contactChannel === 'EMAIL' ? (
                       <>
                         <Mail className="h-3.5 w-3.5" />
                         <span>Send Email & Log Contact</span>
@@ -1975,6 +2131,150 @@ function VettedTalentContent() {
                 )}
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* DIRECT TALENT CHAT MODAL */}
+        <Dialog
+          open={Boolean(chatCandidate)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setChatCandidate(null);
+            }
+          }}
+        >
+          <DialogContent className="max-w-xl p-0 overflow-hidden rounded-2xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 flex flex-col h-[600px] max-h-[90vh]">
+            <DialogHeader className="p-4 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 flex flex-row items-center justify-between space-y-0">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center font-bold text-sm text-neutral-800 dark:text-neutral-200 shrink-0">
+                  {chatCandidate?.is_unlocked && chatCandidate.candidate_name
+                    ? chatCandidate.candidate_name
+                        .split(/\s+/)
+                        .map((w) => w[0])
+                        .join('')
+                        .slice(0, 2)
+                        .toUpperCase()
+                    : 'CT'}
+                </div>
+                <div>
+                  <DialogTitle className="text-sm font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+                    <span>
+                      {chatCandidate?.is_unlocked
+                        ? chatCandidate.candidate_name
+                        : `Candidate #${(chatCandidate?.candidate_id || chatCandidate?.id || '').replace(/[^a-zA-Z0-9]/g, '').slice(-4).toUpperCase()}`}
+                    </span>
+                    <Badge variant="outline" className="text-[10px] bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
+                      Vetted Talent
+                    </Badge>
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-neutral-500">
+                    {chatCandidate?.target_role} · {chatCandidate?.seniority || 'Mid-Senior'}
+                  </DialogDescription>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pr-6">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const cid = chatCandidate?.candidate_id || chatCandidate?.id;
+                    router.push(`/console/messages?talent=${cid}`);
+                  }}
+                  className="h-8 text-xs rounded-lg gap-1.5"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  <span>Full Inbox</span>
+                </Button>
+              </div>
+            </DialogHeader>
+
+            {/* Quick Prompt Starters */}
+            <div className="px-4 py-2 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50/30 dark:bg-neutral-900/30 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+              <span className="text-[10px] uppercase font-semibold text-neutral-400 shrink-0">Prompt:</span>
+              {[
+                'Schedule introductory call',
+                'Discuss role and availability',
+                'Share job description link',
+                'Clarify salary expectations',
+              ].map((promptText) => (
+                <button
+                  key={promptText}
+                  type="button"
+                  onClick={() => setChatInputText(promptText)}
+                  className="px-2.5 py-1 rounded-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-[11px] text-neutral-700 dark:text-neutral-300 hover:border-amber-400 transition-colors shrink-0"
+                >
+                  {promptText}
+                </button>
+              ))}
+            </div>
+
+            {/* Chat Messages Body */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {(!chatThread || chatThread.messages.length === 0) ? (
+                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-neutral-400">
+                  <MessageSquare className="h-8 w-8 mb-2 opacity-40 text-amber-500" />
+                  <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                    Direct conversation with {chatCandidate?.is_unlocked ? chatCandidate.candidate_name : 'talent'}
+                  </p>
+                  <p className="text-[11px] text-neutral-500 max-w-xs mt-1">
+                    Send a message to discuss your open opportunities, schedule interview calls, or clarify assessment questions.
+                  </p>
+                </div>
+              ) : (
+                chatThread.messages.map((msg) => {
+                  const isRecruiter = msg.sender === 'recruiter';
+                  return (
+                    <div
+                      key={msg.id}
+                      className={`flex flex-col ${isRecruiter ? 'items-end' : 'items-start'}`}
+                    >
+                      <div className="flex items-center gap-1.5 mb-1 text-[10px] text-neutral-400">
+                        <span>{isRecruiter ? (workspace.company_name || 'You (Recruiter)') : (chatCandidate?.is_unlocked ? chatCandidate.candidate_name : 'Candidate')}</span>
+                        <span>·</span>
+                        <span>{msg.timestamp}</span>
+                      </div>
+                      <div
+                        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed ${
+                          isRecruiter
+                            ? 'bg-neutral-900 text-white dark:bg-amber-500 dark:text-neutral-950 rounded-br-none'
+                            : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-bl-none'
+                        }`}
+                      >
+                        {msg.content}
+                      </div>
+                      {isRecruiter && (
+                        <span className="text-[9px] text-neutral-400 mt-0.5">
+                          {msg.status === 'read' ? 'Read' : msg.status === 'delivered' ? 'Delivered' : 'Sent'}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Input Footer */}
+            <form
+              onSubmit={handleSendDirectChatMessage}
+              className="p-3 border-t border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-950 flex items-center gap-2"
+            >
+              <Input
+                value={chatInputText}
+                onChange={(e) => setChatInputText(e.target.value)}
+                placeholder={`Message ${chatCandidate?.is_unlocked ? chatCandidate.candidate_name : 'candidate'}...`}
+                className="h-10 text-xs rounded-xl flex-1 bg-neutral-50 dark:bg-neutral-900"
+              />
+              <Button
+                type="submit"
+                disabled={!chatInputText.trim()}
+                className="h-10 px-4 text-xs font-semibold rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 gap-1.5 shrink-0"
+              >
+                <Send className="h-3.5 w-3.5" />
+                <span>Send</span>
+              </Button>
+            </form>
           </DialogContent>
         </Dialog>
       </div>

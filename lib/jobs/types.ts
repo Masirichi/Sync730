@@ -99,6 +99,10 @@ export interface PublicJob {
   matchReasons?: string[];
   is_startup?: boolean;
   tags?: string[];
+  source_platform?: string;
+  platform?: string;
+  career_url?: string;
+  url?: string;
 }
 
 export interface JobPublishingInput {

@@ -345,7 +345,7 @@ export interface CandidateContactLog {
   id: string;
   workspace_id: string;
   candidate_id: string;
-  contact_type: 'EMAIL' | 'WHATSAPP';
+  contact_type: 'EMAIL' | 'WHATSAPP' | 'CHAT';
   recipient: string;
   subject?: string;
   message_template: string;

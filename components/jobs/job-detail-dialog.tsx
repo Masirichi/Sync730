@@ -16,6 +16,11 @@ import { getCleanFacts } from './job-card';
 import { reportJob } from '@/app/actions/report-job';
 import { cn } from '@/lib/utils';
 import { ShareJobButton } from './share-job-button';
+import {
+  detectJobPlatform,
+  getJobPlatformInfo,
+  optimizeUrlForPlatform,
+} from '@/lib/jobs/platform-detector';
 
 export interface JobDetailDialogProps {
   job: PublicJob | null;
@@ -228,6 +233,18 @@ export function JobDetailDialog({
               <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 truncate">
                 {job.company}
               </p>
+              {(() => {
+                const pKey = job.source_platform || (job as any).platform || detectJobPlatform(job.career_url || job.url || job.apply_url);
+                if (pKey && pKey !== 'direct' && pKey !== 'other') {
+                  const pInfo = getJobPlatformInfo(pKey);
+                  return (
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 mt-0.5 rounded-full text-[10px] font-semibold border ${pInfo.badgeClass}`}>
+                      <span>Direct {pInfo.shortName}</span>
+                    </span>
+                  );
+                }
+                return null;
+              })()}
             </div>
           </div>
 

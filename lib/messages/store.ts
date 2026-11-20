@@ -19,6 +19,11 @@ export interface MessageThread {
   recruiterInitials: string;
   roleTitle: string;
   roleId?: string;
+  candidateId?: string;
+  candidateName?: string;
+  candidateRole?: string;
+  candidateInitials?: string;
+  candidateAvatar?: string;
   isVerifiedEmployer: boolean;
   unreadCount: number;
   updatedAt: string;
@@ -36,6 +41,11 @@ export const INITIAL_MESSAGE_THREADS: MessageThread[] = [
     recruiterInitials: 'TA',
     roleTitle: 'Senior Frontend Engineer',
     roleId: 'direct-paystack-staff-frontend-02',
+    candidateId: 'cand-001-jane-doe',
+    candidateName: 'Jane Doe',
+    candidateRole: 'Senior Full Stack Engineer (Next.js & Supabase)',
+    candidateInitials: 'JD',
+    candidateAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80',
     isVerifiedEmployer: true,
     unreadCount: 1,
     updatedAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(), // 45m ago
@@ -45,7 +55,7 @@ export const INITIAL_MESSAGE_THREADS: MessageThread[] = [
         threadId: 'thread-paystack-01',
         sender: 'recruiter',
         senderName: 'Tunde Adebayo',
-        content: "Hi Adaeze, I reviewed your profile and SyncFlow application for our Senior Frontend Engineer role. We're really impressed by your Next.js and state management architecture.",
+        content: "Hi Jane, I reviewed your profile and SyncFlow application for our Senior Frontend Engineer role. We're really impressed by your Next.js and state management architecture.",
         timestamp: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
         status: 'read',
       },
@@ -53,7 +63,7 @@ export const INITIAL_MESSAGE_THREADS: MessageThread[] = [
         id: 'msg-p2',
         threadId: 'thread-paystack-01',
         sender: 'candidate',
-        senderName: 'Adaeze Okonkwo',
+        senderName: 'Jane Doe',
         content: "Thank you Tunde! I've been following Paystack's cross-border payment expansion across Africa and would love to discuss how I can contribute to sub-second checkout speeds.",
         timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
         status: 'read',
@@ -77,6 +87,11 @@ export const INITIAL_MESSAGE_THREADS: MessageThread[] = [
     recruiterInitials: 'AO',
     roleTitle: 'Full Stack Systems Engineer',
     roleId: 'direct-moniepoint-cloud-systems-01',
+    candidateId: 'cand-002-tunde-bakare',
+    candidateName: 'Tunde Bakare',
+    candidateRole: 'Principal Cloud & DevOps Architect',
+    candidateInitials: 'TB',
+    candidateAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
     isVerifiedEmployer: true,
     unreadCount: 0,
     updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 14).toISOString(), // 14h ago
@@ -86,7 +101,7 @@ export const INITIAL_MESSAGE_THREADS: MessageThread[] = [
         threadId: 'thread-moniepoint-02',
         sender: 'recruiter',
         senderName: 'Amara Okafor',
-        content: 'Hello Adaeze, noticed your verified profile on Sync730. We have an opening on our core banking platform team for an engineer experienced in high-concurrency Node.js and TypeScript.',
+        content: 'Hello Tunde, noticed your verified profile on Sync730. We have an opening on our core banking platform team for an engineer experienced in high-concurrency Node.js and TypeScript.',
         timestamp: new Date(Date.now() - 1000 * 60 * 60 * 20).toISOString(),
         status: 'read',
       },
@@ -94,7 +109,7 @@ export const INITIAL_MESSAGE_THREADS: MessageThread[] = [
         id: 'msg-m2',
         threadId: 'thread-moniepoint-02',
         sender: 'candidate',
-        senderName: 'Adaeze Okonkwo',
+        senderName: 'Tunde Bakare',
         content: 'Hi Amara, that aligns directly with my distributed systems background. Does this role involve real-time transaction reconciliation and webhook idempotency?',
         timestamp: new Date(Date.now() - 1000 * 60 * 60 * 16).toISOString(),
         status: 'read',
@@ -118,6 +133,11 @@ export const INITIAL_MESSAGE_THREADS: MessageThread[] = [
     recruiterInitials: 'SJ',
     roleTitle: 'Remote Cloud & Linux Engineer',
     roleId: 'canonical-cloud-systems-01',
+    candidateId: 'cand-003-amina-bello',
+    candidateName: 'Amina Bello',
+    candidateRole: 'Lead Product Designer (Design Systems)',
+    candidateInitials: 'AB',
+    candidateAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&auto=format&fit=crop&q=80',
     isVerifiedEmployer: true,
     unreadCount: 0,
     updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2d ago
@@ -127,7 +147,7 @@ export const INITIAL_MESSAGE_THREADS: MessageThread[] = [
         threadId: 'thread-canonical-03',
         sender: 'recruiter',
         senderName: 'Sarah Jenkins',
-        content: 'Hi Adaeze! Your background in cloud infrastructure and TypeScript caught our attention. Canonical is actively hiring remote engineers across Africa (EMEA timezone).',
+        content: 'Hi Amina! Your background in design systems and accessibility caught our attention. Canonical is actively hiring remote product designers across Africa (EMEA timezone).',
         timestamp: new Date(Date.now() - 1000 * 60 * 60 * 50).toISOString(),
         status: 'read',
       },
@@ -168,26 +188,39 @@ export function saveLocalMessageThreads(threads: MessageThread[]): void {
   }
 }
 
-export function sendMessage(threadId: string, content: string): MessageThread | null {
+export function sendMessage(
+  threadId: string,
+  content: string,
+  sender: 'candidate' | 'recruiter' = 'candidate',
+  senderName?: string
+): MessageThread | null {
   if (!content.trim()) return null;
   const current = getLocalMessageThreads();
   const index = current.findIndex((t) => t.id === threadId);
   if (index === -1) return null;
 
+  const target = current[index];
+  const resolvedSenderName =
+    senderName ||
+    (sender === 'recruiter'
+      ? target.recruiterName || 'Recruiter'
+      : target.candidateName || 'Adaeze Okonkwo');
+
   const newMsg: ChatMessage = {
     id: `msg-${Date.now()}-${Math.random().toString(36).substring(7)}`,
     threadId,
-    sender: 'candidate',
-    senderName: 'Adaeze Okonkwo',
+    sender,
+    senderName: resolvedSenderName,
     content: content.trim(),
     timestamp: new Date().toISOString(),
     status: 'sent',
   };
 
   const updatedThread: MessageThread = {
-    ...current[index],
+    ...target,
     updatedAt: new Date().toISOString(),
-    messages: [...current[index].messages, newMsg],
+    messages: [...target.messages, newMsg],
+    unreadCount: sender === 'recruiter' ? target.unreadCount : target.unreadCount + 1,
   };
 
   const updatedThreads = [
@@ -229,12 +262,13 @@ export function createNewMessageThread(params: {
   const current = getLocalMessageThreads();
   const threadId = `thread-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
-  const initials = params.recruiterName
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p[0])
-    .join('')
-    .toUpperCase() || 'RC';
+  const initials =
+    params.recruiterName
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((p) => p[0])
+      .join('')
+      .toUpperCase() || 'RC';
 
   const newMsg: ChatMessage = {
     id: `msg-${Date.now()}`,
@@ -257,6 +291,85 @@ export function createNewMessageThread(params: {
     unreadCount: 0,
     updatedAt: new Date().toISOString(),
     messages: [newMsg],
+  };
+
+  saveLocalMessageThreads([newThread, ...current]);
+  return newThread;
+}
+
+export function getOrCreateTalentThread(params: {
+  candidateId: string;
+  candidateName?: string;
+  candidateRole?: string;
+  candidateInitials?: string;
+  candidateAvatar?: string;
+  recruiterName?: string;
+  recruiterCompany?: string;
+  initialMessage?: string;
+}): MessageThread {
+  const current = getLocalMessageThreads();
+  const cName = params.candidateName || 'Candidate';
+  const existing = current.find(
+    (t) =>
+      t.candidateId === params.candidateId ||
+      (t.candidateName && t.candidateName.toLowerCase().trim() === cName.toLowerCase().trim())
+  );
+
+  if (existing) {
+    if (params.initialMessage && params.initialMessage.trim()) {
+      sendMessage(existing.id, params.initialMessage.trim(), 'recruiter', params.recruiterName || 'Recruiter');
+      return getLocalMessageThreads().find((t) => t.id === existing.id) || existing;
+    }
+    return existing;
+  }
+
+  const threadId = `thread-talent-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+  const initials =
+    params.candidateInitials ||
+    cName
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((p) => p[0])
+      .join('')
+      .toUpperCase() ||
+    'TL';
+
+  const recruiterInitials = (params.recruiterName || 'Alex Morgan')
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0])
+    .join('')
+    .toUpperCase() || 'AM';
+
+  const messages: ChatMessage[] = [];
+  if (params.initialMessage && params.initialMessage.trim()) {
+    messages.push({
+      id: `msg-${Date.now()}`,
+      threadId,
+      sender: 'recruiter',
+      senderName: params.recruiterName || 'Recruiter',
+      content: params.initialMessage.trim(),
+      timestamp: new Date().toISOString(),
+      status: 'sent',
+    });
+  }
+
+  const newThread: MessageThread = {
+    id: threadId,
+    recruiterName: params.recruiterName || 'Alex Morgan',
+    recruiterRole: 'Talent Lead',
+    recruiterCompany: params.recruiterCompany || 'Acme Global Ventures',
+    recruiterInitials,
+    roleTitle: params.candidateRole || 'Software Engineer',
+    candidateId: params.candidateId,
+    candidateName: params.candidateName,
+    candidateRole: params.candidateRole,
+    candidateInitials: initials,
+    candidateAvatar: params.candidateAvatar,
+    isVerifiedEmployer: true,
+    unreadCount: 0,
+    updatedAt: new Date().toISOString(),
+    messages,
   };
 
   saveLocalMessageThreads([newThread, ...current]);

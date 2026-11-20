@@ -17,6 +17,11 @@ import {
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { ShareJobButton } from './share-job-button';
+import {
+  detectJobPlatform,
+  getJobPlatformInfo,
+  optimizeUrlForPlatform,
+} from '@/lib/jobs/platform-detector';
 
 export interface JobCardProps {
   job: PublicJob | any;
@@ -141,6 +146,16 @@ export function JobCard({
     }
   };
 
+  const detectedPlatformKey =
+    job.source_platform ||
+    job.platform ||
+    (job.career_url || job.url || job.apply_url ? detectJobPlatform(job.career_url || job.url || job.apply_url) : 'direct');
+
+  const showPlatformBadge = Boolean(detectedPlatformKey && detectedPlatformKey !== 'direct' && detectedPlatformKey !== 'other');
+  const isStartupRole = Boolean(job.is_startup || (Array.isArray(job.tags) && job.tags.some((t: string) => t.toLowerCase() === 'startup')));
+  const hasMatchScore = typeof job.matchScore === 'number' && job.matchScore > 0;
+  const hasBadges = Boolean(isFeatured || isStartupRole || hasMatchScore || showPlatformBadge);
+
   return (
     <article
         id={`job-card-${job.id}`}
@@ -175,7 +190,7 @@ export function JobCard({
                   {companyName}
                 </p>
 
-                {(isFeatured || Boolean(job.is_startup || (Array.isArray(job.tags) && job.tags.some((t: string) => t.toLowerCase() === 'startup'))) || (typeof job.matchScore === 'number' && job.matchScore > 0)) && (
+                {hasBadges && (
                   <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
                     {/* Text-only Featured Badge on Featured Cards (High Contrast >= 4.5:1) */}
                     {isFeatured && (
@@ -185,16 +200,23 @@ export function JobCard({
                     )}
 
                     {/* Startup Vacancy Badge (Clean, No Emoji) */}
-                    {Boolean(job.is_startup || (Array.isArray(job.tags) && job.tags.some((t: string) => t.toLowerCase() === 'startup'))) && (
+                    {isStartupRole && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold text-amber-900 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800">
                         <span>Startup</span>
                       </span>
                     )}
 
                     {/* Recommendation Match Badge */}
-                    {typeof job.matchScore === 'number' && job.matchScore > 0 && (
+                    {hasMatchScore && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800">
                         <span>{job.matchScore}% match</span>
+                      </span>
+                    )}
+
+                    {/* Sourcing & ATS Platform Badge */}
+                    {showPlatformBadge && (
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${getJobPlatformInfo(detectedPlatformKey).badgeClass}`}>
+                        <span>{getJobPlatformInfo(detectedPlatformKey).shortName}</span>
                       </span>
                     )}
                   </div>

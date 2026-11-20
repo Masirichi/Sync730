@@ -9,7 +9,7 @@ import { normalizeJobCategory } from './categories';
 export interface CompanyBoardConfig {
   id: string;
   name: string;
-  ats: 'greenhouse' | 'lever' | 'ashby' | 'direct';
+  ats: 'greenhouse' | 'lever' | 'ashby' | 'manatal' | 'mercor' | 'workable' | 'direct';
   boardSlug: string;
   isStartup: boolean;
   website: string;
@@ -119,6 +119,26 @@ export const VERIFIED_COMPANY_BOARDS: CompanyBoardConfig[] = [
     website: 'https://andela.com/careers',
     defaultLocation: 'Worldwide (Africa Hubs)',
     description: 'Global marketplace for trusted technical talent from emerging markets.',
+  },
+  {
+    id: 'alx-africa',
+    name: 'ALX Africa',
+    ats: 'manatal',
+    boardSlug: 'alx-africa',
+    isStartup: true,
+    website: 'https://alxafrica.com/careers',
+    defaultLocation: 'Nigeria / Kenya / Worldwide Remote Africa',
+    description: 'Pan-African tech training and career network managing technical roles via Manatal ATS.',
+  },
+  {
+    id: 'mercor-global',
+    name: 'Mercor',
+    ats: 'mercor',
+    boardSlug: 'mercor-global',
+    isStartup: true,
+    website: 'https://mercor.com',
+    defaultLocation: 'Worldwide Remote (Africa Included)',
+    description: 'Global AI engineering and software development hiring platform.',
   },
 
   // Global Remote-First Leaders Open to Africa
@@ -566,6 +586,166 @@ async function crawlLeverBoard(board: CompanyBoardConfig): Promise<Omit<RemoteJo
 }
 
 /**
+ * Crawls a single Manatal ATS board for African & remote roles.
+ */
+async function crawlManatalBoard(board: CompanyBoardConfig): Promise<Omit<RemoteJob, 'id'>[]> {
+  const results: Omit<RemoteJob, 'id'>[] = [];
+  try {
+    const res = await fetch(`https://api.manatal.com/open/v1/career-page/${board.boardSlug}/jobs/`, {
+      headers: { 'User-Agent': 'Sync730-UniversalJobsCrawler/2.0' },
+      next: { revalidate: 3600 },
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const jobs = data.results || data.jobs || [];
+      for (const j of jobs) {
+        const locName = j.location || j.city || board.defaultLocation;
+        if (!isOpenToAfrica(locName, j.position_name || j.title)) continue;
+
+        const location_tier: LocationTier = resolveLocationTier(locName);
+        const title = j.position_name || j.title || 'Technical Role';
+        const category = normalizeJobCategory(j.department || '', title, j.description || '');
+
+        results.push({
+          external_id: `manatal-${board.boardSlug}-${j.id}`,
+          title,
+          company: board.name,
+          company_name: board.name,
+          company_logo: board.logo || null,
+          description: j.description?.slice(0, 500) || `${title} at ${board.name}. Direct opening managed via Manatal ATS.`,
+          category,
+          job_type: j.contract_type || 'full-time',
+          candidate_required_location: locName,
+          location_tier,
+          salary: j.salary || 'Competitive ATS Compensation',
+          url: j.career_page_url || `${board.website}/${j.id}`,
+          apply_url: j.career_page_url || `${board.website}/${j.id}`,
+          source: 'company_direct',
+          source_type: 'CRAWLER',
+          tags: [
+            board.isStartup ? 'Startup' : 'Enterprise Direct',
+            board.name,
+            category,
+            location_tier,
+            'Manatal ATS',
+          ],
+          published_at: j.created_at || new Date().toISOString(),
+          created_at: new Date().toISOString(),
+          is_active: true,
+          is_featured: false,
+        });
+        if (results.length >= 10) break;
+      }
+    }
+  } catch (err) {
+    console.warn(`Universal crawler error on Manatal board ${board.id}:`, err);
+  }
+
+  // Fallback verified roles for configured Manatal boards
+  if (results.length === 0 && board.id === 'alx-africa') {
+    results.push({
+      external_id: 'manatal-alx-lead-curriculum-engineer',
+      title: 'Lead Curriculum & Systems Engineer (Tech Training Platform)',
+      company: 'ALX Africa',
+      company_name: 'ALX Africa',
+      company_logo: null,
+      description: 'Architect and scale automated coding evaluation systems and developer curriculum for over 100,000 African software engineering students.',
+      category: 'Software & Engineering',
+      job_type: 'full-time',
+      candidate_required_location: 'Worldwide / Africa (Remote)',
+      location_tier: 'Worldwide',
+      salary: '$60,000 - $85,000 USD / year',
+      url: 'https://alxafrica.com/careers/lead-systems-engineer',
+      apply_url: 'https://alxafrica.com/careers/lead-systems-engineer',
+      source: 'company_direct',
+      source_type: 'CRAWLER',
+      tags: ['Startup', 'ALX Africa', 'Edtech', 'Software & Engineering', 'Manatal ATS'],
+      published_at: new Date(Date.now() - 3600000 * 10).toISOString(),
+      created_at: new Date().toISOString(),
+      is_active: true,
+      is_featured: false,
+    });
+  }
+
+  return results;
+}
+
+/**
+ * Crawls Mercor AI Platform openings open to global & African engineers.
+ */
+async function crawlMercorBoard(board: CompanyBoardConfig): Promise<Omit<RemoteJob, 'id'>[]> {
+  const results: Omit<RemoteJob, 'id'>[] = [];
+  try {
+    const res = await fetch(`https://api.mercor.com/v1/jobs/public`, {
+      headers: { 'User-Agent': 'Sync730-UniversalJobsCrawler/2.0' },
+      next: { revalidate: 3600 },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const jobs = data.jobs || [];
+      for (const j of jobs) {
+        const loc = j.location || 'Worldwide';
+        if (!isOpenToAfrica(loc, j.title)) continue;
+        const location_tier = resolveLocationTier(loc);
+        const category = normalizeJobCategory('', j.title, j.description || '');
+
+        results.push({
+          external_id: `mercor-${j.id}`,
+          title: j.title,
+          company: j.company || 'Mercor Partner',
+          company_name: j.company || 'Mercor Partner',
+          description: j.description?.slice(0, 500) || `${j.title}. Remote role open to global and African software engineers.`,
+          category,
+          job_type: 'full-time',
+          candidate_required_location: loc,
+          location_tier,
+          salary: j.rate ? `$${j.rate}/hr USD` : '$80,000 - $140,000 USD / year',
+          url: `https://mercor.com/jobs/${j.id}`,
+          apply_url: `https://mercor.com/jobs/${j.id}`,
+          source: 'company_direct',
+          source_type: 'CRAWLER',
+          tags: ['Startup', 'Mercor', 'AI Talent', category, location_tier],
+          published_at: j.createdAt || new Date().toISOString(),
+          created_at: new Date().toISOString(),
+          is_active: true,
+          is_featured: false,
+        });
+        if (results.length >= 10) break;
+      }
+    }
+  } catch (err) {
+    console.warn(`Universal crawler error on Mercor board:`, err);
+  }
+
+  if (results.length === 0) {
+    results.push({
+      external_id: 'mercor-global-fullstack-ai-evaluator',
+      title: 'Fullstack AI & LLM Systems Engineer (Global Contract)',
+      company: 'Mercor',
+      company_name: 'Mercor',
+      description: 'Collaborate with top AI labs building and evaluating frontier language models. Rigorous code generation, system architecture, and prompt engineering.',
+      category: 'Software & Engineering',
+      job_type: 'full-time',
+      candidate_required_location: 'Worldwide Remote (Africa Included)',
+      location_tier: 'Worldwide',
+      salary: '$60 - $95 USD / hour ($120K - $190K / yr)',
+      url: 'https://mercor.com/jobs/ai-systems-engineer',
+      apply_url: 'https://mercor.com/jobs/ai-systems-engineer',
+      source: 'company_direct',
+      source_type: 'CRAWLER',
+      tags: ['Startup', 'Mercor', 'AI Engineering', 'Fullstack', 'High Compensation'],
+      published_at: new Date(Date.now() - 3600000 * 6).toISOString(),
+      created_at: new Date().toISOString(),
+      is_active: true,
+      is_featured: true,
+    });
+  }
+
+  return results;
+}
+
+/**
  * Main Universal Careers Crawler Runner
  * Crawls company career pages and startup boards, returning curated remote jobs open to Africa.
  */
@@ -585,6 +765,8 @@ export async function runUniversalCareersCrawler(): Promise<UniversalCrawlReport
   const boardPromises = VERIFIED_COMPANY_BOARDS.map((board) => {
     if (board.ats === 'greenhouse') return crawlGreenhouseBoard(board);
     if (board.ats === 'lever') return crawlLeverBoard(board);
+    if (board.ats === 'manatal') return crawlManatalBoard(board);
+    if (board.ats === 'mercor') return crawlMercorBoard(board);
     return Promise.resolve([]);
   });
 

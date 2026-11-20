@@ -256,6 +256,8 @@ export interface AdminRemoteJob {
   city_location?: string | null;
   published_at: string;
   created_at: string;
+  source_platform?: string;
+  platform?: string;
   is_demo?: boolean;
   recording_retention_days?: number; // Video retention in days (maximum 90 days)
 }

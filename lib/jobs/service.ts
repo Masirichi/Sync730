@@ -17,6 +17,7 @@ import {
 } from './helpers';
 import { calculateJobRecommendation } from './recommendations';
 import { getCandidateProfile } from '@/lib/candidate/profile';
+import { detectJobPlatform } from './platform-detector';
 
 export type { PublicJob, JobModality, JobCategory, JobEligibility };
 
@@ -318,6 +319,10 @@ function toPublicJob(raw: any): PublicJob | null {
       (raw.company && ['moniepoint', 'paystack', 'kuda', 'chowdeck', 'chipper', 'reliance', 'helium', 'fairmoney', 'flutterwave', 'remote', 'buffer', 'deel', 'zapier'].some((s: string) => raw.company.toLowerCase().includes(s)))
     ),
     tags: Array.isArray(raw.tags) ? raw.tags : [],
+    source_platform: raw.source_platform || raw.platform || (raw.career_url || raw.url || raw.apply_url ? detectJobPlatform(raw.career_url || raw.url || raw.apply_url) : 'direct'),
+    platform: raw.source_platform || raw.platform || (raw.career_url || raw.url || raw.apply_url ? detectJobPlatform(raw.career_url || raw.url || raw.apply_url) : 'direct'),
+    career_url: raw.career_url || raw.url || raw.apply_url,
+    url: raw.career_url || raw.url || raw.apply_url,
   };
 }
 
