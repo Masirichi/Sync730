@@ -250,13 +250,13 @@ export const homeCopy: HomeCopy = {
   meta: {
     title: 'Sync730 — AI Recruitment Solutions for High-Growth Teams',
     description:
-      "Autonomous AI recruitment platform for modern engineering teams. Source, screen with calibrated AI video interviews, and hire Africa's top 2% technical talent in 72 hours. Headquartered in Abuja, Nigeria.",
+      "Autonomous AI recruitment platform for modern engineering teams. Source, screen with calibrated AI video interviews, and hire Africa's top 2% technical talent in 72 hours.",
     canonical: 'https://sync730.com/',
     siteName: 'Sync730',
     ogImage: '/og-sync730.png',
   },
   hero: {
-    eyebrow: 'A — ATTENTION · ALL-IN-ONE AI RECRUITMENT PLATFORM',
+    eyebrow: 'ALL-IN-ONE AI RECRUITMENT PLATFORM',
     h1: 'All-in-one AI recruitment platform',
     sub: "Sync730 is an autonomous, all-in-one AI recruitment platform engineered to source, screen, and hire Africa's top 2% technical talent in 72 hours.",
     ctaPrimary: 'Request a Demo',
@@ -264,17 +264,17 @@ export const homeCopy: HomeCopy = {
     ctaSecondary: 'Start Hiring with AI',
     ctaSecondaryHref: '/hiring',
     proofLine:
-      '72h avg. time-to-hire · 10,000+ Pre-vetted Engineers · 94.6% Pass Rate · Abuja, Nigeria',
+      '72h avg. time-to-hire · 10,000+ Pre-vetted Engineers · 94.6% Final Round Pass Rate',
     proofItems: [
       '72h avg. time-to-hire',
       '10,000+ Pre-vetted Engineers',
       '94.6% Final round pass rate',
-      'Abuja, Nigeria',
+      'Verified Technical Talent',
     ],
     sampleBadge: 'AI Match Dossier',
   },
   products: {
-    label: 'I — INTEREST · THE AI RECRUITMENT ENGINE',
+    label: 'THE AI RECRUITMENT ENGINE',
     h2: 'Full-cycle AI recruitment architecture.',
     sub: 'From automated ATS indexing to live STAR video evaluations and direct messaging, Sync730 gives technical teams high-signal hiring with zero friction.',
     items: [
@@ -337,7 +337,7 @@ export const homeCopy: HomeCopy = {
     ],
   },
   solutions: {
-    label: 'D — DESIRE · PROVEN OUTCOMES & TOP 2% TALENT',
+    label: 'PROVEN OUTCOMES & TOP 2% TALENT',
     h2: 'Engineered for how top engineering teams hire.',
     sub: "We don't send 500 unvetted resumes. We deliver pre-vetted senior African engineers ready to ship code on Day 1, cutting recruitment cycles from 45 days to 72 hours.",
     items: [
@@ -499,7 +499,7 @@ export const homeCopy: HomeCopy = {
   latestRoles: {
     eyebrow: 'HIRING NOW · LIVE FEED',
     h2: 'Roles you can actually apply for.',
-    body: 'Curated remote, hybrid and onsite roles in Lagos, Abuja and across Africa, from customer support and engineering to sales, operations and more. Each one is confirmed real, and open to Africa, before it reaches you.',
+    body: 'Curated remote, hybrid and onsite roles across Nigeria and Africa, from customer support and engineering to sales, operations and more. Each one is confirmed real, and open to Africa, before it reaches you.',
     metaSuffix: 'live roles · Remote, hybrid & onsite · One profile, every application',
     buttonText: 'Find Work',
     buttonHref: '/find-work',
@@ -534,7 +534,7 @@ export const homeCopy: HomeCopy = {
   },
   employers: {
     id: 'for-recruiters',
-    eyebrow: 'D — DESIRE · HIGH-SIGNAL TECHNICAL VETTING',
+    eyebrow: 'HIGH-SIGNAL TECHNICAL VETTING',
     h2: 'How modern engineering teams make confident hires.',
     body: "Africa has elite engineering talent. Traditional resumes can't prove production depth. Every candidate completes an adaptive AI video and coding assessment, providing your team with rubric-calibrated evidence to hire in 72 hours.",
     points: [
@@ -618,7 +618,7 @@ export const homeCopy: HomeCopy = {
     ],
   },
   closing: {
-    eyebrow: 'A — ACTION · START HIRING IN 72 HOURS',
+    eyebrow: 'START HIRING IN 72 HOURS',
     h2: 'Transform your technical hiring with AI in 72 hours.',
     bodyPrefix: 'Join ',
     bodySuffix: '+ engineering teams and vetted technical professionals scaling without agency markups.',
@@ -626,7 +626,7 @@ export const homeCopy: HomeCopy = {
     ctaPrimaryHref: '/hiring',
     ctaSecondary: 'Start Hiring with AI',
     ctaSecondaryHref: '/hiring',
-    microcopy: 'Zero placement fees until you make a hire · 30-day replacement guarantee · Abuja, Nigeria',
+    microcopy: 'Zero placement fees until you make a hire · 30-day replacement guarantee',
   },
   nav: {
     links: [

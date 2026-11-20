@@ -120,7 +120,7 @@ export default async function HomePage() {
         url: 'https://sync730.com',
         logo: 'https://sync730.com/assets/logo/sync730_icon_black.png',
         description:
-          'Sync730 is an AI recruitment solutions platform headquartered in Abuja, Nigeria, connecting high-growth teams with top verified African technical talent in 72 hours.',
+          'Sync730 is an AI recruitment solutions platform connecting high-growth teams with top verified African technical talent in 72 hours.',
         address: {
           '@type': 'PostalAddress',
           addressLocality: 'Abuja',

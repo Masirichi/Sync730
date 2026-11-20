@@ -139,7 +139,7 @@ export function SolutionsSection() {
                   <span className="text-orange-600 dark:text-orange-400 font-bold">10,000+ Vetted African Engineers</span>
                 </div>
                 <p className="mt-1 text-[11px] text-muted-foreground">
-                  Hubs across Abuja, Lagos, Nairobi, Cape Town, and Accra.
+                  Hubs across Nigeria, Kenya, South Africa, and Ghana.
                 </p>
               </div>
 

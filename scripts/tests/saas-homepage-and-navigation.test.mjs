@@ -6,7 +6,7 @@ import path from 'node:path';
 
 const projectRoot = path.resolve(process.cwd());
 
-test('1. Master Home Copy: CoreShift & AIDA Framework positioning', () => {
+test('1. Master Home Copy: CoreShift positioning without literal AIDA initials or non-footer Abuja', () => {
   const homeCopyPath = path.join(projectRoot, 'content', 'home.ts');
   const fileContent = fs.readFileSync(homeCopyPath, 'utf8');
 
@@ -21,16 +21,22 @@ test('1. Master Home Copy: CoreShift & AIDA Framework positioning', () => {
   assert.ok(fileContent.includes("createProfileLabel: 'Start Hiring'"), 'Primary button should be Start Hiring');
   assert.ok(fileContent.includes("createProfileHref: '/hiring'"), 'Primary button links to /hiring');
 
-  // Verify Footer Address (Strictly No HQ)
+  // Verify Footer Address is strictly Abuja, Nigeria (without HQ)
   assert.ok(fileContent.includes("address: 'Abuja, Nigeria'"), 'Footer address must be Abuja, Nigeria');
   assert.ok(!fileContent.includes('Abuja HQ') && !fileContent.includes('Sync730 HQ'), 'Address must not include HQ');
 
-  // Verify AIDA Positioning
-  assert.ok(fileContent.includes('A — ATTENTION'), 'Hero eyebrow contains A — ATTENTION');
+  // Verify Abuja is NOT in hero section (only in footer)
+  const heroSlice = fileContent.slice(fileContent.indexOf('hero: {'), fileContent.indexOf('products: {'));
+  assert.ok(!heroSlice.includes('Abuja'), 'Hero section must not contain Abuja');
+
+  // Verify removal of literal AIDA initials and explanations (concept alone remains)
+  assert.ok(!fileContent.includes('A — ATTENTION'), 'homeCopy must not contain literal A — ATTENTION');
+  assert.ok(!fileContent.includes('I — INTEREST'), 'homeCopy must not contain literal I — INTEREST');
+  assert.ok(!fileContent.includes('D — DESIRE'), 'homeCopy must not contain literal D — DESIRE');
+  assert.ok(!fileContent.includes('A — ACTION'), 'homeCopy must not contain literal A — ACTION');
+
+  // Verify CoreShift All-in-one headline
   assert.ok(fileContent.includes('All-in-one AI recruitment platform'), 'H1 matches CoreShift All-in-one pattern');
-  assert.ok(fileContent.includes('I — INTEREST'), 'Products section contains I — INTEREST');
-  assert.ok(fileContent.includes('D — DESIRE'), 'Solutions/employers section contains D — DESIRE');
-  assert.ok(fileContent.includes('A — ACTION'), 'Closing CTA section contains A — ACTION');
 
   // Verify strict no emoji rule in homeCopy
   const emojiRegex = /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
@@ -86,7 +92,7 @@ test('4. Dedicated SaaS Pages: /products, /solutions, /hiring with orange accent
   assert.ok(!hiringContent.includes('Abuja, Nigeria HQ'), 'Hiring page should not have HQ');
 });
 
-test('5. Hero Section: CoreShift Connected Platform Hub & AIDA Integration', () => {
+test('5. Hero Section: CoreShift Connected Platform Hub, no location icon & no Abuja', () => {
   const heroPath = path.join(projectRoot, 'components', 'home', 'hero-section.tsx');
   const heroContent = fs.readFileSync(heroPath, 'utf8');
 
@@ -94,18 +100,31 @@ test('5. Hero Section: CoreShift Connected Platform Hub & AIDA Integration', () 
   assert.ok(heroContent.includes('Sync730 Core AI'), 'Hero includes central AI hub node');
   assert.ok(heroContent.includes('#FF5500'), 'Hero section has vibrant orange CTA');
   assert.ok(heroContent.includes('Direct Chat'), 'Hero section features direct chat button');
-  assert.ok(!heroContent.includes('Abuja HQ'), 'Hero section should not have HQ');
+  assert.ok(!heroContent.includes('MapPin'), 'Hero section must not include MapPin location icon');
+  assert.ok(!heroContent.includes('Abuja'), 'Hero section must not include Abuja');
+});
 
-  // Verify AIDA stages throughout sections
-  const productsSectionPath = path.join(projectRoot, 'components', 'home', 'products-section.tsx');
-  const productsSectionContent = fs.readFileSync(productsSectionPath, 'utf8');
-  assert.ok(productsSectionContent.includes('animate-ping'), 'Products section includes animated beacon');
+test('6. Section Directly Below Hero: CoreSolutionsSection inspired by reference image', () => {
+  const homeViewPath = path.join(projectRoot, 'components', 'home', 'home-view.tsx');
+  const homeViewContent = fs.readFileSync(homeViewPath, 'utf8');
 
-  const solutionsSectionPath = path.join(projectRoot, 'components', 'home', 'solutions-section.tsx');
-  const solutionsSectionContent = fs.readFileSync(solutionsSectionPath, 'utf8');
-  assert.ok(solutionsSectionContent.includes('animate-ping'), 'Solutions section includes animated beacon');
+  // Must be directly below HeroSection
+  const heroIndex = homeViewContent.indexOf('<HeroSection');
+  const coreSolutionsIndex = homeViewContent.indexOf('<CoreSolutionsSection');
+  assert.ok(heroIndex !== -1, 'HeroSection must be in HomeView');
+  assert.ok(coreSolutionsIndex !== -1, 'CoreSolutionsSection must be in HomeView');
+  assert.ok(coreSolutionsIndex > heroIndex, 'CoreSolutionsSection must be directly below HeroSection');
 
-  const finalCtaPath = path.join(projectRoot, 'components', 'home', 'final-cta-section.tsx');
-  const finalCtaContent = fs.readFileSync(finalCtaPath, 'utf8');
-  assert.ok(finalCtaContent.includes('A — ACTION'), 'Closing CTA section features A — ACTION eyebrow');
+  // Verify CoreSolutionsSection component file
+  const coreSolutionsPath = path.join(projectRoot, 'components', 'home', 'core-solutions-section.tsx');
+  assert.ok(fs.existsSync(coreSolutionsPath), 'core-solutions-section.tsx must exist');
+
+  const coreSolutionsContent = fs.readFileSync(coreSolutionsPath, 'utf8');
+  assert.ok(coreSolutionsContent.includes('Core recruitment'), 'Must feature Core recruitment solutions title');
+  assert.ok(coreSolutionsContent.includes('Learn more'), 'Must include Learn more action');
+  assert.ok(!coreSolutionsContent.includes('Abuja'), 'CoreSolutionsSection must not mention Abuja');
+
+  // Check no emojis in core-solutions-section.tsx
+  const emojiRegex = /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
+  assert.ok(!emojiRegex.test(coreSolutionsContent), 'core-solutions-section.tsx must not contain emoji characters');
 });

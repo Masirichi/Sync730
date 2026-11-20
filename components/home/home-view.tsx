@@ -7,6 +7,7 @@ import { SiteFooter } from '@/components/site/site-footer';
 import { ProductsSection } from '@/components/home/products-section';
 import { SolutionsSection } from '@/components/home/solutions-section';
 import { HeroSection } from '@/components/home/hero-section';
+import { CoreSolutionsSection } from '@/components/home/core-solutions-section';
 import { LiveStatsBand } from '@/components/home/live-stats-band';
 import { BeliefSection } from '@/components/home/belief-section';
 import { ForCandidatesSection, LatestJobItem } from '@/components/home/for-candidates-section';
@@ -58,10 +59,13 @@ export function HomeView({
         {/* 1. Hero: Autonomous AI recruitment for modern engineering teams */}
         <HeroSection onOpenDemo={() => setDemoOpen(true)} />
 
-        {/* 2. Live Stats: Benchmarks and real-time verification activity */}
+        {/* 2. Core Recruitment Solutions (Directly below Hero - Outcrowd CoreShift Inspiration) */}
+        <CoreSolutionsSection onOpenDemo={() => setDemoOpen(true)} />
+
+        {/* 3. Live Stats: Benchmarks and real-time verification activity */}
         <LiveStatsBand initialStats={initialStats} initialJobs={tickerJobs} />
 
-        {/* 3. Products Bento Grid: Full-cycle AI recruitment architecture (#products) */}
+        {/* 4. Products Bento Grid: Full-cycle AI recruitment architecture (#products) */}
         <ProductsSection />
 
         {/* 4. Solutions Section: Startups, Global Remote, Engineering Leaders (#solutions) */}
@@ -79,7 +83,7 @@ export function HomeView({
         {/* 8. The Sync730 Difference: Objective technical vetting, zero agency markups */}
         <DifferentiatorsSection />
 
-        {/* 9. Belief & Mission: Headquartered in Abuja, Nigeria · Connecting global opportunity */}
+        {/* 10. Belief & Mission: Connecting global opportunity */}
         <BeliefSection />
 
         {/* 10. For Candidates: Free tools for African talent (SyncFlow, Resume Studio, Mock Coach) */}

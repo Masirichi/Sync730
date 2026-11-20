@@ -9,7 +9,6 @@ import {
   Video,
   Check,
   CheckCircle2,
-  MapPin,
   Code2,
   Lightbulb,
   ShieldCheck,
@@ -81,7 +80,7 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
         {/* CoreShift Outer Card Frame */}
         <div className="relative mx-auto max-w-5xl rounded-3xl border border-border/80 bg-card/60 p-6 sm:p-10 md:p-14 shadow-2xl shadow-black/5 backdrop-blur-xl">
-          {/* Eyebrow Pill: A — ATTENTION */}
+          {/* Eyebrow Pill */}
           <div className="mb-6 flex justify-center sm:mb-8">
             <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-orange-600 dark:text-orange-400">
               <span className="relative flex h-2 w-2">
@@ -346,8 +345,8 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
                         Senior Distributed Systems Engineer
                       </h3>
                       <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5 shrink-0 text-orange-500" />
-                        <span>Abuja, Nigeria · Worldwide Remote</span>
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        <span>Worldwide Remote · Africa Timezone Overlap</span>
                       </div>
                     </div>
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-orange-500/25 bg-orange-500/10 text-xs font-bold text-orange-600 dark:text-orange-400">

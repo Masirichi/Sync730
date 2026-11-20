@@ -53,7 +53,7 @@ const DEFAULT_STREAM_ROLES: Partial<RemoteJob>[] = [
     company: 'Sterling Innovation Hub',
     salary: '₦600k/mo',
     work_mode: 'ONSITE',
-    city_location: 'Maitama, Abuja',
+    city_location: 'Lagos, Nigeria',
     location_tier: 'Africa Only',
     is_featured: false,
   },
@@ -149,7 +149,7 @@ const DEFAULT_PLATFORM_EVENTS: LiveActivityEvent[] = [
     category: 'VERIFIED',
     title: 'Role Verified',
     detail: 'Senior Mobile Engineer role confirmed active',
-    location: 'Abuja, Nigeria',
+    location: 'Lagos, Nigeria',
     timeAgo: '14m ago',
   },
   {
@@ -199,16 +199,14 @@ function formatLocationPill(job: Partial<RemoteJob>): { text: string; mode: 'REM
   const city = job.city_location || '';
 
   if (mode === 'ONSITE') {
-    if (city.toLowerCase().includes('abuja')) return { text: 'Onsite • Abuja', mode: 'ONSITE' };
     if (city.toLowerCase().includes('lagos')) return { text: 'Onsite • Lagos', mode: 'ONSITE' };
-    if (city) return { text: `Onsite • ${city}`, mode: 'ONSITE' };
+    if (city) return { text: `Onsite • ${city.replace(/abuja/i, 'Nigeria')}`, mode: 'ONSITE' };
     return { text: 'Onsite • Nigeria', mode: 'ONSITE' };
   }
 
   if (mode === 'HYBRID') {
-    if (city.toLowerCase().includes('abuja')) return { text: 'Hybrid • Abuja', mode: 'HYBRID' };
     if (city.toLowerCase().includes('lagos')) return { text: 'Hybrid • Lagos', mode: 'HYBRID' };
-    if (city) return { text: `Hybrid • ${city}`, mode: 'HYBRID' };
+    if (city) return { text: `Hybrid • ${city.replace(/abuja/i, 'Nigeria')}`, mode: 'HYBRID' };
     return { text: 'Hybrid • Lagos', mode: 'HYBRID' };
   }
 
