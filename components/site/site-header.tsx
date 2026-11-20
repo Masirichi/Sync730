@@ -109,8 +109,7 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
     }
   }, [avatarMenuOpen]);
 
-  // Order: Find Work · How it works · For candidates · For recruiters
-  // Nav paths: href: '/find-work' -> href: '/#how-it-works' -> href: '/#for-candidates' -> href: '/#for-recruiters'
+  // Navigation: Find Work · Products · Solutions · Hiring
   const links = homeCopy.nav.links;
 
   const isLinkActive = (href: string) => {
@@ -120,7 +119,7 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
     if (href.startsWith('/#')) {
       return false;
     }
-    return pathname === href;
+    return pathname === href || (pathname ? pathname.startsWith(href) : false);
   };
 
   const handleOpenDemo = () => {

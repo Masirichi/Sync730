@@ -27,8 +27,8 @@ export function ForRecruitersSection({ onOpenDemo }: ForRecruitersSectionProps) 
 
   return (
     <section
-      id={content.id}
-      aria-label="For recruiters"
+      id="hiring"
+      aria-label="AI Hiring Engine"
       className="scroll-mt-20 border-b border-border/70 bg-background text-foreground py-20 sm:py-28"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">

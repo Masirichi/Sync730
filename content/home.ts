@@ -173,6 +173,34 @@ export interface HomeCopy {
     ctaSecondaryHref: string;
     microcopy: string;
   };
+  products?: {
+    label: string;
+    h2: string;
+    sub: string;
+    items: Array<{
+      id: string;
+      title: string;
+      badge: string;
+      tagline: string;
+      description: string;
+      bullets: string[];
+      href: string;
+    }>;
+  };
+  solutions?: {
+    label: string;
+    h2: string;
+    sub: string;
+    items: Array<{
+      id: string;
+      audience: string;
+      title: string;
+      description: string;
+      impact: string;
+      points: string[];
+      href: string;
+    }>;
+  };
   nav: {
     links: Array<{
       label: string;
@@ -185,9 +213,22 @@ export interface HomeCopy {
     createProfileHref: string;
   };
   footer: {
+    address: string;
     tagline: string;
     columns: {
       explore: {
+        title: string;
+        links: Array<{ label: string; href: string }>;
+      };
+      products?: {
+        title: string;
+        links: Array<{ label: string; href: string }>;
+      };
+      solutions?: {
+        title: string;
+        links: Array<{ label: string; href: string }>;
+      };
+      hiring?: {
         title: string;
         links: Array<{ label: string; href: string }>;
       };
@@ -206,29 +247,141 @@ export interface HomeCopy {
 
 export const homeCopy: HomeCopy = {
   meta: {
-    title: 'Sync730: Smarter recruitment with AI solutions for everyday businesses',
+    title: 'Sync730 — AI Recruitment Solutions for High-Growth Teams',
     description:
-      'Meet the people who fit, not the pile. Sync730 interviews every applicant, scores them on your criteria, and hands you a ranked shortlist. You decide.',
+      "Autonomous AI recruitment platform for modern engineering teams. Source, screen with calibrated AI video interviews, and hire Africa's top 2% technical talent in 72 hours. Headquartered in Abuja, Nigeria.",
     canonical: 'https://sync730.com/',
     siteName: 'Sync730',
     ogImage: '/og-sync730.png',
   },
   hero: {
-    eyebrow: 'WE BELIEVE TALENT IS EVERYWHERE',
-    h1: 'Talent is everywhere. Real opportunity should be too.',
-    sub: 'Sync730 checks that every role is live and open to Africa, so you can stop applying into the void. For employers, we interview every applicant and hand you a shortlist, so you can stop sorting the pile.',
-    ctaPrimary: "I'm looking for work",
-    ctaPrimaryHref: '/find-work',
-    ctaSecondary: "I'm hiring in Africa",
-    ctaSecondaryHref: '/for-employers',
+    eyebrow: 'AI RECRUITMENT SOLUTIONS FOR GLOBAL TEAMS',
+    h1: 'Autonomous AI recruitment for modern engineering teams.',
+    sub: "Sync730 replaces manual resume screening and endless first rounds with calibrated AI video interviews, real-world code evaluations, and instant shortlists of Africa's top 2% technical talent.",
+    ctaPrimary: 'Start Hiring with AI',
+    ctaPrimaryHref: '/hiring',
+    ctaSecondary: 'Explore Products',
+    ctaSecondaryHref: '/products',
     proofLine:
-      'Free for candidates · People make every hiring decision · Built for how Africa hires',
+      '72h avg. time-to-hire · Calibrated STAR rubrics · Humans make every final hiring decision',
     proofItems: [
-      'Free for candidates',
-      'People make every hiring decision',
-      'Built for how Africa hires',
+      '72h avg. time-to-hire',
+      'Calibrated STAR scoring rubrics',
+      'Humans make every final hiring decision',
     ],
-    sampleBadge: 'Sample',
+    sampleBadge: 'AI Match Dossier',
+  },
+  products: {
+    label: 'OUR SUITE OF AI TOOLS',
+    h2: 'Full-cycle AI recruitment architecture.',
+    sub: 'From automated sourcing to live video evaluation and pipeline management, Sync730 gives technical teams high-signal hiring with zero friction.',
+    items: [
+      {
+        id: 'sourcing',
+        title: 'AI Autonomous Sourcing & Matchmaker',
+        badge: 'Smart Sourcing',
+        tagline: 'Deep semantic matching from live engineering profiles',
+        description:
+          'Our AI engine evaluates real GitHub commits, production stack depth, and regional Africa eligibility to surface candidate matches with 94%+ relevance.',
+        bullets: [
+          'Direct semantic matching against role specs',
+          'Pre-cleared African remote eligibility',
+          'Zero keyword manipulation or resume fluff',
+        ],
+        href: '/products#sourcing',
+      },
+      {
+        id: 'interview',
+        title: 'AI Video & Technical Interviewer',
+        badge: 'Automated Screening',
+        tagline: '20-minute adaptive technical and STAR interviews',
+        description:
+          'Eliminate 80+ hours of repetitive screening. Our conversational AI conducts structured technical interviews and provides rubric-calibrated scoring.',
+        bullets: [
+          'Calibrated STAR behavioral & technical rubrics',
+          'Live code problem-solving & architecture review',
+          'Transparent evidence-backed scorecards',
+        ],
+        href: '/products#interview',
+      },
+      {
+        id: 'syncflow',
+        title: 'SyncFlow ATS & Talent CRM',
+        badge: 'Pipeline CRM',
+        tagline: 'Collaborative pipeline built for technical speed',
+        description:
+          'Track candidates from Sourced to Offer. Multi-user review, private notes, stage automation, and one-click candidate progression.',
+        bullets: [
+          'Drag-and-drop collaborative Kanban board',
+          'Multi-stakeholder evaluation notes',
+          'Automated candidate updates and stage triggers',
+        ],
+        href: '/products#syncflow',
+      },
+      {
+        id: 'chat',
+        title: 'Direct Recruiter Messaging & Dossiers',
+        badge: 'Instant Connect',
+        tagline: 'Direct, unhindered access to vetted technical talent',
+        description:
+          'Message candidates directly from your recruiter console. View full video recordings, verified GitHub repos, and unredacted contact dossiers.',
+        bullets: [
+          'Real-time in-app recruiter-candidate chat',
+          'Complete candidate dossiers and video playbacks',
+          'Zero middleman delays or staffing agency markups',
+        ],
+        href: '/products#chat',
+      },
+    ],
+  },
+  solutions: {
+    label: 'TAILORED RECRUITMENT SOLUTIONS',
+    h2: 'Engineered for how top engineering teams hire.',
+    sub: 'Whether you are an early-stage startup or a global remote enterprise, Sync730 reduces your cost and time-to-hire by over 70%.',
+    items: [
+      {
+        id: 'startups',
+        audience: 'For High-Growth Startups',
+        title: 'Hire Senior Engineers in 72 Hours without Agency Fees',
+        description:
+          'Avoid spending $25,000 per hire on traditional staffing agencies. Access pre-vetted engineers ready to ship on day one with zero upfront search fees.',
+        impact: '72 Hours avg. time-to-hire vs 45 days industry average',
+        points: [
+          'Pre-vetted senior backend, frontend, full-stack, and mobile engineers',
+          'Transparent pay-per-unlock or subscription tokens',
+          'Instant candidate interview replays and code rubrics',
+        ],
+        href: '/solutions#startups',
+      },
+      {
+        id: 'global-teams',
+        audience: 'For Global Remote Enterprises',
+        title: 'Access Africa’s Fastest-Growing Technical Hubs Compliantly',
+        description:
+          'Tap into elite software talent across Nigeria, Kenya, Ghana, and South Africa with guaranteed timezone alignment (WAT/CAT/EAT) and verified credentials.',
+        impact: 'Over 10,000+ vetted technical professionals across Africa',
+        points: [
+          'Pre-screened remote eligibility and proof-of-work validation',
+          'Overlapping working hours with UK, EU, and US East Coast',
+          'Comprehensive NDPA & GDPR compliant data processing',
+        ],
+        href: '/solutions#global-teams',
+      },
+      {
+        id: 'engineering',
+        audience: 'For CTOs & Engineering Leaders',
+        title: 'Zero Low-Signal Screening Calls for Your Engineers',
+        description:
+          'Protect your engineering team’s focus time. Review verified code portfolios, system architecture scores, and recorded technical screens before scheduling final rounds.',
+        impact: '94.6% Final round candidate interview pass rate',
+        points: [
+          'Objective scoring on technical depth and architecture',
+          'Calibrated STAR rubrics for systems design and problem-solving',
+          'Human-in-the-loop: your team makes 100% of final hiring choices',
+        ],
+        href: '/solutions#engineering',
+      },
+    ],
   },
   stats: {
     label: 'LIVE ON SYNC730',
@@ -475,46 +628,78 @@ export const homeCopy: HomeCopy = {
   nav: {
     links: [
       { label: 'Find Work', href: '/find-work' },
-      { label: 'How it works', href: '/#how-it-works' },
-      { label: 'For candidates', href: '/#for-candidates' },
-      { label: 'For recruiters', href: '/#for-recruiters' },
+      { label: 'Products', href: '/products' },
+      { label: 'Solutions', href: '/solutions' },
+      { label: 'Hiring', href: '/hiring' },
     ],
     syncFlowLabel: 'SyncFlow',
     signInLabel: 'Sign in',
-    signInHref: '/auth/login',
-    createProfileLabel: 'Create your free profile',
-    createProfileHref: '/auth/register',
+    signInHref: '/login',
+    createProfileLabel: 'Start Hiring',
+    createProfileHref: '/hiring',
   },
   footer: {
-    tagline: 'Talent is everywhere. Real opportunity should be too.',
+    address: 'Abuja, Nigeria',
+    tagline:
+      'Autonomous AI recruitment solutions for high-growth engineering teams. Sourcing, vetting, and matching top technical talent.',
     columns: {
       explore: {
-        title: 'Explore',
+        title: 'Platform',
         links: [
           { label: 'Find Work', href: '/find-work' },
-          { label: 'How it works', href: '/#how-it-works' },
-          { label: 'For candidates', href: '/#for-candidates' },
-          { label: 'For recruiters', href: '/#for-recruiters' },
+          { label: 'Products', href: '/products' },
+          { label: 'Solutions', href: '/solutions' },
+          { label: 'Hiring', href: '/hiring' },
+        ],
+      },
+      products: {
+        title: 'Products',
+        links: [
+          { label: 'AI Sourcing Engine', href: '/products#sourcing' },
+          { label: 'AI Video Interviewer', href: '/products#interview' },
+          { label: 'SyncFlow ATS', href: '/products#syncflow' },
+          { label: 'Direct Talent Chat', href: '/products#chat' },
+          { label: 'Resume Studio', href: '/dashboard/resume' },
+        ],
+      },
+      solutions: {
+        title: 'Solutions',
+        links: [
+          { label: 'For Startups', href: '/solutions#startups' },
+          { label: 'For Global Teams', href: '/solutions#global-teams' },
+          { label: 'Technical Hiring', href: '/solutions#engineering' },
+          { label: 'African Tech Talent', href: '/solutions#africa' },
+        ],
+      },
+      hiring: {
+        title: 'Hiring',
+        links: [
+          { label: 'Post a Role', href: '/hiring' },
+          { label: 'Vetted Talent Pool', href: '/console/talent' },
+          { label: 'Recruiter Console', href: '/console' },
+          { label: 'Pricing & Plans', href: '/hiring#pricing' },
         ],
       },
       company: {
         title: 'Company',
         links: [
-          { label: 'About', href: '/about' },
+          { label: 'About Us', href: '/why-we-built-this' },
           { label: 'Contact', href: '/contact' },
+          { label: 'Employer Guide', href: '/employer-guide' },
         ],
       },
       legal: {
         title: 'Legal & Compliance',
         links: [
           { label: 'Privacy (NDPA)', href: '/privacy' },
-          { label: 'Terms', href: '/terms' },
-          { label: 'AI transparency', href: '/scoring-methodology' },
+          { label: 'Terms of Service', href: '/terms' },
+          { label: 'AI Scoring Transparency', href: '/scoring-methodology' },
+          { label: 'Data Processing', href: '/data-processing' },
         ],
       },
     },
     smallPrint:
-      'Sync730 verifies that roles are real and open to Africa. Hiring decisions are made by employers.',
+      'Headquartered in Abuja, Nigeria. AI-assisted technical evaluations with human-in-the-loop decision autonomy.',
   },
 };
 

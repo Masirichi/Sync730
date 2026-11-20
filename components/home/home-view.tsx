@@ -4,6 +4,8 @@
 import React, { useState, useEffect } from 'react';
 import { SiteHeader } from '@/components/site/site-header';
 import { SiteFooter } from '@/components/site/site-footer';
+import { ProductsSection } from '@/components/home/products-section';
+import { SolutionsSection } from '@/components/home/solutions-section';
 import { HeroSection } from '@/components/home/hero-section';
 import { LiveStatsBand } from '@/components/home/live-stats-band';
 import { BeliefSection } from '@/components/home/belief-section';
@@ -53,39 +55,43 @@ export function HomeView({
       <SiteHeader />
 
       <main id="main-content" className="flex-1 focus:outline-none" tabIndex={-1}>
-        {/* TOP HALF: */}
-        {/* 1. Hero: Talent is everywhere. Real opportunity should be too. */}
+        {/* 1. Hero: Autonomous AI recruitment for modern engineering teams */}
         <HeroSection onOpenDemo={() => setDemoOpen(true)} />
 
-        {/* 2. Live Stats: LIVE ON SYNC730 counter cells and live stream */}
+        {/* 2. Live Stats: Benchmarks and real-time verification activity */}
         <LiveStatsBand initialStats={initialStats} initialJobs={tickerJobs} />
 
-        {/* 3. Belief: WHY WE EXIST. Where you live shouldn't decide what you can become. */}
-        <BeliefSection />
+        {/* 3. Products Bento Grid: Full-cycle AI recruitment architecture (#products) */}
+        <ProductsSection />
 
-        {/* 4. For Candidates: FOR THE ONES WHO'VE BEEN GHOSTED (#for-candidates) */}
-        <ForCandidatesSection latestRoles={latestRoles} />
+        {/* 4. Solutions Section: Startups, Global Remote, Engineering Leaders (#solutions) */}
+        <SolutionsSection />
 
-        {/* 5. How It Works: Four steps (#how-it-works) */}
-        <HowItWorksSection />
-
-        {/* BOTTOM HALF (Continuing after "How it works"): */}
-        {/* 6. Latest roles: HIRING NOW · LIVE FEED with 3 to 6 newest public jobs */}
-        <LatestRolesSection jobs={feedJobs} rolesLive={initialStats.rolesLive} />
-
-        {/* 7. Differentiators: THE SYNC730 DIFFERENCE. No false hope. Just real roles. */}
-        <DifferentiatorsSection />
-
-        {/* 8. For Recruiters: WE BELIEVE IN HIRING THE PERSON, NOT THE ADDRESS (#for-recruiters) */}
+        {/* 5. Hiring Engine: How top teams hire & Interactive Sample Report (#hiring) */}
         <ForRecruitersSection onOpenDemo={() => setDemoOpen(true)} />
 
-        {/* 9. Social Proof: FROM THE PEOPLE USING IT (conditionally rendered only if real data exists) */}
+        {/* 6. How It Works: Step-by-step AI recruitment flow */}
+        <HowItWorksSection />
+
+        {/* 7. Latest Verified Roles: Live feed for talents and candidates (#find-work) */}
+        <LatestRolesSection jobs={feedJobs} rolesLive={initialStats.rolesLive} />
+
+        {/* 8. The Sync730 Difference: Objective technical vetting, zero agency markups */}
+        <DifferentiatorsSection />
+
+        {/* 9. Belief & Mission: Headquartered in Abuja, Nigeria · Connecting global opportunity */}
+        <BeliefSection />
+
+        {/* 10. For Candidates: Free tools for African talent (SyncFlow, Resume Studio, Mock Coach) */}
+        <ForCandidatesSection latestRoles={latestRoles} />
+
+        {/* 11. Social Proof: Testimonials and verified hiring partners */}
         <SocialProofSection testimonials={testimonials} partners={partners} />
 
-        {/* 10. FAQ: QUESTIONS WE HEAR OFTEN (accessible accordion + FAQPage JSON-LD) */}
+        {/* 12. FAQ: Common questions for SaaS employers and candidates */}
         <FaqSection />
 
-        {/* 11. Closing CTA: You've waited long enough for a fair shot. */}
+        {/* 13. Closing CTA: Transform technical hiring in 72 hours */}
         <FinalCtaSection
           onOpenDemo={() => setDemoOpen(true)}
           talents={initialStats.talents}
