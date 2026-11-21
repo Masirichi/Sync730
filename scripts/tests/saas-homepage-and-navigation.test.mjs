@@ -128,3 +128,42 @@ test('6. Section Directly Below Hero: CoreSolutionsSection inspired by reference
   const emojiRegex = /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
   assert.ok(!emojiRegex.test(coreSolutionsContent), 'core-solutions-section.tsx must not contain emoji characters');
 });
+
+test('7. AI Recruitment Engine Section: Redesigned with Part 1 (3 cards) & Part 2 (supporting 2 cards) with animations', () => {
+  const productsSectionPath = path.join(projectRoot, 'components', 'home', 'products-section.tsx');
+  assert.ok(fs.existsSync(productsSectionPath), 'products-section.tsx must exist');
+
+  const content = fs.readFileSync(productsSectionPath, 'utf8');
+
+  // Verify Heading & Section setup
+  assert.ok(content.includes('Built for everyone'), 'Must feature "Built for everyone" heading');
+  assert.ok(content.includes('products.label'), 'Must render eyebrow label');
+
+  // Verify Part 1 (3 Bento Cards from Reference Image 2)
+  assert.ok(content.includes('For HR professionals'), 'Must contain "For HR professionals" card');
+  assert.ok(content.includes('+45%'), 'Must contain "+45%" evaluation report peak badge');
+  assert.ok(content.includes('For managers & leaders'), 'Must contain "For managers & leaders" card');
+  assert.ok(content.includes('Access Real-Time Insights'), 'Must contain "Access Real-Time Insights" stacked pill');
+  assert.ok(content.includes('For legal teams'), 'Must contain "For legal teams" card');
+  assert.ok(content.includes('ShieldCheck'), 'Must contain ShieldCheck icon for compliance');
+
+  // Verify Part 2 (Supporting Bento Row from Reference Image 1)
+  assert.ok(content.includes('All employee data at once'), 'Must contain "All employee data at once" wide card');
+  assert.ok(content.includes('Project Dept'), 'Must contain Project Dept filter pill');
+  assert.ok(content.includes('46%'), 'Must contain "46%" participation metric badge');
+  assert.ok(content.includes('For teams & employees'), 'Must contain "For teams & employees" compact card');
+  assert.ok(content.includes('ORBIT_TALENTS'), 'Must define orbital talent roster');
+
+  // Verify Animations & African Talent Portraits
+  assert.ok(content.includes('motion.div'), 'Must use Framer Motion for animations');
+  assert.ok(content.includes('rotate: 360'), 'Must animate orbital wheel');
+  assert.ok(content.includes('rotate: -360'), 'Must counter-rotate avatars so portraits stay upright');
+  assert.ok(content.includes('photo-1531384441138-2736e62e0919'), 'Must feature African engineer Chidi N.');
+  assert.ok(content.includes('photo-1573496359142-b8d87734a5a2'), 'Must feature African engineer Fatima B.');
+
+  // Verify Strict Constraints
+  assert.ok(!content.includes('Abuja'), 'Must not mention Abuja outside footer');
+  const emojiRegex = /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
+  assert.ok(!emojiRegex.test(content), 'products-section.tsx must not contain emoji characters');
+});
+
