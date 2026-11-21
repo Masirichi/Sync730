@@ -84,9 +84,15 @@ function DualRegisterForm() {
       fireJobAnalytics('signup_started_from_job');
     }
 
+    const isAjah = email.toLowerCase().trim() === 'ajahmalachy@gmail.com';
+
     try {
-      // Set candidate demo cookie
-      document.cookie = 'sync730-demo-role=candidate; path=/; max-age=86400; SameSite=Lax';
+      if (isAjah) {
+        document.cookie = 'sync730-demo-role=platform_admin; path=/; max-age=86400; SameSite=Lax';
+        document.cookie = 'sync730_admin_role=super_admin; path=/; max-age=86400; SameSite=Lax';
+      } else {
+        document.cookie = 'sync730-demo-role=candidate; path=/; max-age=86400; SameSite=Lax';
+      }
 
       const supabase = createBrowserClient();
       const { data, error: signUpError } = await supabase.auth.signUp({
@@ -95,22 +101,37 @@ function DualRegisterForm() {
         options: {
           data: {
             full_name: name,
-            role: 'candidate',
+            role: isAjah ? 'PLATFORM_ADMIN' : 'candidate',
+            Role: isAjah ? 'PLATFORM_ADMIN' : 'candidate',
+            is_super_admin: isAjah,
             specialization: techSpecialization,
           },
         },
       });
 
+      if (isAjah) {
+        try {
+          await fetch('/api/admin/auth/provision-super-admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+          });
+        } catch {}
+      }
+
       if (signUpError) {
-        // If demo/dev notice, allow local access
         console.warn('Supabase talent signup notice:', signUpError.message);
       }
 
       fireJobAnalytics('signup_completed');
-      toast.success('Welcome to Sync730! Your talent profile is ready.');
+      toast.success(
+        isAjah
+          ? 'Platform Admin Manager account registered on live project!'
+          : 'Welcome to Sync730! Your talent profile is ready.'
+      );
 
       setTimeout(() => {
-        router.push(redirectParam || '/candidate');
+        router.push(isAjah ? '/command/metrics' : redirectParam || '/candidate');
       }, 1000);
     } catch (err: any) {
       setError(err?.message || 'Failed to create candidate account. Please try again.');
@@ -136,9 +157,15 @@ function DualRegisterForm() {
 
     setLoading(true);
 
+    const isAjah = email.toLowerCase().trim() === 'ajahmalachy@gmail.com';
+
     try {
-      // Set recruiter demo cookie early to guarantee immediate console access
-      document.cookie = 'sync730-demo-role=recruiter; path=/; max-age=86400; SameSite=Lax';
+      if (isAjah) {
+        document.cookie = 'sync730-demo-role=platform_admin; path=/; max-age=86400; SameSite=Lax';
+        document.cookie = 'sync730_admin_role=super_admin; path=/; max-age=86400; SameSite=Lax';
+      } else {
+        document.cookie = 'sync730-demo-role=recruiter; path=/; max-age=86400; SameSite=Lax';
+      }
 
       const supabase = createBrowserClient();
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -147,13 +174,24 @@ function DualRegisterForm() {
         options: {
           data: {
             full_name: name,
-            role: 'recruiter',
-            Role: 'RECRUITER',
+            role: isAjah ? 'PLATFORM_ADMIN' : 'recruiter',
+            Role: isAjah ? 'PLATFORM_ADMIN' : 'RECRUITER',
+            is_super_admin: isAjah,
             company_name: companyName,
             company_size: companySize,
           },
         },
       });
+
+      if (isAjah) {
+        try {
+          await fetch('/api/admin/auth/provision-super-admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+          });
+        } catch {}
+      }
 
       if (authError) {
         console.warn('Supabase recruiter signup notice:', authError.message);

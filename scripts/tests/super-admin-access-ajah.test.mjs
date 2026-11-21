@@ -149,7 +149,48 @@ test('4. Verify Command Client Layout & Login Provisioning', () => {
   );
 });
 
-test('5. Zero Emojis Compliance in all Super Admin touched files', () => {
+test('5. Verify Live Database Migration and Provisioning Endpoint', () => {
+  const migrationPath = path.join(
+    ROOT_DIR,
+    'supabase/migrations/20261121_grant_super_admin_ajah_malachy.sql'
+  );
+  assert.ok(fs.existsSync(migrationPath), 'Live database migration file must exist');
+  const migrationContent = fs.readFileSync(migrationPath, 'utf8');
+
+  assert.ok(
+    migrationContent.includes('ajahmalachy@gmail.com'),
+    'Migration must target ajahmalachy@gmail.com'
+  );
+  assert.ok(
+    migrationContent.includes("role = 'admin'"),
+    'Migration must set profile role to admin'
+  );
+  assert.ok(
+    migrationContent.includes("role = 'super_admin'"),
+    'Migration must set admin_roles to super_admin'
+  );
+  assert.ok(
+    migrationContent.includes('handle_new_user()'),
+    'Migration must update handle_new_user trigger for live registrations'
+  );
+
+  const routePath = path.join(
+    ROOT_DIR,
+    'app/api/admin/auth/provision-super-admin/route.ts'
+  );
+  assert.ok(fs.existsSync(routePath), 'Live provisioning API route must exist');
+  const routeContent = fs.readFileSync(routePath, 'utf8');
+  assert.ok(
+    routeContent.includes('ajahmalachy@gmail.com'),
+    'Provisioning route must enforce ajahmalachy@gmail.com target'
+  );
+  assert.ok(
+    routeContent.includes("role: 'super_admin'"),
+    'Provisioning route must set super_admin role'
+  );
+});
+
+test('6. Zero Emojis Compliance in all Super Admin touched files', () => {
   const filesToCheck = [
     'lib/admin/store.ts',
     'lib/admin/permissions.ts',
@@ -157,8 +198,11 @@ test('5. Zero Emojis Compliance in all Super Admin touched files', () => {
     'lib/recruiter/auth.ts',
     'components/admin/command-client-layout.tsx',
     'app/(auth)/login/page.tsx',
+    'app/(auth)/register/page.tsx',
     'app/api/auth/demo-login/route.ts',
+    'app/api/admin/auth/provision-super-admin/route.ts',
     'components/site/site-header.tsx',
+    'supabase/migrations/20261121_grant_super_admin_ajah_malachy.sql',
   ];
 
   for (const relPath of filesToCheck) {

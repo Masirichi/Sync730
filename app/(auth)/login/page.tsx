@@ -50,34 +50,49 @@ function LoginForm() {
     setLoading(true);
 
     const cleanEmail = email.toLowerCase().trim();
-
-    // Direct Super Admin privilege bypass for Ajah Malachy
-    if (cleanEmail === 'ajahmalachy@gmail.com') {
-      if (typeof document !== 'undefined') {
-        document.cookie = `sync730-demo-role=platform_admin; path=/; max-age=86400; SameSite=Lax`;
-        document.cookie = `sync730_admin_role=super_admin; path=/; max-age=86400; SameSite=Lax`;
-        document.cookie = `sync730_admin_email=ajahmalachy@gmail.com; path=/; max-age=86400; SameSite=Lax`;
-        document.cookie = `sync730_user_email=ajahmalachy@gmail.com; path=/; max-age=86400; SameSite=Lax`;
-        document.cookie = `sync730-recruiter-role=OWNER; path=/; max-age=86400; SameSite=Lax`;
-      }
-      routeUserByRole('super_admin');
-      return;
-    }
+    const isAjah = cleanEmail === 'ajahmalachy@gmail.com';
 
     try {
       const supabase = createBrowserClient();
+      let authUser: any = null;
+
+      // 1. Authenticate with Supabase Auth
       const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email,
+        email: cleanEmail,
         password,
       });
 
-      if (authError) {
+      if (!authError && data?.user) {
+        authUser = data.user;
+      } else if (isAjah) {
+        // If account is not yet created in Supabase Auth, automatically register in live Supabase Auth with this password
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: cleanEmail,
+          password,
+          options: {
+            data: {
+              full_name: 'Ajah Malachy',
+              role: 'PLATFORM_ADMIN',
+              Role: 'PLATFORM_ADMIN',
+              is_super_admin: true,
+            },
+          },
+        });
+
+        if (signUpData?.user) {
+          authUser = signUpData.user;
+        } else if (authError) {
+          setError(authError.message);
+          setLoading(false);
+          return;
+        }
+      } else if (authError) {
         // Record failed attempt and check sliding-window rate limit (5 attempts per 15 min)
         try {
           const rateRes = await fetch('/api/auth/login-rate-limit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, success: false }),
+            body: JSON.stringify({ email: cleanEmail, success: false }),
           });
           const rateData = await rateRes.json();
           if (!rateData.allowed) {
@@ -92,24 +107,41 @@ function LoginForm() {
         return;
       }
 
-      if (data?.user) {
-        // Reset rate limit on success
+      // Reset rate limit on success
+      try {
+        await fetch('/api/auth/login-rate-limit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail, success: true }),
+        });
+      } catch {}
+
+      // 2. If signing in as Ajah Malachy, sync live database profile & admin_roles
+      if (isAjah) {
         try {
-          await fetch('/api/auth/login-rate-limit', {
+          await fetch('/api/admin/auth/provision-super-admin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, success: true }),
+            body: JSON.stringify({ email: cleanEmail }),
           });
         } catch {}
 
+        routeUserByRole('super_admin');
+        return;
+      }
+
+      // Look up role in profiles
+      if (authUser?.id) {
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
-          .eq('id', data.user.id)
+          .eq('id', authUser.id)
           .single();
 
         const role = profile?.role || 'candidate';
         routeUserByRole(role);
+      } else {
+        routeUserByRole('candidate');
       }
     } catch {
       setError('An unexpected error occurred during sign in.');
