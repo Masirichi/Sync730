@@ -68,44 +68,54 @@ export async function updateSession(request: NextRequest): Promise<AuthSessionRe
   if (isCommandPath) defaultDevRole = 'PLATFORM_ADMIN';
   else if (isRecruiterPath) defaultDevRole = 'recruiter';
 
+  const cookieUserEmail =
+    request.cookies.get('sync730_admin_email')?.value ||
+    request.cookies.get('sync730_user_email')?.value;
+  const isAjahSuperAdmin = cookieUserEmail?.toLowerCase() === 'ajahmalachy@gmail.com';
+
   const effectiveRole = demoRole || (process.env.NODE_ENV === 'development' ? defaultDevRole : null);
 
-  if (!user && effectiveRole) {
+  if (!user && (effectiveRole || isAjahSuperAdmin)) {
+    const finalRole: UserRole = isAjahSuperAdmin ? 'PLATFORM_ADMIN' : effectiveRole;
     return {
       supabaseResponse,
       user: {
-        id: `demo-${effectiveRole.toLowerCase()}-user`,
-        email: `${effectiveRole.toLowerCase()}@sync730.test`,
+        id: isAjahSuperAdmin ? 'usr-admin-super-ajah' : `demo-${finalRole?.toLowerCase() || 'user'}-user`,
+        email: isAjahSuperAdmin ? 'ajahmalachy@gmail.com' : `${finalRole?.toLowerCase() || 'user'}@sync730.test`,
       },
-      role: effectiveRole,
+      role: finalRole,
     };
   }
 
   let role: UserRole = null;
 
   if (user) {
-    const rawRole = user.user_metadata?.role || user.user_metadata?.Role;
-    if (rawRole) {
-      const lower = String(rawRole).toLowerCase();
-      if (lower === 'platform_admin' || lower === 'admin') {
-        role = 'PLATFORM_ADMIN';
-      } else {
-        role = lower as 'candidate' | 'recruiter';
-      }
+    if (user.email?.toLowerCase() === 'ajahmalachy@gmail.com') {
+      role = 'PLATFORM_ADMIN';
     } else {
-      // Check user_profiles or profiles
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (profile?.role) {
-        const lower = String(profile.role).toLowerCase();
-        if (lower === 'platform_admin' || lower === 'admin') {
+      const rawRole = user.user_metadata?.role || user.user_metadata?.Role;
+      if (rawRole) {
+        const lower = String(rawRole).toLowerCase();
+        if (lower === 'platform_admin' || lower === 'admin' || lower === 'super_admin') {
           role = 'PLATFORM_ADMIN';
         } else {
           role = lower as 'candidate' | 'recruiter';
+        }
+      } else {
+        // Check user_profiles or profiles
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (profile?.role) {
+          const lower = String(profile.role).toLowerCase();
+          if (lower === 'platform_admin' || lower === 'admin' || lower === 'super_admin') {
+            role = 'PLATFORM_ADMIN';
+          } else {
+            role = lower as 'candidate' | 'recruiter';
+          }
         }
       }
     }

@@ -21,6 +21,7 @@ import {
   ShieldCheck,
   DollarSign,
   Sparkles,
+  Briefcase,
 } from 'lucide-react';
 import { BrandLogo } from '@/components/site/brand-logo';
 import { BookDemoModal } from '@/components/modals/book-demo-modal';
@@ -131,7 +132,13 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
   const resourcesTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // User auth state & real saved jobs count
-  const [user, setUser] = useState<{ id: string; email?: string; name?: string; avatar?: string } | null>(null);
+  const [user, setUser] = useState<{
+    id: string;
+    email?: string;
+    name?: string;
+    avatar?: string;
+    role?: string;
+  } | null>(null);
   const [savedCount, setSavedCount] = useState<number>(0);
   const [totalSyncFlowCount, setTotalSyncFlowCount] = useState<number>(0);
   const avatarMenuRef = useRef<HTMLDivElement>(null);
@@ -161,16 +168,37 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
   const effectiveNavVisible = propIsNavVisible !== undefined ? propIsNavVisible : internalNavVisible;
 
   useEffect(() => {
+    // Check Super Admin cookie or email for Ajah Malachy
+    if (typeof document !== 'undefined') {
+      const isSuperAdminCookie =
+        document.cookie.includes('sync730-demo-role=platform_admin') ||
+        document.cookie.includes('ajahmalachy@gmail.com') ||
+        document.cookie.includes('sync730_admin_role=super_admin');
+
+      if (isSuperAdminCookie) {
+        setUser({
+          id: 'usr-admin-super-ajah',
+          email: 'ajahmalachy@gmail.com',
+          name: 'Ajah Malachy',
+          role: 'super_admin',
+        });
+      }
+    }
+
     // 1. Check Supabase auth session
     try {
       const supabase = createBrowserClient();
       supabase.auth.getUser().then(({ data }) => {
         if (data?.user) {
+          const isSuperAdmin = data.user.email?.toLowerCase() === 'ajahmalachy@gmail.com';
           setUser({
             id: data.user.id,
             email: data.user.email,
-            name: (data.user.user_metadata?.full_name as string) || (data.user.email?.split('@')[0] as string),
+            name: isSuperAdmin
+              ? 'Ajah Malachy'
+              : (data.user.user_metadata?.full_name as string) || (data.user.email?.split('@')[0] as string),
             avatar: data.user.user_metadata?.avatar_url as string,
+            role: isSuperAdmin ? 'super_admin' : (data.user.user_metadata?.role as string),
           });
         }
       });
@@ -462,11 +490,38 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
                   {avatarMenuOpen && (
                     <div className="absolute right-0 mt-2 w-52 rounded-xl border border-border bg-background p-1.5 shadow-lg z-50 text-foreground animate-in fade-in slide-in-from-top-1">
                       <div className="px-3 py-2 border-b border-border text-xs">
-                        <p className="font-semibold truncate">{user.name || 'Candidate'}</p>
+                        <div className="flex items-center justify-between gap-1">
+                          <p className="font-semibold truncate">{user.name || 'Candidate'}</p>
+                          {(user.role === 'super_admin' || user.email?.toLowerCase() === 'ajahmalachy@gmail.com') && (
+                            <span className="text-[9px] font-bold text-orange-600 dark:text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/20 whitespace-nowrap">
+                              SUPER ADMIN
+                            </span>
+                          )}
+                        </div>
                         <p className="text-muted-foreground truncate">{user.email}</p>
                       </div>
 
                       <div className="py-1">
+                        {(user.role === 'super_admin' || user.email?.toLowerCase() === 'ajahmalachy@gmail.com') && (
+                          <>
+                            <Link
+                              href="/command/metrics"
+                              onClick={() => setAvatarMenuOpen(false)}
+                              className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-orange-600 dark:text-orange-400 hover:bg-orange-500/10 transition-colors"
+                            >
+                              <ShieldCheck className="h-4 w-4 stroke-[1.5] text-orange-500" />
+                              <span>Admin Command Center</span>
+                            </Link>
+                            <Link
+                              href="/console/syncflow"
+                              onClick={() => setAvatarMenuOpen(false)}
+                              className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary transition-colors"
+                            >
+                              <Briefcase className="h-4 w-4 stroke-[1.5] text-amber-500" />
+                              <span>Recruiter Console & SyncFlow</span>
+                            </Link>
+                          </>
+                        )}
                         <Link
                           href="/candidate"
                           onClick={() => setAvatarMenuOpen(false)}

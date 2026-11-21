@@ -30,6 +30,26 @@ export async function getRecruiterSession(req: NextRequest): Promise<RecruiterSe
       data: { user },
     } = await supabase.auth.getUser();
 
+    // Check if caller is Super Admin Ajah Malachy
+    const cookieEmail =
+      req.cookies.get('sync730_admin_email')?.value ||
+      req.cookies.get('sync730_user_email')?.value;
+    const isAjahSuperAdmin =
+      user?.email?.toLowerCase() === 'ajahmalachy@gmail.com' ||
+      cookieEmail?.toLowerCase() === 'ajahmalachy@gmail.com';
+
+    // 0. Super Admin Ajah Malachy gets full Recruiter OWNER access to test all workspace tools
+    if (isAjahSuperAdmin) {
+      const localWs = getLocalWorkspace();
+      return {
+        userId: user?.id || 'usr-admin-super-ajah',
+        email: 'ajahmalachy@gmail.com',
+        workspaceId: localWs?.id || 'ws-sync730-super-admin',
+        role: 'OWNER',
+        isPlatformAdmin: true,
+      };
+    }
+
     // 1. If user is authenticated in Supabase
     if (user) {
       // Check if user is platform admin
@@ -41,7 +61,7 @@ export async function getRecruiterSession(req: NextRequest): Promise<RecruiterSe
           .eq('id', user.id)
           .maybeSingle();
 
-        if (profile?.role === 'admin' || profile?.role === 'PLATFORM_ADMIN') {
+        if (profile?.role === 'admin' || profile?.role === 'PLATFORM_ADMIN' || profile?.role === 'super_admin') {
           isPlatformAdmin = true;
         }
       } catch {}

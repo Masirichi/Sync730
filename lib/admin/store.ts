@@ -18,6 +18,21 @@ const ADMIN_JOBS_KEY = 'sync730_admin_remote_jobs';
 // Seed Admin Users
 export const SEED_ADMIN_USERS: AdminUserProfile[] = [
   {
+    id: 'usr-admin-super-ajah',
+    email: 'ajahmalachy@gmail.com',
+    full_name: 'Ajah Malachy',
+    role: 'super_admin',
+    workspace_name: 'Sync730 Global Executive Command',
+    status: 'ACTIVE',
+    last_active: new Date().toISOString(),
+    created_at: new Date(Date.now() - 3600000 * 24 * 60).toISOString(),
+    avatar_url: '',
+    phone: '+234 800 000 0730',
+    is_demo: false,
+    mfa_enabled: true,
+    mfa_enrolled_at: new Date(Date.now() - 3600000 * 24 * 30).toISOString(),
+  },
+  {
     id: 'usr-admin-001',
     email: 'admin@sync730.com',
     full_name: 'David O. Alabi',
@@ -964,7 +979,16 @@ export function getAdminUsers(): AdminUserProfile[] {
       localStorage.setItem(USERS_KEY, JSON.stringify(SEED_ADMIN_USERS));
       return SEED_ADMIN_USERS;
     }
-    return JSON.parse(raw);
+    const parsed: AdminUserProfile[] = JSON.parse(raw);
+    // Ensure Ajah Malachy Super Admin account is always present
+    if (!parsed.some((u) => u.email?.toLowerCase() === 'ajahmalachy@gmail.com')) {
+      const ajahUser = SEED_ADMIN_USERS.find((u) => u.email === 'ajahmalachy@gmail.com');
+      if (ajahUser) {
+        parsed.unshift(ajahUser);
+        localStorage.setItem(USERS_KEY, JSON.stringify(parsed));
+      }
+    }
+    return parsed;
   } catch {
     return SEED_ADMIN_USERS;
   }

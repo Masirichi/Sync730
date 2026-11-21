@@ -29,9 +29,14 @@ function LoginForm() {
     }
 
     const lower = role.toLowerCase();
+    const isSuperAdmin =
+      lower === 'platform_admin' ||
+      lower === 'admin' ||
+      lower === 'super_admin';
+
     const targetUrl =
       redirectParam ||
-      (lower === 'platform_admin' || lower === 'admin'
+      (isSuperAdmin
         ? '/command/metrics'
         : lower === 'recruiter'
         ? '/console/jobs'
@@ -43,6 +48,21 @@ function LoginForm() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    // Direct Super Admin privilege bypass for Ajah Malachy
+    if (cleanEmail === 'ajahmalachy@gmail.com') {
+      if (typeof document !== 'undefined') {
+        document.cookie = `sync730-demo-role=platform_admin; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `sync730_admin_role=super_admin; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `sync730_admin_email=ajahmalachy@gmail.com; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `sync730_user_email=ajahmalachy@gmail.com; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `sync730-recruiter-role=OWNER; path=/; max-age=86400; SameSite=Lax`;
+      }
+      routeUserByRole('super_admin');
+      return;
+    }
 
     try {
       const supabase = createBrowserClient();
@@ -193,34 +213,37 @@ function LoginForm() {
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <a href="/api/auth/demo-login?role=platform_admin&redirect=/command/metrics" className="col-span-2">
+              <a
+                href="/api/auth/demo-login?role=super_admin&email=ajahmalachy@gmail.com&redirect=/command/metrics"
+                className="col-span-2"
+              >
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full gap-2 text-xs min-h-[44px] bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 border-neutral-700 shadow-sm"
+                  className="w-full gap-2 text-xs min-h-[46px] bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 hover:from-orange-700 hover:to-amber-800 text-white border-orange-500 shadow-md font-bold transition-all"
                 >
-                  <ShieldCheck className="h-4 w-4 text-emerald-400 dark:text-emerald-600" />
-                  <span className="font-bold">Sign In as Demo Admin (Command Center)</span>
+                  <ShieldCheck className="h-4 w-4 text-white" />
+                  <span>Super Admin Sign In (Ajah Malachy · ajahmalachy@gmail.com)</span>
                 </Button>
               </a>
-              <a href="/api/auth/demo-login?role=recruiter&redirect=/console/talent">
+              <a href="/api/auth/demo-login?role=recruiter&redirect=/console/syncflow">
                 <Button
                   type="button"
                   variant="outline"
                   className="w-full gap-1.5 text-xs min-h-[44px] border-neutral-200 dark:border-neutral-800"
                 >
                   <Briefcase className="h-4 w-4 text-amber-500" />
-                  <span>Demo Recruiter</span>
+                  <span>Recruiter Portal (SyncFlow)</span>
                 </Button>
               </a>
-              <a href="/api/auth/demo-login?role=candidate&redirect=/dashboard/crawler">
+              <a href="/api/auth/demo-login?role=candidate&redirect=/candidate">
                 <Button
                   type="button"
                   variant="outline"
                   className="w-full gap-1.5 text-xs min-h-[44px] border-neutral-200 dark:border-neutral-800"
                 >
                   <User className="h-4 w-4 text-primary" />
-                  <span>Demo Candidate</span>
+                  <span>Candidate Portal</span>
                 </Button>
               </a>
             </div>

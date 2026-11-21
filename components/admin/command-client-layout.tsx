@@ -160,7 +160,7 @@ const ALL_NAV_GROUPS: NavGroup[] = [
 ];
 
 const ROLE_USERS: Record<AdminRole, { name: string; email: string }> = {
-  super_admin: { name: 'David O. Alabi', email: 'admin@sync730.com' },
+  super_admin: { name: 'Ajah Malachy', email: 'ajahmalachy@gmail.com' },
   moderator: { name: 'Amara Okonkwo', email: 'amara.o@sync730.com' },
   vetting_reviewer: { name: 'Dr. Kweku Mensah', email: 'vetting.lead@sync730.com' },
   finance: { name: 'Folake Adeleke', email: 'finance@sync730.com' },

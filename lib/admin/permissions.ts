@@ -26,9 +26,9 @@ export async function resolveAdminActor(req: NextRequest): Promise<{
   role: AdminRole;
   isSuperAdmin: boolean;
 }> {
-  let actorId = 'usr-admin-001';
-  let actorName = 'David O. Alabi';
-  let actorEmail = 'admin@sync730.com';
+  let actorId = 'usr-admin-super-ajah';
+  let actorName = 'Ajah Malachy';
+  let actorEmail = 'ajahmalachy@gmail.com';
   let rawRole: string = 'super_admin';
 
   // 1. Check override cookie (for role simulation / testing)
@@ -43,6 +43,20 @@ export async function resolveAdminActor(req: NextRequest): Promise<{
     rawRole = headerRole;
   }
 
+  // Check email identity cookies or headers
+  const cookieEmail =
+    req.cookies.get('sync730_admin_email')?.value ||
+    req.cookies.get('sync730_user_email')?.value ||
+    req.headers.get('x-admin-email');
+  if (cookieEmail) {
+    actorEmail = cookieEmail;
+    if (cookieEmail.toLowerCase() === 'ajahmalachy@gmail.com') {
+      actorName = 'Ajah Malachy';
+      actorId = 'usr-admin-super-ajah';
+      if (!cookieRole && !headerRole) rawRole = 'super_admin';
+    }
+  }
+
   // 3. Supabase Auth user check
   try {
     const supabase = await createServerClient();
@@ -50,10 +64,16 @@ export async function resolveAdminActor(req: NextRequest): Promise<{
     if (user) {
       actorId = user.id;
       actorEmail = user.email || actorEmail;
-      actorName = user.user_metadata?.full_name || actorEmail;
-      if (!cookieRole && !headerRole) {
-        // Security rule: NEVER base authorization on user_metadata (users can edit it).
-        // Authoritative role must be read from the admin_roles table.
+      actorName =
+        user.email?.toLowerCase() === 'ajahmalachy@gmail.com'
+          ? 'Ajah Malachy'
+          : user.user_metadata?.full_name || actorEmail;
+
+      if (user.email?.toLowerCase() === 'ajahmalachy@gmail.com') {
+        // Super Admin Ajah Malachy retains super_admin unless simulating another role
+        rawRole = cookieRole || headerRole || 'super_admin';
+      } else if (!cookieRole && !headerRole) {
+        // Security rule: Authoritative role must be read from the admin_roles table.
         const { data: adminRoleRow } = await supabase
           .from('admin_roles')
           .select('role')
