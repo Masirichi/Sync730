@@ -83,7 +83,7 @@ const CATEGORY_CHIPS = [
   { value: 'Operations', label: 'Operations' },
 ];
 
-const POPULAR_LOCATION_PILLS = ['Lagos', 'Abuja', 'Remote global'];
+const POPULAR_LOCATION_PILLS = ['Lagos', 'Nigeria', 'Remote global'];
 
 function getRelativeTimeString(dateStr: string): string {
   try {
@@ -649,12 +649,12 @@ export function JobsClientView({
                   >
                     <option value="all">All locations</option>
                     <option value="lagos">Lagos</option>
-                    <option value="abuja">Abuja</option>
+                    <option value="nigeria">Nigeria</option>
                     <option value="remote global">Remote global</option>
                     {initialResults.availableLocations
                       .filter(
                         (l) =>
-                          !['lagos', 'abuja', 'remote global'].includes(l.toLowerCase())
+                          !['lagos', 'nigeria', 'remote global', 'abuja'].includes(l.toLowerCase())
                       )
                       .map((loc) => (
                         <option key={loc} value={loc.toLowerCase()}>
@@ -674,7 +674,7 @@ export function JobsClientView({
               </div>
             </form>
 
-            {/* Optional Popular Pills (Lagos, Abuja, Remote global) */}
+            {/* Optional Popular Pills (Lagos, Nigeria, Remote global) */}
             <div className="mt-3.5 flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mr-1">
                 Popular:

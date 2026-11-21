@@ -123,7 +123,6 @@ export default async function HomePage() {
           'Sync730 is an AI recruitment solutions platform connecting high-growth teams with top verified African technical talent with rapid velocity.',
         address: {
           '@type': 'PostalAddress',
-          addressLocality: 'Abuja',
           addressCountry: 'Nigeria',
         },
         sameAs: [

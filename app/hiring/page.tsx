@@ -16,6 +16,7 @@ import {
   Building2,
   FileCheck2,
   Layers,
+  BadgeCheck,
 } from 'lucide-react';
 import { SiteHeader } from '@/components/site/site-header';
 import { SiteFooter } from '@/components/site/site-footer';
@@ -23,7 +24,7 @@ import { SiteFooter } from '@/components/site/site-footer';
 export const metadata: Metadata = {
   title: 'Hiring — AI Recruitment Platform & Talent Engine | Sync730',
   description:
-    'Hire Africa’s top 2% software engineers with rapid velocity. Powered by autonomous AI video screening, calibrated STAR rubrics, and direct recruiter chat. Headquartered in Abuja, Nigeria.',
+    'Hire Africa’s top 2% software engineers with rapid velocity. Powered by autonomous AI video screening, calibrated STAR rubrics, and direct recruiter chat. Headquartered in Nigeria.',
   alternates: {
     canonical: 'https://sync730.com/hiring',
   },
@@ -76,8 +77,8 @@ export default function HiringPage() {
                   <span>0% Placement Commissions</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-orange-500" />
-                  <span>Abuja, Nigeria</span>
+                  <BadgeCheck className="h-4 w-4 text-orange-500" />
+                  <span>Nigeria · Pan-African Tech Hubs</span>
                 </div>
               </div>
             </div>
@@ -152,18 +153,18 @@ export default function HiringPage() {
           </div>
         </section>
 
-        {/* Pricing & Token Model */}
+        {/* Pricing & Token Model in Naira */}
         <section id="pricing" className="scroll-mt-20 border-b border-border/70 py-20 sm:py-28 bg-secondary/20">
           <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
             <div className="max-w-2xl text-center mx-auto">
               <span className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                SIMPLE, TRANSPARENT PRICING
+                SIMPLE, TRANSPARENT PRICING IN NAIRA
               </span>
               <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
                 Pay only for verified talent matches.
               </h2>
               <p className="mt-3 text-sm text-muted-foreground">
-                No $25,000 headhunter retainers. Unlock complete candidate dossiers on demand or subscribe for team volume.
+                No traditional ₦15,000,000 agency headhunter markups. Unlock complete candidate dossiers on demand or subscribe for team volume in Naira.
               </p>
             </div>
 
@@ -171,10 +172,11 @@ export default function HiringPage() {
               {/* Plan 1 */}
               <div className="rounded-2xl border border-border/80 bg-card p-8 flex flex-col justify-between shadow-xs">
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground">Pay As You Hire</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Starter Pack</h3>
                   <p className="text-xs text-muted-foreground mt-1">For startups making 1-2 urgent technical hires.</p>
-                  <div className="mt-6">
-                    <span className="text-3xl font-bold text-foreground">Token-Based</span>
+                  <div className="mt-6 flex items-baseline gap-1">
+                    <span className="text-3xl font-bold text-foreground">₦100,000</span>
+                    <span className="text-xs text-muted-foreground">/ 5 tokens</span>
                   </div>
 
                   <ul className="mt-6 space-y-3 text-xs text-muted-foreground border-t border-border/70 pt-6">
@@ -188,7 +190,7 @@ export default function HiringPage() {
                     </li>
                     <li className="flex items-center gap-2 text-foreground">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                      <span>Pay tokens only to unlock dossiers & chat</span>
+                      <span>Includes 5 candidate unlock tokens (₦20k/token)</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -202,7 +204,7 @@ export default function HiringPage() {
                     href="/register/recruiter"
                     className="w-full inline-flex h-11 items-center justify-center rounded-full border border-border bg-background text-xs font-semibold text-foreground hover:bg-secondary transition-colors"
                   >
-                    Start with Tokens
+                    Start with Starter Pack
                   </Link>
                 </div>
               </div>
@@ -216,14 +218,14 @@ export default function HiringPage() {
                   <h3 className="text-lg font-semibold text-foreground">Growth Team</h3>
                   <p className="text-xs text-muted-foreground mt-1">For scaling engineering teams hiring 3-8 engineers.</p>
                   <div className="mt-6 flex items-baseline gap-1">
-                    <span className="text-3xl font-bold text-foreground">$499</span>
+                    <span className="text-3xl font-bold text-foreground">₦270,000</span>
                     <span className="text-xs text-muted-foreground">/ month</span>
                   </div>
 
                   <ul className="mt-6 space-y-3 text-xs text-muted-foreground border-t border-border/70 pt-6">
                     <li className="flex items-center gap-2 text-foreground">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                      <span>Includes 20 candidate unlock tokens</span>
+                      <span>Includes 15 candidate unlock tokens (10% savings)</span>
                     </li>
                     <li className="flex items-center gap-2 text-foreground">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
@@ -253,13 +255,18 @@ export default function HiringPage() {
               {/* Plan 3: Enterprise */}
               <div className="rounded-2xl border border-border/80 bg-card p-8 flex flex-col justify-between shadow-xs">
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground">Enterprise</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Enterprise Scale</h3>
                   <p className="text-xs text-muted-foreground mt-1">For global remote companies with large hiring needs.</p>
-                  <div className="mt-6">
-                    <span className="text-3xl font-bold text-foreground">Custom</span>
+                  <div className="mt-6 flex items-baseline gap-1">
+                    <span className="text-3xl font-bold text-foreground">₦800,000</span>
+                    <span className="text-xs text-muted-foreground">/ 50 tokens or custom</span>
                   </div>
 
                   <ul className="mt-6 space-y-3 text-xs text-muted-foreground border-t border-border/70 pt-6">
+                    <li className="flex items-center gap-2 text-foreground">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                      <span>Includes 50 candidate unlock tokens (20% savings)</span>
+                    </li>
                     <li className="flex items-center gap-2 text-foreground">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                       <span>Dedicated talent pipeline lead</span>
@@ -271,10 +278,6 @@ export default function HiringPage() {
                     <li className="flex items-center gap-2 text-foreground">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                       <span>Custom NDPA / GDPR data contracts</span>
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                      <span>SLA guarantees on rapid shortlist delivery</span>
                     </li>
                   </ul>
                 </div>
@@ -318,7 +321,7 @@ export default function HiringPage() {
             </div>
 
             <p className="mt-6 text-xs text-background/60">
-              Abuja, Nigeria · 0% Placement Commissions · Humans make every final hiring decision
+              Nigeria · 0% Placement Commissions · Humans make every final hiring decision
             </p>
           </div>
         </section>

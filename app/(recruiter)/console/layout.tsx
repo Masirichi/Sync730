@@ -30,6 +30,7 @@ import {
   ChevronRight,
   Info,
   MessageSquare,
+  Columns3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -301,6 +302,14 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
       roles: ['OWNER', 'ADMIN', 'INTERVIEWER'],
     },
     {
+      name: 'SyncFlow Pipeline',
+      href: '/console/syncflow',
+      exact: false,
+      icon: Columns3,
+      badge: 'Talent',
+      roles: ['OWNER', 'ADMIN', 'INTERVIEWER'],
+    },
+    {
       name: 'Messages',
       href: '/console/messages',
       exact: false,
@@ -340,6 +349,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
   let pageTitle = 'Dashboard Overview';
   if (pathname.startsWith('/console/jobs')) pageTitle = 'Hire & Job Postings';
   else if (pathname.startsWith('/console/talent')) pageTitle = 'Vetted Talent Pool';
+  else if (pathname.startsWith('/console/syncflow')) pageTitle = 'SyncFlow Talent Pipeline';
   else if (pathname.startsWith('/console/messages')) pageTitle = 'Talent Messages & Chat';
   else if (pathname.startsWith('/console/billing')) pageTitle = 'Billing & Token Ledger';
   else if (pathname.startsWith('/console/team')) pageTitle = 'Team & Permissions';

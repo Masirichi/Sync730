@@ -54,7 +54,7 @@ export default function AboutPage() {
           <section className="space-y-3">
             <h2 className="text-xl font-bold">Built for How Africa Hires</h2>
             <p className="text-[#333]">
-              We connect African professionals with forward-thinking employers who hire on ability, not address. Whether remote, hybrid, or onsite in Lagos, Abuja, and beyond, we focus on genuine opportunities.
+              We connect African professionals with forward-thinking employers who hire on ability, not address. Whether remote, hybrid, or onsite in Lagos, Nairobi, and beyond, we focus on genuine opportunities.
             </p>
           </section>
         </div>

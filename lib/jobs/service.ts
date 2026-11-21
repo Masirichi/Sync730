@@ -96,7 +96,7 @@ function toPublicJob(raw: any): PublicJob | null {
 
   const city_location =
     raw.city_location ||
-    (modality === 'Hybrid' ? 'Lekki, Lagos, Nigeria' : modality === 'Onsite' ? 'Maitama, Abuja, Nigeria' : undefined);
+    (modality === 'Hybrid' ? 'Lekki, Lagos, Nigeria' : modality === 'Onsite' ? 'Victoria Island, Lagos, Nigeria' : undefined);
 
   // Source & Agency determination
   const is_agency = Boolean(

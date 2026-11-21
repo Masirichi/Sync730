@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         seeded,
-        message: 'Successfully seeded Nigerian roles (Lekki, Lagos Hybrid and Maitama, Abuja Onsite).',
+        message: 'Successfully seeded Nigerian roles (Lagos Hybrid and Remote).',
       });
     }
 

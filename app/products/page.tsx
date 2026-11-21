@@ -18,6 +18,7 @@ import {
   Zap,
   BarChart3,
   Bot,
+  BadgeCheck,
 } from 'lucide-react';
 import { SiteHeader } from '@/components/site/site-header';
 import { SiteFooter } from '@/components/site/site-footer';
@@ -25,7 +26,7 @@ import { SiteFooter } from '@/components/site/site-footer';
 export const metadata: Metadata = {
   title: 'Products — AI Recruitment Platform | Sync730',
   description:
-    'Explore the Sync730 AI recruitment product suite: Autonomous Sourcing, AI Video Interviewer, SyncFlow ATS, Direct Recruiter Messaging, and Candidate Tools. Headquartered in Abuja, Nigeria.',
+    'Explore the Sync730 AI recruitment product suite: Autonomous Sourcing, AI Video Interviewer, SyncFlow ATS, Direct Recruiter Messaging, and Candidate Tools. Headquartered in Nigeria.',
   alternates: {
     canonical: 'https://sync730.com/products',
   },
@@ -78,8 +79,8 @@ export default function ProductsPage() {
                   <span>Calibrated STAR Rubrics</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-orange-500" />
-                  <span>Abuja, Nigeria</span>
+                  <BadgeCheck className="h-4 w-4 text-orange-500" />
+                  <span>Nigeria · Pan-African Talent</span>
                 </div>
               </div>
             </div>
@@ -158,7 +159,7 @@ export default function ProductsPage() {
                     </div>
                   </div>
                   <div className="rounded-lg bg-secondary/60 p-3 text-xs text-muted-foreground">
-                    "Candidate has 4+ years running 50k+ QPS microservices in Abuja & Lagos fintech ecosystem with proven zero-downtime database migrations."
+                    "Candidate has 4+ years running 50k+ QPS microservices in Lagos & African fintech ecosystem with proven zero-downtime database migrations."
                   </div>
                 </div>
               </div>
@@ -349,7 +350,7 @@ export default function ProductsPage() {
                     </div>
                     <div>
                       <p className="text-xs font-semibold text-foreground">Emeka O. · Senior Full-Stack</p>
-                      <p className="text-[10px] text-muted-foreground">Abuja, Nigeria · Online</p>
+                      <p className="text-[10px] text-muted-foreground">Lagos, Nigeria · Online</p>
                     </div>
                   </div>
                   <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[10px] font-semibold">
@@ -434,7 +435,7 @@ export default function ProductsPage() {
             </div>
 
             <p className="mt-6 text-xs text-background/60">
-              Abuja, Nigeria · Calibrated AI evaluations · Humans make 100% of final hiring choices
+              Nigeria · Calibrated AI evaluations · Humans make 100% of final hiring choices
             </p>
           </div>
         </section>

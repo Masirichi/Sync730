@@ -41,7 +41,7 @@ const COMMON_ROLES = [
 export function JobAlertsModal({
   isOpen,
   onClose,
-  availableLocations = ['Lagos, Nigeria', 'Abuja, Nigeria', 'Worldwide Remote'],
+  availableLocations = ['Lagos, Nigeria', 'Accra, Ghana', 'Worldwide Remote'],
   initialLocation,
   initialModality = 'remote',
 }: JobAlertsModalProps) {

@@ -15,6 +15,7 @@ import {
   Cpu,
   Layers,
   Sparkles,
+  BadgeCheck,
 } from 'lucide-react';
 import { SiteHeader } from '@/components/site/site-header';
 import { SiteFooter } from '@/components/site/site-footer';
@@ -22,7 +23,7 @@ import { SiteFooter } from '@/components/site/site-footer';
 export const metadata: Metadata = {
   title: 'Solutions — AI Recruitment for Startups & Global Teams | Sync730',
   description:
-    'Tailored AI recruitment solutions for high-growth startups, global remote enterprises, and engineering leaders hiring Africa’s top technical talent with rapid velocity. Headquartered in Abuja, Nigeria.',
+    'Tailored AI recruitment solutions for high-growth startups, global remote enterprises, and engineering leaders hiring Africa’s top technical talent with rapid velocity. Headquartered in Nigeria.',
   alternates: {
     canonical: 'https://sync730.com/solutions',
   },
@@ -75,8 +76,8 @@ export default function SolutionsPage() {
                   <span>94.6% Final Pass Rate</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-orange-500" />
-                  <span>Abuja, Nigeria</span>
+                  <BadgeCheck className="h-4 w-4 text-orange-500" />
+                  <span>Nigeria · Pan-African Hubs</span>
                 </div>
               </div>
             </div>
@@ -95,7 +96,7 @@ export default function SolutionsPage() {
                   For High-Growth Startups
                 </h2>
                 <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-                  Startups cannot afford 45-day hiring cycles or $25,000 headhunter retainers. Sync730 gives lean founders and engineering leads pre-vetted senior software engineers ready to ship code on day one.
+                  Startups cannot afford 45-day hiring cycles or traditional ₦15,000,000 agency retainers. Sync730 gives lean founders and engineering leads pre-vetted senior software engineers ready to ship code on day one.
                 </p>
 
                 <div className="mt-8 space-y-3">
@@ -177,7 +178,7 @@ export default function SolutionsPage() {
                       <span className="text-foreground">10,000+ Engineers</span>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Abuja, Lagos, Nairobi, Cape Town, Johannesburg, and Accra.
+                      Lagos, Nairobi, Cape Town, Johannesburg, Kigali, and Accra.
                     </p>
                   </div>
 
@@ -420,7 +421,7 @@ export default function SolutionsPage() {
             </div>
 
             <p className="mt-6 text-xs text-background/60">
-              Abuja, Nigeria · Zero agency markups · Calibrated technical rubrics
+              Nigeria · Zero agency markups · Calibrated technical rubrics
             </p>
           </div>
         </section>

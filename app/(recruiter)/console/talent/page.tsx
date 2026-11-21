@@ -40,6 +40,7 @@ import {
   Calendar,
   Compass,
   Send,
+  Columns3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -193,6 +194,57 @@ function VettedTalentContent() {
       } catch {}
       return updated;
     });
+  };
+
+  const handleAddToSyncFlow = (cand: any) => {
+    try {
+      const stored = localStorage.getItem('sync730_recruiter_syncflow_pipeline');
+      let current: any[] = [];
+      if (stored) current = JSON.parse(stored);
+
+      const exists = current.some((c) => c.candidate_id === (cand.candidate_id || cand.id));
+      if (exists) {
+        toast.info(`${cand.candidate_name} is already in your SyncFlow Pipeline.`, {
+          action: {
+            label: 'Open SyncFlow',
+            onClick: () => router.push('/console/syncflow'),
+          },
+        });
+        return;
+      }
+
+      const newTalent = {
+        id: `sync-${Date.now().toString(36)}`,
+        candidate_id: cand.candidate_id || cand.id,
+        name: cand.candidate_name,
+        role: cand.desired_role || cand.role || 'Senior Software Engineer',
+        seniority: cand.seniority || 'Senior',
+        location: cand.location || 'Lagos, Nigeria (WAT)',
+        avatar_url: cand.avatar_url,
+        match_score: cand.match_percentage || 95,
+        tech_depth: cand.technical_depth_score || 94,
+        communication_score: cand.communication_score || 90,
+        skills: cand.skills || ['React', 'Node.js', 'PostgreSQL'],
+        expected_salary_ngn: cand.expected_salary || '₦30,000,000 / yr',
+        job_title: selectedJob?.job_title || 'Senior Engineering Search',
+        stage: 'SOURCED',
+        updated_at: new Date().toISOString(),
+        notes: ['Added to SyncFlow from Vetted Talent Pool.'],
+      };
+
+      current.unshift(newTalent);
+      localStorage.setItem('sync730_recruiter_syncflow_pipeline', JSON.stringify(current));
+      window.dispatchEvent(new CustomEvent('sync730_recruiter_syncflow_updated'));
+
+      toast.success(`Added ${cand.candidate_name} to SyncFlow Talent Pipeline!`, {
+        action: {
+          label: 'View in SyncFlow',
+          onClick: () => router.push('/console/syncflow'),
+        },
+      });
+    } catch {
+      toast.error('Failed to add candidate to SyncFlow.');
+    }
   };
 
   const toggleCompare = (candId: string) => {
@@ -1252,6 +1304,17 @@ function VettedTalentContent() {
                         >
                           <MessageSquare className="h-3 w-3 stroke-[1.5]" />
                           <span>Chat</span>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleAddToSyncFlow(cand)}
+                          className="h-7 px-2 text-[11px] font-semibold text-orange-600 dark:text-orange-400 hover:text-orange-700 hover:bg-orange-50 dark:hover:bg-orange-950/40 gap-1 rounded-lg"
+                          title="Add to SyncFlow Talent Pipeline"
+                        >
+                          <Columns3 className="h-3 w-3 stroke-[1.5]" />
+                          <span>SyncFlow</span>
                         </Button>
                         <Button
                           type="button"

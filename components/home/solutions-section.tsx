@@ -79,7 +79,7 @@ export function SolutionsSection() {
                 For High-Growth Startups
               </h3>
               <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                Scale your core technical team without burning weeks on resumes or paying $25,000 agency recruitment markups.
+                Scale your core technical team without burning weeks on resumes or paying ₦15,000,000 agency recruitment markups.
               </p>
 
               <div className="mt-6 rounded-xl border border-border/70 bg-secondary/40 p-4">

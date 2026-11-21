@@ -26,7 +26,7 @@ export async function generateMetadata({ searchParams }: FindWorkPageProps): Pro
   return {
     title: 'Find Tech & Remote Jobs in Nigeria, Africa & Worldwide | Sync730',
     description:
-      'Discover active verified Remote, Hybrid, and Onsite roles in Lagos, Abuja, Port Harcourt, and worldwide. Clear interview expectations and verified compensation.',
+      'Discover active verified Remote, Hybrid, and Onsite roles in Lagos, Port Harcourt, Nairobi, Kigali, and worldwide. Clear interview expectations and verified compensation.',
     alternates: {
       canonical: 'https://sync730.com/find-work',
     },
@@ -37,7 +37,7 @@ export async function generateMetadata({ searchParams }: FindWorkPageProps): Pro
     openGraph: {
       title: 'Find Tech & Remote Jobs in Nigeria, Africa & Worldwide | Sync730',
       description:
-        'Discover active verified Remote, Hybrid, and Onsite roles in Lagos, Abuja, Port Harcourt, and worldwide.',
+        'Discover active verified Remote, Hybrid, and Onsite roles in Lagos, Port Harcourt, Nairobi, Kigali, and worldwide.',
       url: 'https://sync730.com/find-work',
       siteName: 'Sync730',
       type: 'website',

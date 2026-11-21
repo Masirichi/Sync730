@@ -217,7 +217,7 @@ export const SEED_REMOTE_JOBS: Omit<RemoteJob, 'id'>[] = [
     description: 'Design mobile experiences optimized for 3G cellular speeds and offline sync across West and East Africa.',
     responsibilities: '• Create human-centered UI/UX designs and high-fidelity prototypes in Figma.\n• Conduct user interviews with logistics operators and merchants across Lagos and Nairobi.\n• Maintain and scale comprehensive design system tokens across mobile and web.',
     requirements: '• 6+ years designing consumer or B2B mobile applications.\n• Proven portfolio showing strong UX problem-solving in African emerging market contexts.\n• Fluency in Figma, auto-layout, interactive prototyping, and component architecture.',
-    timezone_overlap: 'WAT (Lagos/Abuja business hours)',
+    timezone_overlap: 'WAT (West Africa Time business hours)',
     payment_method: 'Direct Bank Transfer (Nigerian NGN Account)',
     category: 'Product & Design',
     candidate_required_location: 'Africa Only (Remote)',

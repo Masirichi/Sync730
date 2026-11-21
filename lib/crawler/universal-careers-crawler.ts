@@ -276,7 +276,7 @@ export const VERIFIED_STARTUP_VACANCIES: Omit<RemoteJob, 'id'>[] = [
     company: 'Chowdeck',
     company_name: 'Chowdeck',
     company_logo: null,
-    description: 'Lead product delivery for driver dispatching algorithms, route optimization, and merchant kitchen operations in Lagos, Abuja, and Port Harcourt. Proven startup velocity required.',
+    description: 'Lead product delivery for driver dispatching algorithms, route optimization, and merchant kitchen operations in Lagos, Nairobi, and Port Harcourt. Proven startup velocity required.',
     category: 'Product',
     job_type: 'full-time',
     candidate_required_location: 'Nigeria (Remote / Hybrid)',

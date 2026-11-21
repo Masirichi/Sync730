@@ -265,7 +265,7 @@ function RolesManagerContent() {
   // Seed Nigerian Hybrid & Onsite Roles Dev Button
   const handleSeedNigeriaRoles = async () => {
     setIsSeedingNigeria(true);
-    toast.info('Seeding Nigerian roles (Lekki, Lagos Hybrid and Maitama, Abuja Onsite)...');
+    toast.info('Seeding Nigerian tech roles (Lagos Hybrid and Remote)...');
     try {
       const res = await fetch('/api/admin/jobs', {
         method: 'POST',
@@ -275,16 +275,16 @@ function RolesManagerContent() {
       const data = await res.json();
       if (data.success) {
         SAMPLE_NIGERIA_ROLES.forEach((r) => saveAdminRemoteJob(r));
-        toast.success('Successfully seeded Lagos and Abuja roles to the board!');
+        toast.success('Successfully seeded Nigerian roles to the board!');
         await loadJobs();
       } else {
         SAMPLE_NIGERIA_ROLES.forEach((r) => saveAdminRemoteJob(r));
-        toast.success('Seeded Lagos and Abuja roles to local store.');
+        toast.success('Seeded Nigerian roles to local store.');
         await loadJobs();
       }
     } catch {
       SAMPLE_NIGERIA_ROLES.forEach((r) => saveAdminRemoteJob(r));
-      toast.success('Seeded Lagos and Abuja roles to local store.');
+      toast.success('Seeded Nigerian roles to local store.');
       await loadJobs();
     } finally {
       setIsSeedingNigeria(false);
@@ -739,7 +739,6 @@ function RolesManagerContent() {
                       </SelectTrigger>
                       <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
                         <SelectItem value="Lagos, Nigeria">Lagos, Nigeria</SelectItem>
-                        <SelectItem value="Abuja, Nigeria">Abuja, Nigeria</SelectItem>
                         <SelectItem value="Port Harcourt, Nigeria">Port Harcourt, Nigeria</SelectItem>
                         <SelectItem value="Remote (Worldwide / Africa)">Remote (Worldwide / Africa)</SelectItem>
                         <SelectItem value="CUSTOM">Custom Specific Locality...</SelectItem>
@@ -751,7 +750,7 @@ function RolesManagerContent() {
                 {cityLocation === 'CUSTOM' && (
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold text-neutral-300">
-                      Specific Locality (e.g. Lekki, Lagos or Maitama, Abuja) *
+                      Specific Locality (e.g. Lekki, Lagos or Victoria Island) *
                     </Label>
                     <Input
                       placeholder="e.g. Lekki Phase 1, Lagos, Nigeria"
