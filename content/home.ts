@@ -248,9 +248,9 @@ export interface HomeCopy {
 
 export const homeCopy: HomeCopy = {
   meta: {
-    title: 'Sync730 — AI Recruitment Solutions for High-Growth Teams',
+    title: 'Sync730 — AI Recruitment & Talent Management Platform',
     description:
-      "Autonomous AI recruitment platform for modern engineering teams. Source, screen with calibrated AI video interviews, and hire Africa's top 2% technical talent in 72 hours.",
+      "Autonomous AI recruitment and talent management platform for modern engineering teams. Source, screen with calibrated AI video interviews, and hire Africa's top 2% technical talent with rapid velocity.",
     canonical: 'https://sync730.com/',
     siteName: 'Sync730',
     ogImage: '/og-sync730.png',
@@ -258,15 +258,15 @@ export const homeCopy: HomeCopy = {
   hero: {
     eyebrow: 'ALL-IN-ONE AI RECRUITMENT PLATFORM',
     h1: 'All-in-one AI recruitment platform',
-    sub: "Sync730 is an autonomous, all-in-one AI recruitment platform engineered to source, screen, and hire Africa's top 2% technical talent in 72 hours.",
-    ctaPrimary: 'Request a Demo',
+    sub: "Sync730 is an autonomous, all-in-one AI recruitment and talent management platform engineered to source, screen, and hire Africa's top 2% technical talent with rapid velocity.",
+    ctaPrimary: 'Start Free Trial',
     ctaPrimaryHref: '/hiring',
-    ctaSecondary: 'Start Hiring with AI',
-    ctaSecondaryHref: '/hiring',
+    ctaSecondary: 'Request a Demo',
+    ctaSecondaryHref: '/demo',
     proofLine:
-      '72h avg. time-to-hire · 10,000+ Pre-vetted Engineers · 94.6% Final Round Pass Rate',
+      'Rapid time-to-hire · 10,000+ Pre-vetted Engineers · 94.6% Final Round Pass Rate',
     proofItems: [
-      '72h avg. time-to-hire',
+      'Rapid time-to-hire',
       '10,000+ Pre-vetted Engineers',
       '94.6% Final round pass rate',
       'Verified Technical Talent',
@@ -338,9 +338,9 @@ export const homeCopy: HomeCopy = {
         id: 'swift-outreach',
         title: 'Real-time recruiter outreach',
         badge: 'Swift Timelines',
-        tagline: 'Direct dashboard outreach with 72-hour turnaround',
+        tagline: 'Direct dashboard outreach with rapid turnaround',
         description:
-          'Reach out to top 2% African technical talents in real time from your talent dashboard, compressing recruitment timelines from months down to 72 hours.',
+          'Reach out to top 2% African technical talents in real time from your talent dashboard, compressing recruitment timelines from months down to days.',
         bullets: [
           'Real-time in-app recruiter-candidate chat',
           'Instant candidate availability and calendar sync',
@@ -353,15 +353,15 @@ export const homeCopy: HomeCopy = {
   solutions: {
     label: 'PROVEN OUTCOMES & TOP 2% TALENT',
     h2: 'Engineered for how top engineering teams hire.',
-    sub: "We don't send 500 unvetted resumes. We deliver pre-vetted senior African engineers ready to ship code on Day 1, cutting recruitment cycles from 45 days to 72 hours.",
+    sub: "We don't send 500 unvetted resumes. We deliver pre-vetted senior African engineers ready to ship code on Day 1, cutting recruitment cycles from months down to days.",
     items: [
       {
         id: 'startups',
         audience: 'For High-Growth Startups',
-        title: 'Hire Senior Engineers in 72 Hours without Agency Fees',
+        title: 'Hire Senior Engineers Rapidly without Agency Fees',
         description:
           'Avoid spending $25,000 per hire on traditional staffing agencies. Access pre-vetted engineers ready to ship on day one with zero upfront search fees.',
-        impact: '72 Hours avg. time-to-hire vs 45 days industry average',
+        impact: 'Accelerated time-to-hire vs 45 days industry average',
         points: [
           'Pre-vetted senior backend, frontend, full-stack, and mobile engineers',
           'Transparent pay-per-unlock or subscription tokens',
@@ -550,7 +550,7 @@ export const homeCopy: HomeCopy = {
     id: 'for-recruiters',
     eyebrow: 'HIGH-SIGNAL TECHNICAL VETTING',
     h2: 'How modern engineering teams make confident hires.',
-    body: "Africa has elite engineering talent. Traditional resumes can't prove production depth. Every candidate completes an adaptive AI video and coding assessment, providing your team with rubric-calibrated evidence to hire in 72 hours.",
+    body: "Africa has elite engineering talent. Traditional resumes can't prove production depth. Every candidate completes an adaptive AI video and coding assessment, providing your team with rubric-calibrated evidence to hire with confidence.",
     points: [
       {
         number: '01',
@@ -632,14 +632,14 @@ export const homeCopy: HomeCopy = {
     ],
   },
   closing: {
-    eyebrow: 'START HIRING IN 72 HOURS',
-    h2: 'Transform your technical hiring with AI in 72 hours.',
+    eyebrow: 'START HIRING TOP TALENT',
+    h2: 'Transform your technical hiring with AI.',
     bodyPrefix: 'Join ',
     bodySuffix: '+ engineering teams and vetted technical professionals scaling without agency markups.',
-    ctaPrimary: 'Request a Demo',
+    ctaPrimary: 'Start Free Trial',
     ctaPrimaryHref: '/hiring',
-    ctaSecondary: 'Start Hiring with AI',
-    ctaSecondaryHref: '/hiring',
+    ctaSecondary: 'Request a Demo',
+    ctaSecondaryHref: '/demo',
     microcopy: 'Zero placement fees until you make a hire · 30-day replacement guarantee',
   },
   nav: {
@@ -648,11 +648,12 @@ export const homeCopy: HomeCopy = {
       { label: 'Products', href: '/products' },
       { label: 'Solutions', href: '/solutions' },
       { label: 'Hiring', href: '/hiring' },
+      { label: 'Resources', href: '/employer-guide' },
     ],
     syncFlowLabel: 'SyncFlow',
     signInLabel: 'Sign in',
     signInHref: '/login',
-    createProfileLabel: 'Start Hiring',
+    createProfileLabel: 'Start Free Trial',
     createProfileHref: '/hiring',
   },
   footer: {
@@ -710,8 +711,6 @@ export const homeCopy: HomeCopy = {
         links: [
           { label: 'Privacy (NDPA)', href: '/privacy' },
           { label: 'Terms of Service', href: '/terms' },
-          { label: 'AI Scoring Transparency', href: '/scoring-methodology' },
-          { label: 'Data Processing', href: '/data-processing' },
         ],
       },
     },

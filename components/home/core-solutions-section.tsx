@@ -173,21 +173,20 @@ export function CoreSolutionsSection({ onOpenDemo }: CoreSolutionsSectionProps) 
               Streamline technical hiring in one centralized platform, connecting Africa&apos;s top 2% engineers with high-growth teams.
             </p>
 
-            {/* CTA Buttons: Brand Orange (#FF5500) */}
+            {/* CTA Buttons: Brand Orange (#FF5500) Free Trial */}
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
-                href="/solutions"
+                href="/hiring"
                 className="inline-flex h-11 sm:h-12 items-center justify-center rounded-full bg-[#FF5500] hover:bg-[#E64D00] px-8 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+              >
+                <span>Start Free Trial</span>
+              </Link>
+              <Link
+                href="/solutions"
+                className="inline-flex h-11 sm:h-12 items-center justify-center rounded-full border border-border/80 bg-background/90 px-6 text-sm font-semibold text-foreground hover:bg-secondary active:scale-95 transition-all"
               >
                 <span>Learn more</span>
               </Link>
-              <button
-                type="button"
-                onClick={onOpenDemo}
-                className="inline-flex h-11 sm:h-12 items-center justify-center rounded-full border border-border/80 bg-background/90 px-6 text-sm font-semibold text-foreground hover:bg-secondary active:scale-95 transition-all"
-              >
-                <span>Request a Demo</span>
-              </button>
             </div>
 
             {/* Micro Benefit Checkmarks */}
@@ -198,7 +197,7 @@ export function CoreSolutionsSection({ onOpenDemo }: CoreSolutionsSectionProps) 
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                <span>72h average time-to-hire</span>
+                <span>Accelerated time-to-hire</span>
               </span>
             </div>
           </div>

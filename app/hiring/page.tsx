@@ -23,7 +23,7 @@ import { SiteFooter } from '@/components/site/site-footer';
 export const metadata: Metadata = {
   title: 'Hiring — AI Recruitment Platform & Talent Engine | Sync730',
   description:
-    'Hire Africa’s top 2% software engineers in 72 hours. Powered by autonomous AI video screening, calibrated STAR rubrics, and direct recruiter chat. Headquartered in Abuja, Nigeria.',
+    'Hire Africa’s top 2% software engineers with rapid velocity. Powered by autonomous AI video screening, calibrated STAR rubrics, and direct recruiter chat. Headquartered in Abuja, Nigeria.',
   alternates: {
     canonical: 'https://sync730.com/hiring',
   },
@@ -44,7 +44,7 @@ export default function HiringPage() {
                 <span>AI RECRUITMENT FOR EMPLOYERS</span>
               </div>
               <h1 className="mt-6 text-4xl font-semibold leading-[1.05] tracking-[-0.04em] sm:text-6xl lg:text-7xl text-foreground">
-                Hire Africa’s top 2% technical talent in 72 hours.
+                Hire Africa’s top 2% technical talent rapidly.
               </h1>
               <p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
                 Sync730 replaces manual resume sorting with calibrated AI video interviews, real-world code evaluations, and verified candidate dossiers. Zero headhunter commissions.
@@ -55,7 +55,7 @@ export default function HiringPage() {
                   href="/register/recruiter"
                   className="inline-flex h-12 items-center justify-center rounded-full bg-[#FF5500] hover:bg-[#E64D00] px-8 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 active:scale-95 transition-all"
                 >
-                  Create Recruiter Account
+                  Start Free Trial
                 </Link>
                 <Link
                   href="/console/talent"
@@ -69,7 +69,7 @@ export default function HiringPage() {
               <div className="mt-10 flex flex-wrap items-center gap-6 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-orange-500" />
-                  <span>72h Avg. Time-to-Hire</span>
+                  <span>Rapid Avg. Time-to-Hire</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-emerald-500" />
@@ -274,7 +274,7 @@ export default function HiringPage() {
                     </li>
                     <li className="flex items-center gap-2 text-foreground">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                      <span>SLA guarantees on 72h shortlist delivery</span>
+                      <span>SLA guarantees on rapid shortlist delivery</span>
                     </li>
                   </ul>
                 </div>
@@ -299,7 +299,7 @@ export default function HiringPage() {
               Start building your technical team today.
             </h2>
             <p className="mt-5 text-base sm:text-lg text-background/70 max-w-xl mx-auto">
-              Join founders and hiring managers who hire senior engineers in 72 hours.
+              Join founders and hiring managers who hire senior engineers rapidly with verified dossiers.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">

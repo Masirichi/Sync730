@@ -9,13 +9,11 @@ import { SolutionsSection } from '@/components/home/solutions-section';
 import { HeroSection } from '@/components/home/hero-section';
 import { CoreSolutionsSection } from '@/components/home/core-solutions-section';
 import { LiveStatsBand } from '@/components/home/live-stats-band';
-import { BeliefSection } from '@/components/home/belief-section';
-import { ForCandidatesSection, LatestJobItem } from '@/components/home/for-candidates-section';
 import { HowItWorksSection } from '@/components/home/how-it-works-section';
 import { LatestRolesSection } from '@/components/home/latest-roles-section';
-import { DifferentiatorsSection } from '@/components/home/differentiators-section';
 import { ForRecruitersSection } from '@/components/home/for-recruiters-section';
 import { SocialProofSection, Testimonial, ApprovedPartner } from '@/components/home/social-proof-section';
+import type { LatestJobItem } from '@/components/home/for-candidates-section';
 import { FaqSection } from '@/components/home/faq-section';
 import { FinalCtaSection } from '@/components/home/final-cta-section';
 import { BookDemoModal } from '@/components/modals/book-demo-modal';
@@ -80,22 +78,13 @@ export function HomeView({
         {/* 7. Latest Verified Roles: Live feed for talents and candidates (#find-work) */}
         <LatestRolesSection jobs={feedJobs} rolesLive={initialStats.rolesLive} />
 
-        {/* 8. The Sync730 Difference: Objective technical vetting, zero agency markups */}
-        <DifferentiatorsSection />
-
-        {/* 10. Belief & Mission: Connecting global opportunity */}
-        <BeliefSection />
-
-        {/* 10. For Candidates: Free tools for African talent (SyncFlow, Resume Studio, Mock Coach) */}
-        <ForCandidatesSection latestRoles={latestRoles} />
-
-        {/* 11. Social Proof: Testimonials and verified hiring partners */}
+        {/* 8. Social Proof: Testimonials and verified hiring partners */}
         <SocialProofSection testimonials={testimonials} partners={partners} />
 
-        {/* 12. FAQ: Common questions for SaaS employers and candidates */}
+        {/* 9. FAQ: Common questions for SaaS employers and candidates */}
         <FaqSection />
 
-        {/* 13. Closing CTA: Transform technical hiring in 72 hours */}
+        {/* 10. Closing CTA: Transform technical hiring with on-demand engineering talent */}
         <FinalCtaSection
           onOpenDemo={() => setDemoOpen(true)}
           talents={initialStats.talents}

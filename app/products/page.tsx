@@ -415,7 +415,7 @@ export default function ProductsPage() {
               Ready to modernize your technical recruitment?
             </h2>
             <p className="mt-5 text-base sm:text-lg text-background/70 max-w-xl mx-auto">
-              Join leading tech startups and global remote companies hiring Africa's top 2% engineering talent in 72 hours.
+              Join leading tech startups and global remote companies hiring Africa&apos;s top 2% engineering talent with rapid turnaround.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">

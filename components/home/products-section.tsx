@@ -611,7 +611,7 @@ export function ProductsSection() {
                 Real-time recruiter outreach
               </h3>
               <p className="mt-2.5 text-sm sm:text-base text-muted-foreground leading-relaxed">
-                Reach out to top 2% African technical talents in real time from your talent dashboard, compressing recruitment timelines from months down to 72 hours.
+                Reach out to top 2% African technical talents in real time from your talent dashboard, compressing recruitment timelines from months down to days.
               </p>
             </div>
           </motion.div>

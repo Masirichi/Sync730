@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Sparkles,
   MessageSquare,
@@ -202,22 +203,28 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
                   </div>
                 </div>
 
-                {/* SATELLITE 2: Mid-Left (Senior Backend Engineer Avatar) */}
+                {/* SATELLITE 2: Mid-Left (African Senior Backend Engineer Portrait Card - Reference Image 1) */}
                 <div
                   onMouseEnter={() => setActiveNode('backend')}
                   onMouseLeave={() => setActiveNode(null)}
                   className="absolute left-[4%] sm:left-[8%] top-1/2 -translate-x-1/2 -translate-y-1/2 group cursor-pointer"
                 >
                   <div className="relative">
-                    <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full border-2 border-background bg-gradient-to-br from-neutral-800 to-neutral-900 text-white font-bold text-sm shadow-xl transition-transform group-hover:scale-105">
-                      <span>DO</span>
-                      <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] text-white">
-                        <Check className="h-3 w-3" />
+                    <div className="relative h-14 w-14 sm:h-16 sm:w-16 overflow-hidden rounded-2xl border-2 sm:border-3 border-background bg-card shadow-xl transition-all duration-300 group-hover:scale-105 group-hover:border-orange-500/50">
+                      <Image
+                        src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&auto=format&fit=crop&q=80"
+                        alt="David O."
+                        fill
+                        sizes="64px"
+                        className="object-cover"
+                      />
+                      <span className="absolute bottom-1 right-1 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] text-white shadow-xs">
+                        <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 stroke-[3]" />
                       </span>
                     </div>
                   </div>
                   {/* Tooltip */}
-                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-border/80 bg-background/95 px-2.5 py-1 text-[11px] font-medium text-foreground shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-border/80 bg-background/95 px-2.5 py-1 text-[11px] font-medium text-foreground shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30">
                     David O. · Senior Backend Engineer (96% Match)
                   </div>
                 </div>
@@ -268,22 +275,28 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
                   </div>
                 </div>
 
-                {/* SATELLITE 5: Mid-Right (Cloud & Infrastructure Lead Avatar) */}
+                {/* SATELLITE 5: Mid-Right (African Cloud & Infrastructure Lead Portrait Card - Reference Image 1) */}
                 <div
                   onMouseEnter={() => setActiveNode('cloud')}
                   onMouseLeave={() => setActiveNode(null)}
                   className="absolute right-[16%] sm:right-[22%] bottom-[8%] sm:bottom-[12%] translate-x-1/2 translate-y-1/2 group cursor-pointer"
                 >
                   <div className="relative">
-                    <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full border-2 border-background bg-gradient-to-br from-amber-700 to-orange-800 text-white font-bold text-sm shadow-xl transition-transform group-hover:scale-105">
-                      <span>AK</span>
-                      <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] text-white">
-                        <Check className="h-3 w-3" />
+                    <div className="relative h-14 w-14 sm:h-16 sm:w-16 overflow-hidden rounded-2xl border-2 sm:border-3 border-background bg-card shadow-xl transition-all duration-300 group-hover:scale-105 group-hover:border-orange-500/50">
+                      <Image
+                        src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=300&auto=format&fit=crop&q=80"
+                        alt="Amina K."
+                        fill
+                        sizes="64px"
+                        className="object-cover"
+                      />
+                      <span className="absolute bottom-1 right-1 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] text-white shadow-xs">
+                        <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 stroke-[3]" />
                       </span>
                     </div>
                   </div>
                   {/* Tooltip */}
-                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-border/80 bg-background/95 px-2.5 py-1 text-[11px] font-medium text-foreground shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-border/80 bg-background/95 px-2.5 py-1 text-[11px] font-medium text-foreground shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30">
                     Amina K. · Cloud & DevOps Lead (94% Match)
                   </div>
                 </div>

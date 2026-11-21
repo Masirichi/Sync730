@@ -22,7 +22,7 @@ import { SiteFooter } from '@/components/site/site-footer';
 export const metadata: Metadata = {
   title: 'Solutions — AI Recruitment for Startups & Global Teams | Sync730',
   description:
-    'Tailored AI recruitment solutions for high-growth startups, global remote enterprises, and engineering leaders hiring Africa’s top technical talent in 72 hours. Headquartered in Abuja, Nigeria.',
+    'Tailored AI recruitment solutions for high-growth startups, global remote enterprises, and engineering leaders hiring Africa’s top technical talent with rapid velocity. Headquartered in Abuja, Nigeria.',
   alternates: {
     canonical: 'https://sync730.com/solutions',
   },
@@ -68,7 +68,7 @@ export default function SolutionsPage() {
               <div className="mt-10 flex flex-wrap items-center gap-6 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-orange-500" />
-                  <span>72h Avg. Time-to-Hire</span>
+                  <span>Rapid Avg. Time-to-Hire</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-emerald-500" />
@@ -101,7 +101,7 @@ export default function SolutionsPage() {
                 <div className="mt-8 space-y-3">
                   {[
                     'Zero upfront agency fees or long-term restrictive contracts',
-                    '72-hour average turnaround from role posting to interviewed shortlist',
+                    'Accelerated turnaround from role posting to interviewed shortlist',
                     'Full candidate dossiers with recorded video screens and verified code repositories',
                     'Flexible token model: only pay when you choose to unlock candidate dossiers',
                   ].map((item) => (
@@ -130,7 +130,7 @@ export default function SolutionsPage() {
                   </span>
                   <div className="mt-4 grid grid-cols-2 gap-4 border-b border-border/70 pb-4">
                     <div>
-                      <p className="text-2xl font-bold text-foreground">72 Hours</p>
+                      <p className="text-2xl font-bold text-foreground">Rapid</p>
                       <p className="text-xs text-muted-foreground mt-0.5">Sync730 Time-to-Hire</p>
                     </div>
                     <div>
@@ -351,7 +351,7 @@ export default function SolutionsPage() {
                   <tr>
                     <td className="p-4 sm:p-5 font-medium text-foreground">Time to First Shortlist</td>
                     <td className="p-4 sm:p-5 font-bold text-emerald-600 dark:text-emerald-400 bg-foreground/5 border-x border-border/80">
-                      72 Hours
+                      Rapid On-Demand
                     </td>
                     <td className="p-4 sm:p-5 text-muted-foreground">3 to 6 Weeks</td>
                     <td className="p-4 sm:p-5 text-muted-foreground">3 to 4 Weeks</td>
@@ -401,7 +401,7 @@ export default function SolutionsPage() {
               Find the perfect recruitment solution for your team.
             </h2>
             <p className="mt-5 text-base sm:text-lg text-background/70 max-w-xl mx-auto">
-              Start hiring vetted software engineers in 72 hours.
+              Start hiring vetted software engineers rapidly with verified dossiers.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -409,7 +409,7 @@ export default function SolutionsPage() {
                 href="/hiring"
                 className="w-full sm:w-auto inline-flex h-12 items-center justify-center rounded-full bg-[#FF5500] hover:bg-[#E64D00] px-8 text-sm font-semibold text-white shadow-xl shadow-orange-500/30 hover:shadow-orange-500/40 active:scale-95 transition-all"
               >
-                Start Hiring with AI
+                Start Free Trial
               </Link>
               <Link
                 href="/products"

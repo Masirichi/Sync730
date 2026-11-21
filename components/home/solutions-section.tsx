@@ -85,7 +85,7 @@ export function SolutionsSection() {
               <div className="mt-6 rounded-xl border border-border/70 bg-secondary/40 p-4">
                 <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
                   <Clock className="h-4 w-4 text-orange-500" />
-                  <span className="text-orange-600 dark:text-orange-400 font-bold">72 Hours Average Time-to-Hire</span>
+                  <span className="text-orange-600 dark:text-orange-400 font-bold">Rapid Average Time-to-Hire</span>
                 </div>
                 <p className="mt-1 text-[11px] text-muted-foreground">
                   Pre-screened senior engineers ready to start building immediately.

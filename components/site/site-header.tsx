@@ -4,7 +4,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, Bookmark, User, LayoutDashboard, LogOut, Columns3 } from 'lucide-react';
+import {
+  Menu,
+  X,
+  User,
+  LayoutDashboard,
+  LogOut,
+  Columns3,
+  ChevronDown,
+  Users2,
+  Video,
+  MessageSquare,
+  FileText,
+  ArrowRight,
+  BookOpen,
+  ShieldCheck,
+  DollarSign,
+  Sparkles,
+} from 'lucide-react';
 import { BrandLogo } from '@/components/site/brand-logo';
 import { BookDemoModal } from '@/components/modals/book-demo-modal';
 import { SyncFlowDrawer } from '@/components/syncflow/syncflow-drawer';
@@ -19,6 +36,72 @@ export interface SiteHeaderProps {
   isNavVisible?: boolean;
   compact?: boolean;
 }
+
+const PRODUCT_SUB_LINKS = [
+  {
+    label: 'AI Talent Marketplace',
+    description: 'Reach out to vetted African engineers in real time',
+    href: '/products#sourcing',
+    icon: Users2,
+  },
+  {
+    label: 'AI Video Interviewer',
+    description: 'Calibrated 20-min STAR interviews with automated scoring',
+    href: '/products#interview',
+    icon: Video,
+  },
+  {
+    label: 'SyncFlow ATS Pipeline',
+    description: 'Track applications, candidate stages, and offers in one board',
+    href: '/products#syncflow',
+    icon: Columns3,
+  },
+  {
+    label: 'Direct Recruiter Chat',
+    description: 'Real-time candidate messaging and offer discussions',
+    href: '/products#chat',
+    icon: MessageSquare,
+  },
+  {
+    label: 'Resume Studio',
+    description: 'AI resume analysis, GitHub scoring, and stack audit',
+    href: '/dashboard/resume',
+    icon: FileText,
+  },
+  {
+    label: 'View All Products',
+    description: 'Full-cycle autonomous technical recruitment engine',
+    href: '/products',
+    icon: ArrowRight,
+  },
+];
+
+const RESOURCE_SUB_LINKS = [
+  {
+    label: 'Employer Guide',
+    description: 'Framework for hiring and onboarding remote African tech talent',
+    href: '/employer-guide',
+    icon: BookOpen,
+  },
+  {
+    label: 'Scoring Methodology',
+    description: 'STAR rubric evaluation and technical assessment benchmarks',
+    href: '/scoring-methodology',
+    icon: ShieldCheck,
+  },
+  {
+    label: 'Compensation & Pricing',
+    description: 'Salary benchmarks across Nigeria, Kenya, Ghana & South Africa',
+    href: '/hiring#pricing',
+    icon: DollarSign,
+  },
+  {
+    label: 'Candidate Interview Prep',
+    description: 'Interactive AI coaching and mock technical questions',
+    href: '/dashboard/prep',
+    icon: Sparkles,
+  },
+];
 
 function getInitials(nameOrEmail?: string): string {
   if (!nameOrEmail) return 'U';
@@ -38,11 +121,21 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [internalNavVisible, setInternalNavVisible] = useState(true);
 
+  // Nav Dropdowns
+  const [productsOpen, setProductsOpen] = useState(false);
+  const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
+  const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
+
+  const productsTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const resourcesTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // User auth state & real saved jobs count
   const [user, setUser] = useState<{ id: string; email?: string; name?: string; avatar?: string } | null>(null);
   const [savedCount, setSavedCount] = useState<number>(0);
   const [totalSyncFlowCount, setTotalSyncFlowCount] = useState<number>(0);
   const avatarMenuRef = useRef<HTMLDivElement>(null);
+  const navContainerRef = useRef<HTMLElement>(null);
 
   // Auto-hide navigation on scroll down, return on scroll up (when not controlled by parent)
   useEffect(() => {
@@ -53,6 +146,8 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
       const currentScrollY = window.scrollY;
       if (currentScrollY > lastScrollY && currentScrollY > 70) {
         setInternalNavVisible(false);
+        setProductsOpen(false);
+        setResourcesOpen(false);
       } else if (currentScrollY < lastScrollY) {
         setInternalNavVisible(true);
       }
@@ -102,14 +197,23 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
       if (avatarMenuRef.current && !avatarMenuRef.current.contains(event.target as Node)) {
         setAvatarMenuOpen(false);
       }
+      if (navContainerRef.current && !navContainerRef.current.contains(event.target as Node)) {
+        setProductsOpen(false);
+        setResourcesOpen(false);
+      }
     }
-    if (avatarMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [avatarMenuOpen]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  // Navigation: Find Work · Products · Solutions · Hiring
+  // Close dropdowns on route changes
+  useEffect(() => {
+    setProductsOpen(false);
+    setResourcesOpen(false);
+    setOpen(false);
+  }, [pathname]);
+
+  // Navigation: Find Work · Products · Solutions · Hiring · Resources
   const links = homeCopy.nav.links;
 
   const isLinkActive = (href: string) => {
@@ -122,11 +226,6 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
     return pathname === href || (pathname ? pathname.startsWith(href) : false);
   };
 
-  const handleOpenDemo = () => {
-    trackEvent({ name: 'cta_book_demo_click', location: 'header' });
-    setDemoOpen(true);
-  };
-
   const handleSignOut = async () => {
     try {
       const supabase = createBrowserClient();
@@ -137,8 +236,30 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
     router.refresh();
   };
 
-  const handleOpenSyncFlow = () => {
-    window.dispatchEvent(new CustomEvent('sync730_open_syncflow'));
+  const handleProductsEnter = () => {
+    if (productsTimerRef.current) clearTimeout(productsTimerRef.current);
+    if (resourcesTimerRef.current) clearTimeout(resourcesTimerRef.current);
+    setResourcesOpen(false);
+    setProductsOpen(true);
+  };
+
+  const handleProductsLeave = () => {
+    productsTimerRef.current = setTimeout(() => {
+      setProductsOpen(false);
+    }, 180);
+  };
+
+  const handleResourcesEnter = () => {
+    if (resourcesTimerRef.current) clearTimeout(resourcesTimerRef.current);
+    if (productsTimerRef.current) clearTimeout(productsTimerRef.current);
+    setProductsOpen(false);
+    setResourcesOpen(true);
+  };
+
+  const handleResourcesLeave = () => {
+    resourcesTimerRef.current = setTimeout(() => {
+      setResourcesOpen(false);
+    }, 180);
   };
 
   return (
@@ -158,17 +279,154 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
           {/* Left: Wordmark and logo mark */}
           <BrandLogo />
 
-          {/* Center: Desktop Navigation links with active state */}
-          <nav className="hidden items-center gap-7 md:flex" aria-label="Primary navigation">
+          {/* Center: Desktop Navigation links with CoreShift dropdown menus */}
+          <nav
+            ref={navContainerRef}
+            className="hidden items-center gap-7 md:flex"
+            aria-label="Primary navigation"
+          >
             {links.map((link) => {
               const active = isLinkActive(link.href);
+
+              // 1. PRODUCTS DROPDOWN
+              if (link.label === 'Products') {
+                return (
+                  <div
+                    key={link.label}
+                    className="relative"
+                    onMouseEnter={handleProductsEnter}
+                    onMouseLeave={handleProductsLeave}
+                  >
+                    <Link
+                      href={link.href}
+                      onClick={(e) => {
+                        // Allow clicking to go to /products or toggle dropdown
+                      }}
+                      aria-expanded={productsOpen}
+                      className={cn(
+                        "inline-flex items-center gap-1 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 rounded px-2 py-1",
+                        active || productsOpen
+                          ? "text-foreground font-semibold"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <span>{link.label}</span>
+                      <ChevronDown
+                        className={cn(
+                          "h-3.5 w-3.5 transition-transform duration-200 opacity-70",
+                          productsOpen && "rotate-180 opacity-100 text-orange-500"
+                        )}
+                      />
+                    </Link>
+
+                    {/* Products Popover Menu */}
+                    {productsOpen && (
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-[460px] rounded-2xl border border-border/80 bg-card/95 backdrop-blur-xl p-3 shadow-2xl shadow-black/10 z-50 text-foreground animate-in fade-in slide-in-from-top-2 duration-150">
+                        <div className="grid grid-cols-1 gap-1">
+                          {PRODUCT_SUB_LINKS.map((sub) => {
+                            const IconComponent = sub.icon;
+                            return (
+                              <Link
+                                key={sub.label}
+                                href={sub.href}
+                                onClick={() => setProductsOpen(false)}
+                                className="group flex items-start gap-3 rounded-xl p-2.5 transition-all hover:bg-secondary/70 hover:border hover:border-orange-500/20"
+                              >
+                                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground group-hover:border-orange-500/30 group-hover:text-orange-500 group-hover:shadow-xs transition-colors">
+                                  <IconComponent className="h-4 w-4" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs font-semibold text-foreground group-hover:text-orange-500 transition-colors">
+                                      {sub.label}
+                                    </span>
+                                  </div>
+                                  <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground line-clamp-1">
+                                    {sub.description}
+                                  </p>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              // 2. RESOURCES DROPDOWN
+              if (link.label === 'Resources') {
+                return (
+                  <div
+                    key={link.label}
+                    className="relative"
+                    onMouseEnter={handleResourcesEnter}
+                    onMouseLeave={handleResourcesLeave}
+                  >
+                    <Link
+                      href={link.href}
+                      aria-expanded={resourcesOpen}
+                      className={cn(
+                        "inline-flex items-center gap-1 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 rounded px-2 py-1",
+                        active || resourcesOpen
+                          ? "text-foreground font-semibold"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <span>{link.label}</span>
+                      <ChevronDown
+                        className={cn(
+                          "h-3.5 w-3.5 transition-transform duration-200 opacity-70",
+                          resourcesOpen && "rotate-180 opacity-100 text-orange-500"
+                        )}
+                      />
+                    </Link>
+
+                    {/* Resources Popover Menu */}
+                    {resourcesOpen && (
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-[420px] rounded-2xl border border-border/80 bg-card/95 backdrop-blur-xl p-3 shadow-2xl shadow-black/10 z-50 text-foreground animate-in fade-in slide-in-from-top-2 duration-150">
+                        <div className="grid grid-cols-1 gap-1">
+                          {RESOURCE_SUB_LINKS.map((sub) => {
+                            const IconComponent = sub.icon;
+                            return (
+                              <Link
+                                key={sub.label}
+                                href={sub.href}
+                                onClick={() => setResourcesOpen(false)}
+                                className="group flex items-start gap-3 rounded-xl p-2.5 transition-all hover:bg-secondary/70 hover:border hover:border-orange-500/20"
+                              >
+                                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground group-hover:border-orange-500/30 group-hover:text-orange-500 group-hover:shadow-xs transition-colors">
+                                  <IconComponent className="h-4 w-4" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs font-semibold text-foreground group-hover:text-orange-500 transition-colors">
+                                      {sub.label}
+                                    </span>
+                                  </div>
+                                  <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground line-clamp-1">
+                                    {sub.description}
+                                  </p>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              // 3. STANDARD LINKS (Find Work · Solutions · Hiring)
               return (
                 <Link
                   key={link.label}
                   href={link.href}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    "text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 rounded px-1.5 py-1",
+                    "text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 rounded px-2 py-1",
                     active
                       ? "text-foreground font-semibold"
                       : "text-muted-foreground hover:text-foreground"
@@ -180,12 +438,11 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
             })}
           </nav>
 
-          {/* Right: Sign in · Primary Orange Action Button */}
+          {/* Right: Sign in · Primary Brand Orange Free Trial Button */}
           <div className="hidden items-center gap-4 md:flex">
             {user ? (
               // LOGGED IN STATE
               <div className="flex items-center gap-4">
-                {/* Avatar menu with user's uploaded photo or initials (NO stock photos) */}
                 <div className="relative" ref={avatarMenuRef}>
                   <button
                     type="button"
@@ -259,6 +516,7 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
                   {homeCopy.nav.signInLabel}
                 </Link>
 
+                {/* Free Trial Button */}
                 <Link
                   href={homeCopy.nav.createProfileHref}
                   className="inline-flex h-10 items-center justify-center rounded-full bg-[#FF5500] hover:bg-[#E64D00] px-5 text-sm font-semibold text-white shadow-md shadow-orange-500/20 hover:shadow-orange-500/30 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
@@ -281,11 +539,84 @@ export function SiteHeader({ ctaMode = 'profile', isNavVisible: propIsNavVisible
           </button>
         </div>
 
-        {/* Mobile Navigation Drawer */}
-        <div className={cn('md:hidden border-t border-border/70 bg-background', open ? 'block' : 'hidden')}>
+        {/* Mobile Navigation Drawer with Dropdown Accordions */}
+        <div className={cn('md:hidden border-t border-border/70 bg-background max-h-[calc(100vh-64px)] overflow-y-auto', open ? 'block' : 'hidden')}>
           <div className="space-y-1 px-5 py-4">
             {links.map((link) => {
               const active = isLinkActive(link.href);
+
+              // Mobile Products Accordion
+              if (link.label === 'Products') {
+                return (
+                  <div key={link.label} className="border-b border-border/40 py-1">
+                    <button
+                      type="button"
+                      onClick={() => setMobileProductsOpen(!mobileProductsOpen)}
+                      className="flex w-full items-center justify-between py-2 text-base font-medium text-foreground"
+                    >
+                      <span>Products</span>
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 transition-transform text-muted-foreground",
+                          mobileProductsOpen && "rotate-180 text-orange-500"
+                        )}
+                      />
+                    </button>
+                    {mobileProductsOpen && (
+                      <div className="pl-3 pb-2 space-y-2 pt-1">
+                        {PRODUCT_SUB_LINKS.map((sub) => (
+                          <Link
+                            key={sub.label}
+                            href={sub.href}
+                            onClick={() => setOpen(false)}
+                            className="block py-1.5 text-sm text-muted-foreground hover:text-foreground font-medium"
+                          >
+                            <span className="block text-foreground text-xs font-semibold">{sub.label}</span>
+                            <span className="block text-[11px] text-muted-foreground">{sub.description}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              // Mobile Resources Accordion
+              if (link.label === 'Resources') {
+                return (
+                  <div key={link.label} className="border-b border-border/40 py-1">
+                    <button
+                      type="button"
+                      onClick={() => setMobileResourcesOpen(!mobileResourcesOpen)}
+                      className="flex w-full items-center justify-between py-2 text-base font-medium text-foreground"
+                    >
+                      <span>Resources</span>
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 transition-transform text-muted-foreground",
+                          mobileResourcesOpen && "rotate-180 text-orange-500"
+                        )}
+                      />
+                    </button>
+                    {mobileResourcesOpen && (
+                      <div className="pl-3 pb-2 space-y-2 pt-1">
+                        {RESOURCE_SUB_LINKS.map((sub) => (
+                          <Link
+                            key={sub.label}
+                            href={sub.href}
+                            onClick={() => setOpen(false)}
+                            className="block py-1.5 text-sm text-muted-foreground hover:text-foreground font-medium"
+                          >
+                            <span className="block text-foreground text-xs font-semibold">{sub.label}</span>
+                            <span className="block text-[11px] text-muted-foreground">{sub.description}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
               return (
                 <Link
                   key={link.label}

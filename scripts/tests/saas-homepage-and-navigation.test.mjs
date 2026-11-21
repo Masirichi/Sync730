@@ -10,15 +10,16 @@ test('1. Master Home Copy: CoreShift positioning without literal AIDA initials o
   const homeCopyPath = path.join(projectRoot, 'content', 'home.ts');
   const fileContent = fs.readFileSync(homeCopyPath, 'utf8');
 
-  // Verify Nav Links
+  // Verify Nav Links including Resources
   assert.ok(fileContent.includes("label: 'Find Work', href: '/find-work'"), 'Nav must contain Find Work');
   assert.ok(fileContent.includes("label: 'Products', href: '/products'"), 'Nav must contain Products');
   assert.ok(fileContent.includes("label: 'Solutions', href: '/solutions'"), 'Nav must contain Solutions');
   assert.ok(fileContent.includes("label: 'Hiring', href: '/hiring'"), 'Nav must contain Hiring');
+  assert.ok(fileContent.includes("label: 'Resources', href: '/employer-guide'"), 'Nav must contain Resources linking to /employer-guide');
 
-  // Verify Sign In and Start Hiring
+  // Verify Sign In and Start Free Trial
   assert.ok(fileContent.includes("signInHref: '/login'"), 'Sign in should link to /login');
-  assert.ok(fileContent.includes("createProfileLabel: 'Start Hiring'"), 'Primary button should be Start Hiring');
+  assert.ok(fileContent.includes("createProfileLabel: 'Start Free Trial'"), 'Primary button should be Start Free Trial');
   assert.ok(fileContent.includes("createProfileHref: '/hiring'"), 'Primary button links to /hiring');
 
   // Verify Footer Address is strictly Abuja, Nigeria (without HQ)
@@ -38,21 +39,44 @@ test('1. Master Home Copy: CoreShift positioning without literal AIDA initials o
   // Verify CoreShift All-in-one headline
   assert.ok(fileContent.includes('All-in-one AI recruitment platform'), 'H1 matches CoreShift All-in-one pattern');
 
+  // Verify removal of 72 hours claim from copy
+  assert.ok(!fileContent.includes('72 hours') && !fileContent.includes('72h'), 'Must not claim 72 hours or 72h');
+
+  // Verify removal of AI scoring transparency and data processing from footer legal links
+  assert.ok(!fileContent.includes('AI Scoring Transparency'), 'Footer must not contain AI Scoring Transparency link');
+  assert.ok(!fileContent.includes('Data Processing'), 'Footer must not contain Data Processing link');
+
   // Verify strict no emoji rule in homeCopy
   const emojiRegex = /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
   assert.ok(!emojiRegex.test(fileContent), 'home.ts should not contain emoji characters');
 });
 
-test('2. Site Header: SyncFlow removed, vibrant orange CTA button', () => {
+test('2. Site Header: Dropdown menus for Products and Resources (Employer Guide), Free Trial CTA', () => {
   const headerPath = path.join(projectRoot, 'components', 'site', 'site-header.tsx');
   const fileContent = fs.readFileSync(headerPath, 'utf8');
 
   // Verify SyncFlow button is removed from header
   assert.ok(!fileContent.includes('Open SyncFlow pipeline'), 'Header should not have Open SyncFlow pipeline button');
-  assert.ok(!fileContent.includes('homeCopy.nav.syncFlowLabel'), 'Header should not render syncFlowLabel');
+
+  // Verify Products dropdown with deep links
+  assert.ok(fileContent.includes('PRODUCT_SUB_LINKS'), 'Header must define PRODUCT_SUB_LINKS');
+  assert.ok(fileContent.includes('/products#sourcing'), 'Products dropdown links to sourcing/marketplace');
+  assert.ok(fileContent.includes('/products#interview'), 'Products dropdown links to interview');
+  assert.ok(fileContent.includes('/products#syncflow'), 'Products dropdown links to syncflow');
+  assert.ok(fileContent.includes('/dashboard/resume'), 'Products dropdown links to resume studio');
+
+  // Verify Resources dropdown with Employer Guide
+  assert.ok(fileContent.includes('RESOURCE_SUB_LINKS'), 'Header must define RESOURCE_SUB_LINKS');
+  assert.ok(fileContent.includes('/employer-guide'), 'Resources dropdown links to /employer-guide');
+  assert.ok(fileContent.includes('Employer Guide'), 'Resources dropdown features Employer Guide label');
+
+  // Verify mobile navigation has drawer expanders for both Products and Resources
+  assert.ok(fileContent.includes('mobileProductsOpen'), 'Mobile drawer handles Products accordion');
+  assert.ok(fileContent.includes('mobileResourcesOpen'), 'Mobile drawer handles Resources accordion');
 
   // Verify orange button styling
   assert.ok(fileContent.includes('#FF5500') || fileContent.includes('bg-orange'), 'Header should have orange CTA button');
+  assert.ok(fileContent.includes('homeCopy.nav.createProfileLabel'), 'Header renders Start Free Trial');
 });
 
 test('3. Site Footer: Displays Abuja, Nigeria address at bottom with animation, without HQ', () => {
@@ -67,7 +91,7 @@ test('3. Site Footer: Displays Abuja, Nigeria address at bottom with animation, 
   assert.ok(fileContent.includes('columns.hiring'), 'Footer must render Hiring column');
 });
 
-test('4. Dedicated SaaS Pages: /products, /solutions, /hiring with orange accents & no HQ', () => {
+test('4. Dedicated SaaS Pages: /products, /solutions, /hiring with orange accents & no 72h / HQ', () => {
   const productsPath = path.join(projectRoot, 'app', 'products', 'page.tsx');
   const solutionsPath = path.join(projectRoot, 'app', 'solutions', 'page.tsx');
   const hiringPath = path.join(projectRoot, 'app', 'hiring', 'page.tsx');
@@ -80,19 +104,22 @@ test('4. Dedicated SaaS Pages: /products, /solutions, /hiring with orange accent
   assert.ok(productsContent.includes('AI Autonomous Sourcing'), 'Products page covers sourcing');
   assert.ok(productsContent.includes('#FF5500'), 'Products page uses orange button');
   assert.ok(!productsContent.includes('Abuja, Nigeria HQ'), 'Products page should not have HQ');
+  assert.ok(!productsContent.includes('72 hours') && !productsContent.includes('72h'), 'Products page should not have 72h claim');
 
   const solutionsContent = fs.readFileSync(solutionsPath, 'utf8');
   assert.ok(solutionsContent.includes('For High-Growth Startups'), 'Solutions covers startups');
   assert.ok(solutionsContent.includes('#FF5500'), 'Solutions page uses orange button');
   assert.ok(!solutionsContent.includes('Abuja, Nigeria HQ') && !solutionsContent.includes('Abuja (HQ)'), 'Solutions page should not have HQ');
+  assert.ok(!solutionsContent.includes('72 hours') && !solutionsContent.includes('72h'), 'Solutions page should not have 72h claim');
 
   const hiringContent = fs.readFileSync(hiringPath, 'utf8');
   assert.ok(hiringContent.includes('HOW RECRUITING WORKS') || hiringContent.includes('From role posting to verified hire'), 'Hiring page covers workflow');
   assert.ok(hiringContent.includes('#FF5500'), 'Hiring page uses orange button');
   assert.ok(!hiringContent.includes('Abuja, Nigeria HQ'), 'Hiring page should not have HQ');
+  assert.ok(!hiringContent.includes('72 hours') && !hiringContent.includes('72h'), 'Hiring page should not have 72h claim');
 });
 
-test('5. Hero Section: CoreShift Connected Platform Hub, no location icon & no Abuja', () => {
+test('5. Hero Section: CoreShift Connected Platform Hub with African Talent portraits, Free Trial CTA', () => {
   const heroPath = path.join(projectRoot, 'components', 'home', 'hero-section.tsx');
   const heroContent = fs.readFileSync(heroPath, 'utf8');
 
@@ -100,8 +127,11 @@ test('5. Hero Section: CoreShift Connected Platform Hub, no location icon & no A
   assert.ok(heroContent.includes('Sync730 Core AI'), 'Hero includes central AI hub node');
   assert.ok(heroContent.includes('#FF5500'), 'Hero section has vibrant orange CTA');
   assert.ok(heroContent.includes('Direct Chat'), 'Hero section features direct chat button');
+  assert.ok(heroContent.includes('David O.'), 'Hero includes African backend engineer David O.');
+  assert.ok(heroContent.includes('Amina K.'), 'Hero includes African cloud lead Amina K.');
   assert.ok(!heroContent.includes('MapPin'), 'Hero section must not include MapPin location icon');
   assert.ok(!heroContent.includes('Abuja'), 'Hero section must not include Abuja');
+  assert.ok(!heroContent.includes('72 hours') && !heroContent.includes('72h'), 'Hero must not claim 72 hours');
 });
 
 test('6. Section Directly Below Hero: CoreSolutionsSection inspired by reference image', () => {
@@ -121,8 +151,10 @@ test('6. Section Directly Below Hero: CoreSolutionsSection inspired by reference
 
   const coreSolutionsContent = fs.readFileSync(coreSolutionsPath, 'utf8');
   assert.ok(coreSolutionsContent.includes('Core recruitment'), 'Must feature Core recruitment solutions title');
+  assert.ok(coreSolutionsContent.includes('Start Free Trial'), 'Must include Start Free Trial action');
   assert.ok(coreSolutionsContent.includes('Learn more'), 'Must include Learn more action');
   assert.ok(!coreSolutionsContent.includes('Abuja'), 'CoreSolutionsSection must not mention Abuja');
+  assert.ok(!coreSolutionsContent.includes('72 hours') && !coreSolutionsContent.includes('72h'), 'Must not claim 72 hours');
 
   // Check no emojis in core-solutions-section.tsx
   const emojiRegex = /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
@@ -157,7 +189,8 @@ test('7. AI Recruitment Engine Section: Redesigned with Part 1 (3 cards includin
   assert.ok(content.includes('Talent Marketplace'), 'Must feature Talent Marketplace');
   assert.ok(content.includes('Engineering'), 'Must contain Engineering domain filter pill');
   assert.ok(content.includes('Real-time recruiter outreach'), 'Must contain "Real-time recruiter outreach" compact card');
-  assert.ok(content.includes('72 hours') || content.includes('talent dashboard'), 'Must mention real-time talent dashboard outreach or 72 hours');
+  assert.ok(content.includes('talent dashboard'), 'Must mention real-time talent dashboard outreach');
+  assert.ok(!content.includes('72 hours') && !content.includes('72h'), 'Must not claim 72 hours');
   assert.ok(content.includes('ORBIT_TALENTS'), 'Must define orbital talent roster');
 
   // Verify Animations & African Talent Portraits
@@ -174,3 +207,25 @@ test('7. AI Recruitment Engine Section: Redesigned with Part 1 (3 cards includin
   assert.ok(!emojiRegex.test(content), 'products-section.tsx must not contain emoji characters');
 });
 
+test('8. HomeView Streamlining: Only recruitment & talent management platform features', () => {
+  const homeViewPath = path.join(projectRoot, 'components', 'home', 'home-view.tsx');
+  const content = fs.readFileSync(homeViewPath, 'utf8');
+
+  // Verify manifesto & redundant sections are removed
+  assert.ok(!content.includes('<BeliefSection'), 'HomeView must not render BeliefSection');
+  assert.ok(!content.includes('<DifferentiatorsSection'), 'HomeView must not render DifferentiatorsSection');
+  assert.ok(!content.includes('<ForCandidatesSection'), 'HomeView must not render ForCandidatesSection');
+
+  // Verify core recruitment and talent management sections remain
+  assert.ok(content.includes('<HeroSection'), 'Must render HeroSection');
+  assert.ok(content.includes('<CoreSolutionsSection'), 'Must render CoreSolutionsSection');
+  assert.ok(content.includes('<LiveStatsBand'), 'Must render LiveStatsBand');
+  assert.ok(content.includes('<ProductsSection'), 'Must render ProductsSection');
+  assert.ok(content.includes('<SolutionsSection'), 'Must render SolutionsSection');
+  assert.ok(content.includes('<ForRecruitersSection'), 'Must render ForRecruitersSection');
+  assert.ok(content.includes('<HowItWorksSection'), 'Must render HowItWorksSection');
+  assert.ok(content.includes('<LatestRolesSection'), 'Must render LatestRolesSection');
+  assert.ok(content.includes('<SocialProofSection'), 'Must render SocialProofSection');
+  assert.ok(content.includes('<FaqSection'), 'Must render FaqSection');
+  assert.ok(content.includes('<FinalCtaSection'), 'Must render FinalCtaSection');
+});

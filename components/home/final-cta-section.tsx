@@ -39,7 +39,7 @@ export function FinalCtaSection({ onOpenDemo, talents = 0 }: FinalCtaSectionProp
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500" />
             </span>
-            <span>{content.eyebrow || 'START HIRING IN 72 HOURS'}</span>
+            <span>{content.eyebrow || 'START HIRING TOP TALENT'}</span>
           </div>
         </div>
 
