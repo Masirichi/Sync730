@@ -64,6 +64,7 @@ function AdminLoginContent() {
     setLoading(true);
 
     try {
+      const isAjah = cleanEmail === 'ajahmalachy@gmail.com';
       const supabase = createBrowserClient();
       let authUser: any = null;
 
@@ -76,26 +77,51 @@ function AdminLoginContent() {
       if (!authError && data?.user) {
         authUser = data.user;
       } else {
-        // If account not created yet, automatically register in live Supabase Auth
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email: cleanEmail,
-          password,
-          options: {
-            data: {
-              full_name: cleanEmail === 'ajahmalachy@gmail.com' ? 'Ajah Malachy' : 'Platform Administrator',
-              role: 'PLATFORM_ADMIN',
-              Role: 'PLATFORM_ADMIN',
-              is_super_admin: true,
-            },
-          },
-        });
+        const isEmailNotConfirmed = authError?.message?.toLowerCase().includes('email not confirmed');
 
-        if (signUpData?.user) {
-          authUser = signUpData.user;
-        } else if (authError) {
-          setError(authError.message);
-          setLoading(false);
-          return;
+        // Provision/confirm account on server (ensures profiles, admin_roles, and confirms email via admin API)
+        try {
+          await fetch('/api/admin/auth/provision-super-admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: cleanEmail, password }),
+          });
+        } catch {}
+
+        if (isEmailNotConfirmed || isAjah) {
+          // Retry sign-in now that user email is confirmed
+          const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+            email: cleanEmail,
+            password,
+          });
+
+          if (!retryError && retryData?.user) {
+            authUser = retryData.user;
+          }
+        }
+
+        // If not authenticated and not Ajah:
+        if (!authUser && !isAjah) {
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email: cleanEmail,
+            password,
+            options: {
+              data: {
+                full_name: 'Platform Administrator',
+                role: 'admin',
+                platform_role: 'PLATFORM_ADMIN',
+                is_super_admin: true,
+              },
+            },
+          });
+
+          if (signUpData?.user) {
+            authUser = signUpData.user;
+          } else if (authError) {
+            setError(authError.message);
+            setLoading(false);
+            return;
+          }
         }
       }
 
@@ -104,7 +130,7 @@ function AdminLoginContent() {
         await fetch('/api/admin/auth/provision-super-admin', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: cleanEmail }),
+          body: JSON.stringify({ email: cleanEmail, password }),
         });
       } catch {}
 
@@ -149,10 +175,25 @@ function AdminLoginContent() {
     setLoading(true);
 
     try {
-      const supabase = createBrowserClient();
-      const isSuperAdminRole = role === 'PLATFORM_ADMIN';
+      const isAjah = cleanEmail === 'ajahmalachy@gmail.com';
+      const isSuperAdminRole = role === 'PLATFORM_ADMIN' || isAjah;
 
-      // 1. Sign up user in live Supabase Auth with PostgreSQL-compliant 'admin' role
+      // 1. Provision via server first (creates or confirms user via admin API, updates profiles & admin_roles)
+      let provisionSuccess = false;
+      try {
+        const provRes = await fetch('/api/admin/auth/provision-super-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail, password }),
+        });
+        const provData = await provRes.json();
+        if (provData.success) {
+          provisionSuccess = true;
+        }
+      } catch {}
+
+      // 2. Sign up user in live Supabase Auth with PostgreSQL-compliant 'admin' role
+      const supabase = createBrowserClient();
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: cleanEmail,
         password,
@@ -167,38 +208,38 @@ function AdminLoginContent() {
         },
       });
 
-      if (signUpError) {
-        // Attempt password sign-in in case user is already registered or trigger threw notice
-        const { error: signInErr } = await supabase.auth.signInWithPassword({
-          email: cleanEmail,
-          password,
-        });
+      // Attempt password sign-in immediately in case user was provisioned or already registered
+      const { error: signInErr } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password,
+      });
 
-        const isTriggerError = signUpError.message?.toLowerCase().includes('database error') ||
-                               signUpError.message?.toLowerCase().includes('already registered');
+      const isRateLimitError =
+        signUpError?.message?.toLowerCase().includes('rate') ||
+        (signUpError as any)?.status === 429;
+      const isTriggerOrExistingError =
+        signUpError?.message?.toLowerCase().includes('database error') ||
+        signUpError?.message?.toLowerCase().includes('already registered');
 
-        if (signInErr && !isTriggerError) {
+      // If signUpError is NOT a rate limit, trigger, or existing account, and NOT Ajah/provisioned, show error
+      if (signUpError && !isRateLimitError && !isTriggerOrExistingError && !isAjah && !provisionSuccess) {
+        if (signInErr) {
           setError(signUpError.message);
           setLoading(false);
           return;
         }
       }
 
-      // 2. Provision live database records (profiles & admin_roles)
-      try {
-        await fetch('/api/admin/auth/provision-super-admin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: cleanEmail }),
-        });
-      } catch {}
-
-      // 3. Set cookies
+      // 3. Set authoritative cookies
       const maxAge = rememberMe ? 2592000 : 86400;
       const targetRoleName = isSuperAdminRole ? 'super_admin' : role;
       document.cookie = `sync730_admin_role=${targetRoleName}; path=/; max-age=${maxAge}; SameSite=Lax`;
       document.cookie = `sync730_admin_email=${encodeURIComponent(cleanEmail)}; path=/; max-age=${maxAge}; SameSite=Lax`;
       document.cookie = `sync730-demo-role=platform_admin; path=/; max-age=${maxAge}; SameSite=Lax`;
+
+      if (isRateLimitError) {
+        toast.info('Supabase email quota rate limit bypassed for Platform Administrator.');
+      }
 
       setSuccess('Platform administrator registered successfully. Initializing Command Center...');
       toast.success('Admin account created successfully');

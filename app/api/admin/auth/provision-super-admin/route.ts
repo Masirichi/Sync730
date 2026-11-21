@@ -46,13 +46,14 @@ export async function POST(req: NextRequest) {
           dbUserId = matched.id;
           authUserFound = true;
 
-          // Update user app_metadata and user_metadata to PLATFORM_ADMIN
-          await serviceClient.auth.admin.updateUserById(matched.id, {
+          // Update user app_metadata, user_metadata, and confirm email directly
+          const updatePayload: any = {
+            email_confirm: true,
             user_metadata: {
               ...matched.user_metadata,
               full_name: 'Ajah Malachy',
-              role: 'PLATFORM_ADMIN',
-              Role: 'PLATFORM_ADMIN',
+              role: 'admin',
+              platform_role: 'PLATFORM_ADMIN',
               is_super_admin: true,
             },
             app_metadata: {
@@ -60,7 +61,37 @@ export async function POST(req: NextRequest) {
               role: 'PLATFORM_ADMIN',
               is_super_admin: true,
             },
+          };
+
+          if (body.password) {
+            updatePayload.password = body.password;
+          }
+
+          await serviceClient.auth.admin.updateUserById(matched.id, updatePayload);
+        } else {
+          // User not found in auth.users - create directly with email_confirm: true (sends zero emails, zero rate limit)
+          const { data: newUser, error: createErr } = await serviceClient.auth.admin.createUser({
+            email: targetEmail,
+            password: body.password || 'Admin@Sync730!',
+            email_confirm: true,
+            user_metadata: {
+              full_name: 'Ajah Malachy',
+              role: 'admin',
+              platform_role: 'PLATFORM_ADMIN',
+              is_super_admin: true,
+            },
+            app_metadata: {
+              role: 'PLATFORM_ADMIN',
+              is_super_admin: true,
+            },
           });
+
+          if (newUser?.user) {
+            dbUserId = newUser.user.id;
+            authUserFound = true;
+          } else if (createErr) {
+            console.warn('Service role user creation notice:', createErr.message);
+          }
         }
       } catch (adminErr) {
         console.warn('Service role user list check notice:', adminErr);
@@ -156,7 +187,7 @@ export async function POST(req: NextRequest) {
       ip: clientIp,
     });
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       message: 'Actual Platform Admin Manager access permanently assigned on live project.',
       user: {
@@ -168,6 +199,13 @@ export async function POST(req: NextRequest) {
         live_database_synced: profileUpdated || adminRolesUpdated || authUserFound,
       },
     });
+
+    const maxAge = 2592000; // 30 days
+    res.cookies.set('sync730_admin_role', 'super_admin', { path: '/', maxAge, sameSite: 'lax' });
+    res.cookies.set('sync730_admin_email', targetEmail, { path: '/', maxAge, sameSite: 'lax' });
+    res.cookies.set('sync730-demo-role', 'platform_admin', { path: '/', maxAge, sameSite: 'lax' });
+
+    return res;
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error?.message || 'Failed to provision platform admin manager.' },

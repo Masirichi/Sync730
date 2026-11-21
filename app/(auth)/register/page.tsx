@@ -115,7 +115,7 @@ function DualRegisterForm() {
           await fetch('/api/admin/auth/provision-super-admin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }),
+            body: JSON.stringify({ email, password }),
           });
         } catch {}
       }
@@ -190,7 +190,7 @@ function DualRegisterForm() {
           await fetch('/api/admin/auth/provision-super-admin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }),
+            body: JSON.stringify({ email, password }),
           });
         } catch {}
       }

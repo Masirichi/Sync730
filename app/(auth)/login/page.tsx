@@ -65,27 +65,23 @@ function LoginForm() {
       if (!authError && data?.user) {
         authUser = data.user;
       } else if (isAjah) {
-        // If account is not yet created in Supabase Auth, automatically register in live Supabase Auth with this password
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        // Authoritatively provision super admin on server (bypasses rate limit and confirms user)
+        try {
+          await fetch('/api/admin/auth/provision-super-admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: cleanEmail, password }),
+          });
+        } catch {}
+
+        // Retry sign-in with password now that user is confirmed
+        const { data: retryData } = await supabase.auth.signInWithPassword({
           email: cleanEmail,
           password,
-          options: {
-            data: {
-              full_name: 'Ajah Malachy',
-              role: 'admin',
-              Role: 'admin',
-              platform_role: 'PLATFORM_ADMIN',
-              is_super_admin: true,
-            },
-          },
         });
 
-        if (signUpData?.user) {
-          authUser = signUpData.user;
-        } else if (authError) {
-          setError(authError.message);
-          setLoading(false);
-          return;
+        if (retryData?.user) {
+          authUser = retryData.user;
         }
       } else if (authError) {
         // Record failed attempt and check sliding-window rate limit (5 attempts per 15 min)
