@@ -8,14 +8,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText,
   Activity,
-  ShieldCheck,
+  Sparkles,
   Mail,
   ArrowRight,
   TrendingUp,
-  Sparkles,
   Users2,
   CheckCircle2,
   ChevronDown,
+  Compass,
+  Briefcase,
+  Zap,
 } from 'lucide-react';
 import { homeCopy } from '@/content/home';
 
@@ -106,12 +108,11 @@ export function ProductsSection() {
   const products = homeCopy.products || {
     label: 'THE AI RECRUITMENT ENGINE',
     h2: 'Built for everyone',
-    sub: 'Thousands of engineering teams, from fast-growing startups to global enterprises, use Sync730 to streamline AI-powered recruitment.',
+    sub: 'Connecting high-growth hiring teams and top African technical talent through real-time marketplace outreach, AI evaluations, and swift recruitment timelines.',
     items: [],
   };
 
   const [activeTab, setActiveTab] = useState<'engineering' | 'aiml' | 'product'>('engineering');
-  const [timeframe, setTimeframe] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
 
   const candidates = TALENT_POOLS[activeTab] || TALENT_POOLS.engineering;
 
@@ -145,13 +146,13 @@ export function ProductsSection() {
 
           <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
             {products.sub ||
-              'Thousands of businesses, from startups to enterprises, use Sync730 to streamline AI-powered recruitment and hire vetted African technical talent.'}
+              'Connecting high-growth hiring teams and top African technical talent through real-time marketplace outreach, AI evaluations, and swift recruitment timelines.'}
           </p>
         </div>
 
         {/* Top 3 Bento Cards */}
         <div className="mt-14 sm:mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* CARD 1: For hiring managers & recruiters (Reference: For HR professionals) */}
+          {/* CARD 1: For hiring managers & recruiters (Reference: Left card with evaluation report) */}
           <motion.div
             whileHover={{ y: -6 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
@@ -236,10 +237,10 @@ export function ProductsSection() {
             {/* Bottom Content */}
             <div className="mt-7">
               <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground group-hover:text-orange-500 transition-colors">
-                For HR professionals
+                For hiring managers & recruiters
               </h3>
               <p className="mt-2.5 text-sm text-muted-foreground leading-relaxed">
-                Use a single cloud system for your employees, candidates and HR processes info.
+                Automate technical screening, review STAR interview scorecards, and run accelerated hiring pipelines with zero agency friction.
               </p>
             </div>
           </motion.div>
@@ -292,21 +293,21 @@ export function ProductsSection() {
             {/* Bottom Content */}
             <div className="mt-7">
               <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground group-hover:text-orange-500 transition-colors">
-                For managers & leaders
+                For engineering leaders
               </h3>
               <p className="mt-2.5 text-sm text-muted-foreground leading-relaxed">
-                Get always up-to-date data and monitor performance of the company.
+                Access real-time candidate scorecards, benchmark ratings, and monitor hiring velocity across all active engineering searches.
               </p>
             </div>
           </motion.div>
 
-          {/* CARD 3: For legal teams (Reference: Stacked Document Cards & Glowing Shield) */}
+          {/* CARD 3: For Talents (Hiring Trends, Interview Prep, Job Search Documentation) */}
           <motion.div
             whileHover={{ y: -6 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             className="group relative rounded-3xl border border-border/80 bg-card p-7 sm:p-8 flex flex-col justify-between overflow-hidden shadow-sm hover:border-orange-500/40 hover:shadow-xl hover:shadow-orange-500/5 transition-all duration-300"
           >
-            {/* Visual Container: Ruled Background with Angled Documents & Centered Glowing Squircle */}
+            {/* Visual Container: Hiring Trends & Interview Prep Stacked Cards */}
             <div className="h-60 sm:h-64 relative flex items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-muted/30 to-muted/5 p-4">
               {/* Ruled / Striped Grid Background */}
               <div
@@ -318,41 +319,59 @@ export function ProductsSection() {
                 }}
               />
 
-              {/* Stacked Angled Document Cards */}
+              {/* Stacked Angled Cards: Hiring Trends & Interview Prep */}
               <div className="relative flex items-center justify-center">
-                {/* Left Card (-6 deg tilt) */}
-                <div className="w-28 h-36 rounded-xl border border-border/80 bg-card/90 shadow-sm -rotate-6 -translate-x-5 p-3 space-y-2 pointer-events-none">
-                  <div className="w-12 h-1.5 rounded-full bg-muted-foreground/30" />
-                  <div className="w-20 h-1.5 rounded-full bg-muted-foreground/20" />
-                  <div className="w-16 h-1.5 rounded-full bg-muted-foreground/20" />
-                  <div className="pt-3 flex gap-1">
-                    <div className="w-6 h-6 rounded-md bg-muted/60" />
-                    <div className="w-12 h-6 rounded-md bg-muted/40" />
+                {/* Left Card (-6 deg tilt): Hiring Trends Preview */}
+                <div className="w-30 h-38 rounded-xl border border-border/80 bg-card/95 shadow-sm -rotate-6 -translate-x-5 p-3 space-y-2 pointer-events-none">
+                  <div className="flex items-center justify-between pb-1 border-b border-border/60">
+                    <span className="text-[9px] font-bold text-foreground">Hiring Trends</span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  </div>
+                  <div className="space-y-1.5 text-[8px] text-muted-foreground">
+                    <div className="flex justify-between items-center bg-muted/40 px-1.5 py-0.5 rounded">
+                      <span>Moniepoint</span>
+                      <span className="text-emerald-500 font-semibold">+12 Roles</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-muted/40 px-1.5 py-0.5 rounded">
+                      <span>Paystack</span>
+                      <span className="text-emerald-500 font-semibold">+8 Roles</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-muted/40 px-1.5 py-0.5 rounded">
+                      <span>GitLab Remote</span>
+                      <span className="text-orange-500 font-semibold">Live ATS</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Right Card (+6 deg tilt) */}
-                <div className="w-28 h-36 rounded-xl border border-border/80 bg-card/90 shadow-sm rotate-6 translate-x-5 p-3 space-y-2 pointer-events-none">
-                  <div className="w-14 h-1.5 rounded-full bg-muted-foreground/30" />
-                  <div className="w-18 h-1.5 rounded-full bg-muted-foreground/20" />
-                  <div className="w-12 h-1.5 rounded-full bg-muted-foreground/20" />
-                  <div className="pt-3 flex gap-1">
-                    <div className="w-12 h-6 rounded-md bg-muted/40" />
-                    <div className="w-6 h-6 rounded-md bg-muted/60" />
+                {/* Right Card (+6 deg tilt): Interview Prep & STAR Rubric Preview */}
+                <div className="w-30 h-38 rounded-xl border border-border/80 bg-card/95 shadow-sm rotate-6 translate-x-5 p-3 space-y-2 pointer-events-none">
+                  <div className="flex items-center justify-between pb-1 border-b border-border/60">
+                    <span className="text-[9px] font-bold text-foreground">AI Prep Coach</span>
+                    <Sparkles className="h-2.5 w-2.5 text-orange-500" />
+                  </div>
+                  <div className="space-y-1.5 text-[8px] text-muted-foreground">
+                    <div className="bg-muted/40 p-1.5 rounded">
+                      <span className="block font-semibold text-foreground">STAR Rubric</span>
+                      <span className="block text-emerald-500">96% Calibrated</span>
+                    </div>
+                    <div className="bg-muted/40 p-1.5 rounded">
+                      <span className="block font-semibold text-foreground">SyncFlow Tracker</span>
+                      <span className="block text-muted-foreground">Documented in 1 place</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Centered Glowing Violet/Purple Squircle Badge with Shield Checkmark */}
+                {/* Centered Glowing Squircle Badge with Talent Empowerment Icon */}
                 <motion.div
                   whileHover={{ scale: 1.08 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                   className="absolute z-20 flex items-center justify-center"
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-600 shadow-xl shadow-violet-500/30 flex items-center justify-center text-white border border-white/20">
-                    <ShieldCheck className="h-8 w-8 text-white drop-shadow-sm" />
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FF5500] via-amber-500 to-orange-600 shadow-xl shadow-orange-500/30 flex items-center justify-center text-white border border-white/20">
+                    <Sparkles className="h-8 w-8 text-white drop-shadow-sm" />
                   </div>
                   {/* Subtle Radiance */}
-                  <div className="absolute w-20 h-20 rounded-full bg-violet-500/20 blur-xl pointer-events-none" />
+                  <div className="absolute w-20 h-20 rounded-full bg-orange-500/25 blur-xl pointer-events-none" />
                 </motion.div>
               </div>
             </div>
@@ -360,10 +379,10 @@ export function ProductsSection() {
             {/* Bottom Content */}
             <div className="mt-7">
               <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground group-hover:text-orange-500 transition-colors">
-                For legal teams
+                For talents
               </h3>
               <p className="mt-2.5 text-sm text-muted-foreground leading-relaxed">
-                CoreShift helps legal teams by streamlining compliance, managing contracts and policies.
+                Follow trends on who is hiring, prepare for interviews with AI coaching, and document your job search all in one place.
               </p>
             </div>
           </motion.div>
@@ -371,10 +390,10 @@ export function ProductsSection() {
 
         {/* ========================================================================= */}
         {/* PART 2: Supporting Part Bento Row (Inspired by Reference Image 1)         */}
-        {/* Asymmetrical 2-Card Layout: Wide Data Card + Circular Talent Orbit        */}
+        {/* Asymmetrical 2-Card Layout: Wide Marketplace Card + Orbital Outreach      */}
         {/* ========================================================================= */}
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* CARD 4: Wide Card (~60% width - Reference: All employee data at once) */}
+          {/* CARD 4: Wide Card (~60% width - Reference: Talent Marketplace Database) */}
           <motion.div
             whileHover={{ y: -6 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
@@ -386,13 +405,13 @@ export function ProductsSection() {
                 <FileText className="h-5 w-5" />
               </div>
 
-              {/* Central Floating Mockup Area: Employees List + Participation Chart */}
+              {/* Central Floating Mockup Area: Talent Marketplace List + Vetting Velocity Chart */}
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                {/* Sub-widget: Floating Candidates / Employees List (Left) */}
+                {/* Sub-widget: Floating Candidates / Vetted Talents List (Left) */}
                 <div className="sm:col-span-7 rounded-2xl border border-border/80 bg-background/95 backdrop-blur-md p-4 sm:p-5 shadow-lg">
                   {/* Window Header */}
                   <div className="flex items-center justify-between pb-3 border-b border-border/60">
-                    <span className="text-sm font-bold text-foreground tracking-tight">Employees</span>
+                    <span className="text-sm font-bold text-foreground tracking-tight">Talent Marketplace</span>
                     <Link
                       href="/find-work"
                       className="text-xs font-semibold text-muted-foreground hover:text-orange-500 transition-colors"
@@ -401,7 +420,7 @@ export function ProductsSection() {
                     </Link>
                   </div>
 
-                  {/* Filter Pills (Interactive tabs) */}
+                  {/* Filter Pills (Interactive talent domains) */}
                   <div className="flex items-center gap-1.5 mt-3 overflow-x-auto pb-1 scrollbar-none">
                     <button
                       type="button"
@@ -412,7 +431,7 @@ export function ProductsSection() {
                           : 'bg-muted text-muted-foreground hover:text-foreground'
                       }`}
                     >
-                      Project Dept <span className="opacity-80">24</span>
+                      Engineering <span className="opacity-80">24</span>
                     </button>
                     <button
                       type="button"
@@ -423,7 +442,7 @@ export function ProductsSection() {
                           : 'bg-muted text-muted-foreground hover:text-foreground'
                       }`}
                     >
-                      Sales Dept <span className="opacity-80">11</span>
+                      AI & Data <span className="opacity-80">12</span>
                     </button>
                     <button
                       type="button"
@@ -434,11 +453,11 @@ export function ProductsSection() {
                           : 'bg-muted text-muted-foreground hover:text-foreground'
                       }`}
                     >
-                      Marketing Dept <span className="opacity-80">8</span>
+                      Product <span className="opacity-80">8</span>
                     </button>
                   </div>
 
-                  {/* Candidate Rows (African Technical Talents) */}
+                  {/* Candidate Rows (African Technical Talents with Direct Chat Outreach) */}
                   <div className="mt-3.5 space-y-2.5">
                     <AnimatePresence mode="wait">
                       {candidates.map((talent, idx) => (
@@ -466,7 +485,10 @@ export function ProductsSection() {
                             </div>
                           </div>
 
-                          <div className="h-7 w-7 rounded-lg border border-border/70 bg-card hover:border-orange-500/40 hover:text-orange-500 flex items-center justify-center text-muted-foreground transition-colors shrink-0">
+                          <div
+                            title="Direct Real-Time Chat"
+                            className="h-7 w-7 rounded-lg border border-border/70 bg-card hover:border-orange-500/40 hover:text-orange-500 flex items-center justify-center text-muted-foreground transition-colors shrink-0 cursor-pointer"
+                          >
                             <Mail className="h-3.5 w-3.5" />
                           </div>
                         </motion.div>
@@ -475,10 +497,10 @@ export function ProductsSection() {
                   </div>
                 </div>
 
-                {/* Sub-widget: Participation / Evaluation Bar Chart (Right) */}
+                {/* Sub-widget: Vetting Velocity / Match Metric (Right) */}
                 <div className="sm:col-span-5 rounded-2xl border border-border/80 bg-background/70 p-4 shadow-sm hidden sm:flex flex-col justify-between h-full min-h-[220px]">
                   <div className="flex items-center justify-between text-xs pb-2 border-b border-border/50">
-                    <span className="font-semibold text-foreground text-[11px]">Participation</span>
+                    <span className="font-semibold text-foreground text-[11px]">Vetting Velocity</span>
                     <div className="flex items-center gap-1 text-[9px] text-muted-foreground">
                       <span className="cursor-pointer hover:text-foreground">Daily</span>
                       <span className="cursor-pointer hover:text-foreground">Weekly</span>
@@ -486,13 +508,13 @@ export function ProductsSection() {
                     </div>
                   </div>
 
-                  {/* Highlight Bar with 46% Pill (Directly from reference) */}
+                  {/* Highlight Bar with 96% Match Pill */}
                   <div className="relative flex items-end justify-center gap-2 pt-8 pb-2 h-36">
                     {/* Background muted bars */}
                     <div className="w-5 h-14 rounded-t-md bg-muted/60" />
                     <div className="w-5 h-20 rounded-t-md bg-muted/70" />
 
-                    {/* Dominant Highlight Bar with 46% Badge */}
+                    {/* Dominant Highlight Bar with Match Badge */}
                     <div className="relative flex flex-col items-center">
                       <motion.div
                         animate={{ y: [0, -3, 0] }}
@@ -500,11 +522,11 @@ export function ProductsSection() {
                         className="absolute -top-6 z-10"
                       >
                         <span className="bg-zinc-950 text-white text-[9px] font-bold px-2 py-0.5 rounded-md shadow-md whitespace-nowrap">
-                          46%
+                          96% Fit
                         </span>
                       </motion.div>
 
-                      <div className="w-7 h-28 rounded-t-lg bg-gradient-to-t from-violet-600 via-indigo-600 to-purple-500 shadow-md shadow-violet-500/20" />
+                      <div className="w-7 h-28 rounded-t-lg bg-gradient-to-t from-[#FF5500] via-amber-500 to-orange-400 shadow-md shadow-orange-500/20" />
                     </div>
 
                     <div className="w-5 h-16 rounded-t-md bg-muted/70" />
@@ -517,15 +539,15 @@ export function ProductsSection() {
             {/* Bottom Content */}
             <div className="mt-8">
               <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground group-hover:text-orange-500 transition-colors">
-                All employee data at once
+                All candidate intelligence at once
               </h3>
               <p className="mt-2.5 text-sm sm:text-base text-muted-foreground leading-relaxed max-w-xl">
-                Contact and personal information, paid and unpaid leave balances, career history, projects and more.
+                Explore our talent marketplace with verified GitHub code audits, interview scores, and real-time availability. Hiring teams reach out in real time directly from the talent dashboard.
               </p>
             </div>
           </motion.div>
 
-          {/* CARD 5: Compact Card (~40% width - Reference: For teams & employees with Circular Orbit) */}
+          {/* CARD 5: Compact Card (~40% width - Real-time Recruiter Outreach with Circular Orbit) */}
           <motion.div
             whileHover={{ y: -6 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
@@ -586,10 +608,10 @@ export function ProductsSection() {
             {/* Bottom Content */}
             <div className="mt-8">
               <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground group-hover:text-orange-500 transition-colors">
-                For teams & employees
+                Real-time recruiter outreach
               </h3>
               <p className="mt-2.5 text-sm sm:text-base text-muted-foreground leading-relaxed">
-                Get to know who is going to be out of office and be aware of upcoming events.
+                Reach out to top 2% African technical talents in real time from your talent dashboard, compressing recruitment timelines from months down to 72 hours.
               </p>
             </div>
           </motion.div>

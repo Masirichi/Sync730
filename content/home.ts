@@ -276,7 +276,7 @@ export const homeCopy: HomeCopy = {
   products: {
     label: 'THE AI RECRUITMENT ENGINE',
     h2: 'Built for everyone',
-    sub: 'Thousands of businesses, from startups to enterprises, use Sync730 to streamline AI-powered recruitment and hire vetted African technical talent.',
+    sub: 'Connecting high-growth hiring teams and top African technical talent through real-time marketplace outreach, AI evaluations, and swift recruitment timelines.',
     items: [
       {
         id: 'recruiters',
@@ -284,7 +284,7 @@ export const homeCopy: HomeCopy = {
         badge: 'Recruiter Hub',
         tagline: 'Automated screening & collaborative candidate scorecards',
         description:
-          'Use a single cloud system for your candidates, evaluations, and end-to-end recruitment pipelines.',
+          'Automate technical screening, review STAR interview scorecards, and run accelerated hiring pipelines with zero agency friction.',
         bullets: [
           'Direct semantic matching against role specs',
           'Pre-cleared African remote eligibility',
@@ -294,11 +294,11 @@ export const homeCopy: HomeCopy = {
       },
       {
         id: 'managers',
-        title: 'For managers & leaders',
+        title: 'For engineering leaders',
         badge: 'Real-Time Insights',
         tagline: 'Candidate benchmarks and hiring velocity analytics',
         description:
-          'Get always up-to-date data, candidate benchmarks, and monitor velocity across all active searches.',
+          'Access real-time candidate scorecards, benchmark ratings, and monitor hiring velocity across all active engineering searches.',
         bullets: [
           'Calibrated STAR behavioral & technical rubrics',
           'Live code problem-solving & architecture review',
@@ -307,40 +307,40 @@ export const homeCopy: HomeCopy = {
         href: '/products#interview',
       },
       {
-        id: 'legal',
-        title: 'For legal & operations teams',
-        badge: 'Global Compliance',
-        tagline: 'Standardized remote agreements and cross-border payroll',
+        id: 'talents',
+        title: 'For talents',
+        badge: 'Talent Empowerment',
+        tagline: 'Hiring trends, interview prep, and career tracking',
         description:
-          'Sync730 helps legal teams by streamlining compliance, managing remote contracts, and global employment policies.',
+          'Follow trends on who is hiring, prepare for interviews with AI coaching, and document your job search all in one place.',
         bullets: [
-          'Standardized cross-border contract templates',
-          'IP assignment and data privacy compliance',
-          'Automated local currency & USD payouts',
+          'Live crawler indexing startup and remote vacancies',
+          'Interactive STAR interview coaching and practice',
+          'SyncFlow application tracker and Resume Studio',
         ],
-        href: '/products#syncflow',
+        href: '/find-work',
       },
       {
         id: 'candidate-intelligence',
         title: 'All candidate intelligence at once',
-        badge: 'Unified Dossiers',
+        badge: 'Talent Marketplace',
         tagline: 'Single source of truth for technical evaluations',
         description:
-          'Contact and verified credentials, technical benchmark scores, live video interviews, code repos, and compensation history.',
+          'Explore our talent marketplace with verified GitHub code audits, interview scores, and real-time availability. Hiring teams reach out in real time directly from the talent dashboard.',
         bullets: [
           'Technical benchmarks and automated code audits',
           'Timezone overlap and verified compensation history',
-          'One-click progression to final round offer',
+          'Direct recruiter-talent messaging with zero delays',
         ],
         href: '/products#chat',
       },
       {
-        id: 'distributed-teams',
-        title: 'For teams & candidates',
-        badge: 'Synchronized Collaboration',
-        tagline: 'Real-time candidate messaging and debriefs',
+        id: 'swift-outreach',
+        title: 'Real-time recruiter outreach',
+        badge: 'Swift Timelines',
+        tagline: 'Direct dashboard outreach with 72-hour turnaround',
         description:
-          'Get to know candidate availability in real time, conduct synchronized video interviews, and collaborate across borders.',
+          'Reach out to top 2% African technical talents in real time from your talent dashboard, compressing recruitment timelines from months down to 72 hours.',
         bullets: [
           'Real-time in-app recruiter-candidate chat',
           'Instant candidate availability and calendar sync',

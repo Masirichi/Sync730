@@ -129,7 +129,7 @@ test('6. Section Directly Below Hero: CoreSolutionsSection inspired by reference
   assert.ok(!emojiRegex.test(coreSolutionsContent), 'core-solutions-section.tsx must not contain emoji characters');
 });
 
-test('7. AI Recruitment Engine Section: Redesigned with Part 1 (3 cards) & Part 2 (supporting 2 cards) with animations', () => {
+test('7. AI Recruitment Engine Section: Redesigned with Part 1 (3 cards including For Talents) & Part 2 (supporting 2 cards with real-time outreach & orbital talents)', () => {
   const productsSectionPath = path.join(projectRoot, 'components', 'home', 'products-section.tsx');
   assert.ok(fs.existsSync(productsSectionPath), 'products-section.tsx must exist');
 
@@ -140,18 +140,24 @@ test('7. AI Recruitment Engine Section: Redesigned with Part 1 (3 cards) & Part 
   assert.ok(content.includes('products.label'), 'Must render eyebrow label');
 
   // Verify Part 1 (3 Bento Cards from Reference Image 2)
-  assert.ok(content.includes('For HR professionals'), 'Must contain "For HR professionals" card');
+  assert.ok(content.includes('For hiring managers & recruiters'), 'Must contain hiring managers card');
   assert.ok(content.includes('+45%'), 'Must contain "+45%" evaluation report peak badge');
-  assert.ok(content.includes('For managers & leaders'), 'Must contain "For managers & leaders" card');
+  assert.ok(content.includes('For engineering leaders') || content.includes('For managers & leaders'), 'Must contain leaders card');
   assert.ok(content.includes('Access Real-Time Insights'), 'Must contain "Access Real-Time Insights" stacked pill');
-  assert.ok(content.includes('For legal teams'), 'Must contain "For legal teams" card');
-  assert.ok(content.includes('ShieldCheck'), 'Must contain ShieldCheck icon for compliance');
+  
+  // Card 3: Must be "For talents" (hiring trends, interview prep, job search documentation)
+  assert.ok(content.includes('For talents'), 'Must contain "For talents" card');
+  assert.ok(content.includes('Follow trends on who is hiring'), 'Must explain following hiring trends');
+  assert.ok(content.includes('prepare for interviews with AI coaching'), 'Must explain AI interview prep');
+  assert.ok(content.includes('document your job search all in one place'), 'Must explain documenting job search');
+  assert.ok(!content.includes('For legal teams'), 'Must not contain "For legal teams"');
 
-  // Verify Part 2 (Supporting Bento Row from Reference Image 1)
-  assert.ok(content.includes('All employee data at once'), 'Must contain "All employee data at once" wide card');
-  assert.ok(content.includes('Project Dept'), 'Must contain Project Dept filter pill');
-  assert.ok(content.includes('46%'), 'Must contain "46%" participation metric badge');
-  assert.ok(content.includes('For teams & employees'), 'Must contain "For teams & employees" compact card');
+  // Verify Part 2 (Supporting Bento Row: Talent Marketplace & Real-Time Outreach)
+  assert.ok(content.includes('All candidate intelligence at once'), 'Must contain "All candidate intelligence at once" wide card');
+  assert.ok(content.includes('Talent Marketplace'), 'Must feature Talent Marketplace');
+  assert.ok(content.includes('Engineering'), 'Must contain Engineering domain filter pill');
+  assert.ok(content.includes('Real-time recruiter outreach'), 'Must contain "Real-time recruiter outreach" compact card');
+  assert.ok(content.includes('72 hours') || content.includes('talent dashboard'), 'Must mention real-time talent dashboard outreach or 72 hours');
   assert.ok(content.includes('ORBIT_TALENTS'), 'Must define orbital talent roster');
 
   // Verify Animations & African Talent Portraits
@@ -162,6 +168,7 @@ test('7. AI Recruitment Engine Section: Redesigned with Part 1 (3 cards) & Part 
   assert.ok(content.includes('photo-1573496359142-b8d87734a5a2'), 'Must feature African engineer Fatima B.');
 
   // Verify Strict Constraints
+  assert.ok(!content.includes('leave balances'), 'Must not track internal employee leave balances');
   assert.ok(!content.includes('Abuja'), 'Must not mention Abuja outside footer');
   const emojiRegex = /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
   assert.ok(!emojiRegex.test(content), 'products-section.tsx must not contain emoji characters');
