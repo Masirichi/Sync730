@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { Home, Users, Briefcase, Building2, BarChart3, ShieldCheck } from 'lucide-react';
@@ -16,6 +17,13 @@ const navItems = [
 const headerNavItems = navItems.map(({ label, href }) => ({ label, href }));
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
+  // WordPress-style standalone full-screen presentation for admin signin and signup
+  if (pathname?.startsWith('/admin/login') || pathname?.startsWith('/admin/register')) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="flex min-h-screen">
       <DashboardSidebar items={navItems} roleLabel="Admin" homeHref="/" />

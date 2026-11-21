@@ -1127,3 +1127,30 @@ export function toggleAdminJobFeatured(jobId: string, currentStatus?: boolean): 
 
   return { is_featured: newFeatured };
 }
+
+export function deleteAdminRemoteJob(jobId: string): boolean {
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = getAdminRemoteJobs();
+      const filtered = existing.filter((j) => j.id !== jobId && j.external_id !== jobId);
+      localStorage.setItem(ADMIN_JOBS_KEY, JSON.stringify(filtered));
+      window.dispatchEvent(new Event('sync730_admin_jobs_updated'));
+      window.dispatchEvent(new Event('sync730_remote_jobs_updated'));
+    } catch (e) {
+      console.warn('Failed to delete admin job:', e);
+    }
+  }
+
+  memoryJobs = memoryJobs.filter((j) => j.id !== jobId && j.external_id !== jobId);
+
+  saveAdminAuditLog({
+    id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    created_at: new Date().toISOString(),
+    admin_id: 'usr-admin-001',
+    action_type: 'JOB_DELETED',
+    target_id: jobId,
+    notes: `Permanently deleted role ${jobId}`,
+  });
+
+  return true;
+}

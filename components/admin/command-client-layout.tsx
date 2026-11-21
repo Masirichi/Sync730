@@ -177,6 +177,27 @@ function CommandLayoutShell({ children }: { children: React.ReactNode }) {
   // Active Role state (supports simulation & switching among all 5 scoped roles)
   const [currentRole, setCurrentRole] = useState<AdminRole>('super_admin');
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
+  const [liveUser, setLiveUser] = useState<{ name: string; email: string } | null>(null);
+
+  // Live Supabase User Detection
+  useEffect(() => {
+    try {
+      const supabase = createBrowserClient();
+      supabase.auth.getUser().then(({ data }) => {
+        if (data?.user) {
+          const userEmail = data.user.email || '';
+          const isAjah = userEmail.toLowerCase() === 'ajahmalachy@gmail.com';
+          const resolvedName = isAjah
+            ? 'Ajah Malachy'
+            : (data.user.user_metadata?.full_name as string) || userEmail.split('@')[0] || 'Platform Admin';
+          setLiveUser({
+            name: resolvedName,
+            email: userEmail,
+          });
+        }
+      });
+    } catch {}
+  }, []);
 
   // MFA state
   const [mfaStatus, setMfaStatus] = useState<{
@@ -314,8 +335,8 @@ function CommandLayoutShell({ children }: { children: React.ReactNode }) {
   };
 
   const currentUserData = ROLE_USERS[currentRole] || ROLE_USERS.super_admin;
-  const userName = currentUserData.name;
-  const userRole = getRoleDisplayName(currentRole);
+  const userName = liveUser?.name || currentUserData.name;
+  const userRole = currentRole === 'super_admin' ? 'Super Admin' : getRoleDisplayName(currentRole);
   const initials = getInitials(userName);
 
   // Filter Nav Groups based on active role permissions
@@ -358,11 +379,12 @@ function CommandLayoutShell({ children }: { children: React.ReactNode }) {
       await supabase.auth.signOut();
       if (typeof document !== 'undefined') {
         document.cookie = 'sync730_admin_role=; path=/; max-age=0';
+        document.cookie = 'sync730_admin_email=; path=/; max-age=0';
         document.cookie = 'sync730_view_as=; path=/; max-age=0';
       }
-      router.push('/login');
+      router.push('/admin/login');
     } catch {
-      router.push('/login');
+      router.push('/admin/login');
     }
   };
 

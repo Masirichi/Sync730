@@ -142,6 +142,25 @@ export function toggleServerJobActive(jobId: string, currentStatus?: boolean): {
   return { is_active: newStatus };
 }
 
+export function deleteServerJob(jobId: string): boolean {
+  const existing = getServerJobs();
+  const updated = existing.filter((j) => j.id !== jobId && j.external_id !== jobId);
+  memoryJobsCache = updated;
+
+  writeFileSafe(PRIMARY_JOBS_FILE, FALLBACK_JOBS_FILE, JSON.stringify(updated, null, 2));
+
+  saveServerAuditLog({
+    id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    created_at: new Date().toISOString(),
+    admin_id: 'usr-admin-001',
+    action_type: 'JOB_DELETED',
+    target_id: jobId,
+    notes: `Permanently deleted role ${jobId}`,
+  });
+
+  return true;
+}
+
 export function toggleServerJobFeatured(jobId: string, currentStatus?: boolean): { is_featured: boolean } {
   let newFeatured = false;
   const existing = getServerJobs();

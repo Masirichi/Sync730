@@ -59,6 +59,9 @@ export async function updateSession(request: NextRequest): Promise<AuthSessionRe
   const isAuthPath =
     request.nextUrl.pathname === '/login' ||
     request.nextUrl.pathname === '/register' ||
+    request.nextUrl.pathname === '/admin/login' ||
+    request.nextUrl.pathname === '/admin/register' ||
+    request.nextUrl.pathname === '/admin-login' ||
     request.nextUrl.pathname.startsWith('/signup') ||
     request.nextUrl.pathname.startsWith('/register/');
   const isRecruiterPath = request.nextUrl.pathname.startsWith('/console') || request.nextUrl.pathname.startsWith('/recruiter');

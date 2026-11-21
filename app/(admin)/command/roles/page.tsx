@@ -17,6 +17,7 @@ import {
   Flag,
   ChevronDown,
   MoreHorizontal,
+  Trash2,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -46,6 +47,7 @@ import { AdminRemoteJob } from '@/lib/admin/types';
 import {
   getAdminRemoteJobs,
   saveAdminRemoteJob,
+  deleteAdminRemoteJob,
   toggleAdminJobActive,
   toggleAdminJobFeatured,
   SEED_ADMIN_REMOTE_JOBS,
@@ -383,6 +385,21 @@ function RolesManagerContent() {
       setIsModalOpen(false);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Handle Instant 1-Click Role Deletion (No special security measures or prompt)
+  const handleDeleteRole = async (job: AdminRemoteJob) => {
+    deleteAdminRemoteJob(job.id);
+    setRemoteJobs((prev) => prev.filter((j) => j.id !== job.id && j.external_id !== job.id));
+    toast.success(`Role "${job.title}" at ${job.company} permanently deleted.`);
+
+    try {
+      await fetch(`/api/admin/jobs?id=${encodeURIComponent(job.id)}`, {
+        method: 'DELETE',
+      });
+    } catch (err) {
+      console.warn('Backend delete note:', err);
     }
   };
 
@@ -1192,6 +1209,18 @@ function RolesManagerContent() {
                                   </>
                                 )}
                               </Button>
+
+                              {/* 1-Click Instant Delete Role (No Special Security Measures or Prompt) */}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteRole(job)}
+                                className="h-7 px-2.5 text-[11px] rounded-lg border-rose-500/40 bg-rose-500/15 text-rose-400 hover:bg-rose-500/25 hover:border-rose-500/60 transition-all font-medium"
+                                title="Permanently delete role immediately without prompt"
+                              >
+                                <Trash2 className="h-3 w-3 mr-1 stroke-[1.5]" />
+                                <span>Delete</span>
+                              </Button>
                             </div>
                           </td>
                         </tr>
@@ -1255,29 +1284,50 @@ function RolesManagerContent() {
                         </span>
                       </td>
                       <td className="py-4 px-4 text-right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={async () => {
-                            const res = await fetch('/api/admin/jobs/toggle-status', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                job_id: ej.id,
-                                is_employer_job: true,
-                                is_active: ej.status === 'active',
-                              }),
-                            });
-                            const data = await res.json();
-                            if (data.success) {
-                              toast.success('Corporate posting status updated.');
-                              loadJobs();
-                            }
-                          }}
-                          className="h-7 px-2.5 text-[11px] rounded-lg border-neutral-800 bg-neutral-900/60 text-neutral-300 hover:text-white"
-                        >
-                          {ej.status === 'active' ? 'Take Down' : 'Republish'}
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={async () => {
+                              const res = await fetch('/api/admin/jobs/toggle-status', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  job_id: ej.id,
+                                  is_employer_job: true,
+                                  is_active: ej.status === 'active',
+                                }),
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                toast.success('Corporate posting status updated.');
+                                loadJobs();
+                              }
+                            }}
+                            className="h-7 px-2.5 text-[11px] rounded-lg border-neutral-800 bg-neutral-900/60 text-neutral-300 hover:text-white"
+                          >
+                            {ej.status === 'active' ? 'Take Down' : 'Republish'}
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={async () => {
+                              setEmployerJobs((prev) => prev.filter((item) => item.id !== ej.id));
+                              toast.success(`Corporate posting "${ej.job_title}" deleted.`);
+                              try {
+                                await fetch(`/api/admin/jobs?id=${encodeURIComponent(ej.id)}`, {
+                                  method: 'DELETE',
+                                });
+                              } catch {}
+                            }}
+                            className="h-7 px-2.5 text-[11px] rounded-lg border-rose-500/40 bg-rose-500/15 text-rose-400 hover:bg-rose-500/25 transition-all"
+                            title="Delete corporate posting immediately without prompt"
+                          >
+                            <Trash2 className="h-3 w-3 mr-1 stroke-[1.5]" />
+                            <span>Delete</span>
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))

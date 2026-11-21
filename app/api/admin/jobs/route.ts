@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createServerClient } from '@/lib/supabase/server';
-import { getServerJobs, saveServerJob } from '@/lib/admin/server-store';
+import { getServerJobs, saveServerJob, deleteServerJob } from '@/lib/admin/server-store';
 import { AdminRemoteJob } from '@/lib/admin/types';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
 import { SAMPLE_NIGERIA_ROLES } from '@/lib/admin/store';
@@ -339,6 +339,37 @@ export async function POST(request: NextRequest) {
     console.error('Error in /api/admin/jobs POST:', err);
     return NextResponse.json(
       { success: false, error: err.message || 'Failed to publish job' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: 'Job ID required for deletion' },
+        { status: 400 }
+      );
+    }
+
+    deleteServerJob(id);
+
+    try {
+      const supabase = await createServerClient();
+      await supabase.from('remote_jobs').delete().eq('id', id);
+    } catch {}
+
+    return NextResponse.json({
+      success: true,
+      message: 'Role permanently deleted.',
+    });
+  } catch (err: any) {
+    console.error('Error in /api/admin/jobs DELETE:', err);
+    return NextResponse.json(
+      { success: false, error: err.message || 'Failed to delete role' },
       { status: 500 }
     );
   }

@@ -202,6 +202,35 @@ export default function CommandUsersPage() {
     return sortedUsers.slice(start, start + PAGE_SIZE);
   }, [sortedUsers, currentPage]);
 
+  // Instant 1-Click Role Modification & Deletion (Without any special security measures or prompt)
+  const handleDirectRoleChange = async (user: AdminUserProfile, newRole: PlatformRole) => {
+    setUsers((prev) =>
+      prev.map((u) => (u.id === user.id ? { ...u, role: newRole } : u))
+    );
+    toast.success(`Role for ${user.full_name || user.email} updated to ${getRolePlainText(newRole)}.`);
+
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.id,
+          new_role: newRole,
+          reason: 'Direct platform administrator role modification',
+        }),
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        toast.error(data.error || 'Failed to update user role');
+        fetchUsers();
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Error updating role');
+      fetchUsers();
+    }
+  };
+
   // Role change dialog handlers
   const handleOpenRoleChange = (user: AdminUserProfile, newRole: PlatformRole) => {
     setTargetUser(user);
@@ -588,19 +617,24 @@ export default function CommandUsersPage() {
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-neutral-800" />
 
-                            {/* Change Role Submenu */}
+                            {/* Direct Role Actions without Security Prompts */}
                             <DropdownMenuItem
-                              onClick={() =>
-                                handleOpenRoleChange(
-                                  u,
-                                  u.role === 'super_admin' || u.role === 'PLATFORM_ADMIN' || u.role === 'admin'
-                                    ? 'recruiter'
-                                    : 'super_admin'
-                                )
-                              }
-                              className="text-xs cursor-pointer hover:bg-neutral-800 focus:bg-neutral-800"
+                              onClick={() => handleDirectRoleChange(u, 'super_admin')}
+                              className="text-xs cursor-pointer hover:bg-neutral-800 text-amber-400 font-medium"
                             >
-                              Change role...
+                              Grant Super Admin
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDirectRoleChange(u, 'recruiter')}
+                              className="text-xs cursor-pointer hover:bg-neutral-800 text-blue-400 font-medium"
+                            >
+                              Grant Recruiter Role
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDirectRoleChange(u, 'candidate')}
+                              className="text-xs cursor-pointer hover:bg-neutral-800 text-neutral-300 font-medium"
+                            >
+                              Remove Admin / Reset Role
                             </DropdownMenuItem>
 
                             {/* Adjust Tokens Action */}
