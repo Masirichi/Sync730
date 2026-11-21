@@ -72,8 +72,9 @@ function LoginForm() {
           options: {
             data: {
               full_name: 'Ajah Malachy',
-              role: 'PLATFORM_ADMIN',
-              Role: 'PLATFORM_ADMIN',
+              role: 'admin',
+              Role: 'admin',
+              platform_role: 'PLATFORM_ADMIN',
               is_super_admin: true,
             },
           },

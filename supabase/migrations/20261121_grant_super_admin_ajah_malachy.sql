@@ -70,21 +70,19 @@ BEGIN
   IF lower(NEW.email) = 'ajahmalachy@gmail.com' THEN
     v_role := 'admin';
 
-    -- Ensure admin_roles record exists
-    INSERT INTO public.admin_roles (user_id, role, updated_at)
-    VALUES (NEW.id::text, 'super_admin', now())
-    ON CONFLICT (user_id) DO UPDATE
-    SET role = 'super_admin',
-        updated_at = now();
-
-    -- Also update user metadata
-    NEW.raw_user_meta_data = jsonb_set(
-      COALESCE(NEW.raw_user_meta_data, '{}'::jsonb),
-      '{role}',
-      '"PLATFORM_ADMIN"'
-    );
+    -- Safely ensure admin_roles record exists if table exists
+    IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'admin_roles') THEN
+      INSERT INTO public.admin_roles (user_id, role, updated_at)
+      VALUES (NEW.id::text, 'super_admin', now())
+      ON CONFLICT (user_id) DO UPDATE
+      SET role = 'super_admin',
+          updated_at = now();
+    END IF;
   ELSE
     v_role := COALESCE(NEW.raw_user_meta_data->>'role', 'candidate');
+    IF v_role = 'PLATFORM_ADMIN' OR v_role = 'super_admin' THEN
+      v_role := 'admin';
+    END IF;
   END IF;
 
   INSERT INTO public.profiles (id, email, full_name, role, avatar_url)

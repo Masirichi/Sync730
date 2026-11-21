@@ -101,8 +101,9 @@ function DualRegisterForm() {
         options: {
           data: {
             full_name: name,
-            role: isAjah ? 'PLATFORM_ADMIN' : 'candidate',
-            Role: isAjah ? 'PLATFORM_ADMIN' : 'candidate',
+            role: isAjah ? 'admin' : 'candidate',
+            Role: isAjah ? 'admin' : 'candidate',
+            platform_role: isAjah ? 'PLATFORM_ADMIN' : 'candidate',
             is_super_admin: isAjah,
             specialization: techSpecialization,
           },
@@ -174,8 +175,9 @@ function DualRegisterForm() {
         options: {
           data: {
             full_name: name,
-            role: isAjah ? 'PLATFORM_ADMIN' : 'recruiter',
-            Role: isAjah ? 'PLATFORM_ADMIN' : 'RECRUITER',
+            role: isAjah ? 'admin' : 'recruiter',
+            Role: isAjah ? 'admin' : 'RECRUITER',
+            platform_role: isAjah ? 'PLATFORM_ADMIN' : 'recruiter',
             is_super_admin: isAjah,
             company_name: companyName,
             company_size: companySize,

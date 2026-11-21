@@ -152,24 +152,36 @@ function AdminLoginContent() {
       const supabase = createBrowserClient();
       const isSuperAdminRole = role === 'PLATFORM_ADMIN';
 
-      // 1. Sign up user in live Supabase Auth
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      // 1. Sign up user in live Supabase Auth with PostgreSQL-compliant 'admin' role
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: cleanEmail,
         password,
         options: {
           data: {
             full_name: cleanName,
-            role: isSuperAdminRole ? 'PLATFORM_ADMIN' : role,
-            Role: isSuperAdminRole ? 'PLATFORM_ADMIN' : role,
+            role: 'admin',
+            Role: 'admin',
+            platform_role: isSuperAdminRole ? 'PLATFORM_ADMIN' : role,
             is_super_admin: isSuperAdminRole,
           },
         },
       });
 
-      if (signUpError && !signUpError.message?.toLowerCase().includes('already registered')) {
-        setError(signUpError.message);
-        setLoading(false);
-        return;
+      if (signUpError) {
+        // Attempt password sign-in in case user is already registered or trigger threw notice
+        const { error: signInErr } = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password,
+        });
+
+        const isTriggerError = signUpError.message?.toLowerCase().includes('database error') ||
+                               signUpError.message?.toLowerCase().includes('already registered');
+
+        if (signInErr && !isTriggerError) {
+          setError(signUpError.message);
+          setLoading(false);
+          return;
+        }
       }
 
       // 2. Provision live database records (profiles & admin_roles)
