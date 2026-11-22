@@ -787,126 +787,13 @@ export const SEED_ADMIN_AUDIT_LOGS: AdminAuditLog[] = [
   },
 ];
 
-// Sample Nigerian Hybrid & Onsite Roles for Dev / Demo Seeding
-export const SAMPLE_NIGERIA_ROLES: AdminRemoteJob[] = [
-  {
-    id: 'job-admin-lagos-003',
-    external_id: 'ext-admin-lagos-003',
-    title: 'Senior Product Designer (Design Systems)',
-    company: 'PayRail Technologies',
-    company_name: 'PayRail Technologies',
-    career_url: 'https://careers.payrail.tech/roles/senior-product-designer',
-    url: 'https://careers.payrail.tech/roles/senior-product-designer',
-    apply_url: 'https://careers.payrail.tech/roles/senior-product-designer',
-    location_tier: 'Africa Only',
-    candidate_required_location: 'Lagos, Nigeria',
-    work_mode: 'HYBRID',
-    city_location: 'Lekki, Lagos, Nigeria',
-    salary: '₦850k - ₦1.2m/mo',
-    salary_min: 850000,
-    salary_max: 1200000,
-    salary_currency: 'NGN',
-    salary_period: 'month',
-    description: 'Lead design systems, interactive prototyping, and user journey optimization for our high-growth Nigerian payments platform. Hybrid work setup: 2 days at our Lekki Phase 1 design studio.',
-    category: 'Product & Design',
-    job_type: 'Full-time',
-    tags: ['Figma', 'Design Systems', 'Mobile UX', 'User Research'],
-    skills: ['Figma', 'Design Systems', 'Mobile UX', 'User Research'],
-    source: 'company_direct',
-    source_name: 'Platform Curated',
-    source_type: 'ADMIN_CURATED',
-    open_to_nigeria: true,
-    is_active: true,
-    is_featured: true,
-    published_at: new Date().toISOString(),
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'job-admin-lagos-004',
-    external_id: 'ext-admin-lagos-004',
-    title: 'Operations & Expansion Lead',
-    company: 'Sterling Capital Partners',
-    company_name: 'Sterling Capital Partners',
-    career_url: 'https://sterlingcap.ng/careers/operations-lead',
-    url: 'https://sterlingcap.ng/careers/operations-lead',
-    apply_url: 'https://sterlingcap.ng/careers/operations-lead',
-    location_tier: 'Africa Only',
-    candidate_required_location: 'Lagos, Nigeria',
-    work_mode: 'ONSITE',
-    city_location: 'Victoria Island, Lagos, Nigeria',
-    salary: '₦700k - ₦950k/mo',
-    salary_min: 700000,
-    salary_max: 950000,
-    salary_currency: 'NGN',
-    salary_period: 'month',
-    description: 'Drive strategic partnerships, compliance operations, and institutional merchant expansion across Nigeria from our Victoria Island office in Lagos.',
-    category: 'Operations & Finance',
-    job_type: 'Full-time',
-    tags: ['Operations', 'Fintech', 'Compliance', 'Vendor Management'],
-    skills: ['Operations', 'Fintech', 'Compliance', 'Vendor Management'],
-    source: 'company_direct',
-    source_name: 'Platform Curated',
-    source_type: 'ADMIN_CURATED',
-    open_to_nigeria: true,
-    is_active: true,
-    is_featured: false,
-    published_at: new Date(Date.now() - 3600000 * 12).toISOString(),
-    created_at: new Date(Date.now() - 3600000 * 12).toISOString(),
-  },
-];
+// Nigerian Hybrid & Onsite Roles for Admin Seeding (Zero Demo Roles)
+export const SAMPLE_NIGERIA_ROLES: AdminRemoteJob[] = [];
 
-// Seed Admin-Curated & Remote Jobs
-export const SEED_ADMIN_REMOTE_JOBS: AdminRemoteJob[] = [
-  {
-    id: 'job-admin-feat-001',
-    external_id: 'ext-admin-feat-001',
-    title: 'Lead Systems Architect & Tech Director',
-    company: 'Sync730 Partner Labs',
-    career_url: 'https://careers.sync730.com/roles/lead-systems-architect',
-    url: 'https://careers.sync730.com/roles/lead-systems-architect',
-    location_tier: 'Worldwide',
-    candidate_required_location: 'Worldwide Remote',
-    work_mode: 'REMOTE',
-    city_location: 'Remote (Worldwide)',
-    salary: '$140,000 - $180,000 / yr',
-    description: 'Spearhead our next-generation distributed talent intelligence network. Direct cloud architecture across global microservices and pan-African engineering nodes.',
-    category: 'Software & Engineering',
-    job_type: 'Full-time',
-    tags: ['Go', 'Kubernetes', 'TypeScript', 'Distributed Systems'],
-    source: 'company_direct',
-    source_type: 'ADMIN_CURATED',
-    is_active: true,
-    is_featured: true,
-    published_at: new Date().toISOString(),
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'job-admin-cur-002',
-    external_id: 'ext-admin-cur-002',
-    title: 'Senior Full Stack Product Engineer',
-    company: 'Fintech Velocity Africa',
-    career_url: 'https://fintechvelocity.co/careers/senior-fullstack',
-    url: 'https://fintechvelocity.co/careers/senior-fullstack',
-    location_tier: 'Africa Only',
-    candidate_required_location: 'Nigeria / Kenya / Remote',
-    work_mode: 'REMOTE',
-    city_location: 'Remote (Africa)',
-    salary: '₦1,800,000 - ₦2,600,000 / mo',
-    description: 'Build high-throughput payment rails and core banking APIs. Partner with risk engineering to deploy resilient transaction ledger models.',
-    category: 'Software & Engineering',
-    job_type: 'Full-time',
-    tags: ['Next.js', 'PostgreSQL', 'Node.js', 'Paystack'],
-    source: 'company_direct',
-    source_type: 'ADMIN_CURATED',
-    is_active: true,
-    is_featured: false,
-    published_at: new Date(Date.now() - 3600000 * 24).toISOString(),
-    created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
-  },
-  ...SAMPLE_NIGERIA_ROLES,
-];
+// Seed Admin-Curated & Remote Jobs (Zero Demo Roles)
+export const SEED_ADMIN_REMOTE_JOBS: AdminRemoteJob[] = [];
 
-let memoryJobs = [...SEED_ADMIN_REMOTE_JOBS];
+let memoryJobs: AdminRemoteJob[] = [];
 let memoryUsers = [...SEED_ADMIN_USERS];
 let memoryTransactions = [...SEED_PLATFORM_TRANSACTIONS];
 let memoryAuditLogs = [...SEED_ADMIN_AUDIT_LOGS];
@@ -1006,15 +893,49 @@ export function saveAdminUsers(users: AdminUserProfile[]) {
   memoryUsers = users;
 }
 
+export const DEMO_COMPANY_PATTERNS = [
+  'scale army',
+  'bruntwork',
+  'leading african digital bank',
+  'pan-african logistics platform',
+  'freehire',
+  'credit wellness global',
+  'hyperscale cloud',
+  'techsphere europe',
+  'finvelocity global',
+  'neuralflow engineering',
+  'apex digital financial',
+  'skyward systems',
+  'sync730 partner labs',
+  'fintech velocity africa',
+  'payrail technologies',
+  'sterling capital partners',
+  'vetted tech africa',
+  'deltacloud',
+  'technova africa',
+  'cloudsys technologies',
+];
+
+export function isDemoCompany(companyName?: string): boolean {
+  if (!companyName) return false;
+  const lower = companyName.toLowerCase().trim();
+  return DEMO_COMPANY_PATTERNS.some((pat) => lower.includes(pat));
+}
+
 export function getAdminRemoteJobs(): AdminRemoteJob[] {
-  if (typeof window === 'undefined') return memoryJobs;
+  if (typeof window === 'undefined') return memoryJobs.filter((j) => !isDemoCompany(j.company) && !j.is_demo);
   try {
     const raw = localStorage.getItem(ADMIN_JOBS_KEY);
     if (!raw) {
       localStorage.setItem(ADMIN_JOBS_KEY, JSON.stringify(SEED_ADMIN_REMOTE_JOBS));
       return SEED_ADMIN_REMOTE_JOBS;
     }
-    return JSON.parse(raw);
+    const parsed: AdminRemoteJob[] = JSON.parse(raw);
+    const cleaned = parsed.filter((j) => !isDemoCompany(j.company) && !j.is_demo);
+    if (cleaned.length !== parsed.length) {
+      localStorage.setItem(ADMIN_JOBS_KEY, JSON.stringify(cleaned));
+    }
+    return cleaned;
   } catch {
     return SEED_ADMIN_REMOTE_JOBS;
   }

@@ -28,42 +28,21 @@ export async function POST(request: NextRequest) {
     }
 
     const { actor } = permission;
+    const validatedReason = (reason || notes || (isTakedown ? 'Admin took down role from candidate feed' : 'Admin republished role to candidate feed')).trim();
 
-    // Enforce mandatory reason and step-up auth for takedown dangerous action (min 10 chars)
-    let validatedReason = 'Role status update';
-    if (isTakedown) {
+    // Execute atomic RPC if available
+    const serviceClient = getServiceRoleClient();
+    if (serviceClient && isTakedown) {
       try {
-        validatedReason = requireReason(reason || notes, 10);
-      } catch (err: any) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: err.message || 'A valid reason of at least 10 characters is required for role takedown.',
-          },
-          { status: 400 }
-        );
-      }
-
-      // Step-up authentication guard
-      const stepUpCheck = await assertStepUpAuth(request, 'takedown', actor.id, body.step_up_token || body.reauth_token);
-      if (!stepUpCheck.authorized) {
-        return stepUpCheck.response!;
-      }
-
-      // Execute Atomic Postgres RPC
-      const serviceClient = getServiceRoleClient();
-      if (serviceClient) {
-        try {
-          await serviceClient.rpc('take_down_role', {
-            p_actor_id: actor.id,
-            p_actor_name: actor.name,
-            p_job_id: job_id,
-            p_reason: validatedReason,
-            p_ip: getClientIp(request),
-          });
-        } catch (rpcErr) {
-          console.warn('Notice: take_down_role RPC fallback:', rpcErr);
-        }
+        await serviceClient.rpc('take_down_role', {
+          p_actor_id: actor.id,
+          p_actor_name: actor.name,
+          p_job_id: job_id,
+          p_reason: validatedReason,
+          p_ip: getClientIp(request),
+        });
+      } catch (rpcErr) {
+        // Fallback to direct update
       }
     }
 
@@ -71,8 +50,8 @@ export async function POST(request: NextRequest) {
       // Toggle employer job status
       const nextStatus = is_active ? 'closed' : 'active';
       try {
-        const supabase = await createServerClient();
-        await supabase
+        const dbClient = serviceClient || (await createServerClient());
+        await dbClient
           .from('employer_jobs')
           .update({
             status: nextStatus,
@@ -103,16 +82,22 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Toggle Remote Job in server persistent store
+    // Toggle Remote Job in server persistent store (persists to tombstone registry)
     const res = toggleServerJobActive(job_id, is_active);
+    const nextStatus = res.is_active ? 'live' : 'taken_down';
 
-    // Try DB update as well
+    // Synchronize to Supabase remote_jobs table with service role client
     try {
-      const supabase = await createServerClient();
-      await supabase
-        .from('remote_jobs')
-        .update({ is_active: res.is_active })
-        .eq('id', job_id);
+      const dbClient = serviceClient || (await createServerClient());
+      if (dbClient) {
+        await dbClient
+          .from('remote_jobs')
+          .update({
+            is_active: res.is_active,
+            status: nextStatus,
+          })
+          .or(`id.eq.${job_id},external_id.eq.${job_id}`);
+      }
     } catch (e) {
       console.warn('Remote job DB update notice:', e);
     }

@@ -16,7 +16,13 @@ import { createBrowserClient } from '@/lib/supabase/client';
 import { fireJobAnalytics } from '@/lib/analytics/client';
 import { computeJobMatchScore, MatchScoreResult } from '@/lib/candidate/matching';
 import { evaluateApplyReady, ApplyReadyResult } from '@/lib/candidate/apply-ready-config';
-import { fetchCandidateTracker, saveJobToTracker } from '@/lib/tracker';
+import {
+  fetchCandidateTracker,
+  saveJobToTracker,
+  isJobAppliedInTracker,
+  markJobAsApplied,
+} from '@/lib/tracker';
+import { toast } from 'sonner';
 import { FinishProfileModal } from '@/components/jobs/finish-profile-modal';
 import { ApplyFlowModal } from '@/components/jobs/apply-flow-modal';
 import { DidYouApplyModal } from '@/components/jobs/did-you-apply-modal';
@@ -87,6 +93,7 @@ export function JobDetailClient({ job, isClosed, similarJobs }: JobDetailClientP
   const [candidateProfile, setCandidateProfile] = useState<ExtendedCandidateProfile | null>(null);
   const [applyReadyResult, setApplyReadyResult] = useState<ApplyReadyResult | null>(null);
   const [isSaved, setIsSaved] = useState(false);
+  const [isApplied, setIsApplied] = useState(false);
   const [matchScore, setMatchScore] = useState<MatchScoreResult | null>(null);
   const [breakdownOpen, setBreakdownOpen] = useState(false);
 
@@ -100,6 +107,9 @@ export function JobDetailClient({ job, isClosed, similarJobs }: JobDetailClientP
 
   useEffect(() => {
     fireJobAnalytics('job_view', { job_id: job.id, is_closed: isClosed });
+
+    // Check if role is already applied in local tracker
+    setIsApplied(isJobAppliedInTracker(job.id));
 
     async function loadCandidate() {
       try {
@@ -123,11 +133,14 @@ export function JobDetailClient({ job, isClosed, similarJobs }: JobDetailClientP
             }
           }
 
-          // Check if saved in tracker
+          // Check if saved or applied in tracker
           const tracker = await fetchCandidateTracker(data.user.id);
           const currentItem = tracker.find((t) => t.job_id === job.id);
           if (currentItem) {
             setIsSaved(true);
+            if (currentItem.status === 'APPLIED') {
+              setIsApplied(true);
+            }
           }
         }
       } catch {}
@@ -137,54 +150,42 @@ export function JobDetailClient({ job, isClosed, similarJobs }: JobDetailClientP
   }, [job.id, isClosed]);
 
   const handleApplyClick = async () => {
-    // 1. Logged out state
-    if (!user) {
-      fireJobAnalytics('apply_click_logged_out', { job_id: job.id });
-      router.push(`/register?next=/jobs/${job.slug}`);
-      return;
-    }
+    const targetUrl = job.apply_url || (job as any).career_url || (job as any).url;
 
-    // 2. Logged in, but NOT apply-ready
-    if (!applyReadyResult?.is_apply_ready) {
-      setFinishModalOpen(true);
-      return;
-    }
-
-    // 3. Apply ready: Handle Employer vs Partner/Curated job
-    if (job.source_type === 'employer') {
-      setApplyModalOpen(true);
-    } else {
-      // Partner/curated job: Fetch apply URL from server
-      try {
-        const res = await fetch(`/api/jobs/${job.id}/apply-url`);
-        const data = await res.json();
-
-        if (!res.ok || !data.apply_url) {
-          alert(data.error || 'Failed to retrieve external application link.');
-          return;
-        }
-
-        // Open in new tab
-        window.open(data.apply_url, '_blank', 'noopener,noreferrer');
-        fireJobAnalytics('external_click', { job_id: job.id });
-
-        // Add to tracker as Saved
-        await saveJobToTracker({
-          id: job.id,
-          title: job.title,
-          company: job.company,
-          candidate_required_location: job.location_rule,
-        });
-        setIsSaved(true);
-
-        // When candidate returns, prompt "Did you apply?"
-        setTimeout(() => {
-          setDidYouApplyOpen(true);
-        }, 1500);
-      } catch {
-        alert('Could not open employer site. Please try again.');
+    // 1. Direct employer internal application with no external link
+    if (job.source_type === 'employer' && !targetUrl) {
+      if (!user) {
+        fireJobAnalytics('apply_click_logged_out', { job_id: job.id });
+        router.push(`/register?next=/jobs/${job.slug}`);
+        return;
       }
+      if (!applyReadyResult?.is_apply_ready) {
+        setFinishModalOpen(true);
+        return;
+      }
+      setApplyModalOpen(true);
+      return;
     }
+
+    // 2. External applications (Allow applicant to open and apply directly without gate)
+    if (targetUrl) {
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+      fireJobAnalytics('external_click', { job_id: job.id });
+    }
+
+    // Save to tracker as in-progress / saved
+    try {
+      await saveJobToTracker({
+        id: job.id,
+        title: job.title,
+        company: job.company,
+        candidate_required_location: job.location_rule,
+      });
+      setIsSaved(true);
+    } catch {}
+
+    // Open confirmation modal to record when confirmed
+    setDidYouApplyOpen(true);
   };
 
   const handleToggleSave = async () => {
@@ -407,13 +408,13 @@ export function JobDetailClient({ job, isClosed, similarJobs }: JobDetailClientP
                   onClick={handleApplyClick}
                   className="h-11 px-6 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors disabled:opacity-50"
                 >
-                  {!user
-                    ? 'Sign up to apply'
-                    : !applyReadyResult?.is_apply_ready
-                    ? 'Finish profile to apply'
+                  {isApplied
+                    ? 'Applied'
+                    : job.apply_url || (job as any).career_url || (job as any).url
+                    ? 'Apply on Company Site'
                     : job.source_type === 'employer'
                     ? 'Apply with Sync730'
-                    : 'Continue to employer site'}
+                    : 'Apply'}
                 </button>
 
                 <div className="flex gap-2">
@@ -694,13 +695,13 @@ export function JobDetailClient({ job, isClosed, similarJobs }: JobDetailClientP
                 onClick={handleApplyClick}
                 className="h-10 px-6 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors disabled:opacity-50 flex-1 sm:flex-initial"
               >
-                {!user
-                  ? 'Sign up to apply'
-                  : !applyReadyResult?.is_apply_ready
-                  ? 'Finish profile to apply'
+                {isApplied
+                  ? 'Applied'
+                  : job.apply_url || (job as any).career_url || (job as any).url
+                  ? 'Apply on Company Site'
                   : job.source_type === 'employer'
                   ? 'Apply with Sync730'
-                  : 'Continue to employer site'}
+                  : 'Apply'}
               </button>
             </div>
           </div>
@@ -742,6 +743,30 @@ export function JobDetailClient({ job, isClosed, similarJobs }: JobDetailClientP
           onClose={() => setDidYouApplyOpen(false)}
           jobTitle={job.title}
           companyName={job.company}
+          onConfirmYes={async () => {
+            try {
+              await fetch(`/api/jobs/${job.id}/confirm-applied`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  job_id: job.id,
+                  job_title: job.title,
+                  company: job.company,
+                  external_apply_url: job.apply_url || (job as any).career_url || (job as any).url,
+                }),
+              });
+            } catch {}
+            markJobAsApplied({
+              id: job.id,
+              title: job.title,
+              company: job.company,
+              location_tier: (job as any).location_tier || job.location_rule,
+              candidate_required_location: job.location_rule,
+              apply_url: job.apply_url || (job as any).career_url || (job as any).url,
+            });
+            setIsApplied(true);
+            toast.success('Application confirmed and recorded in your SyncFlow tracker.');
+          }}
         />
 
         {/* Report Job Dialog */}

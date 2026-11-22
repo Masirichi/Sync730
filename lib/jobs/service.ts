@@ -3,7 +3,12 @@
 // Strict compliance with Sync730 Listing Review criteria & Live Data Rules.
 
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
-import { getServerJobs } from '@/lib/admin/server-store';
+import {
+  getServerJobs,
+  getDeletedJobIds,
+  getTakenDownJobIds,
+  isDemoCompany,
+} from '@/lib/admin/server-store';
 import { generateJobSlug, matchesJobSlug } from './slugs';
 import { getLocalJobs } from '@/lib/recruiter/store';
 import { evaluateListingReview, ReviewableJob } from './review-criteria';
@@ -77,6 +82,16 @@ function toPublicJob(raw: any): PublicJob | null {
   const id = String(raw.id || raw.external_id || 'job-100');
   const title = (raw.title || raw.job_title || 'Role Opportunity').trim();
   const company = (raw.company_name || raw.company || 'Partner Employer').trim();
+
+  // Exclude demo roles
+  if (raw.is_demo === true || isDemoCompany(company)) {
+    return null;
+  }
+
+  // Exclude inactive and taken-down / deleted roles
+  if (raw.is_active === false || raw.status === 'taken_down' || raw.status === 'removed' || raw.status === 'archived') {
+    return null;
+  }
 
   // Expiration check & reports check
   const reports = getReportsForJob(id);
@@ -332,15 +347,28 @@ function toPublicJob(raw: any): PublicJob | null {
  */
 export function getAllApprovedJobs(extraJobs?: any[]): PublicJob[] {
   const map = new Map<string, PublicJob>();
+  const deletedIds = getDeletedJobIds();
+  const takenDownIds = getTakenDownJobIds();
+
+  const isExcluded = (id: string, extId?: string, company?: string) => {
+    if (deletedIds.has(id) || (extId && deletedIds.has(extId))) return true;
+    if (takenDownIds.has(id) || (extId && takenDownIds.has(extId))) return true;
+    if (isDemoCompany(company)) return true;
+    return false;
+  };
 
   // 1. Recruiter employer jobs
   try {
     const recruiterJobs = getLocalJobs();
     recruiterJobs.forEach((rj: any) => {
+      const id = String(rj.id || rj.external_id || '');
+      const company = rj.company_name || rj.company || 'Partner Employer';
+      if (isExcluded(id, rj.external_id, company)) return;
+
       const publicJob = toPublicJob({
         ...rj,
         title: rj.job_title,
-        company: rj.company_name || 'Partner Employer',
+        company,
         source_type: 'employer',
         is_active: rj.status?.toLowerCase() === 'active',
       });
@@ -352,6 +380,10 @@ export function getAllApprovedJobs(extraJobs?: any[]): PublicJob[] {
   try {
     const adminJobs = getServerJobs();
     adminJobs.forEach((aj: any) => {
+      const id = String(aj.id || aj.external_id || '');
+      const company = aj.company || aj.company_name;
+      if (isExcluded(id, aj.external_id, company)) return;
+
       const publicJob = toPublicJob({
         ...aj,
         source_type: aj.source_type || 'curated',
@@ -363,6 +395,10 @@ export function getAllApprovedJobs(extraJobs?: any[]): PublicJob[] {
   // 3. Extra live jobs from database or crawler
   if (Array.isArray(extraJobs) && extraJobs.length > 0) {
     extraJobs.forEach((ej: any) => {
+      const id = String(ej.id || ej.external_id || '');
+      const company = ej.company || ej.company_name;
+      if (isExcluded(id, ej.external_id, company)) return;
+
       const publicJob = toPublicJob({
         ...ej,
         source_type: ej.source_type || 'curated',
@@ -374,6 +410,10 @@ export function getAllApprovedJobs(extraJobs?: any[]): PublicJob[] {
   // 4. Seed remote jobs
   SEED_REMOTE_JOBS.forEach((sj, idx) => {
     const id = `seed-job-${idx + 1}`;
+    const extId = sj.external_id;
+    const company = sj.company || sj.company_name;
+    if (isExcluded(id, extId, company)) return;
+
     const publicJob = toPublicJob({
       ...sj,
       id,

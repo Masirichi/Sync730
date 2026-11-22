@@ -1,7 +1,10 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getFilteredPublicJobs, JobFilterParams } from '@/lib/jobs/service';
+import { fetchActiveRemoteJobs } from '@/lib/crawler/jobs-fetcher';
 import { JobsClientView } from '@/components/jobs/jobs-client-view';
+
+export const dynamic = 'force-dynamic';
 
 interface JobsPageProps {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -61,7 +64,15 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
     limit: 12,
   };
 
-  const results = getFilteredPublicJobs(filterParams);
+  // Query live active jobs directly to guarantee real-time reflection of admin postings and takedowns
+  let activeRemoteJobs: any[] = [];
+  try {
+    activeRemoteJobs = await fetchActiveRemoteJobs();
+  } catch (err) {
+    console.warn('Notice: fallback to local stores in jobs page:', err);
+  }
+
+  const results = getFilteredPublicJobs(filterParams, activeRemoteJobs);
 
   return (
     <Suspense fallback={<div className="min-h-screen bg-[#fcfcf9] p-8 text-center text-xs text-neutral-500">Loading jobs...</div>}>

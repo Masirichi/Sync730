@@ -2,40 +2,7 @@ import { RemoteJob } from '@/lib/supabase/types';
 import { CrawlerAdapter, resolveLocationTier } from '../types';
 import { normalizeJobCategory } from '../categories';
 
-const ARBEITNOW_SEED_JOBS: Omit<RemoteJob, 'id'>[] = [
-  {
-    external_id: 'arbeitnow-eu-fullstack-01',
-    title: 'Senior TypeScript & Distributed Systems Architect',
-    company: 'TechSphere Europe',
-    company_logo: null,
-    description: 'Design zero-downtime event streaming services with Node.js, Kafka, and Redis. Flexible European & EMEA remote.',
-    category: 'Software & Engineering',
-    job_type: 'full-time',
-    candidate_required_location: 'EMEA (Remote)',
-    location_tier: 'EMEA',
-    salary: '€85,000 - €110,000 EUR',
-    url: 'https://www.arbeitnow.com/jobs/companies/techsphere/senior-typescript-architect-01',
-    source: 'arbeitnow',
-    tags: ['TypeScript', 'Kafka', 'Redis', 'EMEA', 'Arbeitnow'],
-    published_at: new Date(Date.now() - 3600000 * 4).toISOString(),
-  },
-  {
-    external_id: 'arbeitnow-devops-cloud-02',
-    title: 'Kubernetes Platform Engineer & SRE',
-    company: 'CloudNative Solutions',
-    company_logo: null,
-    description: 'Own GitOps pipelines with ArgoCD, manage multi-tenant Kubernetes clusters, and optimize cloud infrastructure costs.',
-    category: 'DevOps & Cloud',
-    job_type: 'full-time',
-    candidate_required_location: 'Worldwide',
-    location_tier: 'Worldwide',
-    salary: '$90,000 - $125,000 USD',
-    url: 'https://www.arbeitnow.com/jobs/companies/cloudnative/kubernetes-platform-engineer-02',
-    source: 'arbeitnow',
-    tags: ['Kubernetes', 'ArgoCD', 'Terraform', 'Arbeitnow'],
-    published_at: new Date(Date.now() - 3600000 * 10).toISOString(),
-  },
-];
+const ARBEITNOW_SEED_JOBS: Omit<RemoteJob, 'id'>[] = [];
 
 export const arbeitnowAdapter: CrawlerAdapter = {
   id: 'arbeitnow',

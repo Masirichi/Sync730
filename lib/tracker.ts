@@ -7,39 +7,39 @@ export const INITIAL_TRACKER_ITEMS: CandidateTrackerItem[] = [
   {
     id: 'track-001',
     candidate_id: 'local-candidate-01',
-    job_id: 'remotive-2086540',
-    company: 'Credit Wellness Global',
-    title: 'Senior Full Stack Engineer (Next.js & Supabase)',
-    location: 'Worldwide',
-    salary: '$110,000 - $140,000 USD',
-    rate: '$10,000/mo',
+    job_id: 'moniepoint-core-eng-01',
+    company: 'Moniepoint',
+    title: 'Senior Backend Engineer (High-Throughput Core Banking)',
+    location: 'Africa Only',
+    salary: '$60,000 - $100,000 USD',
+    rate: '$7,000/mo',
     rate_period: 'monthly',
     job_type: 'Full-time',
     status: 'SAVED',
-    url: 'https://remotive.com',
+    url: 'https://moniepoint.com/careers',
     notes: 'Bookmarked from Verified Remote Feed. One profile, every application.',
     applied_date: null,
     interview_date: null,
-    contact: 'Amara Okafor (Head of Talent) · amara@creditwellness.com',
+    contact: 'Moniepoint Talent Team · careers@moniepoint.com',
     created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
   },
   {
     id: 'track-002',
     candidate_id: 'local-candidate-01',
-    job_id: 'remotive-2086542',
-    company: 'FinSync Africa',
-    title: 'Lead Product Designer (Design Systems)',
-    location: 'Africa Only',
-    salary: '$65,000 - $90,000 USD',
-    rate: '$45/hr',
-    rate_period: 'hourly',
-    job_type: 'Contract',
+    job_id: 'paystack-staff-frontend-02',
+    company: 'Paystack',
+    title: 'Staff Frontend Engineer (Payment Checkout & SDKs)',
+    location: 'Worldwide',
+    salary: '$95,000 - $130,000 USD',
+    rate: '$10,000/mo',
+    rate_period: 'monthly',
+    job_type: 'Full-time',
     status: 'APPLIED',
-    url: 'https://remotive.com',
-    notes: 'Submitted video portfolio. Recruiter confirmation email received.',
+    url: 'https://paystack.com/careers',
+    notes: 'Applied on Paystack careers portal. Confirmed application recorded.',
     applied_date: new Date(Date.now() - 3600000 * 48).toISOString(),
     interview_date: null,
-    contact: 'Kwame Mensah (Recruiting Lead) · kwame@finsync.io',
+    contact: 'Paystack Talent Acquisitions · careers@paystack.com',
     created_at: new Date(Date.now() - 3600000 * 72).toISOString(),
   },
   {
@@ -95,14 +95,18 @@ export function getLocalTrackerItems(): CandidateTrackerItem[] {
     if (!Array.isArray(parsed) || parsed.length === 0) {
       return INITIAL_TRACKER_ITEMS;
     }
-    return parsed
-      .filter((item): item is CandidateTrackerItem => Boolean(item && typeof item === 'object' && item.id))
+    const cleaned = parsed
+      .filter((item): item is CandidateTrackerItem => Boolean(item && typeof item === 'object' && item.id && !item.company?.toLowerCase().includes('credit wellness') && !item.company?.toLowerCase().includes('finsync')))
       .map((item) => ({
         ...item,
         title: item.title || 'Untitled Role',
         company: item.company || 'Company',
         status: (item.status === 'OFFERED' ? 'OFFER' : item.status) || 'SAVED',
       }));
+    if (cleaned.length !== parsed.length) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
+    }
+    return cleaned.length > 0 ? cleaned : INITIAL_TRACKER_ITEMS;
   } catch {
     return INITIAL_TRACKER_ITEMS;
   }

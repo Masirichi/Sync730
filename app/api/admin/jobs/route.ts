@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createServerClient } from '@/lib/supabase/server';
+import { getServiceRoleClient } from '@/lib/supabase/service-role';
 import { getServerJobs, saveServerJob, deleteServerJob } from '@/lib/admin/server-store';
 import { AdminRemoteJob } from '@/lib/admin/types';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
@@ -307,25 +308,52 @@ export async function POST(request: NextRequest) {
     // 1. Save in server persistent store (persists across local disk, /tmp, and in-memory cache)
     const savedJob = saveServerJob(newJob);
 
-    // 2. Also attempt persisting to Supabase if connected
+    // 2. Persist to Supabase with authoritative service client bypassing RLS and matching public_roles view
     try {
-      const supabase = await createServerClient();
-      await supabase.from('remote_jobs').insert({
-        id: jobUuid,
-        job_title: cleanTitle,
-        company_name: cleanCompany,
-        career_url: cleanUrl,
-        region_allowance: region_allowance,
-        salary_range: cleanSalary,
-        job_description: cleanDesc,
-        source_type: 'ADMIN_CURATED',
-        work_mode: cleanWorkMode,
-        city_location: cleanCityLocation,
-        candidate_required_location: cleanCityLocation || region_allowance,
-        is_active: true,
-        is_featured: isFeatured,
-        created_at: nowIso,
-      });
+      const serviceClient = getServiceRoleClient();
+      const serverClient = await createServerClient();
+      const dbClient = serviceClient || serverClient;
+
+      if (dbClient) {
+        await dbClient.from('remote_jobs').upsert({
+          id: jobUuid,
+          external_id: externalId,
+          title: cleanTitle,
+          job_title: cleanTitle,
+          company: cleanCompany,
+          company_name: cleanCompany,
+          url: cleanUrl,
+          career_url: cleanUrl,
+          apply_url: cleanUrl,
+          source_url: cleanUrl,
+          region_allowance: region_allowance,
+          location_tier: region_allowance,
+          candidate_required_location: cleanCityLocation || region_allowance,
+          salary: cleanSalary,
+          salary_range: cleanSalary,
+          description: cleanDesc,
+          job_description: cleanDesc,
+          source: 'company_direct',
+          source_name: 'Platform Curated',
+          source_type: 'ADMIN_CURATED',
+          employer_type: 'direct',
+          work_mode: cleanWorkMode,
+          city_location: cleanCityLocation,
+          category: body.category || 'Software & Engineering',
+          job_type: 'Full-time',
+          is_active: true,
+          is_featured: isFeatured,
+          is_demo: false,
+          status: 'live',
+          review_status: 'approved',
+          verified_at: nowIso,
+          role_verified_at: nowIso,
+          created_at: nowIso,
+          published_at: nowIso,
+          posted_at: nowIso,
+          tags: ['Role verified', 'Platform Curated', region_allowance, cleanWorkMode],
+        });
+      }
     } catch (dbErr) {
       console.warn('Notice: Remote jobs DB insert fallback:', dbErr);
     }
@@ -358,9 +386,21 @@ export async function DELETE(request: NextRequest) {
     deleteServerJob(id);
 
     try {
-      const supabase = await createServerClient();
-      await supabase.from('remote_jobs').delete().eq('id', id);
-    } catch {}
+      const serviceClient = getServiceRoleClient();
+      const serverClient = await createServerClient();
+      const dbClient = serviceClient || serverClient;
+
+      if (dbClient) {
+        await dbClient.from('remote_jobs').delete().eq('id', id);
+        await dbClient.from('remote_jobs').delete().eq('external_id', id);
+        await dbClient
+          .from('remote_jobs')
+          .update({ is_active: false, status: 'removed' })
+          .or(`id.eq.${id},external_id.eq.${id}`);
+      }
+    } catch (dbErr) {
+      console.warn('Notice: Remote job DB deletion fallback:', dbErr);
+    }
 
     return NextResponse.json({
       success: true,

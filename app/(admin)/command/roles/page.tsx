@@ -52,6 +52,7 @@ import {
   toggleAdminJobFeatured,
   SEED_ADMIN_REMOTE_JOBS,
   SAMPLE_NIGERIA_ROLES,
+  isDemoCompany,
 } from '@/lib/admin/store';
 import {
   JobPlatform,
@@ -219,11 +220,11 @@ function RolesManagerContent() {
       setLoading(true);
       const res = await fetch('/api/admin/jobs');
       const data = await res.json();
-      const localJobs = getAdminRemoteJobs();
+      const localJobs = getAdminRemoteJobs().filter((j) => !isDemoCompany(j.company));
       if (data.success && data.remote_jobs && data.remote_jobs.length > 0) {
-        const merged = [...data.remote_jobs];
+        const merged = [...data.remote_jobs].filter((j) => !isDemoCompany(j.company));
         localJobs.forEach((lj) => {
-          if (!merged.some((m) => m.id === lj.id || (m.title === lj.title && m.company === lj.company))) {
+          if (!isDemoCompany(lj.company) && !merged.some((m) => m.id === lj.id || (m.title === lj.title && m.company === lj.company))) {
             merged.unshift(lj);
           }
         });
@@ -231,10 +232,10 @@ function RolesManagerContent() {
         setEmployerJobs(data.employer_jobs || []);
       } else {
         // Fallback to local store
-        setRemoteJobs(getAdminRemoteJobs());
+        setRemoteJobs(localJobs);
       }
     } catch {
-      setRemoteJobs(getAdminRemoteJobs());
+      setRemoteJobs(getAdminRemoteJobs().filter((j) => !isDemoCompany(j.company)));
     } finally {
       setLoading(false);
     }

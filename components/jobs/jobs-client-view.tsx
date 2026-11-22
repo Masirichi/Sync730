@@ -448,59 +448,34 @@ export function JobsClientView({
     e.preventDefault();
     e.stopPropagation();
 
-    // Mark as applied in SyncFlow persistence
-    markJobAsApplied({
-      id: job.id,
-      title: job.title,
-      company: job.company,
-      location_tier: (job as any).location_tier || job.location_rule,
-      candidate_required_location: job.location_rule,
-      apply_url: job.apply_url || (job as any).url,
-    });
+    const targetUrl = job.apply_url || (job as any).career_url || (job as any).url;
 
-    const nextApplied = new Set(appliedJobIds);
-    nextApplied.add(job.id);
-    setAppliedJobIds(nextApplied);
-
-    if (!user) {
-      fireJobAnalytics('apply_click_logged_out', { job_id: job.id });
-      const targetUrl = job.apply_url || (job as any).url;
-      if (targetUrl) {
-        window.open(targetUrl, '_blank', 'noopener,noreferrer');
-      } else {
+    // Direct employer internal application with no external link
+    if (job.source_type === 'employer' && !targetUrl) {
+      if (!user) {
+        fireJobAnalytics('apply_click_logged_out', { job_id: job.id });
         router.push(`/register?next=/jobs/${job.slug}`);
+        return;
       }
-      return;
-    }
-
-    if (!applyReadyResult?.is_apply_ready) {
+      if (!applyReadyResult?.is_apply_ready) {
+        setSelectedJobForModal(job);
+        setFinishModalOpen(true);
+        return;
+      }
       setSelectedJobForModal(job);
-      setFinishModalOpen(true);
+      setApplyModalOpen(true);
       return;
     }
 
-    setSelectedJobForModal(job);
-    if (job.source_type === 'employer') {
-      setApplyModalOpen(true);
-    } else {
-      fetch(`/api/jobs/${job.id}/apply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.apply_url) {
-            window.open(data.apply_url, '_blank', 'noopener,noreferrer');
-            setDidYouApplyOpen(true);
-          }
-        })
-        .catch(() => {
-          const fallbackUrl = job.apply_url || (job as any).url;
-          if (fallbackUrl) {
-            window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
-          }
-        });
+    // External applications: allow applicants to apply on external links directly
+    if (targetUrl) {
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+      fireJobAnalytics('external_click', { job_id: job.id });
     }
+
+    // Prompt confirmation dialog to record confirmed application
+    setSelectedJobForModal(job);
+    setDidYouApplyOpen(true);
   };
 
   // Modality counts respecting active filters
@@ -1105,6 +1080,33 @@ export function JobsClientView({
           onClose={() => setDidYouApplyOpen(false)}
           jobTitle={selectedJobForModal.title}
           companyName={selectedJobForModal.company}
+          onConfirmYes={async () => {
+            const j = selectedJobForModal;
+            try {
+              await fetch(`/api/jobs/${j.id}/confirm-applied`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  job_id: j.id,
+                  job_title: j.title,
+                  company: j.company,
+                  external_apply_url: j.apply_url || (j as any).career_url || (j as any).url,
+                }),
+              });
+            } catch {}
+            markJobAsApplied({
+              id: j.id,
+              title: j.title,
+              company: j.company,
+              location_tier: (j as any).location_tier || j.location_rule,
+              candidate_required_location: j.location_rule,
+              apply_url: j.apply_url || (j as any).career_url || (j as any).url,
+            });
+            const nextApplied = new Set(appliedJobIds);
+            nextApplied.add(j.id);
+            setAppliedJobIds(nextApplied);
+            toast.success(`Application confirmed for "${j.title}" at ${j.company}. Recorded in your SyncFlow tracker.`);
+          }}
         />
       )}
 

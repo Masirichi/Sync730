@@ -2,7 +2,12 @@
 // Unified server-side job fetcher used by /api/jobs and public /find-work page.
 
 import { createServerClient } from '@/lib/supabase/server';
-import { getServerJobs } from '@/lib/admin/server-store';
+import {
+  getServerJobs,
+  getDeletedJobIds,
+  getTakenDownJobIds,
+  isDemoCompany,
+} from '@/lib/admin/server-store';
 import { SEED_REMOTE_JOBS } from '@/lib/seed-jobs';
 import { RemoteJob } from '@/lib/supabase/types';
 import { normalizeJobCategory } from '@/lib/crawler/categories';
@@ -37,13 +42,26 @@ export async function fetchActiveRemoteJobs(): Promise<RemoteJob[]> {
 
   // 2. Fetch admin curated jobs from server persistent store
   const adminJobs = getServerJobs();
+  const deletedIds = getDeletedJobIds();
+  const takenDownIds = getTakenDownJobIds();
+
+  const isExcluded = (id: string, extId?: string, company?: string) => {
+    if (deletedIds.has(id) || (extId && deletedIds.has(extId))) return true;
+    if (takenDownIds.has(id) || (extId && takenDownIds.has(extId))) return true;
+    if (isDemoCompany(company)) return true;
+    return false;
+  };
 
   // 3. Combine in a map
   const jobMap = new Map<string, RemoteJob>();
 
-  // Baseline seed jobs
+  // Baseline seed jobs (strictly filtered for zero demo, zero deleted, zero taken down)
   SEED_REMOTE_JOBS.forEach((sj, idx) => {
     const id = `seed-job-${idx + 1}`;
+    const extId = sj.external_id;
+    const company = sj.company || sj.company_name;
+    if (isExcluded(id, extId, company)) return;
+
     const normalized = normalizeJobRecord({
       ...sj,
       id,
@@ -58,8 +76,11 @@ export async function fetchActiveRemoteJobs(): Promise<RemoteJob[]> {
   // Supabase jobs (mapping column names)
   remoteJobs.forEach((rj: any) => {
     const id = rj.id || rj.external_id;
-    const title = rj.job_title || rj.title || 'Verified Role';
     const company = rj.company_name || rj.company || 'Partner Employer';
+    if (isExcluded(id, rj.external_id, company)) return;
+    if (rj.is_active === false || rj.status === 'taken_down' || rj.status === 'removed' || rj.status === 'archived') return;
+
+    const title = rj.job_title || rj.title || 'Verified Role';
     const url = rj.career_url || rj.url || '#';
     const location_tier = rj.region_allowance || rj.location_tier || 'Worldwide';
     const salary = rj.salary_range || rj.salary || undefined;
@@ -95,6 +116,10 @@ export async function fetchActiveRemoteJobs(): Promise<RemoteJob[]> {
 
   // Admin curated jobs (latest edits take priority)
   adminJobs.forEach((aj) => {
+    const company = aj.company || aj.company_name;
+    if (isExcluded(aj.id, aj.external_id, company)) return;
+    if (aj.is_active === false || aj.status === 'taken_down' || aj.status === 'removed') return;
+
     const normalized = normalizeJobRecord({
       id: aj.id,
       external_id: aj.external_id || aj.id,
@@ -121,7 +146,7 @@ export async function fetchActiveRemoteJobs(): Promise<RemoteJob[]> {
       created_at: aj.created_at,
       posted_at: aj.posted_at || aj.published_at || aj.created_at,
       last_verified_at: new Date().toISOString(),
-      is_active: aj.is_active !== false,
+      is_active: true,
       is_featured: Boolean(aj.is_featured),
     });
     jobMap.set(aj.id, normalized);

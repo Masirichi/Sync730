@@ -251,6 +251,7 @@ export interface AdminRemoteJob {
   source?: string;
   source_type: 'ADMIN_CURATED' | 'CRAWLER';
   is_active: boolean;
+  status?: 'live' | 'taken_down' | 'archived' | 'needs_review' | string;
   is_featured: boolean;
   work_mode?: 'REMOTE' | 'HYBRID' | 'ONSITE' | string;
   city_location?: string | null;

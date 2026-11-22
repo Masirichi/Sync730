@@ -254,3 +254,54 @@ export function getUserApplications(userId: string): JobApplication[] {
   const store = getStore();
   return store.applications.filter((a) => a.user_id === userId);
 }
+
+/**
+ * Records a confirmed candidate application on an external employer link.
+ * Records the confirmation to the persistent application store.
+ */
+export function recordConfirmedExternalApplication(params: {
+  user_id?: string;
+  job_id: string;
+  job_title?: string;
+  company?: string;
+  external_apply_url?: string;
+  candidate_email?: string;
+}): { success: boolean; application: JobApplication } {
+  const store = getStore();
+  const effectiveUserId = params.user_id || `guest-${Date.now().toString(36)}`;
+
+  // Check if already recorded
+  const existing = store.applications.find(
+    (a) =>
+      a.job_id === params.job_id &&
+      (a.user_id === effectiveUserId ||
+        (params.candidate_email && (a as any).candidate_email === params.candidate_email))
+  );
+
+  if (existing) {
+    return { success: true, application: existing };
+  }
+
+  const application: JobApplication = {
+    id: `app-ext-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+    user_id: effectiveUserId,
+    job_id: params.job_id,
+    status: 'applied',
+    cover_note: `Confirmed application submitted on official employer careers portal (${params.company || 'Direct'})`,
+    source_type: 'curated',
+    created_at: new Date().toISOString(),
+  };
+
+  (application as any).job_title = params.job_title;
+  (application as any).company = params.company;
+  (application as any).external_apply_url = params.external_apply_url;
+  (application as any).is_external_confirmed = true;
+  if (params.candidate_email) {
+    (application as any).candidate_email = params.candidate_email;
+  }
+
+  store.applications.push(application);
+  persistStore();
+
+  return { success: true, application };
+}

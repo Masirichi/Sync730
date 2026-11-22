@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { AdminRemoteJob, AdminAuditLog } from './types';
-import { SEED_ADMIN_REMOTE_JOBS, SEED_ADMIN_AUDIT_LOGS } from './store';
+import { SEED_ADMIN_AUDIT_LOGS } from './store';
 import { validateJobPublishing } from '@/lib/jobs/validation';
 
 const PRIMARY_JOBS_FILE = path.join(process.cwd(), '.sync730-admin-jobs.json');
@@ -11,9 +11,43 @@ const FALLBACK_JOBS_FILE = path.join(os.tmpdir(), '.sync730-admin-jobs.json');
 const PRIMARY_LOGS_FILE = path.join(process.cwd(), '.sync730-audit-logs.json');
 const FALLBACK_LOGS_FILE = path.join(os.tmpdir(), '.sync730-audit-logs.json');
 
+const PRIMARY_TOMBSTONES_FILE = path.join(process.cwd(), '.sync730-tombstones.json');
+const FALLBACK_TOMBSTONES_FILE = path.join(os.tmpdir(), '.sync730-tombstones.json');
+
 // In-memory process cache to bridge serverless function instances
 let memoryJobsCache: AdminRemoteJob[] | null = null;
 let memoryLogsCache: AdminAuditLog[] | null = null;
+let memoryDeletedIds: Set<string> | null = null;
+let memoryTakenDownIds: Set<string> | null = null;
+
+export const DEMO_COMPANY_PATTERNS = [
+  'scale army',
+  'bruntwork',
+  'leading african digital bank',
+  'pan-african logistics platform',
+  'freehire',
+  'credit wellness global',
+  'hyperscale cloud',
+  'techsphere europe',
+  'finvelocity global',
+  'neuralflow engineering',
+  'apex digital financial',
+  'skyward systems',
+  'sync730 partner labs',
+  'fintech velocity africa',
+  'payrail technologies',
+  'sterling capital partners',
+  'vetted tech africa',
+  'deltacloud',
+  'technova africa',
+  'cloudsys technologies',
+];
+
+export function isDemoCompany(companyName?: string): boolean {
+  if (!companyName) return false;
+  const lower = companyName.toLowerCase().trim();
+  return DEMO_COMPANY_PATTERNS.some((pat) => lower.includes(pat));
+}
 
 function readFileSafe(primaryPath: string, fallbackPath: string): string | null {
   try {
@@ -54,6 +88,84 @@ function writeFileSafe(primaryPath: string, fallbackPath: string, data: string):
   return written;
 }
 
+interface TombstoneRegistry {
+  deleted: string[];
+  taken_down: string[];
+}
+
+function readTombstones(): TombstoneRegistry {
+  const raw = readFileSafe(PRIMARY_TOMBSTONES_FILE, FALLBACK_TOMBSTONES_FILE);
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      return {
+        deleted: Array.isArray(parsed.deleted) ? parsed.deleted : [],
+        taken_down: Array.isArray(parsed.taken_down) ? parsed.taken_down : [],
+      };
+    } catch {}
+  }
+  return { deleted: [], taken_down: [] };
+}
+
+function writeTombstones(reg: TombstoneRegistry) {
+  writeFileSafe(PRIMARY_TOMBSTONES_FILE, FALLBACK_TOMBSTONES_FILE, JSON.stringify(reg, null, 2));
+}
+
+export function getDeletedJobIds(): Set<string> {
+  if (memoryDeletedIds) return memoryDeletedIds;
+  const reg = readTombstones();
+  memoryDeletedIds = new Set(reg.deleted);
+  return memoryDeletedIds;
+}
+
+export function getTakenDownJobIds(): Set<string> {
+  if (memoryTakenDownIds) return memoryTakenDownIds;
+  const reg = readTombstones();
+  memoryTakenDownIds = new Set(reg.taken_down);
+  return memoryTakenDownIds;
+}
+
+export function recordDeletedJob(id: string, external_id?: string): void {
+  const reg = readTombstones();
+  const set = new Set(reg.deleted);
+  set.add(id);
+  if (external_id) set.add(external_id);
+  reg.deleted = Array.from(set);
+
+  // If it was in taken_down, remove it
+  reg.taken_down = reg.taken_down.filter((x) => x !== id && x !== external_id);
+
+  writeTombstones(reg);
+  memoryDeletedIds = new Set(reg.deleted);
+  if (memoryTakenDownIds) {
+    memoryTakenDownIds.delete(id);
+    if (external_id) memoryTakenDownIds.delete(external_id);
+  }
+}
+
+export function recordTakenDownJob(id: string, isActive: boolean, external_id?: string): void {
+  const reg = readTombstones();
+  const set = new Set(reg.taken_down);
+  if (!isActive) {
+    // Taking down (inactive)
+    set.add(id);
+    if (external_id) set.add(external_id);
+  } else {
+    // Republishing (active)
+    set.delete(id);
+    if (external_id) set.delete(external_id);
+    // Also remove from deleted if republished
+    reg.deleted = reg.deleted.filter((x) => x !== id && x !== external_id);
+    if (memoryDeletedIds) {
+      memoryDeletedIds.delete(id);
+      if (external_id) memoryDeletedIds.delete(external_id);
+    }
+  }
+  reg.taken_down = Array.from(set);
+  writeTombstones(reg);
+  memoryTakenDownIds = new Set(reg.taken_down);
+}
+
 export function getServerJobs(): AdminRemoteJob[] {
   let jobs: AdminRemoteJob[] = [];
   const raw = readFileSafe(PRIMARY_JOBS_FILE, FALLBACK_JOBS_FILE);
@@ -72,12 +184,29 @@ export function getServerJobs(): AdminRemoteJob[] {
     jobs = memoryJobsCache;
   }
 
-  // Ensure baseline SEED_ADMIN_REMOTE_JOBS are present
-  const map = new Map<string, AdminRemoteJob>();
-  SEED_ADMIN_REMOTE_JOBS.forEach((sj) => map.set(sj.id, sj));
-  jobs.forEach((j) => map.set(j.id, j));
-  const combined = Array.from(map.values());
+  const deletedIds = getDeletedJobIds();
+  const takenDownIds = getTakenDownJobIds();
 
+  // Exclude demo roles, permanently deleted roles, and update taken down flag
+  const map = new Map<string, AdminRemoteJob>();
+  jobs.forEach((j) => {
+    const company = j.company || j.company_name;
+    if (isDemoCompany(company)) return;
+    if (j.is_demo === true) return;
+    if (deletedIds.has(j.id) || (j.external_id && deletedIds.has(j.external_id))) return;
+
+    // Synchronize active status with taken down registry
+    const isTakenDown = takenDownIds.has(j.id) || (j.external_id && takenDownIds.has(j.external_id));
+    const effectiveIsActive = isTakenDown ? false : j.is_active !== false;
+
+    map.set(j.id, {
+      ...j,
+      is_active: effectiveIsActive,
+      status: effectiveIsActive ? (j.status || 'live') : 'taken_down',
+    });
+  });
+
+  const combined = Array.from(map.values());
   memoryJobsCache = combined;
   return combined;
 }
@@ -97,6 +226,9 @@ export function saveServerJob(job: AdminRemoteJob): AdminRemoteJob {
   if (!validation.valid) {
     throw new Error(`Cannot publish job: ${validation.errors.join(' ')}`);
   }
+
+  // Ensure job is not in deleted or taken down tombstones
+  recordTakenDownJob(job.id, true, job.external_id);
 
   const existing = getServerJobs();
   const updated = [job, ...existing.filter((j) => j.id !== job.id && j.external_id !== job.external_id)];
@@ -124,10 +256,13 @@ export function toggleServerJobActive(jobId: string, currentStatus?: boolean): {
   if (target) {
     target.is_active = currentStatus !== undefined ? !currentStatus : !target.is_active;
     newStatus = target.is_active;
+    target.status = newStatus ? 'live' : 'taken_down';
+    recordTakenDownJob(target.id, newStatus, target.external_id);
     memoryJobsCache = existing;
     writeFileSafe(PRIMARY_JOBS_FILE, FALLBACK_JOBS_FILE, JSON.stringify(existing, null, 2));
   } else {
     newStatus = !currentStatus;
+    recordTakenDownJob(jobId, newStatus);
   }
 
   saveServerAuditLog({
@@ -144,6 +279,11 @@ export function toggleServerJobActive(jobId: string, currentStatus?: boolean): {
 
 export function deleteServerJob(jobId: string): boolean {
   const existing = getServerJobs();
+  const target = existing.find((j) => j.id === jobId || j.external_id === jobId);
+  const externalId = target?.external_id;
+
+  recordDeletedJob(jobId, externalId);
+
   const updated = existing.filter((j) => j.id !== jobId && j.external_id !== jobId);
   memoryJobsCache = updated;
 
