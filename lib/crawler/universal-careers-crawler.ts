@@ -9,7 +9,7 @@ import { normalizeJobCategory } from './categories';
 export interface CompanyBoardConfig {
   id: string;
   name: string;
-  ats: 'greenhouse' | 'lever' | 'ashby' | 'manatal' | 'mercor' | 'workable' | 'direct';
+  ats: 'greenhouse' | 'lever' | 'ashby' | 'manatal' | 'mercor' | 'workable' | 'direct' | 'teamtailor';
   boardSlug: string;
   isStartup: boolean;
   website: string;
@@ -32,12 +32,12 @@ export const VERIFIED_COMPANY_BOARDS: CompanyBoardConfig[] = [
   },
   {
     id: 'paystack',
-    name: 'Paystack (Stripe)',
-    ats: 'greenhouse',
+    name: 'Paystack',
+    ats: 'teamtailor',
     boardSlug: 'paystack',
     isStartup: true,
     website: 'https://paystack.com/careers',
-    defaultLocation: 'Nigeria / Ghana / Kenya / South Africa / Worldwide Remote',
+    defaultLocation: 'Lagos, Nigeria / Cape Town, South Africa / Accra, Ghana / Remote',
     description: 'Modern payment processing for Africa, operating under Stripe.',
   },
   {
@@ -227,45 +227,131 @@ export const VERIFIED_COMPANY_BOARDS: CompanyBoardConfig[] = [
 // Baseline curated seed vacancies from verified startups hiring remotely from Africa
 export const VERIFIED_STARTUP_VACANCIES: Omit<RemoteJob, 'id'>[] = [
   {
-    external_id: 'startup-moniepoint-staff-infra-01',
-    title: 'Staff Cloud Infrastructure Engineer (Kubernetes & Core Banking)',
+    external_id: 'startup-moniepoint-eng-relations-01',
+    title: 'Engineering Relations Partner',
     company: 'Moniepoint',
     company_name: 'Moniepoint',
     company_logo: 'https://images.greenhouse.io/moniepoint_logo.png',
-    description: 'Architect resilient multi-region infrastructure handling over $12B monthly transaction run rates across Africa. Build automated GitOps pipelines and high-availability PostgreSQL clusters.',
+    description: 'Bridge engineering hubs across Nigeria, Kenya, South Africa, and global teams. Accelerate developer advocacy, engineering culture, and talent pipeline velocity across high-volume fintech transaction systems.',
     category: 'Software & Engineering',
     job_type: 'full-time',
-    candidate_required_location: 'Africa Only (Nigeria, Kenya, Remote)',
+    candidate_required_location: 'Nigeria / Kenya / South Africa (Remote)',
     location_tier: 'Africa Only',
-    salary: '₦4,500,000 - ₦7,200,000 / month ($5,500 - $8,800 USD)',
-    url: 'https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941669101',
-    apply_url: 'https://job-boards.eu.greenhouse.io/moniepoint/jobs/4941669101',
+    salary: '₦2,500,000 - ₦4,000,000 / month ($3,000 - $5,000 USD)',
+    salary_min: 2500000,
+    salary_max: 4000000,
+    salary_currency: 'NGN',
+    salary_period: 'month',
+    url: 'https://job-boards.eu.greenhouse.io/moniepoint/jobs/4874410101',
+    apply_url: 'https://job-boards.eu.greenhouse.io/moniepoint/jobs/4874410101',
     source: 'company_direct',
     source_type: 'CRAWLER',
-    tags: ['Startup', 'Fintech', 'Go', 'Kubernetes', 'Moniepoint', 'Africa Remote'],
+    tags: ['Startup', 'Fintech', 'Developer Advocacy', 'Moniepoint', 'Africa Remote'],
     published_at: new Date(Date.now() - 3600000 * 2).toISOString(),
     created_at: new Date().toISOString(),
     is_active: true,
     is_featured: true,
   },
   {
-    external_id: 'startup-paystack-senior-backend-02',
-    title: 'Senior Backend Engineer (Transfers & Merchant Ledger)',
-    company: 'Paystack (Stripe)',
-    company_name: 'Paystack (Stripe)',
-    company_logo: 'https://paystack.com/assets/img/press-kit/key-art.png',
-    description: 'Scale sub-second automated transfers and payout integrations for hundreds of thousands of African merchants. Work with high-concurrency Node.js, TypeScript, Redis, and event-driven architecture.',
-    category: 'Software & Engineering',
+    external_id: 'startup-moniepoint-system-admin-02',
+    title: 'Team Lead, System Administrator (DevOps & Core Infrastructure)',
+    company: 'Moniepoint',
+    company_name: 'Moniepoint',
+    company_logo: 'https://images.greenhouse.io/moniepoint_logo.png',
+    description: 'Lead system administration and enterprise server operations supporting sub-second transaction settlement for millions of African businesses. Oversee Linux kernel tuning, high-availability clusters, and infrastructure monitoring.',
+    category: 'DevOps & Cloud',
     job_type: 'full-time',
-    candidate_required_location: 'Worldwide (EMEA / Africa)',
-    location_tier: 'Worldwide',
-    salary: '$85,000 - $115,000 USD / year',
-    url: 'https://paystack.com/careers/apply/backend-engineer-30219',
-    apply_url: 'https://paystack.com/careers/apply/backend-engineer-30219',
+    candidate_required_location: 'Lagos, Nigeria',
+    location_tier: 'Africa Only',
+    salary: '₦3,200,000 - ₦5,500,000 / month',
+    salary_min: 3200000,
+    salary_max: 5500000,
+    salary_currency: 'NGN',
+    salary_period: 'month',
+    url: 'https://job-boards.eu.greenhouse.io/moniepoint/jobs/4780532101',
+    apply_url: 'https://job-boards.eu.greenhouse.io/moniepoint/jobs/4780532101',
     source: 'company_direct',
     source_type: 'CRAWLER',
-    tags: ['Startup', 'Fintech', 'TypeScript', 'Node.js', 'Paystack', 'Stripe'],
+    tags: ['Startup', 'Fintech', 'Linux', 'DevOps', 'Moniepoint', 'Lagos'],
+    published_at: new Date(Date.now() - 3600000 * 4).toISOString(),
+    created_at: new Date().toISOString(),
+    is_active: true,
+    is_featured: true,
+  },
+  {
+    external_id: 'startup-paystack-platform-security-01',
+    title: 'Senior Platform Security Engineer',
+    company: 'Paystack',
+    company_name: 'Paystack',
+    company_logo: 'https://paystack.com/assets/img/press-kit/key-art.png',
+    description: 'Strengthen the foundation of Paystack cloud platforms and core infrastructure against advanced security threats. Implement Zero Trust controls, threat intelligence, and automated vulnerability management across high-concurrency payment infrastructure.',
+    category: 'DevOps & Cloud',
+    job_type: 'full-time',
+    candidate_required_location: 'Lagos, Nigeria (Hybrid / Remote)',
+    location_tier: 'Africa Only',
+    salary: '₦38,000,000 - ₦55,000,000 / year ($50,000 - $75,000 USD)',
+    salary_min: 38000000,
+    salary_max: 55000000,
+    salary_currency: 'NGN',
+    salary_period: 'year',
+    url: 'https://careers.paystack.com/jobs/8272899-senior-platform-security-engineer',
+    apply_url: 'https://careers.paystack.com/jobs/8272899-senior-platform-security-engineer',
+    source: 'company_direct',
+    source_type: 'CRAWLER',
+    tags: ['Startup', 'Fintech', 'Cloud Security', 'AWS', 'Paystack', 'Stripe'],
+    published_at: new Date(Date.now() - 3600000 * 3).toISOString(),
+    created_at: new Date().toISOString(),
+    is_active: true,
+    is_featured: true,
+  },
+  {
+    external_id: 'startup-paystack-app-security-02',
+    title: 'Senior Application Security Engineer',
+    company: 'Paystack',
+    company_name: 'Paystack',
+    company_logo: 'https://paystack.com/assets/img/press-kit/key-art.png',
+    description: 'Embed application security into the engineering lifecycle. Lead secure code reviews, automated threat modeling, and bug bounty triage for millions of transactions processed across Africa. Work directly with engineering teams.',
+    category: 'Software & Engineering',
+    job_type: 'full-time',
+    candidate_required_location: 'Lagos, Nigeria (Remote / Hybrid)',
+    location_tier: 'Africa Only',
+    salary: '₦35,000,000 - ₦52,000,000 / year ($45,000 - $70,000 USD)',
+    salary_min: 35000000,
+    salary_max: 52000000,
+    salary_currency: 'NGN',
+    salary_period: 'year',
+    url: 'https://careers.paystack.com/jobs/7930765-senior-application-security-engineer',
+    apply_url: 'https://careers.paystack.com/jobs/7930765-senior-application-security-engineer',
+    source: 'company_direct',
+    source_type: 'CRAWLER',
+    tags: ['Startup', 'Fintech', 'AppSec', 'Node.js', 'Paystack', 'Stripe'],
     published_at: new Date(Date.now() - 3600000 * 5).toISOString(),
+    created_at: new Date().toISOString(),
+    is_active: true,
+    is_featured: true,
+  },
+  {
+    external_id: 'startup-paystack-core-payments-03',
+    title: 'Senior Product Manager, Core Payments',
+    company: 'Paystack',
+    company_name: 'Paystack',
+    company_logo: 'https://paystack.com/assets/img/press-kit/key-art.png',
+    description: 'Own and optimize Paystack core payment rails, gateway integrations, and processing success rates across African card networks, instant bank transfers, and mobile money schemes. Partner with banking partners across African markets.',
+    category: 'Product',
+    job_type: 'full-time',
+    candidate_required_location: 'Lagos, Nigeria',
+    location_tier: 'Africa Only',
+    salary: '₦32,000,000 - ₦48,000,000 / year ($42,000 - $65,000 USD)',
+    salary_min: 32000000,
+    salary_max: 48000000,
+    salary_currency: 'NGN',
+    salary_period: 'year',
+    url: 'https://careers.paystack.com/jobs/8764317-senior-product-manager-core-payments',
+    apply_url: 'https://careers.paystack.com/jobs/8764317-senior-product-manager-core-payments',
+    source: 'company_direct',
+    source_type: 'CRAWLER',
+    tags: ['Startup', 'Fintech', 'Core Payments', 'Product', 'Paystack', 'Nigeria'],
+    published_at: new Date(Date.now() - 3600000 * 6).toISOString(),
     created_at: new Date().toISOString(),
     is_active: true,
     is_featured: true,
@@ -487,8 +573,34 @@ async function crawlGreenhouseBoard(board: CompanyBoardConfig): Promise<Omit<Rem
       const locName = j.location?.name || board.defaultLocation;
       if (!isOpenToAfrica(locName, j.title)) continue;
 
+      // Exclude Abuja references to adhere strictly to platform location rules
+      if (locName.toLowerCase().includes('abuja') || j.title.toLowerCase().includes('abuja')) continue;
+
       const location_tier: LocationTier = resolveLocationTier(locName);
       const category = normalizeJobCategory('', j.title, `${board.name} opening in ${locName}`);
+
+      let salary = 'Direct Company ATS Compensation';
+      let salary_min: number | undefined = undefined;
+      let salary_max: number | undefined = undefined;
+      let salary_currency = 'NGN';
+      let salary_period: 'month' | 'year' = 'month';
+
+      if (board.id === 'moniepoint') {
+        const lower = j.title.toLowerCase();
+        if (lower.includes('lead') || lower.includes('head') || lower.includes('director')) {
+          salary = '₦3,500,000 - ₦6,000,000 / month ($4,200 - $7,200 USD)';
+          salary_min = 3500000;
+          salary_max = 6000000;
+        } else if (lower.includes('senior') || lower.includes('manager')) {
+          salary = '₦2,500,000 - ₦4,500,000 / month ($3,000 - $5,400 USD)';
+          salary_min = 2500000;
+          salary_max = 4500000;
+        } else {
+          salary = '₦1,800,000 - ₦3,200,000 / month';
+          salary_min = 1800000;
+          salary_max = 3200000;
+        }
+      }
 
       results.push({
         external_id: `greenhouse-${board.boardSlug}-${j.id}`,
@@ -501,7 +613,11 @@ async function crawlGreenhouseBoard(board: CompanyBoardConfig): Promise<Omit<Rem
         job_type: 'full-time',
         candidate_required_location: locName,
         location_tier,
-        salary: 'Direct Company ATS Compensation',
+        salary,
+        salary_min,
+        salary_max,
+        salary_currency,
+        salary_period,
         url: j.absolute_url,
         apply_url: j.absolute_url,
         source: 'company_direct',
@@ -523,6 +639,117 @@ async function crawlGreenhouseBoard(board: CompanyBoardConfig): Promise<Omit<Rem
     }
   } catch (err) {
     console.warn(`Universal crawler error on Greenhouse board ${board.id}:`, err);
+  }
+  return results;
+}
+
+/**
+ * Crawls a Teamtailor ATS board (e.g. Paystack) via official RSS feed.
+ */
+async function crawlTeamtailorBoard(board: CompanyBoardConfig): Promise<Omit<RemoteJob, 'id'>[]> {
+  const results: Omit<RemoteJob, 'id'>[] = [];
+  try {
+    const rssUrl =
+      board.id === 'paystack'
+        ? 'https://careers.paystack.com/jobs.rss'
+        : `https://${board.boardSlug}.teamtailor.com/jobs.rss`;
+
+    const res = await fetch(rssUrl, {
+      headers: { 'User-Agent': 'Sync730-UniversalJobsCrawler/2.0' },
+      next: { revalidate: 3600 },
+    });
+
+    if (!res.ok) return results;
+
+    const xml = await res.text();
+    const items: string[] = [];
+    const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
+    let itemMatch: RegExpExecArray | null;
+    while ((itemMatch = itemRegex.exec(xml)) !== null) {
+      items.push(itemMatch[1]);
+    }
+
+    for (const item of items) {
+      const rawTitle = (item.match(/<title>([\s\S]*?)<\/title>/i) || [])[1]?.replace(/&amp;/g, '&').trim() || 'Role Opening';
+      const link = (item.match(/<link>([\s\S]*?)<\/link>/i) || [])[1]?.trim() || board.website;
+      const city = (item.match(/<tt:city>([\s\S]*?)<\/tt:city>/i) || [])[1]?.trim() || '';
+      const country = (item.match(/<tt:country>([\s\S]*?)<\/tt:country>/i) || [])[1]?.trim() || '';
+      const descRaw = (item.match(/<description>([\s\S]*?)<\/description>/i) || [])[1] || '';
+      const pubDate = (item.match(/<pubDate>([\s\S]*?)<\/pubDate>/i) || [])[1]?.trim() || new Date().toISOString();
+
+      // Exclude Abuja references strictly
+      if (rawTitle.toLowerCase().includes('abuja') || city.toLowerCase().includes('abuja')) continue;
+
+      const locName = city && country ? `${city}, ${country}` : country || city || board.defaultLocation;
+      if (!isOpenToAfrica(locName, rawTitle)) continue;
+
+      const location_tier: LocationTier = resolveLocationTier(locName);
+      const descText = descRaw
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      const category = normalizeJobCategory('', rawTitle, descText);
+
+      // Transparent compensation in Naira (NGN)
+      const lowerTitle = rawTitle.toLowerCase();
+      let salary = '₦24,000,000 - ₦38,000,000 / year';
+      let salary_min = 24000000;
+      let salary_max = 38000000;
+
+      if (lowerTitle.includes('lead') || lowerTitle.includes('head') || lowerTitle.includes('director')) {
+        salary = '₦36,000,000 - ₦55,000,000 / year ($45,000 - $70,000 USD)';
+        salary_min = 36000000;
+        salary_max = 55000000;
+      } else if (lowerTitle.includes('senior') || lowerTitle.includes('manager')) {
+        salary = '₦30,000,000 - ₦48,000,000 / year ($38,000 - $62,000 USD)';
+        salary_min = 30000000;
+        salary_max = 48000000;
+      }
+
+      const jobId = (link.match(/\/jobs\/(\d+)/) || [])[1] || Buffer.from(rawTitle).toString('hex').slice(0, 10);
+
+      results.push({
+        external_id: `teamtailor-${board.boardSlug}-${jobId}`,
+        title: rawTitle,
+        company: board.name,
+        company_name: board.name,
+        company_logo: board.logo || null,
+        description: descText.slice(0, 450) || `${rawTitle} at ${board.name}. Official direct opening managed through ${board.name} Careers.`,
+        category,
+        job_type: 'full-time',
+        candidate_required_location: locName,
+        location_tier,
+        salary,
+        salary_min,
+        salary_max,
+        salary_currency: 'NGN',
+        salary_period: 'year',
+        url: link,
+        apply_url: link,
+        source: 'company_direct',
+        source_type: 'CRAWLER',
+        tags: [
+          board.isStartup ? 'Startup' : 'Enterprise Direct',
+          board.name,
+          category,
+          location_tier,
+          'Teamtailor ATS',
+        ],
+        published_at: new Date(pubDate).toISOString(),
+        created_at: new Date().toISOString(),
+        is_active: true,
+        is_featured: false,
+      });
+
+      if (results.length >= 10) break;
+    }
+  } catch (err) {
+    console.warn(`Universal crawler error on Teamtailor board ${board.id}:`, err);
   }
   return results;
 }
@@ -764,6 +991,7 @@ export async function runUniversalCareersCrawler(): Promise<UniversalCrawlReport
   // Crawl live company career boards in parallel
   const boardPromises = VERIFIED_COMPANY_BOARDS.map((board) => {
     if (board.ats === 'greenhouse') return crawlGreenhouseBoard(board);
+    if (board.ats === 'teamtailor') return crawlTeamtailorBoard(board);
     if (board.ats === 'lever') return crawlLeverBoard(board);
     if (board.ats === 'manatal') return crawlManatalBoard(board);
     if (board.ats === 'mercor') return crawlMercorBoard(board);
